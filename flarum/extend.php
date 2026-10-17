@@ -13,15 +13,46 @@
  * auch die Registrierung über Discord – er muss daher AN bleiben.
  * Umschalten: DISCORD_ONLY_SIGNUP in .env ändern und scripts/setup-forum.sh
  * erneut ausführen.
+ *
+ * Außerdem: Sicherheits-Header für alle Forum-, Admin- und API-Antworten
+ * (unabhängig davon, ob Caddy oder Cloudflare Tunnel davor sitzt).
  */
 
 use Flarum\Extend;
+use Flarum\Foundation\Config;
 use Flarum\Foundation\ValidationException;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\Saving;
 use Illuminate\Support\Arr;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
+if (! class_exists('BBForumSecurityHeaders')) {
+    class BBForumSecurityHeaders implements MiddlewareInterface
+    {
+        public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+        {
+            $response = $handler->handle($request)
+                ->withHeader('X-Frame-Options', 'SAMEORIGIN')
+                ->withHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+
+            // HSTS nur, wenn das Forum per HTTPS betrieben wird (FORUM_URL)
+            if (resolve(Config::class)->url()->getScheme() === 'https') {
+                $response = $response->withHeader('Strict-Transport-Security', 'max-age=15552000');
+            }
+
+            return $response;
+        }
+    }
+}
 
 return [
+    (new Extend\Middleware('forum'))->add(BBForumSecurityHeaders::class),
+    (new Extend\Middleware('admin'))->add(BBForumSecurityHeaders::class),
+    (new Extend\Middleware('api'))->add(BBForumSecurityHeaders::class),
+
     (new Extend\Event())->listen(Saving::class, function (Saving $event) {
         if ($event->user->exists || $event->actor->isAdmin()) {
             return;

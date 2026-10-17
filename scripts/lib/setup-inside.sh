@@ -158,7 +158,8 @@ if installed fof/upload; then
   body=$(jq -n --arg m "$mimes" '{"fof-upload.mimeTypes": $m, "fof-upload.maxFileSize": "20480"}')
   api POST /settings "$body" >/dev/null && ok "uploads: images, zip/7z, txt logs (max. 20 MB)"
   api POST /permission '{"permission": "fof-upload.upload", "groupIds": [3]}' >/dev/null
-  api POST /permission '{"permission": "fof-upload.download", "groupIds": [2]}' >/dev/null && ok "upload: members, download: everyone"
+  # Report zips can contain system details: only logged-in members may download
+  api POST /permission '{"permission": "fof-upload.download", "groupIds": [3]}' >/dev/null && ok "upload + download: members only"
 fi
 
 # --------------------------------------------------------------------------

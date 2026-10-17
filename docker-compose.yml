@@ -25,13 +25,24 @@ x-flarum-env: &flarum-env
   REAL_IP_HEADER: ${REAL_IP_HEADER:-CF-Connecting-IP}
   LISTEN_IPV6: "false"
 
+# Härtung für alle Container: keine Rechteausweitung, Log-Rotation
+x-hardening: &hardening
+  security_opt:
+    - no-new-privileges:true
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
 x-flarum-volumes: &flarum-volumes
   - flarum-data:/data
-  # Schalter "Registrierung nur über Discord" (siehe flarum/extend.php)
+  # Discord-only-Registrierung + Sicherheits-Header (siehe flarum/extend.php)
   - ./flarum/extend.php:/opt/flarum/extend.php:ro
 
 services:
   db:
+    <<: *hardening
     image: mariadb:10.11
     restart: unless-stopped
     command:
@@ -54,6 +65,7 @@ services:
       start_period: 30s
 
   flarum:
+    <<: *hardening
     image: crazymax/flarum:${FLARUM_IMAGE_TAG:-1.8.19}
     restart: unless-stopped
     depends_on:
@@ -66,6 +78,7 @@ services:
 
   # Flarum-Scheduler (Digest-Mails, Best-Answer-Erinnerungen …) als Sidecar
   cron:
+    <<: *hardening
     image: crazymax/flarum:${FLARUM_IMAGE_TAG:-1.8.19}
     restart: unless-stopped
     depends_on:
@@ -80,6 +93,7 @@ services:
   # in .env setzen und im Cloudflare-Dashboard als Service http://flarum:8000
   # eintragen.
   # cloudflared:
+  #   <<: *hardening
   #   image: cloudflare/cloudflared:latest
   #   restart: unless-stopped
   #   command: tunnel --no-autoupdate run

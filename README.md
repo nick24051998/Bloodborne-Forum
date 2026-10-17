@@ -22,7 +22,7 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `scripts/install-extensions.sh` | Installiert fof/oauth, fof/upload, fof/best-answer, fof/discussion-templates (optional fof/user-directory) |
 | `scripts/setup-forum.sh` | Richtet alles per Flarum-API ein: Admin, Erweiterungen, Tags, Rechte, Theme, Banner, Regeln, Logo |
 | `scripts/backup.sh` | DB-Dump + Datenvolume als `.tar.gz` |
-| `flarum/extend.php` | Schalter „neue Accounts nur über Discord“ |
+| `flarum/extend.php` | Schalter „neue Accounts nur über Discord“ und Sicherheits-Header |
 | `theme/custom.less` | Theme (Admin → Appearance → Custom Styles) |
 | `theme/logo.svg`, `theme/favicon.svg` | Platzhalter-Logo (Blutmond mit Krähe), Quelldateien |
 | `theme/logo.png`, `theme/favicon.png` | Dieselben Bilder als PNG zum Hochladen (Flarum 1.x nimmt kein SVG) |
@@ -95,6 +95,9 @@ forum.example.com {
     # Bei grauer Wolke die tls-Zeile weglassen, dann holt Caddy selbst Let's Encrypt.
     tls /etc/caddy/cf-origin.pem /etc/caddy/cf-origin.key
     encode zstd gzip
+    # Zusatzschutz: niemals PHP aus dem Upload-/Asset-Ordner ausführen
+    @phpInAssets path_regexp ^/assets/.*\.php
+    respond @phpInAssets 404
     reverse_proxy 127.0.0.1:8888
 }
 ```
@@ -154,6 +157,48 @@ neue Accounts ohne Discord-Login ab und zeigt die Meldung „New accounts can on
 Für Benachrichtigungen und Passwort-Resets: **Admin → Email** → SMTP eines Mail-Dienstes eintragen
 (z. B. Brevo, Mailgun oder ein eigener Server). Ohne SMTP läuft das Forum, verschickt aber keine Mails.
 
+## Sicherheit
+
+**Schon eingebaut:**
+
+- **Aktuelles Image:** Flarum 1.8.19, PHP 8.4, Alpine 3.23. Die Prozesse laufen als
+  Nicht-Root-User `flarum`, und alle Container haben `no-new-privileges` und Log-Rotation.
+- **Kaum Angriffsfläche:** Flarum lauscht nur auf `127.0.0.1`, die Datenbank hat gar keinen Port nach
+  außen. Mit Cloudflare Tunnel braucht die VM keinen einzigen offenen Port.
+- **Keine Geheimnisse im Repo:** `.env` ist in `.gitignore`, das Discord-Secret liegt nur in der
+  Flarum-Datenbank. Der Standard-Admin `flarum`/`flarum` wird durch `setup-forum.sh` ersetzt.
+- **Uploads:** nur Bilder, `.zip`/`.7z` und `.txt`, bis 20 MB, kein SVG. Die gespeicherte
+  Dateiendung leitet fof/upload aus dem erkannten Dateityp ab, nicht aus dem Dateinamen. Ein
+  hochgeladenes `.php` kann also nicht entstehen. Herunterladen dürfen nur eingeloggte Mitglieder,
+  denn Report-Zips können Systemdetails enthalten.
+- **Sicherheits-Header** über `flarum/extend.php`: `X-Frame-Options`, `Permissions-Policy` und
+  `Strict-Transport-Security` bei `https`. `nosniff` setzt bereits nginx. Session-Cookies sind
+  `HttpOnly` und `SameSite=Lax`, bei `https` zusätzlich `Secure`.
+- **Spam:** Neue Accounts nur über Discord. Dazu kommen Flarums Flood-Schutz, die Extensions
+  Flags/Approval zum Melden und Freigeben und Suspend zum zeitweisen Sperren.
+
+**Selbst erledigen (empfohlen):**
+
+1. **Firewall:** Bei Variante (a) die Ports 80 und 443 nur für die
+   [Cloudflare-IPs](https://www.cloudflare.com/ips/) öffnen, SSH nur per Key. Sonst kann man
+   Cloudflare umgehen und die Besucher-IP fälschen. Bei Variante (b) eingehend alles zu lassen.
+2. **Login-Drosselung:** Flarum 1.8 bremst falsche Passwörter nicht. In Cloudflare unter
+   *Security → WAF → Rate limiting rules* eine Regel anlegen: URI-Pfad ist `/login` oder
+   `/api/token`, Methode POST, mehr als 5 Anfragen in 10 Sekunden → Block. Das ist im Free-Plan
+   enthalten. Für Discord-Logins ist das egal.
+3. **Admin-Konten:** Langes Zufallspasswort und Discord-Konto mit aktivierter 2FA. Optional 2FA
+   direkt in Flarum mit `docker compose exec flarum extension require ianm/twofactor`
+   (Version 1.2.x für Flarum 1.8, von mir nicht getestet). Danach unter *Admin → Extensions*
+   aktivieren.
+4. **Updates:** Sicherheitsmeldungen für Flarum
+   ([Security Advisories](https://github.com/flarum/framework/security/advisories)) und neue
+   [crazymax/flarum-Releases](https://github.com/crazy-max/docker-flarum/releases) abonnieren, dann
+   wie unter [Update](#update) beschrieben aktualisieren. Debian selbst mit `unattended-upgrades`.
+5. **Backups** nächtlich und zusätzlich verschlüsselt auf einen anderen Rechner (siehe [Backup](#backup)).
+6. **Rechtliches** (Betreiber in Deutschland): Impressum und Datenschutzerklärung als Seiten
+   verlinken. Darin Discord-Login, Cloudflare und die Uploads erwähnen. Die Erweiterung
+   *GDPR* (aktiviert) liefert Datenexport und Account-Löschung für Nutzer.
+
 ## Tags & Rechte
 
 | Tag | Lesen | Themen starten | Besonderheiten |
@@ -166,7 +211,7 @@ Für Benachrichtigungen und Passwort-Resets: **Admin → Email** → SMTP eines 
 | **The Hunter's Dream** | alle | Mitglieder | Off-Topic |
 
 Rollenfarben: Admin Blutrot `#a3161e`, Mod Messing `#b08d57`. Uploads erlaubt: Bilder, `.zip`/`.7z`
-(BB-Report-Tool) und `.txt`-Logs bis 20 MB. Hochladen dürfen Mitglieder, herunterladen alle.
+(BB-Report-Tool) und `.txt`-Logs bis 20 MB. Hoch- und herunterladen dürfen nur eingeloggte Mitglieder.
 
 **Manuell im Admin-Bereich** (falls du das Skript nicht nutzt):
 
@@ -176,7 +221,7 @@ Rollenfarben: Admin Blutrot `#a3161e`, Mod Messing `#b08d57`. Uploads erlaubt: B
    Reply = Members. Moderationsrechte setzt du wie in den globalen Rechten.
 3. *Best Answer* → Tag „Help & Support“ aktivieren.
 4. *Tags → Help & Support → Edit*: Feld **Template** mit dem Inhalt von `content/help-template.md` füllen.
-5. *FoF Upload* → Mime-Typen und Max-Größe setzen. *Permissions* → Upload = Members, Download = Everyone.
+5. *FoF Upload* → Mime-Typen und Max-Größe setzen. *Permissions* → Upload = Members, Download = Members.
 
 Die Vorlage füllt den Editor vor. Technisch erzwingen kann Flarum die Pflichtangaben nicht.
 Das Regel-Thema macht sie aber verbindlich, und Mods können unvollständige Themen sperren.
