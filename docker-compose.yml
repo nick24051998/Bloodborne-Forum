@@ -1,0 +1,93 @@
+# Bloodborne PC Port Community Forum
+# Flarum 1.8 (crazymax/flarum) + MariaDB 10.11
+#
+#   cp .env.example .env   # Werte eintragen
+#   docker compose up -d
+#
+# Flarum lauscht nur auf 127.0.0.1:${FLARUM_PORT} – HTTPS macht der Reverse Proxy
+# (Caddy) oder Cloudflare Tunnel (siehe README).
+
+name: bloodborne-forum
+
+x-flarum-env: &flarum-env
+  TZ: ${TZ:-Europe/Berlin}
+  FLARUM_BASE_URL: ${FORUM_URL:?FORUM_URL fehlt in .env}
+  FLARUM_FORUM_TITLE: ${FORUM_TITLE:-Bloodborne PC Port Community}
+  FLARUM_POWEREDBY_HEADER: "false"
+  DB_HOST: db
+  DB_NAME: ${DB_NAME:-flarum}
+  DB_USER: ${DB_USER:-flarum}
+  DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD fehlt in .env}
+  MEMORY_LIMIT: ${PHP_MEMORY_LIMIT:-256M}
+  UPLOAD_MAX_SIZE: ${UPLOAD_MAX_SIZE:-32M}
+  # Echte Besucher-IP hinter Caddy/cloudflared (Cloudflare setzt CF-Connecting-IP)
+  REAL_IP_FROM: ${REAL_IP_FROM:-172.16.0.0/12}
+  REAL_IP_HEADER: ${REAL_IP_HEADER:-CF-Connecting-IP}
+  LISTEN_IPV6: "false"
+
+x-flarum-volumes: &flarum-volumes
+  - flarum-data:/data
+  # Schalter "Registrierung nur über Discord" (siehe flarum/extend.php)
+  - ./flarum/extend.php:/opt/flarum/extend.php:ro
+
+services:
+  db:
+    image: mariadb:10.11
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      TZ: ${TZ:-Europe/Berlin}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD fehlt in .env}
+      MARIADB_DATABASE: ${DB_NAME:-flarum}
+      MARIADB_USER: ${DB_USER:-flarum}
+      MARIADB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD fehlt in .env}
+      MARIADB_AUTO_UPGRADE: "1"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  flarum:
+    image: crazymax/flarum:${FLARUM_IMAGE_TAG:-1.8.19}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${FLARUM_PORT:-8888}:8000"
+    environment: *flarum-env
+    volumes: *flarum-volumes
+
+  # Flarum-Scheduler (Digest-Mails, Best-Answer-Erinnerungen …) als Sidecar
+  cron:
+    image: crazymax/flarum:${FLARUM_IMAGE_TAG:-1.8.19}
+    restart: unless-stopped
+    depends_on:
+      - flarum
+    environment:
+      <<: *flarum-env
+      SIDECAR_CRON: "1"
+    volumes: *flarum-volumes
+
+  # Variante (b): Cloudflare Tunnel statt Caddy – auskommentiert lassen, bis
+  # scripts/setup-forum.sh gelaufen ist. Dann einkommentieren, CF_TUNNEL_TOKEN
+  # in .env setzen und im Cloudflare-Dashboard als Service http://flarum:8000
+  # eintragen.
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   restart: unless-stopped
+  #   command: tunnel --no-autoupdate run
+  #   environment:
+  #     TUNNEL_TOKEN: ${CF_TUNNEL_TOKEN:?CF_TUNNEL_TOKEN fehlt in .env}
+  #   depends_on:
+  #     - flarum
+
+volumes:
+  db-data:
+  flarum-data:

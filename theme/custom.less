@@ -1,0 +1,423 @@
+// ============================================================================
+//  Bloodborne PC Port Community – Gothic-Theme im Discord-Stil (Flarum 1.8)
+//  Einspielen: Admin → Appearance → Custom Styles (Edit Custom CSS)
+//  oder automatisch per scripts/setup-forum.sh
+//  Voraussetzung: Dark Mode an, Primary #a3161e, Secondary #b08d57 (macht das Skript)
+// ============================================================================
+
+// --- Schriften: selbst gehostet (Cinzel + Inter, SIL OFL) ------------------------
+// Flarum blockiert externe Imports in Custom LESS; außerdem bleibt so alles
+// DSGVO-freundlich ohne Google-Server. scripts/setup-forum.sh kopiert theme/fonts/*.woff2
+// nach /assets/fonts/bb/ – die Pfade unten sind relativ zu /assets/forum.css.
+.bb-font(@family; @weight; @file) {
+  @font-face {
+    font-family: @family;
+    font-style: normal;
+    font-weight: @weight;
+    font-display: swap;
+    src: url("fonts/bb/@{file}.woff2") format("woff2");
+  }
+}
+.bb-font("Cinzel"; 600; "cinzel-latin-600-normal");
+.bb-font("Cinzel"; 700; "cinzel-latin-700-normal");
+.bb-font("Inter"; 400; "inter-latin-400-normal");
+.bb-font("Inter"; 500; "inter-latin-500-normal");
+.bb-font("Inter"; 600; "inter-latin-600-normal");
+.bb-font("Inter"; 700; "inter-latin-700-normal");
+
+// --- Palette ----------------------------------------------------------------
+@bb-bg:          #111113;
+@bb-bg-deep:     #0b0b0d;
+@bb-card:        #1b1b1f;
+@bb-card-hover:  #232328;
+@bb-border:      #2a2a30;
+@bb-text:        #e6e1d7;
+@bb-muted:       #9a948a;
+@bb-blood:       #a3161e;
+@bb-blood-hover: #c41f28;
+@bb-blood-light: #e0574f;
+@bb-gold:        #b08d57;
+@bb-gold-light:  #c9a46a;
+
+@bb-font-head: "Cinzel", "Cormorant Garamond", Georgia, serif;
+@bb-font-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+// --- Flarum-Variablen überschreiben (wirken auch auf die CSS-Custom-Properties)
+@body-bg-dark:         @bb-bg;
+@body-bg:              @bb-bg;
+@text-color:           @bb-text;
+@heading-color:        #f1ece2;
+@link-color:           @bb-blood-light;
+@muted-color:          @bb-muted;
+@muted-more-color:     #6f6a63;
+@shadow-color:         rgba(0, 0, 0, 0.6);
+@control-bg:           @bb-card-hover;
+@control-color:        #b9b3a8;
+@overlay-bg:           fade(@bb-bg-deep, 92%);
+@code-bg:              @bb-bg-deep;
+@header-bg:            @bb-bg-deep;
+@header-color:         @bb-text;
+@header-control-bg:    @bb-card;
+@header-control-color: #b9b3a8;
+@hero-bg:              @bb-card;
+@hero-color:           @bb-text;
+@border-radius:        8px;
+
+// --- Typografie --------------------------------------------------------------
+body,
+.FormControl,
+.Button,
+textarea,
+input,
+select {
+  font-family: @bb-font-body;
+}
+
+h1, h2, h3,
+.Hero-title,
+.DiscussionHero-title,
+.Header-title,
+.Modal-header h3,
+.UserCard-identity,
+.TagTile-name,
+.sideNav .Dropdown-header {
+  font-family: @bb-font-head;
+  letter-spacing: 0.02em;
+}
+
+::selection {
+  background: fade(@bb-blood, 60%);
+  color: #fff;
+}
+
+// --- Header ------------------------------------------------------------------
+.App-header {
+  border-bottom: 1px solid fade(@bb-gold, 35%);
+  box-shadow: 0 1px 0 fade(@bb-blood, 25%), 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+
+.Header-title {
+  font-weight: 700;
+  font-size: 18px;
+
+  a {
+    color: @bb-text;
+  }
+
+  .Header-logo {
+    max-height: 40px;
+  }
+}
+
+.Header-controls .Button:hover,
+.Header-controls .Button:focus {
+  color: @bb-gold-light;
+}
+
+// --- Willkommens-Banner --------------------------------------------------------
+.WelcomeHero {
+  background:
+    radial-gradient(ellipse at 85% -20%, fade(@bb-blood, 55%) 0%, transparent 60%),
+    radial-gradient(ellipse at 0% 120%, fade(@bb-gold, 18%) 0%, transparent 55%),
+    @bb-card;
+  border-bottom: 1px solid @bb-border;
+  color: @bb-text;
+  padding: 32px 0 28px;
+
+  .Hero-title {
+    color: #f3ede2;
+    font-size: 28px;
+    text-shadow: 0 2px 12px fade(@bb-blood, 70%);
+  }
+
+  @media @phone {
+    padding: 18px 0 16px;
+
+    .Hero-title {
+      font-size: 21px;
+    }
+
+    .Hero-subtitle {
+      font-size: 14px;
+    }
+  }
+
+  .Hero-subtitle {
+    color: #cfc8bb;
+    font-size: 15px;
+    line-height: 1.6;
+
+    a {
+      color: @bb-gold-light;
+      font-weight: 600;
+      border-bottom: 1px solid fade(@bb-gold, 50%);
+
+      &:hover {
+        color: #fff;
+        text-decoration: none;
+        border-color: @bb-blood-hover;
+      }
+    }
+  }
+}
+
+// --- Seitenleiste wie Discord-Kanalliste ------------------------------------------
+.IndexPage-nav .sideNav ul li > a,
+.IndexPage-nav .sideNav ul li > .Button {
+  border-radius: 6px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  transition: background 0.12s, color 0.12s;
+
+  &:hover {
+    background: @bb-card-hover;
+    color: @bb-text;
+  }
+}
+
+.IndexPage-nav .sideNav ul li.active > a,
+.IndexPage-nav .sideNav ul li.active > .Button {
+  background: @bb-card-hover;
+  color: #fff;
+  box-shadow: inset 3px 0 0 @bb-blood;
+  font-weight: 600;
+}
+
+.IndexPage-newDiscussion,
+.DiscussionPage-nav .Button--primary {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+// --- Buttons -----------------------------------------------------------------------
+.Button--primary {
+  background: @bb-blood;
+  color: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px fade(@bb-blood, 35%);
+
+  &:hover,
+  &:focus {
+    background: @bb-blood-hover;
+    color: #fff;
+  }
+
+  &:active,
+  &.active {
+    background: darken(@bb-blood, 6%);
+  }
+}
+
+.Button {
+  border-radius: 6px;
+}
+
+.FormControl {
+  background: @bb-bg-deep;
+  border: 1px solid @bb-border;
+  color: @bb-text;
+
+  &:focus {
+    border-color: @bb-blood;
+    background: @bb-bg-deep;
+  }
+}
+
+// --- Diskussionsliste: kompakte Karten ------------------------------------------------
+.DiscussionList-discussions > li {
+  margin-bottom: 6px;
+
+  @media @phone {
+    margin: 0 8px 6px;
+  }
+}
+
+.DiscussionListItem {
+  background: @bb-card;
+  border: 1px solid @bb-border;
+  border-radius: 10px;
+  transition: background 0.12s, border-color 0.12s, transform 0.12s;
+
+  &:hover {
+    background: @bb-card-hover;
+    border-color: fade(@bb-blood, 55%);
+  }
+
+  &.active {
+    border-color: @bb-blood;
+  }
+}
+
+.DiscussionListItem-content {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.DiscussionListItem-title {
+  color: #f1ece2;
+  font-family: @bb-font-body;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.DiscussionListItem-content.unread .DiscussionListItem-title {
+  color: #fff;
+}
+
+.DiscussionListItem-count {
+  color: @bb-muted;
+
+  .unread & {
+    color: @bb-gold-light;
+  }
+}
+
+.DiscussionListItem-info .item-terminalPost a {
+  color: @bb-muted;
+}
+
+// Unread-Punkt / Sticky-Hervorhebung in Gold
+.DiscussionListItem-badges .Badge--sticky {
+  background: @bb-gold;
+  color: @bb-bg-deep;
+}
+
+// --- Tags -----------------------------------------------------------------------------
+.TagLabel {
+  border-radius: 4px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.TagTile {
+  border-radius: 10px;
+  border: 1px solid @bb-border;
+}
+
+// --- Avatare ----------------------------------------------------------------------------
+.Avatar {
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px @bb-bg;
+}
+
+// --- Beiträge ---------------------------------------------------------------------------
+.DiscussionHero {
+  background:
+    radial-gradient(ellipse at 50% -40%, fade(@bb-blood, 35%) 0%, transparent 70%),
+    @bb-bg-deep;
+  border-bottom: 1px solid @bb-border;
+
+  .DiscussionHero-title {
+    color: #f3ede2;
+  }
+}
+
+.PostStream-item:not(:last-child) {
+  border-bottom: none;
+}
+
+.CommentPost {
+  background: @bb-card;
+  border: 1px solid @bb-border;
+  border-radius: 10px;
+  padding: 18px 20px 14px 90px;
+  margin: 10px 0;
+
+  @media @phone {
+    padding: 14px;
+  }
+}
+
+.Post-header .PostUser-name .username,
+.PostUser h3 a {
+  color: @bb-gold-light;
+  font-family: @bb-font-body;
+  font-weight: 700;
+}
+
+.Post-body {
+  color: @bb-text;
+  line-height: 1.65;
+
+  blockquote {
+    background: @bb-bg-deep;
+    border-left: 3px solid @bb-blood;
+    border-radius: 0 6px 6px 0;
+    color: #cfc8bb;
+  }
+
+  code,
+  pre {
+    border-radius: 6px;
+  }
+
+  a {
+    color: @bb-blood-light;
+  }
+}
+
+// Rollen (Gruppen-Badges) als Discord-Pills
+.Badge {
+  box-shadow: 0 0 0 2px @bb-card;
+}
+
+.Badge--group--1 {
+  background: @bb-blood;
+}
+
+.Badge--group--4 {
+  background: @bb-gold;
+}
+
+// fof/best-answer: Lösung hervorheben
+.CommentPost.Post--bestAnswer,
+.Post--bestAnswer {
+  border-color: fade(@bb-gold, 70%);
+  box-shadow: 0 0 0 1px fade(@bb-gold, 30%), 0 0 24px fade(@bb-gold, 12%);
+}
+
+// --- Composer, Dropdowns, Modals --------------------------------------------------------
+.Composer {
+  background: @bb-card;
+  border-top: 2px solid @bb-blood;
+}
+
+.Dropdown-menu {
+  background: @bb-card;
+  border: 1px solid @bb-border;
+  border-radius: 8px;
+
+  > li > a:hover,
+  > li > button:hover {
+    background: @bb-card-hover;
+  }
+}
+
+.Modal-content {
+  background: @bb-card;
+  border: 1px solid @bb-border;
+  border-radius: 12px;
+}
+
+.Modal-header {
+  border-bottom: 1px solid @bb-border;
+}
+
+// --- Scrollbars (WebKit/Blink) ----------------------------------------------------------
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2c2c33;
+  border-radius: 8px;
+
+  &:hover {
+    background: fade(@bb-blood, 70%);
+  }
+}
+
+::-webkit-scrollbar-track {
+  background: @bb-bg;
+}
