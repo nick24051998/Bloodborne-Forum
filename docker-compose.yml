@@ -46,6 +46,8 @@ services:
     <<: *hardening
     image: mariadb:10.11
     restart: unless-stopped
+    # Bei RAM-Knappheit zuerst andere Prozesse beenden lassen (FORUM_OOM_SCORE_ADJ in .env)
+    oom_score_adj: ${FORUM_OOM_SCORE_ADJ:-0}
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -69,6 +71,7 @@ services:
     <<: *hardening
     image: crazymax/flarum:${FLARUM_IMAGE_TAG:-1.8.19}
     restart: unless-stopped
+    oom_score_adj: ${FORUM_OOM_SCORE_ADJ:-0}
     depends_on:
       db:
         condition: service_healthy

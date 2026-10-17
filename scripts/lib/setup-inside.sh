@@ -24,6 +24,12 @@ api() {
   else
     _code=$(curl -sS -o "$_out" -w '%{http_code}' -X "$1" -H "Authorization: Token $TOKEN" "$API$2")
   fi
+  if [ "$_code" -ge 500 ] && grep -q "boot error" "$_out"; then
+    rm -f "$_out"
+    die "Flarum cannot boot (usually right after installing extensions). Fix:
+    docker compose restart flarum cron && scripts/setup-forum.sh
+  Details: docker compose exec flarum sh -c 'tail -n 40 /data/storage/logs/*.log'"
+  fi
   if [ "$_code" -ge 400 ]; then
     warn "$1 $2 -> HTTP $_code: $(head -c 300 "$_out")"
     rm -f "$_out"

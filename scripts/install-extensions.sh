@@ -44,5 +44,18 @@ docker compose exec -T flarum extension require "${EXTENSIONS[@]}"
 echo
 echo "Installiert. Persistente Liste:"
 docker compose exec -T flarum extension list
+
+# PHP-FPM cacht Dateien bis zu 60 s (OPcache) und kennt die neuen Klassen sonst noch
+# nicht. Der Cron-Container hat eigene Programmdateien und installiert die Liste erst
+# beim Start nach. Daher beide neu starten.
+echo
+echo "Starte Flarum und Cron neu, damit die Erweiterungen überall geladen werden …"
+docker compose restart flarum cron
+for _ in $(seq 1 90); do
+  if docker compose exec -T flarum curl -fs -o /dev/null http://127.0.0.1:8000/api; then
+    break
+  fi
+  sleep 2
+done
 echo
 echo "Weiter mit: scripts/setup-forum.sh  (aktiviert und konfiguriert die Erweiterungen)"

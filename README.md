@@ -324,3 +324,10 @@ scripts/setup-forum.sh            # Theme und Einstellungen erneut anwenden (opt
 - `Pool overlaps with other one on this address space` beim Start: Das feste Forum-Netz
   `10.88.0.0/24` ist schon vergeben. In `.env` `FORUM_SUBNET` auf ein freies Netz setzen,
   z. B. `10.89.0.0/24`.
+- „Flarum encountered a boot error“ direkt nach dem Installieren von Erweiterungen: Der PHP-Cache
+  kennt die neuen Dateien noch nicht. `docker compose restart flarum cron` und danach
+  `scripts/setup-forum.sh`. Das aktuelle `install-extensions.sh` startet beide schon selbst neu.
+- **Host mit knappem RAM** (der Kernel beendet Prozesse, sichtbar mit `dmesg -T | grep -i "killed process"`):
+  In `.env` `FORUM_OOM_SCORE_ADJ=-500` setzen und `docker compose up -d` ausführen. Dann beendet der
+  Kernel zuerst andere Container statt Forum und Datenbank. Startet danach ein Container mit
+  „Permission denied“ nicht, den Wert wieder auf `0` setzen.
