@@ -421,3 +421,87 @@ h1, h2, h3,
 ::-webkit-scrollbar-track {
   background: @bb-bg;
 }
+
+// --- Größenstufen für verschiedene Viewports ---------------------------------------------
+// Flarum ist responsiv bis 1100 px und wächst darüber nicht mehr (Spalte 1100 px, Schrift
+// 13 px). Hier skaliert das Layout auf großen Monitoren weiter; Handy und Tablet behalten
+// Flarums eigenes Layout und bekommen nur gut lesbaren Beitragstext.
+//                       Spalte   Basis  Beitrag  Listentitel  Navigation
+//   ≥ 1400 px (z. B. 1440p-Laptop, WQHD@125 %)   1280 px  14 px  15.5 px  17 px  14 px
+//   ≥ 1800 px (Full HD, WQHD)                    1440 px  15 px  16.5 px  18 px  15 px
+//   ≥ 2400 px (WQHD@100 %, 4K@150 %)             1680 px  16 px  18 px    20 px  16 px
+@media @phone {
+  .Post-body {
+    font-size: 15px;
+  }
+}
+
+.bb-scale(@container; @base; @post; @title; @nav; @avatar) {
+  .container {
+    width: @container;
+  }
+
+  body {
+    font-size: @base;
+  }
+
+  .Post-body {
+    font-size: @post;
+  }
+
+  .DiscussionListItem-title {
+    font-size: @title;
+  }
+
+  .DiscussionListItem-info,
+  .item-excerpt {
+    font-size: (@base - 1px);
+  }
+
+  .sideNav .Dropdown--select .Dropdown-menu > li > a,
+  .IndexPage-nav .sideNav ul li > a {
+    font-size: @nav;
+  }
+
+  .sideNav,
+  .sideNav > ul {
+    width: (190px + (@container - 1100px) / 6);
+  }
+
+  .Button,
+  .FormControl {
+    font-size: @base;
+  }
+
+  .DiscussionListItem-author .Avatar {
+    --size: @avatar;
+  }
+
+  .DiscussionListItem-content {
+    padding-left: (@avatar + 16px);
+  }
+
+  .DiscussionListItem-author {
+    margin-left: (0px - @avatar - 16px);
+  }
+
+  .WelcomeHero .Hero-title {
+    font-size: (@base * 2.1);
+  }
+
+  .WelcomeHero .Hero-subtitle {
+    font-size: (@base + 2px);
+  }
+}
+
+@media (min-width: 1400px) {
+  .bb-scale(1280px; 14px; 15.5px; 17px; 14px; 38px);
+}
+
+@media (min-width: 1800px) {
+  .bb-scale(1440px; 15px; 16.5px; 18px; 15px; 40px);
+}
+
+@media (min-width: 2400px) {
+  .bb-scale(1680px; 16px; 18px; 20px; 16px; 44px);
+}
