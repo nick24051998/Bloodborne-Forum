@@ -78,7 +78,13 @@ services:
     ports:
       - "${FLARUM_BIND:-127.0.0.1}:${FLARUM_PORT:-8888}:8000"
     environment: *flarum-env
-    volumes: *flarum-volumes
+    volumes:
+      - flarum-data:/data
+      # Discord-only-Registrierung + Sicherheits-Header (siehe flarum/extend.php)
+      - ./flarum/extend.php:/opt/flarum/extend.php:ro
+      # Erweiterungsliste aus dem Repo, vor jedem Start wiederhergestellt
+      - ./flarum:/bbforum:ro
+      - ./flarum/restore-extensions.sh:/etc/cont-init.d/02-zz-bbforum-extensions.sh
 
   # Flarum-Scheduler (Digest-Mails, Best-Answer-Erinnerungen …) als Sidecar
   cron:

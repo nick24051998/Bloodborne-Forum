@@ -1,63 +1,60 @@
 #!/usr/bin/env bash
-# Installiert die benötigten Flarum-Erweiterungen per Composer im laufenden Container.
-# Die Liste wird vom Image in /data/extensions/list gespeichert und bei jedem
-# Container-Neustart automatisch wieder installiert.
+# Installiert die Flarum-Erweiterungen aus flarum/extensions.txt (+ optional
+# flarum/extensions.local.txt) per Composer im laufenden Container.
 #
-#   scripts/install-extensions.sh                        # Pflicht-Erweiterungen
+#   scripts/install-extensions.sh                        # Erweiterungen aus der Liste
 #   scripts/install-extensions.sh --with-user-directory  # + fof/user-directory
 #
-# Aktiviert werden sie anschließend von scripts/setup-forum.sh.
+# Bei jedem Container-Start stellt flarum/restore-extensions.sh die Liste wieder her,
+# und das Image installiert sie neu. Aktiviert werden sie von scripts/setup-forum.sh.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-EXTENSIONS=(
-  fof/oauth                # Login über Discord
-  fof/upload               # Screenshots, Logs, BB-Report-Tool-Zips anhängen
-  fof/best-answer          # Lösung markieren (Help & Support)
-  fof/discussion-templates # Pflichtangaben-Vorlage für Help & Support
-  fof/sitemap              # sitemap.xml für Google
-  v17development/flarum-seo # Meta-Tags, Social-Vorschau, strukturierte Daten, robots.txt
-)
-
 for arg in "$@"; do
   case "$arg" in
-    --with-user-directory) EXTENSIONS+=(fof/user-directory) ;;
-    -h|--help) sed -n '2,10p' "$0"; exit 0 ;;
+    --with-user-directory)
+      grep -qs '^fof/user-directory' flarum/extensions.local.txt ||
+        echo 'fof/user-directory:*' >> flarum/extensions.local.txt
+      ;;
+    -h|--help) sed -n '2,9p' "$0"; exit 0 ;;
     *) echo "Unbekannte Option: $arg" >&2; exit 1 ;;
   esac
 done
+
+mapfile -t EXTENSIONS < <(cat flarum/extensions.txt flarum/extensions.local.txt 2>/dev/null |
+  sed -e 's/#.*//' -e 's/[[:space:]]//g' | grep -v '^$' | awk -F: '!seen[$1]++')
 
 if ! docker compose ps --status running --services 2>/dev/null | grep -qx flarum; then
   echo "Der Flarum-Container läuft nicht. Erst 'docker compose up -d' ausführen." >&2
   exit 1
 fi
 
+wait_for_flarum() {
+  for _ in $(seq 1 120); do
+    if docker compose exec -T flarum curl -fs -o /dev/null http://127.0.0.1:8000/api 2>/dev/null; then
+      return 0
+    fi
+    sleep 2
+  done
+  echo "Flarum antwortet nicht – docker compose logs flarum" >&2
+  return 1
+}
+
 echo "Warte, bis Flarum bereit ist …"
-for _ in $(seq 1 60); do
-  if docker compose exec -T flarum curl -fsS -o /dev/null http://127.0.0.1:8000/api; then
-    break
-  fi
-  sleep 2
-done
+wait_for_flarum
 
 echo "Installiere: ${EXTENSIONS[*]}"
 docker compose exec -T flarum extension require "${EXTENSIONS[@]}"
 
+# Neu ERSTELLEN statt neu starten: PHP-FPM lädt dann die neuen Dateien, und das Image
+# installiert die Liste frisch. (Ein reines "restart" bringt die Liste des Images durcheinander.)
 echo
-echo "Installiert. Persistente Liste:"
-docker compose exec -T flarum extension list
+echo "Erstelle den Flarum-Container neu, damit die Erweiterungen geladen werden …"
+docker compose up -d --force-recreate flarum
+wait_for_flarum
 
-# PHP-FPM cacht Dateien bis zu 60 s (OPcache) und kennt die neuen Klassen sonst noch
-# nicht. Der Cron-Container hat eigene Programmdateien und installiert die Liste erst
-# beim Start nach. Daher beide neu starten.
 echo
-echo "Starte Flarum und Cron neu, damit die Erweiterungen überall geladen werden …"
-docker compose restart flarum cron
-for _ in $(seq 1 90); do
-  if docker compose exec -T flarum curl -fs -o /dev/null http://127.0.0.1:8000/api; then
-    break
-  fi
-  sleep 2
-done
+echo "Installiert:"
+docker compose exec -T flarum extension list
 echo
 echo "Weiter mit: scripts/setup-forum.sh  (aktiviert und konfiguriert die Erweiterungen)"

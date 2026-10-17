@@ -1,0 +1,9 @@
+# Erweiterungen, die das Forum braucht. Wird bei jedem Start des Flarum-Containers
+# in /data/extensions/list übernommen und vom Image installiert.
+# Eigene Zusätze nicht hier, sondern in flarum/extensions.local.txt (nicht im Repo).
+fof/oauth:*
+fof/upload:*
+fof/best-answer:*
+fof/discussion-templates:*
+fof/sitemap:*
+v17development/flarum-seo:*

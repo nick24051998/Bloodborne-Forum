@@ -24,7 +24,8 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `docker-compose.yml` | Flarum, Cron-Sidecar, MariaDB (benannte Volumes), cloudflared (Profil `tunnel`) |
 | `.env.example` | Alle Einstellungen mit Platzhaltern, wird nach `.env` kopiert |
 | `scripts/bootstrap.sh` | **Komplett-Installer:** fragt ein paar Werte ab, erzeugt Passwörter, startet und richtet alles ein |
-| `scripts/install-extensions.sh` | Installiert fof/oauth, fof/upload, fof/best-answer, fof/discussion-templates, fof/sitemap, flarum-seo (optional fof/user-directory) |
+| `scripts/install-extensions.sh` | Installiert die Erweiterungen aus `flarum/extensions.txt` (fof/oauth, upload, best-answer, discussion-templates, sitemap, flarum-seo; optional fof/user-directory) |
+| `flarum/extensions.txt`, `flarum/restore-extensions.sh` | Erweiterungsliste; wird vor jedem Start des Containers wiederhergestellt |
 | `scripts/setup-forum.sh` | Richtet alles per Flarum-API ein: Admin, Erweiterungen, Tags, Rechte, Theme, Banner, Regeln, Logo |
 | `scripts/backup.sh` | DB-Dump + Datenvolume als `.tar.gz` |
 | `flarum/extend.php` | Schalter „neue Accounts nur über Discord“ und Sicherheits-Header |
@@ -328,9 +329,9 @@ docker compose up -d              # Datenbank-Migrationen laufen beim Start auto
 scripts/setup-forum.sh            # Theme und Einstellungen erneut anwenden (optional)
 ```
 
-- Die Erweiterungen stehen in `/data/extensions/list`. Das Image installiert sie bei jedem Start
-  neu, dafür braucht der Container Internet. Einzelne Updates holst du mit
-  `docker compose exec flarum extension require fof/upload`.
+- Die Erweiterungen stehen in `flarum/extensions.txt`. Bei jedem Start stellt
+  `flarum/restore-extensions.sh` die Liste wieder her, und das Image installiert sie neu. Dafür
+  braucht der Container Internet. Eigene Zusätze gehören in `flarum/extensions.local.txt`.
 - MariaDB bleibt auf 10.11 (LTS). Patch-Updates kommen über `docker compose pull`.
 - **Flarum 2.0:** Erst umsteigen, wenn ein 2.x-Image von crazymax erscheint und alle genutzten
   Erweiterungen stabil für 2.x verfügbar sind. Vorher eine Kopie testen, die du aus einem Backup
@@ -349,8 +350,13 @@ scripts/setup-forum.sh            # Theme und Einstellungen erneut anwenden (opt
   `10.88.0.0/24` ist schon vergeben. In `.env` `FORUM_SUBNET` auf ein freies Netz setzen,
   z. B. `10.89.0.0/24`.
 - „Flarum encountered a boot error“ direkt nach dem Installieren von Erweiterungen: Der PHP-Cache
-  kennt die neuen Dateien noch nicht. `docker compose restart flarum cron` und danach
-  `scripts/setup-forum.sh`. Das aktuelle `install-extensions.sh` startet beide schon selbst neu.
+  kennt die neuen Dateien noch nicht. `docker compose up -d --force-recreate flarum` und danach
+  `scripts/setup-forum.sh`. Das aktuelle `install-extensions.sh` macht das schon selbst.
+- **Erweiterungen „not installed“** nach einem Neustart oder Update: `docker compose up -d
+  --force-recreate flarum`. Beim Start wird die Liste aus `flarum/extensions.txt`
+  wiederhergestellt und neu installiert (dauert 1–2 Minuten). Danach `scripts/setup-forum.sh`.
+  Zum Neustarten des Forums lieber `docker compose up -d --force-recreate flarum` als
+  `docker compose restart` verwenden.
 - **Host mit knappem RAM** (der Kernel beendet Prozesse, sichtbar mit `dmesg -T | grep -i "killed process"`):
   In `.env` `FORUM_OOM_SCORE_ADJ=-500` setzen und `docker compose up -d` ausführen. Dann beendet der
   Kernel zuerst andere Container statt Forum und Datenbank. Startet danach ein Container mit

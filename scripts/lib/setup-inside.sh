@@ -27,7 +27,7 @@ api() {
   if [ "$_code" -ge 500 ] && grep -q "boot error" "$_out"; then
     rm -f "$_out"
     die "Flarum cannot boot (usually right after installing extensions). Fix:
-    docker compose restart flarum cron && scripts/setup-forum.sh
+    docker compose up -d --force-recreate flarum && scripts/setup-forum.sh
   Details: docker compose exec flarum sh -c 'tail -n 40 /data/storage/logs/*.log'"
   fi
   if [ "$_code" -ge 400 ]; then
