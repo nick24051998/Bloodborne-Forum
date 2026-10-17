@@ -24,7 +24,7 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `docker-compose.yml` | Flarum, Cron-Sidecar, MariaDB (benannte Volumes), cloudflared (Profil `tunnel`) |
 | `.env.example` | Alle Einstellungen mit Platzhaltern, wird nach `.env` kopiert |
 | `scripts/bootstrap.sh` | **Komplett-Installer:** fragt ein paar Werte ab, erzeugt Passwörter, startet und richtet alles ein |
-| `scripts/install-extensions.sh` | Installiert die Erweiterungen aus `flarum/extensions.txt` (fof/oauth, upload, best-answer, discussion-templates, sitemap, flarum-seo; optional fof/user-directory) |
+| `scripts/install-extensions.sh` | Installiert die Erweiterungen aus `flarum/extensions.txt` (fof/oauth, upload, best-answer, discussion-templates, sitemap, flarum-seo 2.x; optional fof/user-directory) |
 | `flarum/extensions.txt`, `flarum/restore-extensions.sh` | Erweiterungsliste; wird vor jedem Start des Containers wiederhergestellt |
 | `scripts/setup-forum.sh` | Richtet alles per Flarum-API ein: Admin, Erweiterungen, Tags, Rechte, Theme, Banner, Regeln, Logo |
 | `scripts/backup.sh` | DB-Dump + Datenvolume als `.tar.gz` |
@@ -357,6 +357,11 @@ scripts/setup-forum.sh            # Theme und Einstellungen erneut anwenden (opt
   wiederhergestellt und neu installiert (dauert 1–2 Minuten). Danach `scripts/setup-forum.sh`.
   Zum Neustarten des Forums lieber `docker compose up -d --force-recreate flarum` als
   `docker compose restart` verwenden.
+- **„circular_dependencies“** beim Ein- oder Ausschalten einer Erweiterung (Admin oder
+  `setup-forum.sh`): Zwei Erweiterungen nennen sich gegenseitig als Abhängigkeit, dann lehnt
+  Flarum 1.8 jede Änderung ab. Bekannt sind FoF SEO 3.x und FoF Sitemap; `flarum/extensions.txt`
+  legt SEO deshalb auf 2.x fest. `scripts/install-extensions.sh` und danach
+  `scripts/setup-forum.sh` ausführen.
 - **Host mit knappem RAM** (der Kernel beendet Prozesse, sichtbar mit `dmesg -T | grep -i "killed process"`):
   In `.env` `FORUM_OOM_SCORE_ADJ=-500` setzen und `docker compose up -d` ausführen. Dann beendet der
   Kernel zuerst andere Container statt Forum und Datenbank. Startet danach ein Container mit

@@ -96,25 +96,6 @@ fi
 # --------------------------------------------------------------------------
 log "Enabling extensions"
 installed() { [ -f "/opt/flarum/vendor/$1/composer.json" ]; }
-flarum_cli() { gosu flarum:flarum php /opt/flarum/flarum "$@" >/dev/null; }
-# Some extensions list each other as optional dependencies (e.g. FoF SEO <-> FoF Sitemap).
-# Flarum then refuses to enable them ("circular_dependencies"), although they work fine.
-# The cycle is only checked when enabling, so add the extension to the enabled list directly.
-force_enable() { # force_enable extension-id
-  sql "UPDATE ${DB_PREFIX}settings SET value = JSON_ARRAY_APPEND(value, '\$', '$1')
-       WHERE \`key\` = 'extensions_enabled' AND NOT JSON_CONTAINS(value, '\"$1\"')"
-  flarum_cli migrate
-  flarum_cli assets:publish
-  flarum_cli cache:clear
-  if curl -fsS -o /dev/null "$API"; then
-    ok "$1 (enabled directly – known circular optional dependency)"
-  else
-    sql "UPDATE ${DB_PREFIX}settings SET value = JSON_REMOVE(value, JSON_UNQUOTE(JSON_SEARCH(value, 'one', '$1')))
-         WHERE \`key\` = 'extensions_enabled'"
-    flarum_cli cache:clear
-    warn "$1 broke the forum and was disabled again"
-  fi
-}
 enable_ext() { # enable_ext vendor/package
   # Flarum's extension id: vendor-package without a "flarum-ext-"/"flarum-" prefix
   _pkg=${1#*/}; _pkg=${_pkg#flarum-ext-}; _pkg=${_pkg#flarum-}
@@ -133,7 +114,9 @@ enable_ext() { # enable_ext vendor/package
   if [ "$_code" -lt 400 ]; then
     ok "$_id"
   elif printf '%s' "$_resp" | grep -q circular_dependencies; then
-    force_enable "$_id"
+    # e.g. FoF SEO 3.x <-> FoF Sitemap; flarum/extensions.txt pins versions without the cycle
+    warn "$_id could not be enabled: circular dependency with another extension." \
+         "Run scripts/install-extensions.sh (installs the versions from flarum/extensions.txt), then this script again"
   else
     warn "$_id could not be enabled: HTTP $_code $(printf '%s' "$_resp" | head -c 300)"
   fi

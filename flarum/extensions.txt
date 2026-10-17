@@ -6,4 +6,7 @@ fof/upload:*
 fof/best-answer:*
 fof/discussion-templates:*
 fof/sitemap:*
-v17development/flarum-seo:*
+# FoF SEO 3.x und FoF Sitemap nennen sich gegenseitig als optionale Abhängigkeit. Flarum 1.8
+# lehnt dann JEDES Ein-/Ausschalten von Erweiterungen ab ("circular_dependencies").
+# SEO 2.x hat diesen Kreis nicht (und ist die Version, für die FoF Sitemap gebaut wurde).
+v17development/flarum-seo:^2.0
