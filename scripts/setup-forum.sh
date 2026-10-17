@@ -52,6 +52,7 @@ docker compose exec -T \
   -e FLARUM_ADMIN_PASS="$FLARUM_ADMIN_PASS" \
   -e DISCORD_CLIENT_ID="${DISCORD_CLIENT_ID:-}" \
   -e DISCORD_INVITE_URL="${DISCORD_INVITE_URL:-https://discord.gg/CHANGE_ME}" \
+  -e WEBSITE_URL="${WEBSITE_URL:-https://example.com}" \
   -e DISCORD_ONLY_SIGNUP="${DISCORD_ONLY_SIGNUP:-true}" \
   flarum sh /tmp/bbsetup/scripts/lib/setup-inside.sh || status=$?
 

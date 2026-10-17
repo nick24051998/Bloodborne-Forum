@@ -13,6 +13,10 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 > Flarum 2.0 ist erst seit Oktober 2026 stabil. Die Erweiterungen ziehen gerade nach, deshalb bleibt
 > dieses Setup bewusst auf 1.8 (siehe [Update](#update)).
 
+> **Website:** Die Projekt-Website (bbport.com: Startseite, Install-Guide, FAQ, Changelog) liegt in
+> [`website/`](website/README.md). Sie wird kostenlos über Cloudflare Pages veröffentlicht und
+> verlinkt das Forum.
+
 ## Inhalt
 
 | Pfad | Zweck |
@@ -20,7 +24,7 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `docker-compose.yml` | Flarum, Cron-Sidecar, MariaDB (benannte Volumes), cloudflared (Profil `tunnel`) |
 | `.env.example` | Alle Einstellungen mit Platzhaltern, wird nach `.env` kopiert |
 | `scripts/bootstrap.sh` | **Komplett-Installer:** fragt ein paar Werte ab, erzeugt Passwörter, startet und richtet alles ein |
-| `scripts/install-extensions.sh` | Installiert fof/oauth, fof/upload, fof/best-answer, fof/discussion-templates (optional fof/user-directory) |
+| `scripts/install-extensions.sh` | Installiert fof/oauth, fof/upload, fof/best-answer, fof/discussion-templates, fof/sitemap, flarum-seo (optional fof/user-directory) |
 | `scripts/setup-forum.sh` | Richtet alles per Flarum-API ein: Admin, Erweiterungen, Tags, Rechte, Theme, Banner, Regeln, Logo |
 | `scripts/backup.sh` | DB-Dump + Datenvolume als `.tar.gz` |
 | `flarum/extend.php` | Schalter „neue Accounts nur über Discord“ und Sicherheits-Header |
@@ -29,6 +33,7 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `theme/logo.png`, `theme/favicon.png` | Dieselben Bilder als PNG zum Hochladen (Flarum 1.x nimmt kein SVG) |
 | `theme/fonts/` | Cinzel + Inter als `.woff2`, selbst gehostet (SIL OFL) |
 | `content/` | Welcome-Banner, Regel-Thema, Vorlage für Help & Support |
+| `website/` | Projekt-Website (Astro, statisch, Cloudflare Pages), siehe `website/README.md` |
 
 ## Voraussetzungen
 

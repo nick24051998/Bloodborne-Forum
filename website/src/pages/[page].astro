@@ -1,0 +1,19 @@
+---
+// Erzeugt /install/, /changelog/, /imprint/, /privacy/ aus src/texts/*.md
+import Page from '../layouts/Page.astro';
+
+export function getStaticPaths() {
+  const texts = import.meta.glob('../texts/*.md', { eager: true });
+  return Object.entries(texts)
+    .map(([file, mod]) => ({ page: file.split('/').pop().replace(/\.md$/, ''), mod }))
+    .filter(({ page }) => page !== 'faq')
+    .map(({ page, mod }) => ({ params: { page }, props: { mod } }));
+}
+
+const { mod } = Astro.props;
+const { Content, frontmatter } = mod;
+---
+
+<Page frontmatter={frontmatter}>
+  <Content />
+</Page>

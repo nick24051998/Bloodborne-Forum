@@ -51,7 +51,7 @@ sql() {
 }
 
 subst() { # replace placeholders in a content file
-  sed -e "s|{{DISCORD_INVITE_URL}}|${DISCORD_INVITE_URL}|g" "$1"
+  sed -e "s|{{DISCORD_INVITE_URL}}|${DISCORD_INVITE_URL}|g" -e "s|{{WEBSITE_URL}}|${WEBSITE_URL}|g" "$1"
 }
 
 # --------------------------------------------------------------------------
@@ -97,7 +97,9 @@ fi
 log "Enabling extensions"
 installed() { [ -f "/opt/flarum/vendor/$1/composer.json" ]; }
 enable_ext() { # enable_ext vendor/package
-  _id=$(echo "$1" | sed -e 's|^flarum/|flarum-|' -e 's|^fof/|fof-|' -e 's|/|-|')
+  # Flarum's extension id: vendor-package without a "flarum-ext-"/"flarum-" prefix
+  _pkg=${1#*/}; _pkg=${_pkg#flarum-ext-}; _pkg=${_pkg#flarum-}
+  _id="${1%%/*}-$_pkg"
   if ! installed "$1"; then
     warn "$1 is not installed (run scripts/install-extensions.sh first), skipping"
     return 0
@@ -113,7 +115,8 @@ enable_ext() { # enable_ext vendor/package
 for e in flarum/lang-english flarum/markdown flarum/bbcode flarum/emoji flarum/mentions \
          flarum/likes flarum/tags flarum/sticky flarum/lock flarum/subscriptions flarum/flags \
          flarum/approval flarum/suspend flarum/statistics flarum/gdpr \
-         fof/oauth fof/upload fof/best-answer fof/discussion-templates fof/user-directory; do
+         fof/oauth fof/upload fof/best-answer fof/discussion-templates fof/sitemap \
+         v17development/flarum-seo fof/user-directory; do
   case "$e" in
     fof/user-directory) installed "$e" && enable_ext "$e" ;;  # optional
     *) enable_ext "$e" ;;

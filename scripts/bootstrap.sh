@@ -94,6 +94,7 @@ else
     [FLARUM_ADMIN_PASS]="$(randpw 24)"
     [DISCORD_CLIENT_ID]="$BB_DISCORD_CLIENT_ID"
     [DISCORD_INVITE_URL]="$BB_DISCORD_INVITE"
+    [WEBSITE_URL]="${BB_WEBSITE_URL:-https://${BB_DOMAIN#forum.}}"
     [CF_TUNNEL_TOKEN]="${BB_TUNNEL_TOKEN:-}"
   )
   umask 077

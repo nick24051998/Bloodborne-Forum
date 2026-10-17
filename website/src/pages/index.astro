@@ -1,0 +1,85 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../../site.config.mjs';
+
+// TODO: Texte der Startseite. Bleibt etwas leer, wird die Karte ausgeblendet.
+const features = [
+  { icon: '🩸', title: 'TODO: Feature 1', text: 'TODO: Short description of the first highlight of the port.' },
+  { icon: '🌕', title: 'TODO: Feature 2', text: 'TODO: Short description, e.g. resolution or frame rate options.' },
+  { icon: '🗝️', title: 'TODO: Feature 3', text: 'TODO: Short description, e.g. controller or keyboard support.' },
+  { icon: '🛠️', title: 'Mods & patches', text: 'Share and discuss mods, patches and tweaks with the community in the forum.' },
+];
+
+const orgLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: `${SITE.name} Community`,
+  url: SITE.url,
+  logo: new URL('/favicon.png', SITE.url).href,
+  sameAs: [SITE.forumUrl, SITE.discordUrl, SITE.githubUrl].filter(Boolean),
+};
+---
+
+<Base jsonLd={[orgLd]}>
+  <section class="hero">
+    <div class="container">
+      <div>
+        <p class="eyebrow">Community hub</p>
+        <h1>{SITE.name}</h1>
+        <p class="lead">
+          <span class="todo">TODO: One or two sentences: what the port is and why people should try it.</span>
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" href="/install/">Install guide</a>
+          {SITE.downloadUrl && <a class="btn btn-ghost" href={SITE.downloadUrl} rel="noopener">Latest release</a>}
+          <a class="btn btn-discord" href={SITE.discordUrl} rel="noopener">Join Discord</a>
+          <a class="btn btn-ghost" href={SITE.forumUrl}>Visit forum</a>
+        </div>
+      </div>
+      <img class="emblem" src="/favicon.svg" alt="" width="380" height="380" />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>What you get</h2>
+      <div class="grid">
+        {features.map((f) => (
+          <div class="card">
+            <span class="icon" aria-hidden="true">{f.icon}</span>
+            <h3>{f.title}</h3>
+            <p>{f.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container grid">
+      <div>
+        <h2 style="margin-top:0">Get started</h2>
+        <p>Check the system requirements, follow the step-by-step install guide and you are ready to hunt.</p>
+        <p><a class="btn btn-primary" href="/install/">Read the install guide</a></p>
+      </div>
+      <div>
+        <h2 style="margin-top:0">Need help?</h2>
+        <p>
+          Search the <a href={`${SITE.forumUrl}/t/help-support`}>Help &amp; Support forum</a> – most problems are already
+          solved there. When you open a topic, include your port version, GPU and driver, what happens and your BB Report
+          Tool zip.
+        </p>
+        <p><a class="btn btn-ghost" href={SITE.forumUrl}>Open the forum</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="notice">
+        <strong>No game files, ever.</strong> You need your own legally obtained copy of Bloodborne. We do not provide,
+        request or link to game files, and posts that do are removed.
+      </div>
+    </div>
+  </section>
+</Base>

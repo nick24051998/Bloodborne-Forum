@@ -15,6 +15,8 @@ EXTENSIONS=(
   fof/upload               # Screenshots, Logs, BB-Report-Tool-Zips anhängen
   fof/best-answer          # Lösung markieren (Help & Support)
   fof/discussion-templates # Pflichtangaben-Vorlage für Help & Support
+  fof/sitemap              # sitemap.xml für Google
+  v17development/flarum-seo # Meta-Tags, Social-Vorschau, strukturierte Daten, robots.txt
 )
 
 for arg in "$@"; do

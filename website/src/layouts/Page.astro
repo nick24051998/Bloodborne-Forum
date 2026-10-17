@@ -1,0 +1,25 @@
+---
+// Rahmen für Textseiten aus src/texts/*.md
+import Base from './Base.astro';
+
+interface Props {
+  frontmatter: { title: string; description: string; heading?: string; intro?: string };
+  jsonLd?: object[];
+}
+
+const { frontmatter, jsonLd = [] } = Astro.props;
+---
+
+<Base title={frontmatter.title} description={frontmatter.description} jsonLd={jsonLd}>
+  <section class="page-hero">
+    <div class="container">
+      <h1>{frontmatter.heading ?? frontmatter.title}</h1>
+      {frontmatter.intro && <p>{frontmatter.intro}</p>}
+    </div>
+  </section>
+  <div class="container">
+    <article class="prose">
+      <slot />
+    </article>
+  </div>
+</Base>
