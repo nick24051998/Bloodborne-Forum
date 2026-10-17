@@ -1,4 +1,4 @@
-# Website (bbport.com)
+# Website
 
 Statische Projekt-Website zum Forum: Startseite, Installationsanleitung, FAQ, Changelog,
 Impressum, Datenschutz. Gebaut mit [Astro](https://astro.build), gleicher Bloodborne-Look wie das
@@ -12,6 +12,7 @@ Best Practices 100, Performance 99–100.
 | Was | Datei |
 |---|---|
 | Name, Adresse, Discord-, Forum- und Download-Link, Google-Beschreibung | `site.config.mjs` |
+| Community-Seite (Forum/Discord, Hilfe-Hinweise) | `src/pages/community.astro` |
 | Startseite (Einleitung, Feature-Karten) | `src/pages/index.astro` (oben die Liste `features`, im Hero der Satz mit `TODO`) |
 | Installationsanleitung und Systemanforderungen | `src/texts/install.md` |
 | FAQ (Frage/Antwort-Liste oben in der Datei) | `src/texts/faq.md` |
@@ -22,7 +23,7 @@ Die `.md`-Dateien sind normaler Text (Markdown): `## Überschrift`, `**fett**`, 
 `[Linktext](https://…)`. Oben zwischen den `---` stehen Titel und Beschreibung für Google.
 
 **Ohne eigenen Rechner:** Datei auf GitHub öffnen, auf den Stift klicken, ändern, unten
-„Commit changes“. Cloudflare baut die Seite danach in etwa einer Minute neu.
+„Commit changes“. GitHub baut die Seite danach in etwa einer Minute neu.
 
 **Was noch fehlt:** Alles mit `TODO` ist ein Platzhalter. Eine Liste bekommst du mit:
 
@@ -41,29 +42,48 @@ npm run dev        # http://localhost:4321, Änderungen erscheinen sofort
 npm run build      # fertige Seite nach dist/
 ```
 
-## Veröffentlichen mit Cloudflare Pages (kostenlos)
+## Veröffentlichen mit GitHub Pages (kostenlos, ohne eigene Domain)
 
-1. [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages** → **Create** → Reiter
-   **Pages** → **Connect to Git** → GitHub verbinden → dieses Repository auswählen.
-2. Build-Einstellungen:
-   - Framework preset: **Astro**
-   - Build command: `npm run build`
-   - Build output directory: `dist`
-   - Root directory (Advanced): `website`
-   - Environment variable: `NODE_VERSION` = `22.22.0`
-3. **Save and Deploy.** Nach etwa einer Minute ist die Seite unter `<projekt>.pages.dev` erreichbar.
-4. Im Projekt unter **Custom domains** `bbport.com` hinzufügen, zusätzlich `www.bbport.com`.
-   Liegt die Domain bei Cloudflare, legt Cloudflare den DNS-Eintrag selbst an.
-5. Optional: Unter **Settings → Builds → Build watch paths** `website/*` eintragen. Dann baut
-   Cloudflare nur neu, wenn sich die Website ändert, nicht bei Forum-Änderungen.
+Die Website wird bei jedem Push auf `main` automatisch gebaut und veröffentlicht
+(`.github/workflows/website.yml`). Einmalig einschalten:
+
+1. Auf GitHub das Repository öffnen → **Settings** → links **Pages**.
+2. Unter **Build and deployment → Source** die Option **GitHub Actions** wählen.
+3. Oben im Repo **Actions** → links **Website** → **Run workflow** → **Run workflow**.
+   Nach etwa einer Minute ist die Seite online:
+
+   **https://nick24051998.github.io/Bloodborne-Forum/**
+
+Voraussetzung: Das Repository ist öffentlich (bei privaten Repos braucht GitHub Pages ein
+kostenpflichtiges Konto). Jede spätere Änderung an `website/` geht automatisch online.
+
+Solange `forumUrl` und `discordUrl` in `site.config.mjs` leer sind, blendet die Website die
+Forum- und Discord-Buttons aus. Links im Text zeigen auf die Seite `/community/`, die anzeigt, was
+gerade verfügbar ist. So gibt es keine toten Links.
+
+## Später: eigene Domain (z. B. bbport.com)
+
+1. In `site.config.mjs` `url: 'https://bbport.com'` und `base: '/'` setzen, außerdem `forumUrl`
+   und `discordUrl` eintragen. Committen.
+2. GitHub → **Settings → Pages → Custom domain** → `bbport.com` → Save → **Enforce HTTPS**.
+3. Beim Domain-Anbieter bzw. in Cloudflare-DNS die vier `A`-Einträge von GitHub Pages auf
+   `bbport.com` setzen sowie `www` als `CNAME` auf `nick24051998.github.io` (die aktuellen
+   IP-Adressen nennt GitHub in der Pages-Hilfe unter „Managing a custom domain“).
+
+GitHub leitet die alten `github.io`-Adressen danach automatisch auf die Domain um. Die
+Google-Platzierungen gehen also nicht verloren. Alternativ kannst du die Seite dann auch
+über Cloudflare Pages ausliefern (Root directory `website`, Build `npm run build`,
+Output `dist`, `NODE_VERSION=22.22.0`).
 
 ## Bei Google anmelden
 
-1. [Google Search Console](https://search.google.com/search-console) → Property `bbport.com` (Typ
-   *Domain*) hinzufügen → den angezeigten TXT-Eintrag in Cloudflare-DNS eintragen.
-2. Unter **Sitemaps** `https://bbport.com/sitemap-index.xml` einreichen.
-3. Für das Forum dasselbe mit `forum.bbport.com` und `https://forum.bbport.com/sitemap.xml`
-   (kommt von der Forum-Erweiterung `fof/sitemap`).
+1. [Google Search Console](https://search.google.com/search-console) → **Property hinzufügen** →
+   Typ **URL-Präfix** → `https://nick24051998.github.io/Bloodborne-Forum/` → Bestätigung per
+   **HTML-Tag**: den `<meta name="google-site-verification" …>`-Code kopieren und mir schicken
+   (oder in `src/layouts/Base.astro` im `<head>` einfügen).
+2. Unter **Sitemaps** `https://nick24051998.github.io/Bloodborne-Forum/sitemap-index.xml` einreichen.
+3. Mit eigener Domain später dasselbe für `bbport.com` (Typ *Domain*, Bestätigung per DNS-Eintrag)
+   und für das Forum (`https://forum.bbport.com/sitemap.xml`).
 
 ## Technik (zur Info)
 

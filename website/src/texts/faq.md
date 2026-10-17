@@ -11,13 +11,11 @@ questions:
   - q: Where can I download the port?
     a: "TODO: Only from the official release page: link."
   - q: What are the system requirements?
-    a: See the <a href="/install/">install guide</a> for minimum and recommended specs.
+    a: See the <a href="../install/">install guide</a> for minimum and recommended specs.
   - q: Is this an official Sony or FromSoftware product?
     a: No. It is a community project and is not affiliated with or endorsed by Sony Interactive Entertainment or FromSoftware.
   - q: The game crashes or stutters – where do I get help?
-    a: Search the <a href="https://forum.bbport.com/t/help-support">Help &amp; Support forum</a> first. If nothing helps, open a topic with your port version, GPU and driver version, a description of what happens and your BB Report Tool zip.
+    a: Check this FAQ and the <a href="../install/">install guide</a> first. If nothing helps, ask the <a href="../community/">community</a> and include your port version, GPU and driver version, a description of what happens and your BB Report Tool zip.
   - q: Can I share mods and patches?
-    a: Yes – in the <a href="https://forum.bbport.com/t/mods-patches">Mods &amp; Patches</a> section of the forum. Links to game files are not allowed.
-  - q: How do I log in to the forum?
-    a: With your Discord account – click <em>Log In</em> and choose Discord.
+    a: Yes – share them with the <a href="../community/">community</a>. Links to game files are not allowed.
 ---

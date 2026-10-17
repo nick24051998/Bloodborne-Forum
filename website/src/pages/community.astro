@@ -1,0 +1,46 @@
+---
+// Sammelpunkt für Forum/Discord. Texte verlinken hierher (../community/), damit es keine toten
+// Links gibt, solange Forum oder Discord noch keine Adresse haben.
+import Base from '../layouts/Base.astro';
+import { SITE } from '../../site.config.mjs';
+---
+
+<Base title="Community" description={`Get help and talk to other players of the ${SITE.name}.`}>
+  <section class="page-hero">
+    <div class="container">
+      <h1>Community</h1>
+      <p>Get help, share mods and guides, and talk to other hunters.</p>
+    </div>
+  </section>
+  <div class="container">
+    <div class="prose">
+      <div class="grid">
+        {SITE.forumUrl && (
+          <div class="card">
+            <h3>Forum</h3>
+            <p>Help &amp; Support, mods, guides and suggestions – searchable and organised.</p>
+            <p style="margin-top:1rem"><a class="btn btn-primary" href={SITE.forumUrl}>Open the forum</a></p>
+          </div>
+        )}
+        {SITE.discordUrl && (
+          <div class="card">
+            <h3>Discord</h3>
+            <p>Chat with the community and the team in real time.</p>
+            <p style="margin-top:1rem"><a class="btn btn-discord" href={SITE.discordUrl} rel="noopener">Join Discord</a></p>
+          </div>
+        )}
+        {!SITE.forumUrl && !SITE.discordUrl && (
+          <div class="card">
+            <h3>Coming soon</h3>
+            <p>Our forum and Discord links will be published here shortly.</p>
+          </div>
+        )}
+      </div>
+      <h2>Asking for help</h2>
+      <p>
+        Please include your <strong>port version</strong>, <strong>GPU and driver version</strong>, a description of
+        <strong>what happens</strong> and your <strong>BB Report Tool zip</strong>. Links to game files are not allowed.
+      </p>
+    </div>
+  </div>
+</Base>

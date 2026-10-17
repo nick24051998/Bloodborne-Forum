@@ -30,5 +30,5 @@ TODO: How to update to a new version (keep settings/saves?).
 
 ## Something went wrong?
 
-1. Check the [FAQ](/faq/) and search the **Help & Support** section of the [forum](https://forum.bbport.com/t/help-support).
-2. Still stuck? Open a new topic in Help & Support. The post template asks for your **port version**, **GPU and driver version**, **what happens**, and your **BB Report Tool zip** – please fill in everything, it makes helping you much faster.
+1. Check the [FAQ](../faq/) – most problems are covered there.
+2. Still stuck? Ask the [community](../community/). Please include your **port version**, **GPU and driver version**, **what happens**, and your **BB Report Tool zip** – it makes helping you much faster.

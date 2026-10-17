@@ -13,9 +13,9 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 > Flarum 2.0 ist erst seit Oktober 2026 stabil. Die Erweiterungen ziehen gerade nach, deshalb bleibt
 > dieses Setup bewusst auf 1.8 (siehe [Update](#update)).
 
-> **Website:** Die Projekt-Website (bbport.com: Startseite, Install-Guide, FAQ, Changelog) liegt in
-> [`website/`](website/README.md). Sie wird kostenlos über Cloudflare Pages veröffentlicht und
-> verlinkt das Forum.
+> **Website:** Die Projekt-Website (Startseite, Install-Guide, FAQ, Changelog) liegt in
+> [`website/`](website/README.md). Sie wird automatisch über GitHub Pages veröffentlicht
+> (https://nick24051998.github.io/Bloodborne-Forum/), später optional unter eigener Domain.
 
 ## Inhalt
 
@@ -33,7 +33,7 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `theme/logo.png`, `theme/favicon.png` | Dieselben Bilder als PNG zum Hochladen (Flarum 1.x nimmt kein SVG) |
 | `theme/fonts/` | Cinzel + Inter als `.woff2`, selbst gehostet (SIL OFL) |
 | `content/` | Welcome-Banner, Regel-Thema, Vorlage für Help & Support |
-| `website/` | Projekt-Website (Astro, statisch, Cloudflare Pages), siehe `website/README.md` |
+| `website/` | Projekt-Website (Astro, statisch, GitHub Pages), siehe `website/README.md` |
 
 ## Voraussetzungen
 

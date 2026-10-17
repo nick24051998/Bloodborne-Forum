@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { SITE } from '../../site.config.mjs';
+import { link, absolute } from '../lib/url.js';
 
 interface Props {
   title?: string;
@@ -12,21 +13,20 @@ interface Props {
 const { title, description = SITE.description, jsonLd = [], noindex = false } = Astro.props;
 const fullTitle = title ? `${title} | ${SITE.name}` : `${SITE.name} – Install Guide, FAQ & Community`;
 const canonical = new URL(Astro.url.pathname, SITE.url).href;
-const ogImage = new URL('/og-image.png', SITE.url).href;
 const path = Astro.url.pathname;
 
 const nav = [
-  { href: '/install/', label: 'Install' },
-  { href: '/faq/', label: 'FAQ' },
-  { href: '/changelog/', label: 'Changelog' },
-  { href: SITE.forumUrl, label: 'Forum' },
+  { href: link('install/'), label: 'Install' },
+  { href: link('faq/'), label: 'FAQ' },
+  { href: link('changelog/'), label: 'Changelog' },
+  ...(SITE.forumUrl ? [{ href: SITE.forumUrl, label: 'Forum' }] : []),
 ];
 
 const baseLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: SITE.name,
-  url: SITE.url,
+  url: absolute(),
 };
 ---
 
@@ -40,19 +40,19 @@ const baseLd = {
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content="#111113" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="/favicon.png" type="image/png" sizes="128x128" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="sitemap" href="/sitemap-index.xml" />
-    <link rel="preload" href="/fonts/cinzel-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="icon" href={link('favicon.svg')} type="image/svg+xml" />
+    <link rel="icon" href={link('favicon.png')} type="image/png" sizes="128x128" />
+    <link rel="apple-touch-icon" href={link('apple-touch-icon.png')} />
+    <link rel="sitemap" href={link('sitemap-index.xml')} />
+    <link rel="preload" href={link('fonts/cinzel-latin-700-normal.woff2')} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={link('fonts/inter-latin-400-normal.woff2')} as="font" type="font/woff2" crossorigin />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={SITE.name} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={ogImage} />
+    <meta property="og:image" content={absolute('og-image.png')} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -63,8 +63,8 @@ const baseLd = {
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">
       <div class="container">
-        <a class="brand" href="/" aria-label={`${SITE.name} – home`}>
-          <img src="/logo.svg" alt={SITE.name} width="174" height="46" />
+        <a class="brand" href={link()} aria-label={`${SITE.name} – home`}>
+          <img src={link('logo.svg')} alt={SITE.name} width="174" height="46" />
         </a>
         <input class="menu-input" type="checkbox" id="menu" aria-label="Toggle menu" />
         <label class="menu-button" for="menu"><span aria-hidden="true">☰</span> Menu</label>
@@ -75,7 +75,7 @@ const baseLd = {
                 <a href={item.href} aria-current={path === item.href ? 'page' : undefined}>{item.label}</a>
               </li>
             ))}
-            <li><a class="nav-discord" href={SITE.discordUrl} rel="noopener">Discord</a></li>
+            {SITE.discordUrl && <li><a class="nav-discord" href={SITE.discordUrl} rel="noopener">Discord</a></li>}
           </ul>
         </nav>
       </div>
@@ -89,15 +89,13 @@ const baseLd = {
       <div class="container">
         <div class="cols">
           <ul>
-            <li><a href="/install/">Install</a></li>
-            <li><a href="/faq/">FAQ</a></li>
-            <li><a href="/changelog/">Changelog</a></li>
-            <li><a href={SITE.forumUrl}>Forum</a></li>
-            <li><a href={SITE.discordUrl} rel="noopener">Discord</a></li>
+            {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+            <li><a href={link('community/')}>Community</a></li>
+            {SITE.discordUrl && <li><a href={SITE.discordUrl} rel="noopener">Discord</a></li>}
           </ul>
           <ul>
-            <li><a href="/imprint/">Imprint</a></li>
-            <li><a href="/privacy/">Privacy</a></li>
+            <li><a href={link('imprint/')}>Imprint</a></li>
+            <li><a href={link('privacy/')}>Privacy</a></li>
           </ul>
         </div>
         <p class="disclaimer">

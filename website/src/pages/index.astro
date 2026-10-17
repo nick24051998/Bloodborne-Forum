@@ -1,22 +1,27 @@
 ---
 import Base from '../layouts/Base.astro';
 import { SITE } from '../../site.config.mjs';
+import { link, absolute } from '../lib/url.js';
 
-// TODO: Texte der Startseite. Bleibt etwas leer, wird die Karte ausgeblendet.
+// TODO: Texte der Startseite.
 const features = [
   { icon: '🩸', title: 'TODO: Feature 1', text: 'TODO: Short description of the first highlight of the port.' },
   { icon: '🌕', title: 'TODO: Feature 2', text: 'TODO: Short description, e.g. resolution or frame rate options.' },
   { icon: '🗝️', title: 'TODO: Feature 3', text: 'TODO: Short description, e.g. controller or keyboard support.' },
-  { icon: '🛠️', title: 'Mods & patches', text: 'Share and discuss mods, patches and tweaks with the community in the forum.' },
+  { icon: '🛠️', title: 'Mods & patches', text: 'Share and discuss mods, patches and tweaks with the community.' },
 ];
+
+const helpUrl = SITE.forumUrl ? `${SITE.forumUrl}/t/help-support` : SITE.discordUrl;
 
 const orgLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: `${SITE.name} Community`,
-  url: SITE.url,
-  logo: new URL('/favicon.png', SITE.url).href,
-  sameAs: [SITE.forumUrl, SITE.discordUrl, SITE.githubUrl].filter(Boolean),
+  url: absolute(),
+  logo: absolute('favicon.png'),
+  ...(([SITE.forumUrl, SITE.discordUrl, SITE.githubUrl].filter(Boolean).length) && {
+    sameAs: [SITE.forumUrl, SITE.discordUrl, SITE.githubUrl].filter(Boolean),
+  }),
 };
 ---
 
@@ -30,13 +35,13 @@ const orgLd = {
           <span class="todo">TODO: One or two sentences: what the port is and why people should try it.</span>
         </p>
         <div class="actions">
-          <a class="btn btn-primary" href="/install/">Install guide</a>
+          <a class="btn btn-primary" href={link('install/')}>Install guide</a>
           {SITE.downloadUrl && <a class="btn btn-ghost" href={SITE.downloadUrl} rel="noopener">Latest release</a>}
-          <a class="btn btn-discord" href={SITE.discordUrl} rel="noopener">Join Discord</a>
-          <a class="btn btn-ghost" href={SITE.forumUrl}>Visit forum</a>
+          {SITE.discordUrl && <a class="btn btn-discord" href={SITE.discordUrl} rel="noopener">Join Discord</a>}
+          {SITE.forumUrl && <a class="btn btn-ghost" href={SITE.forumUrl}>Visit forum</a>}
         </div>
       </div>
-      <img class="emblem" src="/favicon.svg" alt="" width="380" height="380" />
+      <img class="emblem" src={link('favicon.svg')} alt="" width="380" height="380" />
     </div>
   </section>
 
@@ -60,16 +65,15 @@ const orgLd = {
       <div>
         <h2 style="margin-top:0">Get started</h2>
         <p>Check the system requirements, follow the step-by-step install guide and you are ready to hunt.</p>
-        <p><a class="btn btn-primary" href="/install/">Read the install guide</a></p>
+        <p><a class="btn btn-primary" href={link('install/')}>Read the install guide</a></p>
       </div>
       <div>
         <h2 style="margin-top:0">Need help?</h2>
         <p>
-          Search the <a href={`${SITE.forumUrl}/t/help-support`}>Help &amp; Support forum</a> – most problems are already
-          solved there. When you open a topic, include your port version, GPU and driver, what happens and your BB Report
-          Tool zip.
+          Read the <a href={link('faq/')}>FAQ</a> first – most problems are covered there. When you ask for help, include
+          your port version, GPU and driver, what happens and your BB Report Tool zip.
         </p>
-        <p><a class="btn btn-ghost" href={SITE.forumUrl}>Open the forum</a></p>
+        {helpUrl && <p><a class="btn btn-ghost" href={helpUrl} rel="noopener">{SITE.forumUrl ? 'Open the forum' : 'Ask on Discord'}</a></p>}
       </div>
     </div>
   </section>
