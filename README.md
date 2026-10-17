@@ -321,3 +321,6 @@ scripts/setup-forum.sh            # Theme und Einstellungen erneut anwenden (opt
   Adresse.
 - Bei „Redirect URI mismatch“ von Discord weicht die Redirect-URL im Portal von
   `${FORUM_URL}/auth/discord` ab.
+- `Pool overlaps with other one on this address space` beim Start: Das feste Forum-Netz
+  `10.88.0.0/24` ist schon vergeben. In `.env` `FORUM_SUBNET` auf ein freies Netz setzen,
+  z. B. `10.89.0.0/24`.

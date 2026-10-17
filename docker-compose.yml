@@ -20,8 +20,9 @@ x-flarum-env: &flarum-env
   DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD fehlt in .env}
   MEMORY_LIMIT: ${PHP_MEMORY_LIMIT:-256M}
   UPLOAD_MAX_SIZE: ${UPLOAD_MAX_SIZE:-32M}
-  # Echte Besucher-IP hinter Caddy/cloudflared (Cloudflare setzt CF-Connecting-IP)
-  REAL_IP_FROM: ${REAL_IP_FROM:-172.16.0.0/12}
+  # Echte Besucher-IP hinter Caddy/cloudflared (Cloudflare setzt CF-Connecting-IP).
+  # Vertraut wird dem Header nur aus dem eigenen Forum-Netz (siehe networks unten).
+  REAL_IP_FROM: ${FORUM_SUBNET:-10.88.0.0/24}
   REAL_IP_HEADER: ${REAL_IP_HEADER:-CF-Connecting-IP}
   LISTEN_IPV6: "false"
 
@@ -102,6 +103,14 @@ services:
       TUNNEL_TOKEN: ${CF_TUNNEL_TOKEN:-}
     depends_on:
       - flarum
+
+# Festes eigenes Netz: Anfragen vom Host-Proxy (über das Gateway) und von
+# cloudflared kommen aus diesem Bereich, nur ihnen wird CF-Connecting-IP geglaubt.
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${FORUM_SUBNET:-10.88.0.0/24}
 
 volumes:
   db-data:
