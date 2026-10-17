@@ -88,19 +88,20 @@ services:
       SIDECAR_CRON: "1"
     volumes: *flarum-volumes
 
-  # Variante (b): Cloudflare Tunnel statt Caddy – auskommentiert lassen, bis
-  # scripts/setup-forum.sh gelaufen ist. Dann einkommentieren, CF_TUNNEL_TOKEN
-  # in .env setzen und im Cloudflare-Dashboard als Service http://flarum:8000
-  # eintragen.
-  # cloudflared:
-  #   <<: *hardening
-  #   image: cloudflare/cloudflared:latest
-  #   restart: unless-stopped
-  #   command: tunnel --no-autoupdate run
-  #   environment:
-  #     TUNNEL_TOKEN: ${CF_TUNNEL_TOKEN:?CF_TUNNEL_TOKEN fehlt in .env}
-  #   depends_on:
-  #     - flarum
+  # Variante (b): Cloudflare Tunnel statt Caddy. Startet nur mit dem Profil
+  # "tunnel" (COMPOSE_PROFILES=tunnel in .env, setzt scripts/bootstrap.sh).
+  # Erst aktivieren, wenn scripts/setup-forum.sh gelaufen ist. Im Cloudflare-
+  # Dashboard als Service http://flarum:8000 eintragen.
+  cloudflared:
+    <<: *hardening
+    image: cloudflare/cloudflared:latest
+    profiles: ["tunnel"]
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CF_TUNNEL_TOKEN:-}
+    depends_on:
+      - flarum
 
 volumes:
   db-data:

@@ -17,8 +17,9 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 
 | Pfad | Zweck |
 |---|---|
-| `docker-compose.yml` | Flarum, Cron-Sidecar, MariaDB (benannte Volumes), cloudflared (auskommentiert) |
+| `docker-compose.yml` | Flarum, Cron-Sidecar, MariaDB (benannte Volumes), cloudflared (Profil `tunnel`) |
 | `.env.example` | Alle Einstellungen mit Platzhaltern, wird nach `.env` kopiert |
+| `scripts/bootstrap.sh` | **Komplett-Installer:** fragt ein paar Werte ab, erzeugt Passwörter, startet und richtet alles ein |
 | `scripts/install-extensions.sh` | Installiert fof/oauth, fof/upload, fof/best-answer, fof/discussion-templates (optional fof/user-directory) |
 | `scripts/setup-forum.sh` | Richtet alles per Flarum-API ein: Admin, Erweiterungen, Tags, Rechte, Theme, Banner, Regeln, Logo |
 | `scripts/backup.sh` | DB-Dump + Datenvolume als `.tar.gz` |
@@ -37,6 +38,24 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 - Eine Domain bei Cloudflare, z. B. `forum.example.com`
 - Zugriff auf das [Discord Developer Portal](https://discord.com/developers/applications)
 - Ausgehender Internetzugang für den Container (Composer lädt die Erweiterungen)
+
+## Schnellstart (ein Befehl)
+
+Auf dem Server (per SSH):
+
+```bash
+git clone https://github.com/nick24051998/Bloodborne-Forum && cd Bloodborne-Forum
+scripts/bootstrap.sh
+```
+
+Der Installer fragt nach Domain, Admin-Name und -Mail, dem Discord-Link und der HTTPS-Variante.
+Erzeugt alle Passwörter selbst und schreibt `.env`. Startet die Container, installiert und
+konfiguriert alles (die Schritte 1–2 unten) und startet bei Variante (b) den Cloudflare Tunnel.
+Zum Schluss zeigt er das Admin-Passwort und die restlichen Browser-Schritte an (Discord-Portal,
+Client Secret, Cloudflare). Im Test dauerte das von null bis zum fertigen Forum unter einer Minute.
+Den Installer kannst du gefahrlos erneut ausführen.
+
+Die folgenden Abschnitte beschreiben dieselben Schritte einzeln zum Nachvollziehen.
 
 ## 1. Starten
 
@@ -116,8 +135,9 @@ Header fälschen.
 
 1. Cloudflare Zero Trust → *Networks → Tunnels* → *Create a tunnel* → *Cloudflared* → Token kopieren.
 2. Im Tunnel unter *Public Hostname* `forum.example.com` → Service `HTTP` → `flarum:8000` eintragen.
-3. In `.env` `CF_TUNNEL_TOKEN=…` setzen. In `docker-compose.yml` den Block `cloudflared` einkommentieren.
-4. `docker compose up -d`
+3. In `.env` `CF_TUNNEL_TOKEN=…` und `COMPOSE_PROFILES=tunnel` setzen. Bei `bootstrap.sh` mit
+   Variante 1 steht das schon drin.
+4. `docker compose up -d` startet jetzt auch den Service `cloudflared`.
 
 ## 4. Discord-Login einrichten
 
