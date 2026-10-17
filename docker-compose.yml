@@ -76,7 +76,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "127.0.0.1:${FLARUM_PORT:-8888}:8000"
+      - "${FLARUM_BIND:-127.0.0.1}:${FLARUM_PORT:-8888}:8000"
     environment: *flarum-env
     volumes: *flarum-volumes
 

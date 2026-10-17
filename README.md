@@ -101,6 +101,25 @@ erneut laufen. Es erledigt:
 Manuell geht alles auch im Admin-Bereich unter `https://forum.example.com/admin`. Unter
 *Extensions* lassen sich die Erweiterungen dort einzeln einschalten.
 
+## Lokal im Netzwerk testen (vor dem Livegang)
+
+Flarum baut alle Links aus `FORUM_URL`. Zum Testen im LAN stellst du deshalb URL und
+Bind-Adresse auf die LAN-IP des Docker-Hosts um (Beispiel `192.168.13.84`):
+
+```bash
+sed -i -e 's|^FORUM_URL=.*|FORUM_URL=http://192.168.13.84:8888|' \
+       -e 's|^FLARUM_BIND=.*|FLARUM_BIND=192.168.13.84|' .env
+grep -q '^FLARUM_BIND=' .env || echo 'FLARUM_BIND=192.168.13.84' >> .env
+docker compose up -d db flarum cron
+```
+
+Danach im Browser `http://192.168.13.84:8888` öffnen. **Zum Livegang zurückstellen:**
+
+```bash
+sed -i -e 's|^FORUM_URL=.*|FORUM_URL=https://forum.example.com|' -e 's|^FLARUM_BIND=.*|FLARUM_BIND=127.0.0.1|' .env
+docker compose up -d
+```
+
 ## 3. Öffentlich machen: HTTPS
 
 ### Variante (a): Caddy auf dem Host
