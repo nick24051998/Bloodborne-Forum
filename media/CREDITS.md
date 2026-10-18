@@ -1,6 +1,6 @@
 # Medien: Herkunft und Lizenzen
 
-Alle Medien in `media/` sind gemeinfrei (Public Domain, CC0) oder selbst erzeugt. Eine
+Alle Medien in `media/` sind gemeinfrei (CC0 bzw. Unlicense) oder selbst erzeugt. Eine
 Namensnennung ist rechtlich nicht nötig; sie steht hier trotzdem, damit nachvollziehbar bleibt,
 woher jede Datei stammt.
 
@@ -23,16 +23,3 @@ deren Lizenzangaben mit den Projekten übereinstimmen.
 Neue Icons: SVG nach `media/icons/` legen (nur CC0/Public Domain), Quelle hier eintragen und
 `python3 media/build.py` ausführen. Das erzeugt `flarum/icons.less` (Klassen `bbicon bbicon-NAME`,
 z. B. als Tag-Icon im Admin) und `website/src/lib/icons.js` (`<Icon name="NAME" />`).
-
-## Radierungen und Lithografien (Art Institute of Chicago, Open Access)
-
-Gemeinfreie Werke, vom Museum unter CC0 1.0 bereitgestellt. `media/artworks.py` lädt sie über die
-offizielle API, prüft `is_public_domain`, schneidet sie zu und wandelt die Striche in mondgraue,
-transparente Linien um.
-
-| Datei | Werk | Lizenz |
-|---|---|---|
-| `artworks/notre-dame-apse.webp` (Forum-Banner) | Charles Meryon, [The Apse of Notre-Dame, Paris](https://www.artic.edu/artworks/28755), 1854 | Public Domain / CC0 1.0 |
-| `artworks/pier-with-lamp.webp` (Website-Start) | Giovanni Battista Piranesi, [The Pier with a Lamp, Imaginary Prisons, Tafel 15](https://www.artic.edu/artworks/7380), 1761 | Public Domain / CC0 1.0 |
-| `artworks/gothic-arch.webp` (Website-Unterseiten) | Giovanni Battista Piranesi, [The Gothic Arch, Imaginary Prisons, Tafel 14](https://www.artic.edu/artworks/7377), 1761 | Public Domain / CC0 1.0 |
-| `artworks/graveyard-moonlight.webp` (Website-404) | Carl Blechen, [Church and Graveyard in the Snow by Moonlight](https://www.artic.edu/artworks/148401), 1827 | Public Domain / CC0 1.0 |
