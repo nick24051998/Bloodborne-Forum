@@ -16,6 +16,10 @@
  *
  * Außerdem: Sicherheits-Header für alle Forum-, Admin- und API-Antworten
  * (unabhängig davon, ob Caddy oder Cloudflare Tunnel davor sitzt).
+ *
+ * flarum/forum.js (per docker-compose unter /bbforum): Website- und Discord-Links in der
+ * Kopfzeile, Registrieren-Fenster nur mit Discord-Button. Die Adressen kommen aus den
+ * Einstellungen "bbforum.website_url" und "bbforum.discord_url" (setzt setup-forum.sh).
  */
 
 use Flarum\Extend;
@@ -69,4 +73,11 @@ return [
             ]);
         }
     }),
+
+    (new Extend\Settings())
+        ->serializeToForum('bbforumWebsiteUrl', 'bbforum.website_url')
+        ->serializeToForum('bbforumDiscordUrl', 'bbforum.discord_url')
+        ->serializeToForum('bbforumDiscordOnly', 'bbforum.oauth_only_signup', 'boolval'),
+
+    ...(is_file('/bbforum/forum.js') ? [(new Extend\Frontend('forum'))->js('/bbforum/forum.js')] : []),
 ];

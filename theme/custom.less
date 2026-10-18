@@ -114,6 +114,18 @@ h1, h2, h3,
   color: @bb-gold-light;
 }
 
+// Links zur Website und zu Discord (flarum/forum.js); auf dem Handy im Seitenmenü
+.Header-primary .bb-navLink {
+  font-weight: 600;
+}
+
+@media @tablet {
+  .Header-primary .item-bb-install,
+  .Header-primary .item-bb-faq {
+    display: none;
+  }
+}
+
 // --- Willkommens-Banner --------------------------------------------------------
 .WelcomeHero {
   background:
@@ -401,6 +413,53 @@ h1, h2, h3,
 
 .Modal-header {
   border-bottom: 1px solid @bb-border;
+}
+
+// Discord-only-Registrierung: E-Mail-Formular weg, sobald ein Login-Button (Discord) da ist
+.SignUpModal--discordOnly .LogInButtons:not(:empty) {
+  + .Form {
+    display: none;
+  }
+
+  &::after {
+    content: "New accounts are created with your Discord account.";
+    display: block;
+    margin-top: 14px;
+    color: @bb-muted;
+    font-size: 13px;
+    text-align: center;
+  }
+}
+
+// --- Fußzeile (content/footer.html, Admin → Appearance → Custom Footer) ---------------------
+.bb-footer {
+  margin-top: 40px;
+  padding: 24px 0 32px;
+  border-top: 1px solid @bb-border;
+  background: @bb-bg-deep;
+  color: @bb-muted;
+  font-size: 13px;
+  text-align: center;
+
+  a {
+    color: @bb-text;
+
+    &:hover,
+    &:focus {
+      color: @bb-gold-light;
+    }
+  }
+
+  p {
+    margin: 10px 0 0;
+  }
+}
+
+.bb-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 20px;
 }
 
 // --- Scrollbars (WebKit/Blink) ----------------------------------------------------------

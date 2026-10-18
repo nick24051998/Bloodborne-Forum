@@ -50,8 +50,20 @@ sql() {
   mariadb -h "$DB_HOST" -P "${DB_PORT:-3306}" -u "$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" -N -e "$1"
 }
 
+# Unset or placeholder addresses count as missing: their links are left out
+case "${WEBSITE_URL:-}" in *example.com*) SITE_URL="" ;; *) SITE_URL=${WEBSITE_URL:-} ;; esac
+SITE_URL=${SITE_URL%/}
+case "${DISCORD_INVITE_URL:-}" in *CHANGE_ME*) INVITE_URL="" ;; *) INVITE_URL=${DISCORD_INVITE_URL:-} ;; esac
+
+fill() { # fill NAME VALUE (stdin -> stdout); empty VALUE: Markdown links become text, other lines go
+  if [ -n "$2" ]; then
+    sed "s|{{$1}}|$2|g"
+  else
+    sed -e "s|\[\([^]]*\)\]({{$1}}[^)]*)|\1|g" -e "/{{$1}}/d"
+  fi
+}
 subst() { # replace placeholders in a content file
-  sed -e "s|{{DISCORD_INVITE_URL}}|${DISCORD_INVITE_URL}|g" -e "s|{{WEBSITE_URL}}|${WEBSITE_URL}|g" "$1"
+  fill DISCORD_INVITE_URL "$INVITE_URL" <"$1" | fill WEBSITE_URL "$SITE_URL"
 }
 
 # --------------------------------------------------------------------------
@@ -161,6 +173,10 @@ api POST /settings "$body" >/dev/null && ok "colours, dark mode, welcome banner"
 body=$(jq -n --rawfile less "$D/theme/custom.less" '{custom_less: $less}')
 api POST /settings "$body" >/dev/null && ok "theme/custom.less applied"
 ok "Discord-only sign-up: $([ $only_signup = 1 ] && echo on || echo off)"
+footer=$(subst "$D/content/footer.html")
+body=$(jq -n --arg site "$SITE_URL" --arg discord "$INVITE_URL" --arg footer "$footer" \
+  '{"bbforum.website_url": $site, "bbforum.discord_url": $discord, custom_footer: $footer}')
+api POST /settings "$body" >/dev/null && ok "header links and footer: website ${SITE_URL:-(not set)}, Discord ${INVITE_URL:-(not set)}"
 
 if installed fof/oauth; then
   if [ -n "${DISCORD_CLIENT_ID:-}" ]; then
@@ -268,5 +284,8 @@ for kind in logo favicon; do
     fi
   fi
 done
+
+# Rebuild the forum JavaScript (flarum/forum.js) and stylesheets
+gosu flarum:flarum php /opt/flarum/flarum cache:clear >/dev/null && ok "forum assets rebuilt"
 
 printf '\n\033[1;32mDone.\033[0m Clear the browser cache once, then check %s\n' "$FLARUM_BASE_URL"

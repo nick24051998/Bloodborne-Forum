@@ -29,11 +29,12 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `scripts/setup-forum.sh` | Richtet alles per Flarum-API ein: Admin, Erweiterungen, Tags, Rechte, Theme, Banner, Regeln, Logo |
 | `scripts/backup.sh` | DB-Dump + Datenvolume als `.tar.gz` |
 | `flarum/extend.php` | Schalter „neue Accounts nur über Discord“ und Sicherheits-Header |
+| `flarum/forum.js` | Links zur Website und zu Discord in der Forum-Kopfzeile, Registrieren-Fenster nur mit Discord-Button |
 | `theme/custom.less` | Theme (Admin → Appearance → Custom Styles) |
 | `theme/logo.svg`, `theme/favicon.svg` | Platzhalter-Logo (Blutmond mit Krähe), Quelldateien |
 | `theme/logo.png`, `theme/favicon.png` | Dieselben Bilder als PNG zum Hochladen (Flarum 1.x nimmt kein SVG) |
 | `theme/fonts/` | Cinzel + Inter als `.woff2`, selbst gehostet (SIL OFL) |
-| `content/` | Welcome-Banner, Regel-Thema, Vorlage für Help & Support |
+| `content/` | Welcome-Banner, Fußzeile (Imprint/Privacy), Regel-Thema, Vorlage für Help & Support |
 | `website/` | Projekt-Website (Astro, statisch, GitHub Pages), siehe `website/README.md` |
 
 ## Voraussetzungen
@@ -191,7 +192,8 @@ keine Bestätigungsmail raus.
 
 `DISCORD_ONLY_SIGNUP=true` (Standard) in `.env` → `scripts/setup-forum.sh`. Danach lehnt Flarum
 neue Accounts ohne Discord-Login ab und zeigt die Meldung „New accounts can only be created with
-'Log in with Discord'“. Bestehende Accounts und Admins sind nicht betroffen. Zum Abschalten:
+'Log in with Discord'“. Das Registrieren-Fenster zeigt dann nur den Discord-Button
+(`flarum/forum.js`, solange der Discord-Login aktiv ist). Bestehende Accounts und Admins sind nicht betroffen. Zum Abschalten:
 `DISCORD_ONLY_SIGNUP=false` und das Skript erneut ausführen.
 
 > Den Core-Schalter *Admin → Basics → Allow Sign Up* **nicht** ausschalten. Er sperrt in Flarum
@@ -285,6 +287,13 @@ Das Regel-Thema macht sie aber verbindlich, und Mods können unvollständige The
 
 Welcome-Banner: Text in `content/welcome.html`, Titel und Discord-Link kommen aus `.env`
 (`DISCORD_INVITE_URL`). Manuell geht es unter *Admin → Basics → Welcome Banner*.
+
+**Verbindung zur Website:** `setup-forum.sh` trägt `WEBSITE_URL` und `DISCORD_INVITE_URL` aus
+`.env` ein. Daraus entstehen die Links in der Kopfzeile (Website, Install guide, FAQ, Discord; auf dem
+Handy im Seitenmenü) und die Fußzeile mit Imprint und Privacy aus `content/footer.html`
+(*Admin → Appearance → Custom Footer*). Ist eine Adresse leer oder noch ein Platzhalter, fehlen die
+zugehörigen Links einfach. Nach Änderungen an `flarum/forum.js` das Skript erneut ausführen, es baut
+das JavaScript des Forums neu.
 
 ## Forenregeln (Kurzfassung)
 
