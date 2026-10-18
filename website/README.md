@@ -88,7 +88,7 @@ Output `dist`, `NODE_VERSION=22.22.0`).
 ## Technik (zur Info)
 
 - Jede Seite hat einen eigenen Titel, eine eigene Beschreibung, einen Canonical-Link sowie eine
-  Social-Vorschau für Discord, X und andere (`public/og-image.jpg`, aus `media/og-image.html` mit `node media/render-og.cjs`).
+  Social-Vorschau für Discord, X und andere (`public/og-image.jpg`, aus dem Einladungs-Hintergrund des Discord-Servers, erzeugt mit `python3 media/brand.py`).
 - Strukturierte Daten für Google: `WebSite` und `Organization`, auf der FAQ-Seite `FAQPage`.
 - `sitemap-index.xml` und `robots.txt` werden beim Build automatisch erzeugt.
 - Die Schriften Cinzel und Inter stehen unter der SIL Open Font License (`public/fonts/OFL-*.txt`).

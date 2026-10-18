@@ -41,7 +41,6 @@ const baseLd = {
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content="#0d0e10" />
-    <link rel="icon" href={link('favicon.svg')} type="image/svg+xml" />
     <link rel="icon" href={link('favicon.png')} type="image/png" sizes="128x128" />
     <link rel="apple-touch-icon" href={link('apple-touch-icon.png')} />
     <link rel="sitemap" href={link('sitemap-index.xml')} />
@@ -65,7 +64,7 @@ const baseLd = {
     <header class="site-header">
       <div class="container">
         <a class="brand" href={link()} aria-label={`${SITE.name} – home`}>
-          <img src={link('logo.svg')} alt={SITE.name} width="174" height="46" />
+          <img src={link('logo.png')} alt={SITE.name} width="183" height="40" />
         </a>
         <input class="menu-input" type="checkbox" id="menu" aria-label="Toggle menu" />
         <label class="menu-button" for="menu"><span aria-hidden="true">☰</span> Menu</label>

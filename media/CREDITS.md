@@ -1,8 +1,22 @@
 # Medien: Herkunft und Lizenzen
 
-Alle Medien in `media/` sind gemeinfrei (CC0), selbst erzeugt oder für dieses Projekt mit ChatGPT
-erzeugt. Eine Namensnennung ist rechtlich nicht nötig; sie steht hier trotzdem, damit
+Alle Medien in `media/` sind gemeinfrei (CC0), vom Projekt selbst gestaltet oder für dieses Projekt mit
+ChatGPT erzeugt. Eine Namensnennung ist rechtlich nicht nötig; sie steht hier trotzdem, damit
 nachvollziehbar bleibt, woher jede Datei stammt.
+
+## Pixel-Art des Discord-Servers
+
+Vom Admin des Discord-Servers selbst gestaltet und für Forum und Website freigegeben. `media/brand.py`
+und `media/logo.html` leiten daraus ab: Logo (`theme/logo.png`, `website/public/logo.png`), Favicons,
+das Emblem der Website-Startseite (`website/public/emblem-frame.webp`) und das Vorschaubild
+(`website/public/og-image.jpg`).
+
+| Datei | Motiv |
+|---|---|
+| `brand/server-icon.png` | Server-Icon „BBPP“ (Jäger vor dem Blutmond) |
+| `brand/invite-splash.webp` | Einladungs-Hintergrund: Pixel-Stadt bei Vollmond mit gerahmtem Emblem |
+
+## Icons und Texturen
 
 | Datei | Quelle | Lizenz |
 |---|---|---|
@@ -34,5 +48,4 @@ Nutzung nach den OpenAI-Nutzungsbedingungen frei; kein Material aus Bloodborne.
 | `images/website-hero.webp` | Skyline aus Dächern und Türmen im Nebel | Website-Startseite |
 | `images/page-header.webp` | Kathedralen-Innenraum mit Mondlicht und Kerzen | Website-Unterseiten |
 | `images/not-found.webp` | Friedhof mit Laterne unter dem Blutmond | Website-404 |
-| `images/og-background.jpg` | Stadt unter dem Blutmond | Vorschaubild (`media/og-image.html` → `website/public/og-image.jpg`) |
 | `textures/stone.webp` | dunkle Steinmauer, Kanten nahtlos überblendet | Fußzeilen von Forum und Website |
