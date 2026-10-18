@@ -7,7 +7,6 @@ set -eu
 API=http://127.0.0.1:8000/api
 D=/tmp/bbsetup
 TOKEN=""
-DB_PREFIX=$(php -r '$c = include "/opt/flarum/config.php"; echo $c["database"]["prefix"];')
 
 log()  { printf '\033[1;31m▸\033[0m %s\n' "$*"; }
 ok()   { printf '  \033[32m✓\033[0m %s\n' "$*"; }
@@ -71,10 +70,13 @@ log "Waiting for Flarum"
 i=0
 until curl -fsS -o /dev/null "$API"; do
   i=$((i + 1))
-  [ $i -gt 60 ] && die "Flarum API not reachable (docker compose logs flarum)"
+  [ $i -gt 150 ] && die "Flarum API not reachable (docker compose logs flarum)"
   sleep 2
 done
 ok "API reachable"
+# Only now: a freshly created container writes config.php during its start
+[ -f /opt/flarum/config.php ] || die "/opt/flarum/config.php is missing (docker compose logs flarum)"
+DB_PREFIX=$(php -r '$c = include "/opt/flarum/config.php"; echo $c["database"]["prefix"];')
 
 # --------------------------------------------------------------------------
 log "Admin account"
