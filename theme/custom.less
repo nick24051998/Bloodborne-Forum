@@ -2,7 +2,7 @@
 //  Bloodborne PC Port Community – Gothic-Theme im Discord-Stil (Flarum 1.8)
 //  Einspielen: Admin → Appearance → Custom Styles (Edit Custom CSS)
 //  oder automatisch per scripts/setup-forum.sh
-//  Voraussetzung: Dark Mode an, Primary #a3161e, Secondary #b08d57 (macht das Skript)
+//  Voraussetzung: Dark Mode an, Primary #8a1118, Secondary #9c8458 (macht das Skript)
 // ============================================================================
 
 // --- Schriften: selbst gehostet (Cinzel + Inter, SIL OFL) ------------------------
@@ -26,18 +26,28 @@
 .bb-font("Inter"; 700; "inter-latin-700-normal");
 
 // --- Palette ----------------------------------------------------------------
-@bb-bg:          #111113;
-@bb-bg-deep:     #0b0b0d;
-@bb-card:        #1b1b1f;
-@bb-card-hover:  #232328;
-@bb-border:      #2a2a30;
-@bb-text:        #e6e1d7;
-@bb-muted:       #9a948a;
-@bb-blood:       #a3161e;
-@bb-blood-hover: #c41f28;
-@bb-blood-light: #e0574f;
-@bb-gold:        #b08d57;
-@bb-gold-light:  #c9a46a;
+// Angelehnt an Bloodborne: fast alles kühles Anthrazit und Schiefergrau (Stein, Nacht,
+// Nebel), Pergament für Text, Messing wie die Gaslaternen für Links und kleine Akzente,
+// Blutrot nur sparsam (Hauptbutton, aktive Markierung). Grob verteilt: ~85 % Grautöne,
+// ~10 % Pergament und Messing, ~3 % Rot. Mondlicht und Dämmerungsviolett nur in Verläufen.
+@bb-bg-deep:       #08090a;
+@bb-bg:            #0d0e10;
+@bb-surface:       #121316;
+@bb-card:          #16171a;
+@bb-card-hover:    #1c1d21;
+@bb-border:        #25272b;
+@bb-border-strong: #34373c;
+@bb-stone:         #4b5058;
+@bb-text:          #d9d4ca;
+@bb-text-strong:   #ece7dd;
+@bb-text-soft:     #bdb8ae;
+@bb-muted:         #8a8c90;
+@bb-blood:         #8a1118;
+@bb-blood-hover:   #a3161e;
+@bb-gold:          #9c8458;
+@bb-gold-light:    #c2a878;
+@bb-moon:          #c9cdd2;
+@bb-dusk:          #3b3448;
 
 @bb-font-head: "Cinzel", "Cormorant Garamond", Georgia, serif;
 @bb-font-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -46,20 +56,20 @@
 @body-bg-dark:         @bb-bg;
 @body-bg:              @bb-bg;
 @text-color:           @bb-text;
-@heading-color:        #f1ece2;
-@link-color:           @bb-blood-light;
+@heading-color:        @bb-text-strong;
+@link-color:           @bb-gold-light;
 @muted-color:          @bb-muted;
-@muted-more-color:     #6f6a63;
+@muted-more-color:     #6c6f74;
 @shadow-color:         rgba(0, 0, 0, 0.6);
 @control-bg:           @bb-card-hover;
-@control-color:        #b9b3a8;
+@control-color:        #b3b1ac;
 @overlay-bg:           fade(@bb-bg-deep, 92%);
 @code-bg:              @bb-bg-deep;
 @header-bg:            @bb-bg-deep;
 @header-color:         @bb-text;
 @header-control-bg:    @bb-card;
-@header-control-color: #b9b3a8;
-@hero-bg:              @bb-card;
+@header-control-color: #b3b1ac;
+@hero-bg:              @bb-surface;
 @hero-color:           @bb-text;
 @border-radius:        8px;
 
@@ -86,14 +96,14 @@ h1, h2, h3,
 }
 
 ::selection {
-  background: fade(@bb-blood, 60%);
+  background: fade(@bb-blood, 75%);
   color: #fff;
 }
 
 // --- Header ------------------------------------------------------------------
 .App-header {
-  border-bottom: 1px solid fade(@bb-gold, 35%);
-  box-shadow: 0 1px 0 fade(@bb-blood, 25%), 0 6px 24px rgba(0, 0, 0, 0.45);
+  border-bottom: 1px solid @bb-border;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
 }
 
 .Header-title {
@@ -128,18 +138,30 @@ h1, h2, h3,
 
 // --- Willkommens-Banner --------------------------------------------------------
 .WelcomeHero {
+  // Kaltes Mondlicht oben rechts, Dämmerungsviolett links, darunter Anthrazit
   background:
-    radial-gradient(ellipse at 85% -20%, fade(@bb-blood, 55%) 0%, transparent 60%),
-    radial-gradient(ellipse at 0% 120%, fade(@bb-gold, 18%) 0%, transparent 55%),
-    @bb-card;
+    radial-gradient(ellipse 55% 130% at 90% -35%, fade(@bb-moon, 10%) 0%, transparent 65%),
+    radial-gradient(ellipse 70% 150% at 0% -30%, fade(@bb-dusk, 70%) 0%, transparent 60%),
+    linear-gradient(180deg, @bb-surface 0%, @bb-bg 100%);
   border-bottom: 1px solid @bb-border;
   color: @bb-text;
-  padding: 32px 0 28px;
+  padding: 34px 0 30px;
 
   .Hero-title {
-    color: #f3ede2;
+    color: @bb-text-strong;
     font-size: 28px;
-    text-shadow: 0 2px 12px fade(@bb-blood, 70%);
+    letter-spacing: 0.06em;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.8);
+
+    // Feine Messinglinie wie die Ornamente im Spielmenü
+    &::after {
+      content: "";
+      display: block;
+      width: 64px;
+      height: 1px;
+      margin: 14px auto 0;
+      background: linear-gradient(90deg, transparent, @bb-gold, transparent);
+    }
   }
 
   @media @phone {
@@ -155,17 +177,17 @@ h1, h2, h3,
   }
 
   .Hero-subtitle {
-    color: #cfc8bb;
+    color: @bb-text-soft;
     font-size: 15px;
     line-height: 1.6;
 
     a {
       color: @bb-gold-light;
       font-weight: 600;
-      border-bottom: 1px solid fade(@bb-gold, 50%);
+      border-bottom: 1px solid fade(@bb-gold, 45%);
 
       &:hover {
-        color: #fff;
+        color: @bb-text-strong;
         text-decoration: none;
         border-color: @bb-blood-hover;
       }
@@ -174,11 +196,10 @@ h1, h2, h3,
 }
 
 // --- Seitenleiste wie Discord-Kanalliste ------------------------------------------
-.IndexPage-nav .sideNav ul li > a,
-.IndexPage-nav .sideNav ul li > .Button {
+// Flarum setzt IndexPage-nav und sideNav auf dasselbe Element
+.IndexPage-nav.sideNav .Dropdown-menu > li > a {
   border-radius: 6px;
-  padding-top: 6px;
-  padding-bottom: 6px;
+  padding: 6px 10px 6px 40px; // Icon sitzt per margin-left: -30px davor
   transition: background 0.12s, color 0.12s;
 
   &:hover {
@@ -187,11 +208,10 @@ h1, h2, h3,
   }
 }
 
-.IndexPage-nav .sideNav ul li.active > a,
-.IndexPage-nav .sideNav ul li.active > .Button {
+.IndexPage-nav.sideNav .Dropdown-menu > li.active > a {
   background: @bb-card-hover;
-  color: #fff;
-  box-shadow: inset 3px 0 0 @bb-blood;
+  color: @bb-text-strong;
+  box-shadow: inset 2px 0 0 @bb-blood-hover;
   font-weight: 600;
 }
 
@@ -206,7 +226,7 @@ h1, h2, h3,
   background: @bb-blood;
   color: #fff;
   border-radius: 6px;
-  box-shadow: 0 2px 10px fade(@bb-blood, 35%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
   &:hover,
   &:focus {
@@ -230,7 +250,7 @@ h1, h2, h3,
   color: @bb-text;
 
   &:focus {
-    border-color: @bb-blood;
+    border-color: @bb-gold;
     background: @bb-bg-deep;
   }
 }
@@ -252,11 +272,11 @@ h1, h2, h3,
 
   &:hover {
     background: @bb-card-hover;
-    border-color: fade(@bb-blood, 55%);
+    border-color: @bb-border-strong;
   }
 
   &.active {
-    border-color: @bb-blood;
+    border-color: @bb-blood-hover;
   }
 }
 
@@ -266,14 +286,15 @@ h1, h2, h3,
 }
 
 .DiscussionListItem-title {
-  color: #f1ece2;
+  color: @bb-text-strong;
   font-family: @bb-font-body;
   font-weight: 600;
   letter-spacing: 0;
 }
 
 .DiscussionListItem-content.unread .DiscussionListItem-title {
-  color: #fff;
+  color: #f7f3eb;
+  font-weight: 700;
 }
 
 .DiscussionListItem-count {
@@ -315,12 +336,25 @@ h1, h2, h3,
 // --- Beiträge ---------------------------------------------------------------------------
 .DiscussionHero {
   background:
-    radial-gradient(ellipse at 50% -40%, fade(@bb-blood, 35%) 0%, transparent 70%),
+    radial-gradient(ellipse 70% 150% at 50% -50%, fade(@bb-dusk, 70%) 0%, transparent 70%),
     @bb-bg-deep;
   border-bottom: 1px solid @bb-border;
 
   .DiscussionHero-title {
-    color: #f3ede2;
+    color: @bb-text-strong;
+  }
+}
+
+// Mit Kategorie: deren Farbe scheint nur gedämpft von oben durch, das Label bleibt farbig
+.DiscussionHero--colored {
+  background:
+    radial-gradient(ellipse 70% 160% at 50% -60%, fade(@bb-bg-deep, 45%) 0%, fade(@bb-bg-deep, 94%) 70%),
+    var(--hero-bg);
+
+  // Eine Klasse mehr als die Regel der Tags-Erweiterung, die nach diesem Theme geladen wird
+  &.DiscussionHero .TagsLabel .TagLabel.colored {
+    --tag-color: var(--contrast-color, #fff);
+    background-color: var(--tag-bg);
   }
 }
 
@@ -353,9 +387,9 @@ h1, h2, h3,
 
   blockquote {
     background: @bb-bg-deep;
-    border-left: 3px solid @bb-blood;
+    border-left: 3px solid @bb-stone;
     border-radius: 0 6px 6px 0;
-    color: #cfc8bb;
+    color: @bb-text-soft;
   }
 
   code,
@@ -364,7 +398,15 @@ h1, h2, h3,
   }
 
   a {
-    color: @bb-blood-light;
+    color: @bb-gold-light;
+    text-decoration: underline;
+    text-decoration-color: fade(@bb-gold, 40%);
+    text-underline-offset: 2px;
+
+    &:hover {
+      color: @bb-text-strong;
+      text-decoration-color: @bb-gold-light;
+    }
   }
 }
 
@@ -391,7 +433,7 @@ h1, h2, h3,
 // --- Composer, Dropdowns, Modals --------------------------------------------------------
 .Composer {
   background: @bb-card;
-  border-top: 2px solid @bb-blood;
+  border-top: 1px solid @bb-border-strong;
 }
 
 .Dropdown-menu {
@@ -469,11 +511,11 @@ h1, h2, h3,
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2c2c33;
+  background: #26282c;
   border-radius: 8px;
 
   &:hover {
-    background: fade(@bb-blood, 70%);
+    background: @bb-stone;
   }
 }
 
@@ -517,8 +559,7 @@ h1, h2, h3,
     font-size: (@base - 1px);
   }
 
-  .sideNav .Dropdown--select .Dropdown-menu > li > a,
-  .IndexPage-nav .sideNav ul li > a {
+  .sideNav .Dropdown--select .Dropdown-menu > li > a {
     font-size: @nav;
   }
 

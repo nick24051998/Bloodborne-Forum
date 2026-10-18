@@ -257,7 +257,7 @@ Für Benachrichtigungen und Passwort-Resets: **Admin → Email** → SMTP eines 
 | **Guides** | alle | Mitglieder | |
 | **The Hunter's Dream** | alle | Mitglieder | Off-Topic |
 
-Rollenfarben: Admin Blutrot `#a3161e`, Mod Messing `#b08d57`. Uploads erlaubt: Bilder, `.zip`/`.7z`
+Rollenfarben: Admin Blutrot `#8a1118`, Mod Messing `#9c8458`. Uploads erlaubt: Bilder, `.zip`/`.7z`
 (BB-Report-Tool) und `.txt`-Logs bis 20 MB. Hoch- und herunterladen dürfen nur eingeloggte Mitglieder.
 
 **Manuell im Admin-Bereich** (falls du das Skript nicht nutzt):
@@ -277,7 +277,7 @@ Das Regel-Thema macht sie aber verbindlich, und Mods können unvollständige The
 
 `setup-forum.sh` setzt alles automatisch. Manuell geht es so:
 
-1. *Admin → Appearance*: Dark Mode an, Primary `#a3161e`, Secondary `#b08d57`.
+1. *Admin → Appearance*: Dark Mode an, Primary `#8a1118`, Secondary `#9c8458`.
 2. *Edit Custom CSS*: den Inhalt von `theme/custom.less` einfügen und speichern.
 3. Die Schriften liegen selbst gehostet unter `/assets/fonts/bb/`. Das Skript kopiert sie ins Volume.
    Flarum blockiert externe Imports in Custom LESS, und so gehen keine Anfragen an Google (DSGVO).

@@ -164,8 +164,8 @@ body=$(jq -n \
     forum_description: "Community forum for the Bloodborne PC Port: help & support, mods, guides and suggestions.",
     welcome_title: "Welcome, good hunter",
     welcome_message: $welcome,
-    theme_primary_color: "#a3161e",
-    theme_secondary_color: "#b08d57",
+    theme_primary_color: "#8a1118",
+    theme_secondary_color: "#9c8458",
     theme_dark_mode: "1",
     theme_colored_header: "0",
     allow_sign_up: "1",
@@ -201,12 +201,12 @@ fi
 # --------------------------------------------------------------------------
 log "Tags"
 # slug|name|color|icon|description
-TAGS='announcements|Announcements|#a3161e|fas fa-bullhorn|News, releases and changelogs from the team. Only staff can start topics here.
-help-support|Help & Support|#b08d57|fas fa-life-ring|Something broken? Include port version, GPU + driver, what happens and your BB Report Tool zip.
-suggestions|Suggestions|#8a6d3b|fas fa-lightbulb|Ideas and feature requests for the port.
-mods-patches|Mods & Patches|#7b2d43|fas fa-flask|Share and discuss mods, patches and tweaks. No game files.
-guides|Guides|#3f6b5b|fas fa-book-open|Tutorials and how-tos written by the community.
-hunters-dream|The Hunter'"'"'s Dream|#5d5a8a|fas fa-moon|Off-topic. Rest a while, good hunter.'
+TAGS='announcements|Announcements|#8a1118|fas fa-bullhorn|News, releases and changelogs from the team. Only staff can start topics here.
+help-support|Help & Support|#9c8458|fas fa-life-ring|Something broken? Include port version, GPU + driver, what happens and your BB Report Tool zip.
+suggestions|Suggestions|#6e6656|fas fa-lightbulb|Ideas and feature requests for the port.
+mods-patches|Mods & Patches|#6b3a45|fas fa-flask|Share and discuss mods, patches and tweaks. No game files.
+guides|Guides|#4c5d5a|fas fa-book-open|Tutorials and how-tos written by the community.
+hunters-dream|The Hunter'"'"'s Dream|#57526e|fas fa-moon|Off-topic. Rest a while, good hunter.'
 
 if ! installed flarum/tags; then die "flarum/tags is missing"; fi
 existing=$(api GET /tags)
@@ -257,8 +257,8 @@ fi
 
 # --------------------------------------------------------------------------
 log "Group colours (role colours)"
-api PATCH /groups/1 '{"data":{"type":"groups","id":"1","attributes":{"color":"#a3161e","icon":"fas fa-moon"}}}' >/dev/null && ok "Admin: blood red"
-api PATCH /groups/4 '{"data":{"type":"groups","id":"4","attributes":{"color":"#b08d57","icon":"fas fa-shield-alt"}}}' >/dev/null && ok "Mod: brass"
+api PATCH /groups/1 '{"data":{"type":"groups","id":"1","attributes":{"color":"#8a1118","icon":"fas fa-moon"}}}' >/dev/null && ok "Admin: blood red"
+api PATCH /groups/4 '{"data":{"type":"groups","id":"4","attributes":{"color":"#9c8458","icon":"fas fa-shield-alt"}}}' >/dev/null && ok "Mod: brass"
 
 # --------------------------------------------------------------------------
 log "Rules topic"
