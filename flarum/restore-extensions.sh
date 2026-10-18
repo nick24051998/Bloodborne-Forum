@@ -5,8 +5,6 @@
 # nach jedem Start neu und verliert dabei Einträge, wenn der Container nur neu gestartet
 # (nicht neu erstellt) wurde. Daher wird die Liste hier aus dem Repo wiederhergestellt.
 
-[ "${SIDECAR_CRON:-0}" = "1" ] && exit 0
-
 LIST=/data/extensions/list
 mkdir -p /data/extensions
 touch "$LIST"

@@ -8,8 +8,7 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 > `mondedie/flarum:stable` wurde zuletzt 2022 gebaut (Flarum 1.3.0, PHP 8.0) und hat bekannte
 > Sicherheitslücken. `:latest` enthält zwar Flarum 1.8, läuft aber noch auf dem nicht mehr
 > gepflegten PHP 8.0 mit Alpine 3.16. [`crazymax/flarum`](https://hub.docker.com/r/crazymax/flarum)
-> wird aktiv gepflegt (Flarum 1.8.19, PHP 8.4, Alpine 3.23). Es bringt den Befehl `extension require`
-> mit und einen Cron-Sidecar für den Flarum-Scheduler.
+> wird aktiv gepflegt (Flarum 1.8.19, PHP 8.4, Alpine 3.23) und bringt den Befehl `extension require` mit.
 > Flarum 2.0 ist erst seit Oktober 2026 stabil. Die Erweiterungen ziehen gerade nach, deshalb bleibt
 > dieses Setup bewusst auf 1.8 (siehe [Update](#update)).
 
@@ -21,11 +20,12 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 
 | Pfad | Zweck |
 |---|---|
-| `docker-compose.yml` | Flarum, Cron-Sidecar, MariaDB (benannte Volumes), cloudflared (Profil `tunnel`) |
+| `docker-compose.yml` | Flarum, MariaDB (benannte Volumes), cloudflared (Profil `tunnel`) |
 | `.env.example` | Alle Einstellungen mit Platzhaltern, wird nach `.env` kopiert |
 | `scripts/bootstrap.sh` | **Komplett-Installer:** fragt ein paar Werte ab, erzeugt Passwörter, startet und richtet alles ein |
 | `scripts/install-extensions.sh` | Installiert die Erweiterungen aus `flarum/extensions.txt` (fof/oauth, upload, best-answer, discussion-templates, sitemap, flarum-seo 2.x; optional fof/user-directory) |
 | `flarum/extensions.txt`, `flarum/restore-extensions.sh` | Erweiterungsliste; wird vor jedem Start des Containers wiederhergestellt |
+| `flarum/scheduler.sh` | Startet den Flarum-Scheduler (jede Minute) im Forum-Container |
 | `scripts/setup-forum.sh` | Richtet alles per Flarum-API ein: Admin, Erweiterungen, Tags, Rechte, Theme, Banner, Regeln, Logo |
 | `scripts/backup.sh` | DB-Dump + Datenvolume als `.tar.gz` |
 | `flarum/extend.php` | Schalter „neue Accounts nur über Discord“ und Sicherheits-Header |
@@ -40,7 +40,7 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 
 - Debian-VM mit Docker Engine und dem Compose-Plugin (`docker compose version` ≥ 2.20)
 - 1 vCPU und 1 GB RAM reichen für den Start, 2 GB sind empfohlen. Gemessen im Leerlauf:
-  Flarum ≈ 110 MB, MariaDB ≈ 110 MB, Cron ≈ 10 MB.
+  Flarum ≈ 110 MB, MariaDB ≈ 110 MB.
 - Eine Domain bei Cloudflare, z. B. `forum.example.com`
 - Zugriff auf das [Discord Developer Portal](https://discord.com/developers/applications)
 - Ausgehender Internetzugang für den Container (Composer lädt die Erweiterungen)
@@ -116,7 +116,7 @@ Bind-Adresse auf die LAN-IP des Docker-Hosts um (Beispiel `192.168.13.84`):
 sed -i -e 's|^FORUM_URL=.*|FORUM_URL=http://192.168.13.84:8888|' \
        -e 's|^FLARUM_BIND=.*|FLARUM_BIND=192.168.13.84|' .env
 grep -q '^FLARUM_BIND=' .env || echo 'FLARUM_BIND=192.168.13.84' >> .env
-docker compose up -d db flarum cron
+docker compose up -d db flarum
 ```
 
 Danach im Browser `http://192.168.13.84:8888` öffnen. **Zum Livegang zurückstellen:**
@@ -325,7 +325,7 @@ scripts/backup.sh
 git pull                          # Änderungen an Theme und Skripten
 # Neue Flarum-Version: FLARUM_IMAGE_TAG in .env anheben (z. B. 1.8.20)
 docker compose pull
-docker compose up -d              # Datenbank-Migrationen laufen beim Start automatisch
+docker compose up -d --remove-orphans   # Migrationen laufen beim Start automatisch
 scripts/setup-forum.sh            # Theme und Einstellungen erneut anwenden (optional)
 ```
 
@@ -362,6 +362,11 @@ scripts/setup-forum.sh            # Theme und Einstellungen erneut anwenden (opt
   Flarum 1.8 jede Änderung ab. Bekannt sind FoF SEO 3.x und FoF Sitemap; `flarum/extensions.txt`
   legt SEO deshalb auf 2.x fest. `scripts/install-extensions.sh` und danach
   `scripts/setup-forum.sh` ausführen.
+- **Erweiterungen schalten sich nach ein bis zwei Minuten wieder ab:** Es läuft noch der frühere
+  `cron`-Container. Ihm fehlen die Erweiterungen, und Flarum entfernt sie dann bei jedem
+  Scheduler-Lauf aus der Liste der aktivierten Erweiterungen. `docker compose up -d --remove-orphans`
+  entfernt ihn, danach `scripts/setup-forum.sh`. Den Scheduler startet jetzt `flarum/scheduler.sh`
+  im Forum-Container.
 - **Host mit knappem RAM** (der Kernel beendet Prozesse, sichtbar mit `dmesg -T | grep -i "killed process"`):
   In `.env` `FORUM_OOM_SCORE_ADJ=-500` setzen und `docker compose up -d` ausführen. Dann beendet der
   Kernel zuerst andere Container statt Forum und Datenbank. Startet danach ein Container mit

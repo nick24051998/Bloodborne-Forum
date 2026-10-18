@@ -118,9 +118,9 @@ PORT=$(env_get FLARUM_PORT); PORT=${PORT:-8888}
 
 # --- Start (ohne Tunnel, bis der Standard-Admin ersetzt ist) ------------------------
 step "Container starten (erster Start dauert ca. 1 Minute)"
-docker compose pull -q db flarum cron ||
+docker compose pull -q db flarum ||
   echo "  Hinweis: Image-Update fehlgeschlagen (z. B. Docker-Hub-Limit) – nutze vorhandene Images"
-docker compose up -d db flarum cron
+docker compose up -d --remove-orphans db flarum
 printf '  warte auf Flarum'
 for i in $(seq 1 120); do
   if curl -fs -o /dev/null "http://127.0.0.1:$PORT/"; then break; fi

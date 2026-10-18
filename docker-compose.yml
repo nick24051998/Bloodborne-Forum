@@ -36,11 +36,6 @@ x-hardening: &hardening
       max-size: "10m"
       max-file: "3"
 
-x-flarum-volumes: &flarum-volumes
-  - flarum-data:/data
-  # Discord-only-Registrierung + Sicherheits-Header (siehe flarum/extend.php)
-  - ./flarum/extend.php:/opt/flarum/extend.php:ro
-
 services:
   db:
     <<: *hardening
@@ -85,18 +80,8 @@ services:
       # Erweiterungsliste aus dem Repo, vor jedem Start wiederhergestellt
       - ./flarum:/bbforum:ro
       - ./flarum/restore-extensions.sh:/etc/cont-init.d/02-zz-bbforum-extensions.sh
-
-  # Flarum-Scheduler (Digest-Mails, Best-Answer-Erinnerungen …) als Sidecar
-  cron:
-    <<: *hardening
-    image: crazymax/flarum:${FLARUM_IMAGE_TAG:-1.8.19}
-    restart: unless-stopped
-    depends_on:
-      - flarum
-    environment:
-      <<: *flarum-env
-      SIDECAR_CRON: "1"
-    volumes: *flarum-volumes
+      # Flarum-Scheduler (jede Minute) im selben Container, wo die Erweiterungen installiert sind
+      - ./flarum/scheduler.sh:/etc/cont-init.d/05-zz-bbforum-scheduler.sh
 
   # Variante (b): Cloudflare Tunnel statt Caddy. Startet nur mit dem Profil
   # "tunnel" (COMPOSE_PROFILES=tunnel in .env, setzt scripts/bootstrap.sh).
