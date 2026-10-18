@@ -154,6 +154,8 @@ h3 { font-size: var(--step-1); }
     radial-gradient(ellipse 55% 120% at 90% -25%, rgba(var(--moon), 0.1) 0%, transparent 65%),
     radial-gradient(ellipse 70% 140% at 0% -20%, rgba(var(--dusk), 0.7) 0%, transparent 60%),
     url("../assets/fog.webp") center bottom / cover no-repeat,
+    /* Piranesi, „The Pier with a Lamp“ (1761, gemeinfrei, siehe media/CREDITS.md) */
+    url("../assets/pier-with-lamp.webp") right center / auto 115% no-repeat,
     var(--bg-deep);
   border-bottom: 1px solid var(--border);
   padding: clamp(3rem, 6vw, 6.5rem) 0;
@@ -169,6 +171,14 @@ h3 { font-size: var(--step-1); }
   .hero .lead { margin-inline: auto; }
   .hero .actions { justify-content: center; }
   .hero { padding: 2rem 0 2.5rem; }
+  /* Schmal: Text liegt über der Radierung, daher dunkler */
+  .hero {
+    background:
+      linear-gradient(rgba(8, 9, 10, 0.6), rgba(8, 9, 10, 0.6)),
+      url("../assets/fog.webp") center bottom / cover no-repeat,
+      url("../assets/pier-with-lamp.webp") center top / auto 100% no-repeat,
+      var(--bg-deep);
+  }
   .hero .emblem { order: -1; width: 110px; }
 }
 
@@ -195,7 +205,14 @@ h3 { font-size: var(--step-1); }
 
 /* --- Inhaltsseiten (Markdown) ------------------------------------------------------------ */
 .page-hero { padding: clamp(2.2rem, 5vw, 4rem) 0 1.5rem; border-bottom: 1px solid var(--border);
-  background: radial-gradient(ellipse 70% 150% at 50% -60%, rgba(var(--dusk), 0.7) 0%, transparent 70%), var(--bg-deep); }
+  background: radial-gradient(ellipse 70% 150% at 50% -60%, rgba(var(--dusk), 0.7) 0%, transparent 70%),
+    /* Piranesi, „The Gothic Arch“ (1761, gemeinfrei) */
+    url("../assets/gothic-arch.webp") right 10% center / auto 170% no-repeat,
+    var(--bg-deep); }
+/* 404: Blechen, „Church and Graveyard in the Snow by Moonlight“ (1827, gemeinfrei) */
+.page-hero.graveyard { min-height: 60vh; padding-top: clamp(4rem, 10vw, 8rem);
+  background: linear-gradient(90deg, var(--bg-deep) 30%, transparent 75%),
+    url("../assets/graveyard-moonlight.webp") right center / auto 110% no-repeat, var(--bg-deep); }
 .page-hero p { color: var(--muted); margin: 0; max-width: 60ch; }
 .prose { max-width: 75ch; padding: 2rem 0 4rem; }
 .prose h2 { border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }

@@ -153,9 +153,9 @@ cp "$D"/theme/fonts/*.woff2 /data/assets/fonts/bb/
 chown -R flarum:flarum /data/assets/fonts/bb 2>/dev/null || true
 ok "fonts copied to /assets/fonts/bb"
 mkdir -p /data/assets/media/bb
-cp "$D"/media/textures/* /data/assets/media/bb/
+cp "$D"/media/textures/* "$D"/media/artworks/*.webp /data/assets/media/bb/
 chown -R flarum:flarum /data/assets/media 2>/dev/null || true
-ok "textures copied to /assets/media/bb"
+ok "textures and artworks copied to /assets/media/bb"
 only_signup=0
 [ "${DISCORD_ONLY_SIGNUP:-true}" = "true" ] && only_signup=1
 welcome=$(subst "$D/content/welcome.html")

@@ -138,12 +138,16 @@ h1, h2, h3,
 
 // --- Willkommens-Banner --------------------------------------------------------
 .WelcomeHero {
-  // Kaltes Mondlicht oben rechts, Dämmerungsviolett links, aufsteigender Nebel, Anthrazit
-  // (media/textures/fog.webp, selbst erzeugt; setup-forum.sh kopiert es nach /assets/media/bb)
+  // Von oben nach unten: Abdunklung hinter dem Text, kaltes Mondlicht, Dämmerungsviolett,
+  // aufsteigender Nebel, Notre-Dame als Mondlicht-Radierung (Meryon 1854, gemeinfrei), Anthrazit.
+  // Bilder aus media/ (siehe media/CREDITS.md); setup-forum.sh kopiert sie nach /assets/media/bb
   background:
+    radial-gradient(ellipse 36% 62% at 50% 56%, fade(@bb-surface, 82%) 0%, transparent 100%),
     radial-gradient(ellipse 55% 130% at 90% -35%, fade(@bb-moon, 10%) 0%, transparent 65%),
     radial-gradient(ellipse 70% 150% at 0% -30%, fade(@bb-dusk, 70%) 0%, transparent 60%),
     url("media/bb/fog.webp") center bottom / cover no-repeat,
+    // ~"…": sonst rechnet LESS "30% / auto" als Division und die ganze Angabe wird ungültig
+    ~"url('media/bb/notre-dame-apse.webp') right -4% top 30% / auto 150% no-repeat",
     linear-gradient(180deg, @bb-surface 0%, @bb-bg 100%);
   border-bottom: 1px solid @bb-border;
   color: @bb-text;
