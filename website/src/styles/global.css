@@ -150,10 +150,12 @@ h3 { font-size: var(--step-1); }
 /* --- Hero ---------------------------------------------------------------------------- */
 .hero {
   position: relative; overflow: hidden;
+  /* Skyline (media/images/website-hero.webp, KI-generiert, siehe media/CREDITS.md);
+     links abgedunkelt für den Text, unten Übergang in die Seite */
   background:
-    radial-gradient(ellipse 55% 120% at 90% -25%, rgba(var(--moon), 0.1) 0%, transparent 65%),
-    radial-gradient(ellipse 70% 140% at 0% -20%, rgba(var(--dusk), 0.7) 0%, transparent 60%),
-    url("../assets/fog.webp") center bottom / cover no-repeat,
+    linear-gradient(90deg, rgba(8, 9, 10, 0.7) 0%, rgba(8, 9, 10, 0.3) 45%, transparent 70%),
+    linear-gradient(180deg, transparent 70%, var(--bg) 100%),
+    url("../assets/website-hero.webp") center bottom / cover no-repeat,
     var(--bg-deep);
   border-bottom: 1px solid var(--border);
   padding: clamp(3rem, 6vw, 6.5rem) 0;
@@ -194,8 +196,20 @@ h3 { font-size: var(--step-1); }
 .todo { background: rgba(163, 22, 30, 0.18); border: 1px dashed var(--blood-light); border-radius: 6px; padding: 0 0.35em; color: #ffd6d2; }
 
 /* --- Inhaltsseiten (Markdown) ------------------------------------------------------------ */
+/* Unterseiten: Kathedralen-Innenraum, 404: Friedhof unter dem Blutmond (beide KI-generiert) */
 .page-hero { padding: clamp(2.2rem, 5vw, 4rem) 0 1.5rem; border-bottom: 1px solid var(--border);
-  background: radial-gradient(ellipse 70% 150% at 50% -60%, rgba(var(--dusk), 0.7) 0%, transparent 70%), var(--bg-deep); }
+  background: linear-gradient(90deg, rgba(8, 9, 10, 0.85) 0%, rgba(8, 9, 10, 0.45) 45%, transparent 75%),
+    url("../assets/page-header.webp") right center / cover no-repeat, var(--bg-deep); }
+.page-hero.not-found { min-height: 62vh; padding-top: clamp(4rem, 10vw, 8rem);
+  background: linear-gradient(90deg, rgba(8, 9, 10, 0.85) 0%, rgba(8, 9, 10, 0.35) 45%, transparent 70%),
+    url("../assets/not-found.webp") right center / cover no-repeat, var(--bg-deep); }
+@media (max-width: 860px) {
+  /* Schmal liegt der Text über dem Bild: gleichmäßig abdunkeln */
+  .page-hero { background: linear-gradient(rgba(8, 9, 10, 0.72), rgba(8, 9, 10, 0.72)),
+    url("../assets/page-header.webp") 75% center / cover no-repeat, var(--bg-deep); }
+  .page-hero.not-found { background: linear-gradient(rgba(8, 9, 10, 0.6), rgba(8, 9, 10, 0.6)),
+    url("../assets/not-found.webp") 80% center / cover no-repeat, var(--bg-deep); }
+}
 .page-hero p { color: var(--muted); margin: 0; max-width: 60ch; }
 .prose { max-width: 75ch; padding: 2rem 0 4rem; }
 .prose h2 { border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
@@ -215,7 +229,9 @@ h3 { font-size: var(--step-1); }
 .faq .answer { padding: 0 1.25rem 1.1rem; color: var(--text-soft); }
 
 /* --- Footer --------------------------------------------------------------------------- */
-.site-footer { border-top: 1px solid var(--border); background: var(--bg-deep); padding: 2.5rem 0; color: var(--muted); font-size: 0.9rem; }
+/* Fußzeile auf dunklem Stein (media/textures/stone.webp, KI-generiert, nahtlos gemacht) */
+.site-footer { border-top: 1px solid var(--border); padding: 2.5rem 0; color: var(--muted); font-size: 0.9rem;
+  background: linear-gradient(rgba(8, 9, 10, 0.55), rgba(8, 9, 10, 0.78)), url("../assets/stone.webp") 0 0 / 320px repeat, var(--bg-deep); }
 .site-footer .cols { display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between; }
 .site-footer ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1rem; }
 .site-footer a { color: var(--text); text-decoration: none; }

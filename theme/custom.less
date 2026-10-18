@@ -488,7 +488,11 @@ h1, h2, h3,
   margin-top: 40px;
   padding: 24px 0 32px;
   border-top: 1px solid @bb-border;
-  background: @bb-bg-deep;
+  // Dunkler Stein (media/textures/stone.webp, KI-generiert, nahtlos gemacht), stark abgedunkelt
+  background:
+    linear-gradient(fade(@bb-bg-deep, 55%), fade(@bb-bg-deep, 78%)),
+    ~"url('media/bb/stone.webp') 0 0 / 320px repeat",
+    @bb-bg-deep;
   color: @bb-muted;
   font-size: 13px;
   text-align: center;

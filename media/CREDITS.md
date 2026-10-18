@@ -1,8 +1,8 @@
 # Medien: Herkunft und Lizenzen
 
-Alle Medien in `media/` sind gemeinfrei (CC0 bzw. Unlicense) oder selbst erzeugt. Eine
-Namensnennung ist rechtlich nicht nötig; sie steht hier trotzdem, damit nachvollziehbar bleibt,
-woher jede Datei stammt.
+Alle Medien in `media/` sind gemeinfrei (CC0), selbst erzeugt oder für dieses Projekt mit ChatGPT
+erzeugt. Eine Namensnennung ist rechtlich nicht nötig; sie steht hier trotzdem, damit
+nachvollziehbar bleibt, woher jede Datei stammt.
 
 | Datei | Quelle | Lizenz |
 |---|---|---|
@@ -14,8 +14,6 @@ woher jede Datei stammt.
 | `icons/crescent.svg` (The Hunter's Dream) | Pinhead, `crescent` | CC0 1.0 |
 | `icons/droplet.svg`, `icons/key.svg` (Website) | Pinhead, `droplet`, `cast-iron-key-with-heart-shaped-handle` | CC0 1.0 |
 | `icons/discord.svg` | [Simple Icons](https://simpleicons.org/), `discord` | CC0 1.0 (Marke: Discord Inc., Nutzung nach deren Brand Guidelines für Links zum Server) |
-| `images/forum-banner.webp` (Forum-Banner) | für dieses Projekt mit ChatGPT (OpenAI) erzeugt, gotische Stadt unter dem Blutmond | KI-generiert; Nutzung nach den OpenAI-Nutzungsbedingungen frei |
-| `textures/fog.webp` | selbst erzeugt mit `media/build.py` (Zufallsrauschen) | eigenes Werk, frei |
 | `textures/grain.svg` | selbst erzeugt (SVG-Rauschfilter) | eigenes Werk, frei |
 
 Bezogen über die Iconify-Pakete `@iconify-json/pinhead` und `@iconify-json/simple-icons` (npm),
@@ -24,3 +22,17 @@ deren Lizenzangaben mit den Projekten übereinstimmen.
 Neue Icons: SVG nach `media/icons/` legen (nur CC0/Public Domain), Quelle hier eintragen und
 `python3 media/build.py` ausführen. Das erzeugt `flarum/icons.less` (Klassen `bbicon bbicon-NAME`,
 z. B. als Tag-Icon im Admin) und `website/src/lib/icons.js` (`<Icon name="NAME" />`).
+
+## KI-generierte Bilder (für dieses Projekt mit ChatGPT erzeugt)
+
+Prompts: ohne Bezug auf das Spiel, nur Stil (viktorianische Gotik, Nebel, Gaslaternen, Blutmond).
+Nutzung nach den OpenAI-Nutzungsbedingungen frei; kein Material aus Bloodborne.
+
+| Datei | Motiv | Verwendung |
+|---|---|---|
+| `images/forum-banner.webp` | Gasse mit Gaslaternen, Kathedralen und Blutmond | Forum-Willkommens-Banner |
+| `images/website-hero.webp` | Skyline aus Dächern und Türmen im Nebel | Website-Startseite |
+| `images/page-header.webp` | Kathedralen-Innenraum mit Mondlicht und Kerzen | Website-Unterseiten |
+| `images/not-found.webp` | Friedhof mit Laterne unter dem Blutmond | Website-404 |
+| `images/og-background.jpg` | Stadt unter dem Blutmond | Vorschaubild (`media/og-image.html` → `website/public/og-image.jpg`) |
+| `textures/stone.webp` | dunkle Steinmauer, Kanten nahtlos überblendet | Fußzeilen von Forum und Website |

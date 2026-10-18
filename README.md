@@ -293,7 +293,7 @@ Welcome-Banner: Text in `content/welcome.html`, Titel und Discord-Link kommen au
 **Icons und Texturen:** Die Kategorien nutzen eigene Icons (Glocke, Laternenpfahl, Kerze, Werkzeug,
 Buch, Halbmond) statt Font Awesome; im Admin steht dafür als Icon z. B. `bbicon bbicon-bell`. Weitere
 Icons: SVG (nur CC0/Public Domain) nach `media/icons/` legen, in `media/CREDITS.md` eintragen und
-`python3 media/build.py` ausführen (braucht `numpy` und `Pillow`). Nebel, Körnung und die Bilder
+`python3 media/build.py` ausführen. Nebel, Körnung und die Bilder
 aus `media/images/` (z. B. das Willkommens-Banner `forum-banner.webp`) kopiert `setup-forum.sh` nach
 `/assets/media/bb/`. Neues Banner: Datei gleichen Namens ersetzen und das Skript erneut ausführen.
 
