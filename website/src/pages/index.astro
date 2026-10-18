@@ -4,11 +4,23 @@ import Icon from '../components/Icon.astro';
 import { SITE } from '../../site.config.mjs';
 import { link, absolute } from '../lib/url.js';
 
-// TODO: Texte der Startseite. Icons: Namen aus media/icons (droplet, crescent, key, tools, …)
+// Texte der Startseite. Icons: Namen aus media/icons (droplet, crescent, key, tools, bell, …)
 const features = [
-  { icon: 'droplet', title: 'TODO: Feature 1', text: 'TODO: Short description of the first highlight of the port.' },
-  { icon: 'crescent', title: 'TODO: Feature 2', text: 'TODO: Short description, e.g. resolution or frame rate options.' },
-  { icon: 'key', title: 'TODO: Feature 3', text: 'TODO: Short description, e.g. controller or keyboard support.' },
+  {
+    icon: 'droplet',
+    title: 'High frame rates, sharp image',
+    text: '60, 90 or unlocked FPS, output from 720p to 4K, NVIDIA DLSS and AMD FSR 3.1/4, and frame generation that turns 60 FPS into 120 or more.',
+  },
+  {
+    icon: 'bell',
+    title: 'Online co-op',
+    text: "Ring the bells and play with other hunters through The Hunter's Dream. You sign in with Discord in the launcher, no extra programs needed.",
+  },
+  {
+    icon: 'key',
+    title: 'Everything in one launcher',
+    text: 'Controller, keyboard and mouse with free key mapping, mods, game effects, field of view, cheats and one-click updates, in 13 languages.',
+  },
   { icon: 'tools', title: 'Mods & patches', text: 'Share and discuss mods, patches and tweaks with the community.' },
 ];
 
@@ -33,7 +45,8 @@ const orgLd = {
         <p class="eyebrow">Community hub</p>
         <h1>{SITE.name}</h1>
         <p class="lead">
-          <span class="todo">TODO: One or two sentences: what the port is and why people should try it.</span>
+          The original PS4 game, running natively on Windows 10 and 11 – at 60 FPS or more, in up to 4K, with online
+          co-op.
         </p>
         <div class="actions">
           <a class="btn btn-primary" href={link('install/')}>Install guide</a>
@@ -49,6 +62,13 @@ const orgLd = {
   <section class="section">
     <div class="container">
       <h2>What you get</h2>
+      <p class="about">
+        Bloodborne for Windows runs the original PlayStation 4 game natively on Windows 10 and 11. It is not an
+        emulator: the game's own x86-64 code runs directly on your PC, and its graphics are translated to Vulkan. Unpack
+        the zip, pick your game folder and press PLAY, and you get Bloodborne at 60 FPS or more, in up to 4K, with DLSS
+        or FSR, frame generation and online co-op. It's free, open source and made by Supermedo, built on bbport and the
+        shadPS4 renderer.
+      </p>
       <div class="grid">
         {features.map((f) => (
           <div class="card">

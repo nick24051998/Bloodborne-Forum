@@ -3,7 +3,7 @@ import Page from '../layouts/Page.astro';
 import { frontmatter } from '../texts/faq.md';
 
 const questions = frontmatter.questions ?? [];
-const strip = (html) => html.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&');
+const strip = (html) => html.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
 
 // Strukturierte Daten für Google (FAQPage)
 const faqLd = {
@@ -22,7 +22,7 @@ const faqLd = {
     {questions.map(({ q, a }, i) => (
       <details open={i === 0}>
         <summary>{q}</summary>
-        <div class="answer"><p set:html={a} /></div>
+        <div class="answer" set:html={a} />
       </details>
     ))}
   </div>

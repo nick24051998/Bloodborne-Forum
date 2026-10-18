@@ -10,11 +10,11 @@ export const SITE = {
 
   // Standard-Beschreibung für Google (max. ~155 Zeichen)
   description:
-    'Community hub for the Bloodborne PC Port: install guide, system requirements, FAQ, changelog and community links.',
+    'Community hub for Bloodborne for Windows, the native PC port: download, install guide, system requirements, FAQ and changelog.',
 
   // Links – leer lassen, solange es sie noch nicht gibt (Buttons/Menüpunkte werden dann ausgeblendet)
   forumUrl: 'https://bbport-forum.nrnetworks.de',
-  discordUrl: '', // TODO: Discord-Einladungslink, z. B. 'https://discord.gg/abc123'
-  downloadUrl: '', // TODO: offizielle Release-Seite (z. B. GitHub Releases)
+  discordUrl: 'https://discord.gg/yTMG8c4Bqm', // dauerhafte Einladung, läuft nicht ab
+  downloadUrl: 'https://github.com/Supermedo/bloodborne_pc/releases/latest', // immer das neueste Release
   githubUrl: '', // optional
 };

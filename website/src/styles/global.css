@@ -185,6 +185,7 @@ h3 { font-size: var(--step-1); }
 .card:hover { border-color: var(--border-strong); background: var(--card-hover); }
 .card h3 { margin-bottom: 0.4em; }
 .card p { margin: 0; color: var(--text-soft); }
+.about { max-width: 75ch; margin: 0 0 2rem; color: var(--text-soft); }
 .card .icon { font-size: 1.75rem; display: block; margin-bottom: 0.7rem; color: var(--gold-light); }
 
 .notice {
@@ -227,6 +228,8 @@ h3 { font-size: var(--step-1); }
 .faq details[open] summary::after { content: "–"; }
 .faq details[open] { border-color: var(--border-strong); }
 .faq .answer { padding: 0 1.25rem 1.1rem; color: var(--text-soft); }
+.faq .answer p, .faq .answer ol, .faq .answer ul { margin: 0 0 0.7rem; }
+.faq .answer > :last-child { margin-bottom: 0; }
 
 /* --- Footer --------------------------------------------------------------------------- */
 /* Fußzeile auf dunklem Stein (media/textures/stone.webp, KI-generiert, nahtlos gemacht) */
