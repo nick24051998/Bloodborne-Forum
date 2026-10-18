@@ -36,7 +36,7 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `theme/logo.svg`, `theme/favicon.svg` | Platzhalter-Logo (Blutmond mit Krähe), Quelldateien |
 | `theme/logo.png`, `theme/favicon.png` | Dieselben Bilder als PNG zum Hochladen (Flarum 1.x nimmt kein SVG) |
 | `theme/fonts/` | Cinzel + Inter als `.woff2`, selbst gehostet (SIL OFL) |
-| `content/` | Welcome-Banner, Fußzeile (Imprint/Privacy), Regel-Thema, Vorlage für Help & Support |
+| `content/` | Welcome-Banner, Fußzeile (Imprint/Privacy), angepinnte Themen (Regeln, Install-Kurzfassung, „Read first“ für Help & Support), Vorlage für Help & Support |
 | `website/` | Projekt-Website (Astro, statisch, GitHub Pages), siehe `website/README.md` |
 
 ## Voraussetzungen

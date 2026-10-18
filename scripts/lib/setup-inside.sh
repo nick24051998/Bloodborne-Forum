@@ -265,19 +265,24 @@ api PATCH /groups/1 '{"data":{"type":"groups","id":"1","attributes":{"color":"#8
 api PATCH /groups/4 '{"data":{"type":"groups","id":"4","attributes":{"color":"#9c8458","icon":"fas fa-shield-alt"}}}' >/dev/null && ok "Mod: brass"
 
 # --------------------------------------------------------------------------
-log "Rules topic"
-if api GET "/discussions?filter%5Btag%5D=announcements&page%5Blimit%5D=50" |
-  jq -e '.data[] | select(.attributes.title | startswith("Forum rules"))' >/dev/null 2>&1; then
-  ok "already exists"
-else
-  rules=$(subst "$D/content/rules.md")
-  body=$(jq -n --arg c "$rules" --arg t "$ann" \
-    '{data: {type: "discussions", attributes: {title: "Forum rules & how to ask for help", content: $c},
+log "Pinned topics"
+pinned_topic() { # pinned_topic TAG-SLUG TAG-ID TITLE CONTENT-FILE: creates the topic once, pinned and locked
+  if api GET "/discussions?filter%5Btag%5D=$1&page%5Blimit%5D=50" |
+    jq -e --arg t "$3" '.data[] | select(.attributes.title == $t)' >/dev/null 2>&1; then
+    ok "$3 (already exists)"
+    return 0
+  fi
+  _content=$(subst "$4")
+  _body=$(jq -n --arg c "$_content" --arg t "$2" --arg title "$3" \
+    '{data: {type: "discussions", attributes: {title: $title, content: $c},
       relationships: {tags: {data: [{type: "tags", id: $t}]}}}}')
-  did=$(api POST /discussions "$body" | jq -r '.data.id')
-  api PATCH "/discussions/$did" "{\"data\":{\"type\":\"discussions\",\"id\":\"$did\",\"attributes\":{\"isSticky\":true,\"isLocked\":true}}}" >/dev/null || true
-  ok "created, pinned and locked"
-fi
+  _did=$(api POST /discussions "$_body" | jq -r '.data.id')
+  api PATCH "/discussions/$_did" "{\"data\":{\"type\":\"discussions\",\"id\":\"$_did\",\"attributes\":{\"isSticky\":true,\"isLocked\":true}}}" >/dev/null || true
+  ok "$3 (created, pinned and locked)"
+}
+pinned_topic announcements "$ann" "Forum rules & how to ask for help" "$D/content/rules.md"
+pinned_topic guides "$(tag_id guides)" "Install guide & system requirements" "$D/content/install-topic.md"
+pinned_topic help-support "$help" "Read first: common fixes before you post" "$D/content/help-first-topic.md"
 
 # --------------------------------------------------------------------------
 log "Logo & favicon"
