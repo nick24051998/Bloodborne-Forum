@@ -41,7 +41,7 @@ if ! docker compose ps --status running --services 2>/dev/null | grep -qx flarum
 fi
 
 # Repo-Dateien in den Container kopieren
-tar -cf - theme content media/textures scripts/lib |
+tar -cf - theme content media/textures media/images scripts/lib |
   docker compose exec -T flarum sh -c 'rm -rf /tmp/bbsetup && mkdir -p /tmp/bbsetup && tar -xf - -C /tmp/bbsetup'
 
 status=0

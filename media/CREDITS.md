@@ -14,6 +14,7 @@ woher jede Datei stammt.
 | `icons/crescent.svg` (The Hunter's Dream) | Pinhead, `crescent` | CC0 1.0 |
 | `icons/droplet.svg`, `icons/key.svg` (Website) | Pinhead, `droplet`, `cast-iron-key-with-heart-shaped-handle` | CC0 1.0 |
 | `icons/discord.svg` | [Simple Icons](https://simpleicons.org/), `discord` | CC0 1.0 (Marke: Discord Inc., Nutzung nach deren Brand Guidelines für Links zum Server) |
+| `images/forum-banner.webp` (Forum-Banner) | für dieses Projekt mit ChatGPT (OpenAI) erzeugt, gotische Stadt unter dem Blutmond | KI-generiert; Nutzung nach den OpenAI-Nutzungsbedingungen frei |
 | `textures/fog.webp` | selbst erzeugt mit `media/build.py` (Zufallsrauschen) | eigenes Werk, frei |
 | `textures/grain.svg` | selbst erzeugt (SVG-Rauschfilter) | eigenes Werk, frei |
 

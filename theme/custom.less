@@ -138,16 +138,18 @@ h1, h2, h3,
 
 // --- Willkommens-Banner --------------------------------------------------------
 .WelcomeHero {
-  // Kaltes Mondlicht oben rechts, Dämmerungsviolett links, aufsteigender Nebel, Anthrazit
-  // (media/textures/fog.webp, selbst erzeugt; setup-forum.sh kopiert es nach /assets/media/bb)
+  // Gotische Stadt unter dem Blutmond (media/images/forum-banner.webp, für dieses Projekt mit
+  // ChatGPT erzeugt, siehe media/CREDITS.md; setup-forum.sh kopiert es nach /assets/media/bb).
+  // Darüber: Abdunklung hinter dem Text und Übergang in die Seite.
+  // ~"…": sonst rechnet LESS das "/" in der Bildangabe als Division.
   background:
-    radial-gradient(ellipse 55% 130% at 90% -35%, fade(@bb-moon, 10%) 0%, transparent 65%),
-    radial-gradient(ellipse 70% 150% at 0% -30%, fade(@bb-dusk, 70%) 0%, transparent 60%),
-    url("media/bb/fog.webp") center bottom / cover no-repeat,
-    linear-gradient(180deg, @bb-surface 0%, @bb-bg 100%);
+    linear-gradient(180deg, transparent 55%, @bb-bg 100%),
+    radial-gradient(ellipse 34% 58% at 50% 55%, fade(@bb-bg-deep, 72%) 0%, transparent 100%),
+    ~"url('media/bb/forum-banner.webp') right 22% / cover no-repeat",
+    @bb-surface;
   border-bottom: 1px solid @bb-border;
   color: @bb-text;
-  padding: 34px 0 30px;
+  padding: 64px 0 60px;
 
   .Hero-title {
     color: @bb-text-strong;
@@ -167,7 +169,13 @@ h1, h2, h3,
   }
 
   @media @phone {
-    padding: 18px 0 16px;
+    padding: 40px 0 36px;
+    // Schmal liegt der Text über der Stadt: Ausschnitt nach rechts, stärker abgedunkelt
+    background:
+      linear-gradient(180deg, transparent 50%, @bb-bg 100%),
+      linear-gradient(fade(@bb-bg-deep, 58%), fade(@bb-bg-deep, 58%)),
+      ~"url('media/bb/forum-banner.webp') 72% 30% / cover no-repeat",
+      @bb-surface;
 
     .Hero-title {
       font-size: 21px;
