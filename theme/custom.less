@@ -138,10 +138,12 @@ h1, h2, h3,
 
 // --- Willkommens-Banner --------------------------------------------------------
 .WelcomeHero {
-  // Kaltes Mondlicht oben rechts, Dämmerungsviolett links, darunter Anthrazit
+  // Kaltes Mondlicht oben rechts, Dämmerungsviolett links, aufsteigender Nebel, Anthrazit
+  // (media/textures/fog.webp, selbst erzeugt; setup-forum.sh kopiert es nach /assets/media/bb)
   background:
     radial-gradient(ellipse 55% 130% at 90% -35%, fade(@bb-moon, 10%) 0%, transparent 65%),
     radial-gradient(ellipse 70% 150% at 0% -30%, fade(@bb-dusk, 70%) 0%, transparent 60%),
+    url("media/bb/fog.webp") center bottom / cover no-repeat,
     linear-gradient(180deg, @bb-surface 0%, @bb-bg 100%);
   border-bottom: 1px solid @bb-border;
   color: @bb-text;
@@ -502,6 +504,22 @@ h1, h2, h3,
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px 20px;
+}
+
+// --- Körnung --------------------------------------------------------------------------------
+// Feines Filmkorn über der ganzen Seite (media/textures/grain.svg, selbst erzeugt). Klicks gehen
+// hindurch; sehr schwach, damit Text scharf bleibt.
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: url("media/bb/grain.svg");
+  opacity: 0.05;
 }
 
 // --- Scrollbars (WebKit/Blink) ----------------------------------------------------------

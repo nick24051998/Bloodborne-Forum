@@ -2,6 +2,7 @@
 // Sammelpunkt für Forum/Discord. Texte verlinken hierher (../community/), damit es keine toten
 // Links gibt, solange Forum oder Discord noch keine Adresse haben.
 import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
 import { SITE } from '../../site.config.mjs';
 ---
 
@@ -26,7 +27,7 @@ import { SITE } from '../../site.config.mjs';
           <div class="card">
             <h3>Discord</h3>
             <p>Chat with the community and the team in real time.</p>
-            <p style="margin-top:1rem"><a class="btn btn-discord" href={SITE.discordUrl} rel="noopener">Join Discord</a></p>
+            <p style="margin-top:1rem"><a class="btn btn-discord" href={SITE.discordUrl} rel="noopener"><Icon name="discord" />Join Discord</a></p>
           </div>
         )}
         {!SITE.forumUrl && !SITE.discordUrl && (

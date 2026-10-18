@@ -20,6 +20,8 @@
  * flarum/forum.js (per docker-compose unter /bbforum): Website- und Discord-Links in der
  * Kopfzeile, Registrieren-Fenster nur mit Discord-Button. Die Adressen kommen aus den
  * Einstellungen "bbforum.website_url" und "bbforum.discord_url" (setzt setup-forum.sh).
+ *
+ * flarum/icons.less: eigene Icons (bbicon-*, CC0) für Kategorien, in Forum und Admin.
  */
 
 use Flarum\Extend;
@@ -80,4 +82,8 @@ return [
         ->serializeToForum('bbforumDiscordOnly', 'bbforum.oauth_only_signup', 'boolval'),
 
     ...(is_file('/bbforum/forum.js') ? [(new Extend\Frontend('forum'))->js('/bbforum/forum.js')] : []),
+    ...(is_file('/bbforum/icons.less') ? [
+        (new Extend\Frontend('forum'))->css('/bbforum/icons.less'),
+        (new Extend\Frontend('admin'))->css('/bbforum/icons.less'),
+    ] : []),
 ];

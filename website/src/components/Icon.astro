@@ -1,0 +1,8 @@
+---
+// Icons aus media/icons (CC0, siehe media/CREDITS.md), als SVG eingebettet; Farbe = Textfarbe
+import { icons } from '../lib/icons.js';
+
+const { name, class: className } = Astro.props;
+---
+
+<span class:list={['bbicon', className]} aria-hidden="true" set:html={icons[name]} />

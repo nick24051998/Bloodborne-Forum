@@ -59,6 +59,17 @@ body {
 
 img, svg { max-width: 100%; height: auto; }
 
+/* Icons aus media/icons (CC0) */
+.bbicon { display: inline-block; width: 1em; height: 1em; vertical-align: -0.125em; }
+.bbicon svg { display: block; width: 100%; height: 100%; fill: currentColor; }
+.btn .bbicon, .nav-discord .bbicon { margin-right: 0.5em; font-size: 1.15em; }
+
+/* Feines Filmkorn über der Seite (selbst erzeugt), Klicks gehen hindurch */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 100; pointer-events: none;
+  background: url("../assets/grain.svg"); opacity: 0.05;
+}
+
 a { color: var(--gold-light); text-decoration-thickness: 1px; text-underline-offset: 3px; }
 a:hover { color: var(--text-strong); text-decoration-color: var(--gold-light); }
 
@@ -142,6 +153,7 @@ h3 { font-size: var(--step-1); }
   background:
     radial-gradient(ellipse 55% 120% at 90% -25%, rgba(var(--moon), 0.1) 0%, transparent 65%),
     radial-gradient(ellipse 70% 140% at 0% -20%, rgba(var(--dusk), 0.7) 0%, transparent 60%),
+    url("../assets/fog.webp") center bottom / cover no-repeat,
     var(--bg-deep);
   border-bottom: 1px solid var(--border);
   padding: clamp(3rem, 6vw, 6.5rem) 0;
@@ -171,7 +183,7 @@ h3 { font-size: var(--step-1); }
 .card:hover { border-color: var(--border-strong); background: var(--card-hover); }
 .card h3 { margin-bottom: 0.4em; }
 .card p { margin: 0; color: var(--text-soft); }
-.card .icon { font-size: 1.6rem; display: block; margin-bottom: 0.6rem; }
+.card .icon { font-size: 1.75rem; display: block; margin-bottom: 0.7rem; color: var(--gold-light); }
 
 .notice {
   border: 1px solid rgba(156, 132, 88, 0.45); background: rgba(156, 132, 88, 0.07);

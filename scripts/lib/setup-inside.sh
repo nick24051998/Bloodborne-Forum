@@ -152,6 +152,10 @@ mkdir -p /data/assets/fonts/bb
 cp "$D"/theme/fonts/*.woff2 /data/assets/fonts/bb/
 chown -R flarum:flarum /data/assets/fonts/bb 2>/dev/null || true
 ok "fonts copied to /assets/fonts/bb"
+mkdir -p /data/assets/media/bb
+cp "$D"/media/textures/* /data/assets/media/bb/
+chown -R flarum:flarum /data/assets/media 2>/dev/null || true
+ok "textures copied to /assets/media/bb"
 only_signup=0
 [ "${DISCORD_ONLY_SIGNUP:-true}" = "true" ] && only_signup=1
 welcome=$(subst "$D/content/welcome.html")
@@ -201,12 +205,12 @@ fi
 # --------------------------------------------------------------------------
 log "Tags"
 # slug|name|color|icon|description
-TAGS='announcements|Announcements|#8a1118|fas fa-bullhorn|News, releases and changelogs from the team. Only staff can start topics here.
-help-support|Help & Support|#9c8458|fas fa-life-ring|Something broken? Include port version, GPU + driver, what happens and your BB Report Tool zip.
-suggestions|Suggestions|#6e6656|fas fa-lightbulb|Ideas and feature requests for the port.
-mods-patches|Mods & Patches|#6b3a45|fas fa-flask|Share and discuss mods, patches and tweaks. No game files.
-guides|Guides|#4c5d5a|fas fa-book-open|Tutorials and how-tos written by the community.
-hunters-dream|The Hunter'"'"'s Dream|#57526e|fas fa-moon|Off-topic. Rest a while, good hunter.'
+TAGS='announcements|Announcements|#8a1118|bbicon bbicon-bell|News, releases and changelogs from the team. Only staff can start topics here.
+help-support|Help & Support|#9c8458|bbicon bbicon-lamppost|Something broken? Include port version, GPU + driver, what happens and your BB Report Tool zip.
+suggestions|Suggestions|#6e6656|bbicon bbicon-candle|Ideas and feature requests for the port.
+mods-patches|Mods & Patches|#6b3a45|bbicon bbicon-tools|Share and discuss mods, patches and tweaks. No game files.
+guides|Guides|#4c5d5a|bbicon bbicon-book|Tutorials and how-tos written by the community.
+hunters-dream|The Hunter'"'"'s Dream|#57526e|bbicon bbicon-crescent|Off-topic. Rest a while, good hunter.'
 
 if ! installed flarum/tags; then die "flarum/tags is missing"; fi
 existing=$(api GET /tags)

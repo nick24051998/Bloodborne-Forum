@@ -1,14 +1,15 @@
 ---
 import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
 import { SITE } from '../../site.config.mjs';
 import { link, absolute } from '../lib/url.js';
 
-// TODO: Texte der Startseite.
+// TODO: Texte der Startseite. Icons: Namen aus media/icons (droplet, crescent, key, tools, …)
 const features = [
-  { icon: '🩸', title: 'TODO: Feature 1', text: 'TODO: Short description of the first highlight of the port.' },
-  { icon: '🌕', title: 'TODO: Feature 2', text: 'TODO: Short description, e.g. resolution or frame rate options.' },
-  { icon: '🗝️', title: 'TODO: Feature 3', text: 'TODO: Short description, e.g. controller or keyboard support.' },
-  { icon: '🛠️', title: 'Mods & patches', text: 'Share and discuss mods, patches and tweaks with the community.' },
+  { icon: 'droplet', title: 'TODO: Feature 1', text: 'TODO: Short description of the first highlight of the port.' },
+  { icon: 'crescent', title: 'TODO: Feature 2', text: 'TODO: Short description, e.g. resolution or frame rate options.' },
+  { icon: 'key', title: 'TODO: Feature 3', text: 'TODO: Short description, e.g. controller or keyboard support.' },
+  { icon: 'tools', title: 'Mods & patches', text: 'Share and discuss mods, patches and tweaks with the community.' },
 ];
 
 const helpUrl = SITE.forumUrl ? `${SITE.forumUrl}/t/help-support` : SITE.discordUrl;
@@ -37,7 +38,7 @@ const orgLd = {
         <div class="actions">
           <a class="btn btn-primary" href={link('install/')}>Install guide</a>
           {SITE.downloadUrl && <a class="btn btn-ghost" href={SITE.downloadUrl} rel="noopener">Latest release</a>}
-          {SITE.discordUrl && <a class="btn btn-discord" href={SITE.discordUrl} rel="noopener">Join Discord</a>}
+          {SITE.discordUrl && <a class="btn btn-discord" href={SITE.discordUrl} rel="noopener"><Icon name="discord" />Join Discord</a>}
           {SITE.forumUrl && <a class="btn btn-ghost" href={SITE.forumUrl}>Visit forum</a>}
         </div>
       </div>
@@ -51,7 +52,7 @@ const orgLd = {
       <div class="grid">
         {features.map((f) => (
           <div class="card">
-            <span class="icon" aria-hidden="true">{f.icon}</span>
+            <Icon name={f.icon} class="icon" />
             <h3>{f.title}</h3>
             <p>{f.text}</p>
           </div>

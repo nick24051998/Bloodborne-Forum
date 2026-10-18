@@ -30,6 +30,8 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `scripts/backup.sh` | DB-Dump + Datenvolume als `.tar.gz` |
 | `flarum/extend.php` | Schalter „neue Accounts nur über Discord“ und Sicherheits-Header |
 | `flarum/forum.js` | Links zur Website und zu Discord in der Forum-Kopfzeile, Registrieren-Fenster nur mit Discord-Button |
+| `media/` | Icons (CC0) und selbst erzeugte Texturen (Nebel, Körnung); Herkunft in `media/CREDITS.md`, neu erzeugen mit `python3 media/build.py` |
+| `flarum/icons.less` | Eigene Kategorie-Icons (`bbicon bbicon-NAME`), aus `media/icons/` erzeugt |
 | `theme/custom.less` | Theme (Admin → Appearance → Custom Styles) |
 | `theme/logo.svg`, `theme/favicon.svg` | Platzhalter-Logo (Blutmond mit Krähe), Quelldateien |
 | `theme/logo.png`, `theme/favicon.png` | Dieselben Bilder als PNG zum Hochladen (Flarum 1.x nimmt kein SVG) |
@@ -287,6 +289,12 @@ Das Regel-Thema macht sie aber verbindlich, und Mods können unvollständige The
 
 Welcome-Banner: Text in `content/welcome.html`, Titel und Discord-Link kommen aus `.env`
 (`DISCORD_INVITE_URL`). Manuell geht es unter *Admin → Basics → Welcome Banner*.
+
+**Icons und Texturen:** Die Kategorien nutzen eigene Icons (Glocke, Laternenpfahl, Kerze, Werkzeug,
+Buch, Halbmond) statt Font Awesome; im Admin steht dafür als Icon z. B. `bbicon bbicon-bell`. Weitere
+Icons: SVG (nur CC0/Public Domain) nach `media/icons/` legen, in `media/CREDITS.md` eintragen und
+`python3 media/build.py` ausführen (braucht `numpy` und `Pillow`). Nebel und Körnung kopiert
+`setup-forum.sh` nach `/assets/media/bb/`.
 
 **Verbindung zur Website:** `setup-forum.sh` trägt `WEBSITE_URL` und `DISCORD_INVITE_URL` aus
 `.env` ein. Daraus entstehen die Links in der Kopfzeile (Website, Install guide, FAQ, Discord; auf dem
