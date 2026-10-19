@@ -16,8 +16,8 @@ items:
     image: ""
     alt: ""
     credit: ""
-  - title: Ultrawide
-    text: 3440×1440 with a widened camera, HUD and menus.
+  - title: Chalice dungeon run
+    text: Glyphs shared by the community, cleared together.
     image: ""
     alt: ""
     credit: ""
@@ -26,11 +26,11 @@ items:
     image: ""
     alt: ""
     credit: ""
-  - title: Chalice dungeon run
-    text: Glyphs shared by the community, cleared together.
-    image: ""
-    alt: ""
-    credit: ""
+  - title: Ultrawide
+    text: 3440×1440 with a widened camera, HUD and menus.
+    image: "ultrawide-hunters-dream.webp"
+    alt: "Ultrawide screenshot: a hunter in a long coat stands in a moonlit garden below a gothic church, a large full moon in the sky, a doll-like woman waiting by the stone stairs"
+    credit: "joão edu"
   - title: Controller setup
     text: Remapped to taste in the launcher's Controls page.
     image: ""
