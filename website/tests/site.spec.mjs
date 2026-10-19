@@ -62,7 +62,7 @@ test('Alle Seiten laden fehlerfrei', async ({ page, request }) => {
 
       // Titel, Beschreibung, Canonical auf die echte Domain
       expect(await page.title(), `${path}: Titel`).not.toBe('');
-      await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /\S{20,}/);
+      await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /^.{20,}$/s);
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${SITE_URL}${path}`);
       await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', new RegExp(`^${SITE_URL}/`));
 
