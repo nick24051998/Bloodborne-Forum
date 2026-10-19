@@ -186,7 +186,7 @@ h3 { font-size: var(--step-1); }
 .hero::after, .page-hero::after {
   content: ""; position: absolute; inset: 0 auto 0 0; z-index: -1; width: calc(100% + 600px);
   background: url("../assets/fog.svg") 0 0 / 600px 100% repeat-x; opacity: 0.28; pointer-events: none;
-  animation: fog-drift 80s linear infinite;
+  animation: fog-drift 60s linear infinite;
 }
 @keyframes fog-drift { from { transform: translateX(0); } to { transform: translateX(-600px); } }
 @supports (animation-timeline: scroll()) {
