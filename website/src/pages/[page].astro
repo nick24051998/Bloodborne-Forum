@@ -2,6 +2,7 @@
 // Erzeugt /install/, /changelog/, /contact/, /privacy/ aus src/texts/*.md
 // (faq.md hat eine eigene Seite, showcase.md liefert nur die Texte der Galerie auf der Startseite)
 import Page from '../layouts/Page.astro';
+import HardwareCheck from '../components/HardwareCheck.astro';
 
 export function getStaticPaths() {
   const texts = import.meta.glob('../texts/*.md', { eager: true });
@@ -13,8 +14,21 @@ export function getStaticPaths() {
 
 const { mod } = Astro.props;
 const { Content, frontmatter } = mod;
+
+// <div data-hwcheck></div> im Text markiert die Stelle für den Hardware-Check (install.md)
+const MARK = '<div data-hwcheck></div>';
+const html = await mod.compiledContent();
+const [before, after] = html.includes(MARK) ? html.split(MARK) : [];
 ---
 
 <Page frontmatter={frontmatter}>
-  <Content />
+  {before !== undefined ? (
+    <>
+      <Fragment set:html={before} />
+      <HardwareCheck />
+      <Fragment set:html={after} />
+    </>
+  ) : (
+    <Content />
+  )}
 </Page>

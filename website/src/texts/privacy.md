@@ -32,6 +32,11 @@ for the safeguards it uses.
 **No cookies, no tracking.** The website sets no cookies, stores nothing in your browser and uses no
 analytics or advertising. Fonts and images are served from the website itself, not from third parties.
 
+**"Will it run on my PC?"** The check in the install guide runs entirely in your browser; your choices are not
+stored or sent to us. Only if you click Detect does your browser tell the page the name of your graphics card, to
+pick it in the list. Your choices appear in the page address so you can share the result; like any address, it
+reaches GitHub only when you open or share that link.
+
 **Links.** Links to Discord, GitHub, The Hunter's Dream and other sites take you to services with their
 own privacy policies. Nothing from them is loaded before you click.
 

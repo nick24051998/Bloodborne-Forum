@@ -362,6 +362,59 @@ h3 { font-size: var(--step-1); }
 .faq .answer p, .faq .answer ol, .faq .answer ul { margin: 0 0 0.7rem; }
 .faq .answer > :last-child { margin-bottom: 0; }
 
+/* --- Hardware-Check im Install Guide (src/components/HardwareCheck.astro) ------------------- */
+.hwcheck { scroll-margin-top: 5rem; margin: 2.2rem 0 1rem; padding: 1.3rem 1.5rem 1.4rem; background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); }
+.prose .hwcheck h2 { margin-top: 0; }
+.hw-intro { color: var(--text-soft); margin: 0 0 1.1rem; }
+.hw-form { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem 1rem; }
+.hw-field { min-width: 0; }
+.hw-field--wide { grid-column: 1 / -1; }
+.hw-field label { display: block; margin-bottom: 0.35rem; font-weight: 600; font-size: 0.9rem; color: var(--text-strong); }
+.hw-form select { width: 100%; min-width: 0; padding: 0.6rem 0.7rem; font: inherit; font-size: 0.95rem; color: var(--text);
+  background: var(--bg-deep); border: 1px solid var(--border-strong); border-radius: 8px; }
+.hw-form select:disabled { color: var(--muted); }
+.hw-row { display: flex; gap: 0.6rem; }
+.hw-row select { flex: 1; }
+.hw-detect, .hw-copy { font: inherit; font-weight: 600; cursor: pointer; border-radius: 8px; color: var(--text-strong);
+  background: none; border: 1px solid rgba(156, 132, 88, 0.6); transition: border-color 220ms, color 220ms; }
+.hw-detect { padding: 0 1rem; font-size: 0.95rem; }
+.hw-detect:hover, .hw-copy:hover { border-color: var(--gold-light); color: var(--gold-light); }
+.hw-hint { margin: 0.4rem 0 0; font-size: 0.85rem; color: var(--muted); }
+.hw-hint:empty { display: none; }
+.hw-result:not(:empty) { margin-top: 1.3rem; padding-top: 1.2rem; border-top: 1px solid var(--border); }
+.hw-summary { border-left: 3px solid var(--gold); padding: 0.1rem 0 0.1rem 1rem; margin-bottom: 1rem; }
+.hw-summary p { margin: 0; }
+.hw-summary.hw-tier-0, .hw-summary.hw-tier-1 { border-left-color: var(--blood-hover); }
+.hw-summary.hw-tier-4, .hw-summary.hw-tier-5 { border-left-color: var(--gold-light); }
+.hw-tier { font-family: var(--font-head); font-weight: 700; font-size: var(--step-1); color: var(--text-strong); }
+.hw-limit { color: var(--muted); font-size: 0.9rem; }
+.hw-checks { list-style: none; padding: 0; margin: 0 0 1rem; }
+.prose .hw-checks li { position: relative; margin: 0.45em 0; padding-left: 1.6rem; }
+.hw-checks li::before { position: absolute; left: 0; top: 0; width: 1.1rem; text-align: center; font-weight: 700; }
+.hw-checks .hw-ok::before { content: "✓"; color: var(--gold-light); }
+.hw-checks .hw-warn::before { content: "!"; color: #d9a35b; }
+.hw-checks .hw-bad::before { content: "✕"; color: var(--blood-light); }
+.hw-checks strong { color: var(--text-strong); }
+.prose .hw-table { margin: 0 0 1rem; display: table; }
+.prose .hw-table tbody th { background: none; white-space: nowrap; }
+.hw-level { display: inline-block; padding: 0.05rem 0.55rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600;
+  white-space: nowrap; border: 1px solid var(--border-strong); color: var(--text); }
+.hw-l4, .hw-l5 { color: var(--gold-light); border-color: rgba(194, 168, 120, 0.6); }
+.hw-l1, .hw-l2 { color: var(--muted); }
+.hw-l0 { background: var(--blood); border-color: var(--blood); color: #fff; }
+.hw-notes { margin: 0 0 1rem; padding-left: 1.2rem; color: var(--text-soft); font-size: 0.95rem; }
+.hw-foot { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.hw-copy { margin-top: 0.5rem; padding: 0.35rem 0.8rem; font-size: 0.85rem; display: inline-block; }
+@media (max-width: 860px) {
+  .hwcheck { padding: 1.1rem 1rem 1.2rem; }
+  .hw-form { grid-template-columns: 1fr; }
+  .prose .hw-table { display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hw-detect, .hw-copy { transition: none; }
+}
+
 /* --- Showcase: Galerie der Startseite (src/components/Showcase.astro) ------------------------ */
 /* Breit: 4 Spalten, Muster groß/klein/klein/breit/klein/breit/klein füllt 3 Reihen; schmal: 2 Spalten */
 .showcase-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem;

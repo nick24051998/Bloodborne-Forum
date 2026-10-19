@@ -1,0 +1,225 @@
+---
+// "Will it run on my PC?" im Install Guide (Markierung <div data-hwcheck></div> in src/texts/install.md):
+// Grafikkarte, Prozessor und Arbeitsspeicher wählen, Einschätzung nach den Regeln in src/data/hardware.js.
+// Läuft nur im Browser; gespeichert oder gesendet wird nichts. Die Auswahl steht in der Adresse (zum Teilen).
+import { gpus, cpuLines, ramOptions } from '../data/hardware.js';
+
+const gpuGroups = [...new Set(gpus.map((g) => g.group))].map((group) => ({ group, items: gpus.filter((g) => g.group === group) }));
+const cpuBrands = ['Intel', 'AMD'].map((brand) => ({ brand, lines: cpuLines.filter((l) => l.brand === brand) }));
+---
+
+<section class="hwcheck" id="will-it-run" aria-labelledby="hwcheck-heading">
+  <h2 id="hwcheck-heading">Will it run on my PC?</h2>
+  <p class="hw-intro">
+    Pick your parts for a rough idea of what to expect. Not sure what you have? Open Task Manager (Ctrl+Shift+Esc) and go
+    to Performance: CPU and GPU show the model at the top right, Memory shows the size.
+  </p>
+  <form class="hw-form">
+    <div class="hw-field hw-field--wide">
+      <label for="hw-gpu">Graphics card</label>
+      <div class="hw-row">
+        <select id="hw-gpu" name="gpu">
+          <option value="">Choose your graphics card</option>
+          {gpuGroups.map(({ group, items }) => (
+            <optgroup label={group}>
+              {items.map((g) => <option value={g.id}>{g.name}</option>)}
+            </optgroup>
+          ))}
+        </select>
+        <button type="button" class="hw-detect" hidden>Detect</button>
+      </div>
+      <p class="hw-hint" id="hw-gpu-hint" aria-live="polite"></p>
+    </div>
+    <div class="hw-field">
+      <label for="hw-cpu">Processor</label>
+      <select id="hw-cpu" name="cpu">
+        <option value="">Choose your processor</option>
+        {cpuBrands.map(({ brand, lines }) => (
+          <optgroup label={brand}>
+            {lines.map((l) => <option value={l.id}>{l.label}</option>)}
+          </optgroup>
+        ))}
+      </select>
+    </div>
+    <div class="hw-field">
+      <label for="hw-gen">Generation</label>
+      <select id="hw-gen" name="gen" disabled>
+        <option value="">Choose the processor first</option>
+      </select>
+    </div>
+    <div class="hw-field">
+      <label for="hw-ram">Memory (RAM)</label>
+      <select id="hw-ram" name="ram">
+        <option value="">Choose your memory</option>
+        {ramOptions.map((gb) => <option value={gb}>{gb === 32 ? '32 GB or more' : `${gb} GB`}</option>)}
+      </select>
+    </div>
+  </form>
+  <div class="hw-result" aria-live="polite"></div>
+  <noscript><p class="hw-hint">This check needs JavaScript. Compare your PC with the table above instead.</p></noscript>
+</section>
+
+<script>
+  import { gpus, cpuLines, evaluate, matchGpu } from '../data/hardware.js';
+
+  const root = document.querySelector<HTMLElement>('.hwcheck');
+  if (root) {
+    const form = root.querySelector<HTMLFormElement>('.hw-form')!;
+    const gpuSel = form.querySelector<HTMLSelectElement>('#hw-gpu')!;
+    const cpuSel = form.querySelector<HTMLSelectElement>('#hw-cpu')!;
+    const genSel = form.querySelector<HTMLSelectElement>('#hw-gen')!;
+    const ramSel = form.querySelector<HTMLSelectElement>('#hw-ram')!;
+    const hint = root.querySelector<HTMLElement>('#hw-gpu-hint')!;
+    const detect = root.querySelector<HTMLButtonElement>('.hw-detect')!;
+    const result = root.querySelector<HTMLElement>('.hw-result')!;
+
+    const el = (tag: string, className = '', text = '') => {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text) node.textContent = text;
+      return node;
+    };
+
+    // Generationen zur gewählten Prozessor-Serie
+    const fillGens = (selected = '') => {
+      const line = cpuLines.find((l) => l.id === cpuSel.value);
+      genSel.replaceChildren();
+      if (!line) {
+        genSel.append(new Option('Choose the processor first', ''));
+        genSel.disabled = true;
+        return;
+      }
+      if (line.gens.length > 1) genSel.append(new Option('Choose the generation', ''));
+      for (const g of line.gens) genSel.append(new Option(g.label, g.id, false, g.id === selected));
+      genSel.disabled = false;
+    };
+
+    const SUMMARY = [
+      "This PC can't run the port.",
+      'It may start, but expect low frame rates and problems.',
+      'Playable at 720p–1080p at about 30 FPS.',
+      'Playable at 1080p; 1440p with upscaling.',
+      'Good for 1440p at 60 FPS or more.',
+      'Ready for 4K with upscaling, and high frame rates at 1440p.',
+    ];
+    const PART = { gpu: 'graphics card', cpu: 'processor', ram: 'memory' } as const;
+
+    const render = () => {
+      const gpu = gpus.find((g) => g.id === gpuSel.value);
+      const line = cpuLines.find((l) => l.id === cpuSel.value);
+      const gen = line?.gens.find((g) => g.id === genSel.value);
+      const ram = Number(ramSel.value);
+
+      // Auswahl in die Adresse, damit man das Ergebnis teilen kann (z. B. in einer Hilfe-Anfrage im Forum)
+      const params = new URLSearchParams();
+      if (gpu) params.set('gpu', gpu.id);
+      if (line) params.set('cpu', line.id);
+      if (gen) params.set('gen', gen.id);
+      if (ram) params.set('ram', String(ram));
+      const query = params.toString();
+      history.replaceState(null, '', `${location.pathname}${query ? `?${query}` : ''}${location.hash}`);
+
+      result.replaceChildren();
+      if (!gpu || !gen || !ram) {
+        if (gpu || line || ram) result.append(el('p', 'hw-hint', 'Choose all parts to see the result.'));
+        return;
+      }
+
+      const r = evaluate(gpu, line!, gen, ram);
+      const summary = el('div', `hw-summary hw-tier-${r.tier}`);
+      summary.append(el('p', 'hw-tier', r.tierLabel), el('p', '', SUMMARY[r.tier]));
+      if (r.limit && r.tier > 0) summary.append(el('p', 'hw-limit', `Your ${PART[r.limit as keyof typeof PART]} sets the limit.`));
+
+      const checks = el('ul', 'hw-checks');
+      for (const [state, part, text] of r.checks) {
+        const li = el('li', `hw-${state}`);
+        li.append(el('strong', '', part), document.createTextNode(` ${text}`));
+        checks.append(li);
+      }
+
+      const table = el('table', 'hw-table');
+      const head = el('tr');
+      for (const h of ['Output', 'Expect', 'Suggested upscaler']) head.append(el('th', '', h));
+      table.append(el('thead'), el('tbody'));
+      table.tHead!.append(head);
+      for (const row of r.rows) {
+        const tr = el('tr');
+        const expect = el('td');
+        expect.append(el('span', `hw-level hw-l${row.level}`, row.label));
+        tr.append(el('th', '', row.res), expect, el('td', '', row.settings || '–'));
+        table.tBodies[0].append(tr);
+      }
+      table.querySelectorAll('tbody th').forEach((th) => th.setAttribute('scope', 'row'));
+
+      result.append(summary, checks);
+      if (r.tier > 0) {
+        result.append(table);
+        if (r.notes.length) {
+          const notes = el('ul', 'hw-notes');
+          for (const n of r.notes) notes.append(el('li', '', n));
+          result.append(notes);
+        }
+      }
+
+      const foot = el('p', 'hw-foot',
+        "A rough guide from the requirements above and the developer's own measurements (RX 7800 XT), not a benchmark. " +
+        'Drivers, settings and the scene all change the result. ');
+      const copy = el('button', 'hw-copy', 'Copy link to this result') as HTMLButtonElement;
+      copy.type = 'button';
+      copy.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(location.href);
+          copy.textContent = 'Link copied';
+        } catch {
+          copy.textContent = 'Copy the address from your browser bar';
+        }
+      });
+      foot.append(copy);
+      result.append(foot);
+    };
+
+    // Grafikkarte erkennen: nur auf Klick, der Name bleibt im Browser
+    const rendererName = () => {
+      try {
+        const gl = document.createElement('canvas').getContext('webgl');
+        if (!gl) return '';
+        const ext = gl.getExtension('WEBGL_debug_renderer_info');
+        return String(gl.getParameter(ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER) || '');
+      } catch {
+        return '';
+      }
+    };
+    // "ANGLE (AMD, AMD Radeon(TM) Graphics (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)" → "AMD Radeon(TM) Graphics"
+    const shortName = (name: string) => {
+      const m = name.match(/^ANGLE \([^,]*, (.*?)(?: \(0x[0-9a-f]+\))?(?: Direct3D[^,]*)?, [^,]*\)$/i);
+      return (m ? m[1] : name).trim();
+    };
+    detect.hidden = !document.createElement('canvas').getContext('webgl');
+    detect.addEventListener('click', () => {
+      const name = rendererName();
+      const found = name ? matchGpu(name) : null;
+      if (found) {
+        gpuSel.value = found.id;
+        hint.textContent = `Detected: ${found.group.replace(/ \(.*\)$/, '')} ${found.name}. If you have two graphics cards (laptops), pick the faster one.`;
+        render();
+      } else {
+        hint.textContent = name
+          ? `Your browser reports "${shortName(name)}". Please pick the closest model from the list.`
+          : "Your browser doesn't tell us your graphics card. Please pick it from the list.";
+      }
+    });
+
+    gpuSel.addEventListener('change', () => { hint.textContent = ''; render(); });
+    cpuSel.addEventListener('change', () => { fillGens(); render(); });
+    genSel.addEventListener('change', render);
+    ramSel.addEventListener('change', render);
+
+    // Auswahl aus einem geteilten Link übernehmen
+    const q = new URLSearchParams(location.search);
+    if (gpus.some((g) => g.id === q.get('gpu'))) gpuSel.value = q.get('gpu')!;
+    if (cpuLines.some((l) => l.id === q.get('cpu'))) cpuSel.value = q.get('cpu')!;
+    fillGens(q.get('gen') ?? '');
+    if (q.get('ram') && [...ramSel.options].some((o) => o.value === q.get('ram'))) ramSel.value = q.get('ram')!;
+    if (q.has('gpu') || q.has('cpu') || q.has('ram')) render();
+  }
+</script>

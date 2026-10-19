@@ -15,9 +15,11 @@ Best Practices 100, Performance 99–100.
 | Community-Seite (Forum/Discord, Hilfe-Hinweise) | `src/pages/community.astro` |
 | Startseite (Einleitung, Feature-Karten) | `src/pages/index.astro` (oben die Liste `features`, im Hero der Satz mit `TODO`) |
 | Installationsanleitung und Systemanforderungen | `src/texts/install.md` |
+| „Will it run on my PC?“ (Grafikkarten, Prozessoren, Regeln) | `src/data/hardware.js` (neue Karte: eine Zeile ergänzen) |
+| Galerie der Startseite (Texte, Reihenfolge; Bilder in `src/assets/showcase/`) | `src/texts/showcase.md` |
 | FAQ (Frage/Antwort-Liste oben in der Datei) | `src/texts/faq.md` |
 | Changelog | `src/texts/changelog.md` |
-| Impressum / Datenschutz | `src/texts/imprint.md`, `src/texts/privacy.md` |
+| Kontakt / Datenschutz | `src/texts/contact.md`, `src/texts/privacy.md` |
 
 Die `.md`-Dateien sind normaler Text (Markdown): `## Überschrift`, `**fett**`, `- Liste`,
 `[Linktext](https://…)`. Oben zwischen den `---` stehen Titel und Beschreibung für Google.

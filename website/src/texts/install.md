@@ -39,6 +39,8 @@ intro: Everything you need to get Bloodborne running on Windows – from system 
 
 *Rough guide, not a guarantee.*
 
+<div data-hwcheck></div>
+
 ## Installation
 
 **What you need:** a PC that meets the requirements, and your own dump of Bloodborne (CUSA03173, Game of the Year edition) with the 1.09 update. A dump means the game files copied from your own PS4 disc or account. No game files are included or shared.
