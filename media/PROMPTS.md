@@ -165,20 +165,24 @@ einfarbiges Zeichen aus wenigen Pinselstrichen, kein Bildchen. ChatGPT entwirft 
 Pinselzeichnung (das kann es gut); die Pixel-Fassungen (32 × 32, 16 × 16) entstehen danach aus dem
 gewählten Entwurf.
 
-Schritt 1, Entwürfe:
+Schritt 1, Entwürfe (vier Ideen mit Bedeutung; sie spielen auf das Spiel an, ohne etwas daraus zu
+übernehmen: Glocken rufen Mitspieler, Laternen sind Rastplätze, Einsicht hat mit Augen zu tun):
 
 ```text
-New image: an original sigil for our community, used as Discord server icon, favicon and forum
-logo. Show 4 different sigils in a 2x2 grid so I can choose.
+New image: 4 original sigils for our community in a 2x2 grid, one per idea below. Used as Discord
+server icon, favicon and forum logo.
 
-Idea: the secret sign of an old hunters' guild in a Victorian gothic city. Meaning: a gate under
-the moon, the way into the old city.
+Style of all four: the mystical sign of an old hunters' guild in a Victorian gothic city. Drawn
+with 3 to 5 bold, organic brush strokes (thick and thin, curved hooks, one dot or drop), like
+occult calligraphy in pale ink. Abstract, not a picture: the idea is only hinted at.
+
+1. Resonance: a bell reduced to a few strokes; the sign that calls hunters to help each other.
+2. Blood moon: a crescent and a single drop of blood.
+3. Refuge: a lamp flame; the safe place where hunters rest.
+4. Awakening: an arch or gate with an open eye inside.
 
 Form:
-- One glyph made of 3 to 5 bold calligraphic brush strokes (thick and thin), like ink.
-- Abstract, not a picture: no objects, figures or realistic drawings. Build it from simple
-  elements such as an arch, a vertical stroke, a crescent, a dot.
-- Upright, symmetric or nearly symmetric, compact; fits inside a circle with margin.
+- Upright, compact, fits inside a circle with margin.
 - Still recognizable as a silhouette at 32x32 px: thick strokes, open spaces, no fine detail.
 - One flat color: pale bone #e4d9bd on dark slate #0f1317. No texture, no glow, no frame.
 
@@ -186,7 +190,7 @@ Originality (strict):
 - Must not resemble the Hunter's Mark, any Caryll rune, or any symbol, logo or item from
   Bloodborne or other games.
 - No letters, no runes from real alphabets (no Norse or Germanic runes), no religious or
-  political symbols, no crosses or plus signs.
+  political symbols (no eye in a triangle), no crosses or plus signs.
 - No text.
 ```
 
