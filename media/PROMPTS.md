@@ -1,7 +1,8 @@
 # Bild-Prompts für ChatGPT
 
-Wiederverwendbare Designrichtung für neue Bilder (Forum, Website, Discord). Teil 1 legt den Stil
-einmal fest, Teil 2 ist der kurze Auftrag pro Bild. Die Prompts sind englisch, weil ChatGPT damit
+Wiederverwendbare Designrichtung für neue Bilder (Forum, Website, Discord). Alle Bilder des Projekts
+sind Pixel-Art, passend zur Pixel-Art des Discord-Servers. Teil 1 legt den Stil einmal fest, Teil 2
+ist der kurze Auftrag pro Bild. Die Prompts sind englisch, weil ChatGPT damit
 verlässlicher Bilder erzeugt.
 
 ## So geht's
@@ -30,13 +31,12 @@ full moon. Quiet, melancholic, slightly threatening. Atmosphere over action: no 
 monsters in view, no gore.
 
 STYLE
-Default: pixel art matching the attached reference image (pixel size, palette, lighting). Do not
+Always pixel art, matching the attached reference image (pixel size, palette, lighting). Do not
 copy its composition or the framed emblem in its center. Chunky, hand-placed pixels: every art
 pixel is a crisp square of the same size (about 4x4 px at 1536 px width), hard edges, no
 anti-aliasing, no blur, no smooth gradients. Shade with flat color steps and ordered dithering.
-At most about 16 colors. Silhouettes read clearly against the sky.
-If I write "STYLE: PAINTED": a dark painterly matte painting instead, visible brush texture, same
-palette and rules.
+At most about 16 colors. Silhouettes read clearly against the sky. Never painterly, photographic
+or 3D, even if a request sounds like it.
 
 PALETTE (use these and shades in between, nothing else)
 - Night and stone, cold desaturated slate with a slight blue-green tint:
@@ -85,7 +85,6 @@ New image:
 - Subject: [what to show]
 - Text area: [left / right / center / top strip / none]
 - Size: [1536x1024 / 1024x1024 / 1024x1536]
-- Style: [pixel / painted]
 - Extra: [optional, e.g. "red moon", "rain", "no moon"]
 ```
 
@@ -103,7 +102,6 @@ New image:
   that fades to dark.
 - Text area: center
 - Size: 1536x1024
-- Style: pixel
 ```
 
 **Website-Startseite** (`images/website-hero.webp`, Text links, Emblem rechts darüber)
@@ -115,7 +113,6 @@ New image:
   moon above. Keep the sky on the right calm too, a framed emblem sits on top of it.
 - Text area: left
 - Size: 1536x1024
-- Style: pixel
 ```
 
 **Unterseiten-Kopf** (`images/page-header.webp`, Ausschnitt etwa 5:1)
@@ -127,7 +124,6 @@ New image:
   candlelight] in the right third, vertically centered. The left two thirds are dark and calm.
 - Text area: left
 - Size: 1536x1024
-- Style: pixel
 ```
 
 **404-Seite** (`images/not-found.webp`)
@@ -139,7 +135,6 @@ New image:
   fog on the ground, the feeling of being lost.
 - Text area: left
 - Size: 1536x1024
-- Style: pixel
 ```
 
 **Discord-Serverbanner** (Discord zeigt 960×540; der Servername liegt oben darüber)
@@ -150,7 +145,6 @@ New image:
 - Subject: street of the city with gas lamps leading toward a cathedral, moon behind it.
 - Text area: top strip
 - Size: 1536x1024
-- Style: pixel
 ```
 
 **Textur** (z. B. Fußzeile, Kartenhintergrund)
@@ -162,7 +156,6 @@ New image:
   straight on.
 - Text area: none
 - Size: 1024x1024
-- Style: pixel
 ```
 
 **Emblem** (eigenes Zeichen, nie das Hunter-Zeichen)
@@ -173,5 +166,4 @@ New image:
 - Subject: [the chosen mark, described in one sentence], at most 3 colors from the palette.
 - Text area: none
 - Size: 1024x1024
-- Style: pixel
 ```
