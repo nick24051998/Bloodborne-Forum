@@ -201,6 +201,9 @@ const cpuBrands = ['Intel', 'AMD'].map((brand) => ({ brand, lines: cpuLines.filt
       const m = name.match(/^ANGLE \([^,]*, (.*?)(?: \(0x[0-9a-f]+\))?(?: Direct3D[^,]*)?, [^,]*\)$/i);
       return (m ? m[1] : name).trim();
     };
+    // Browser mit Fingerprinting-Schutz nennen statt der Karte nur sich selbst (Brave: "Brave",
+    // Firefox mit resistFingerprinting: "Mozilla", Safari: "Apple GPU")
+    const isMasked = (name: string) => /^(brave|mozilla|apple gpu|webkit webgl)$/i.test(shortName(name));
     detect.hidden = !document.createElement('canvas').getContext('webgl');
     detect.addEventListener('click', () => {
       const name = rendererName();
@@ -209,6 +212,10 @@ const cpuBrands = ['Intel', 'AMD'].map((brand) => ({ brand, lines: cpuLines.filt
         gpuSel.value = found.id;
         hint.textContent = `Detected: ${found.group.replace(/ \(.*\)$/, '')} ${found.name}. If you have two graphics cards (laptops), pick the faster one.`;
         render();
+      } else if (name && isMasked(name)) {
+        hint.textContent = /brave/i.test(name) || 'brave' in navigator
+          ? 'Brave hides your graphics card to protect your privacy (Shields). Please pick it from the list, or turn Shields off for this site and press Detect again.'
+          : 'Your browser hides your graphics card to protect your privacy. Please pick it from the list.';
       } else {
         hint.textContent = name
           ? `Your browser reports "${shortName(name)}". Please pick the closest model from the list.`
