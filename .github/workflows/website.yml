@@ -1,11 +1,18 @@
 # Baut die Website (website/) und veröffentlicht sie auf GitHub Pages.
 # Einmalig aktivieren: Repo → Settings → Pages → Source: "GitHub Actions".
+#
+# Alle 2 Stunden schaut der Workflow nach einer neuen Version des Ports (GitHub-Releases, Repo aus
+# SITE.downloadUrl). Gibt es eine, baut er die Website neu (Version, Download, Changelog-Liste) und meldet
+# sie in Discord, wenn das Secret DISCORD_RELEASES_WEBHOOK gesetzt ist (Repo → Settings → Secrets and
+# variables → Actions; Webhook-URL eines Discord-Kanals, z. B. #announcements).
 name: Website
 
 on:
   push:
     branches: [main]
     paths: ["website/**", ".github/workflows/website.yml"]
+  schedule:
+    - cron: "41 */2 * * *"
   workflow_dispatch:
 
 permissions:
@@ -13,12 +20,34 @@ permissions:
   pages: write
   id-token: write
 
+# Nicht abbrechen: sonst ginge die Discord-Meldung eines laufenden Durchgangs verloren
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
+  releases:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+      announce: ${{ steps.check.outputs.announce }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: website
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.22.0"
+      - id: check
+        working-directory: website
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/fetch-releases.mjs --check
+
   build:
+    needs: releases
+    # Nach Zeitplan nur bauen, wenn GitHub eine andere Version hat als die Website
+    if: github.event_name != 'schedule' || needs.releases.outputs.changed == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -31,6 +60,10 @@ jobs:
           cache: npm
           cache-dependency-path: website/package-lock.json
       - run: npm ci
+      # Frische Releases; ist GitHub nicht erreichbar, baut die Website mit dem Stand aus dem Repo
+      - run: node scripts/fetch-releases.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -45,3 +78,20 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  announce:
+    needs: [releases, deploy]
+    if: needs.releases.outputs.announce == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: website
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.22.0"
+      - working-directory: website
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DISCORD_RELEASES_WEBHOOK: ${{ secrets.DISCORD_RELEASES_WEBHOOK }}
+        run: node scripts/fetch-releases.mjs --announce

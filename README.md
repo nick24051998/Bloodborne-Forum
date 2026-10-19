@@ -31,7 +31,9 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `scripts/nightly-backup.sh`, `scripts/install-backup.sh` | Nächtliches Backup (3:30 Uhr, systemd-Timer) mit Prüfung und Aufräumen nach `BACKUP_KEEP_DAYS` |
 | `scripts/rotate-admin-password.sh` | Neues Admin-Passwort setzen, in `.env` eintragen und den Admin überall abmelden |
 | `scripts/auto-update.sh`, `scripts/install-auto-update.sh` | Holt neue Commits alle 5 Minuten und spielt sie ein (systemd-Timer), optional mit Meldung in Discord |
-| `flarum/extend.php` | Schalter „neue Accounts nur über Discord“, Sicherheits-Header und `/api/hunters-dream` (Live-Zahlen von The Hunter's Dream, eine Minute zwischengespeichert, nur Gesamtzahlen) |
+| `scripts/uptime-check.sh`, `.github/workflows/uptime.yml` | Ausfall-Wächter: prüft Website und Forum alle 10 Minuten von GitHub aus, meldet Ausfall und Wiederkehr in Discord |
+| `.github/workflows/website.yml` | Baut die Website bei Änderungen und alle 2 Stunden, wenn der Port eine neue Version hat; meldet sie in Discord |
+| `flarum/extend.php` | Schalter „neue Accounts nur über Discord“, Sicherheits-Header, `/api/hunters-dream` (Live-Zahlen von The Hunter's Dream, eine Minute zwischengespeichert, nur Gesamtzahlen) und neue Themen nach Discord |
 | `flarum/extend-loader.php` | Wird als `/opt/flarum/extend.php` eingebunden und lädt `flarum/extend.php`, damit Änderungen nach `git pull` ohne Neustart ankommen |
 | `flarum/forum.js` | Links zur Website und zu Discord in der Forum-Kopfzeile, Registrieren-Fenster nur mit Discord-Button, Live-Zahlen von The Hunter's Dream (Seitenleiste, auf dem Handy unter dem Banner) |
 | `media/` | Icons (CC0), Banner-Bilder (`media/images/`, KI-generiert) und selbst erzeugte Texturen; Herkunft in `media/CREDITS.md`, neu erzeugen mit `python3 media/build.py`. Markenregeln in `media/BRAND.md`, ChatGPT-Prompts für neue Medien in `media/PROMPTS.md` |
@@ -362,6 +364,23 @@ journalctl -u bbforum-auto-update -n 100          # Log
 systemctl start bbforum-auto-update               # sofort prüfen
 systemctl disable --now bbforum-auto-update.timer # abschalten
 ```
+
+## Meldungen in Discord
+
+Drei automatische Meldungen, jede mit einem eigenen Webhook (in Discord: Servereinstellungen →
+Integrationen → Webhooks → Neuer Webhook → Kanal wählen → Webhook-URL kopieren). Die URL ist geheim:
+nur an den genannten Stellen eintragen, nie in Chats oder ins Repo.
+
+| Meldung | Wo eintragen | Wann |
+|---|---|---|
+| Neue Version des Ports (z. B. #announcements) | GitHub: Repo → Settings → Secrets and variables → Actions → New repository secret `DISCORD_RELEASES_WEBHOOK` | Der Website-Workflow schaut alle 2 Stunden nach neuen Releases, baut die Website neu und meldet die Version |
+| Website oder Forum ausgefallen (z. B. Admin-Kanal) | GitHub-Secret `DISCORD_STATUS_WEBHOOK` | Einmal beim Ausfall, einmal wenn wieder alles läuft (Prüfung alle 10 Minuten) |
+| Neue Forenthemen (z. B. #forum-feed) | Server: `FORUM_DISCORD_WEBHOOK` in `.env`, danach `scripts/setup-forum.sh` | Sofort, für jedes Thema, das Gäste sehen dürfen |
+
+Dazu kommt `AUTO_UPDATE_DISCORD_WEBHOOK` (siehe [Automatische Updates](#automatische-updates)).
+Ohne Eintrag bleibt die jeweilige Meldung aus; alles andere läuft trotzdem. Hinweis: GitHub pausiert
+zeitgesteuerte Workflows, wenn ein öffentliches Repo 60 Tage keine Commits bekommt (Actions → Workflow
+→ „Enable workflow“).
 
 ## Update
 

@@ -4,6 +4,7 @@ import Icon from '../components/Icon.astro';
 import Showcase from '../components/Showcase.astro';
 import { SITE } from '../../site.config.mjs';
 import { link, absolute } from '../lib/url.js';
+import { latest } from '../lib/releases.js';
 
 // Texte der Startseite. Icons: Namen aus media/icons (droplet, crescent, key, tools, bell, …)
 const features = [
@@ -54,7 +55,7 @@ const orgLd = {
         </p>
         <div class="actions">
           <a class="btn btn-primary" href={link('install/')}>Install guide</a>
-          {SITE.downloadUrl && <a class="btn btn-ghost" href={SITE.downloadUrl} rel="noopener">Latest release</a>}
+          {SITE.downloadUrl && <a class="btn btn-ghost" href={SITE.downloadUrl} rel="noopener">Latest release{latest && ` ${latest.version}`}</a>}
           {SITE.discordUrl && <a class="btn btn-discord" href={SITE.discordUrl} rel="noopener"><Icon name="discord" />Join Discord</a>}
           {SITE.forumUrl && <a class="btn btn-ghost" href={SITE.forumUrl}>Visit forum</a>}
         </div>

@@ -53,6 +53,7 @@ docker compose exec -T \
   -e DISCORD_CLIENT_ID="${DISCORD_CLIENT_ID:-}" \
   -e DISCORD_INVITE_URL="${DISCORD_INVITE_URL:-}" \
   -e WEBSITE_URL="${WEBSITE_URL:-}" \
+  -e FORUM_DISCORD_WEBHOOK="${FORUM_DISCORD_WEBHOOK:-}" \
   -e DISCORD_ONLY_SIGNUP="${DISCORD_ONLY_SIGNUP:-true}" \
   flarum sh /tmp/bbsetup/scripts/lib/setup-inside.sh || status=$?
 

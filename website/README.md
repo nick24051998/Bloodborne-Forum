@@ -18,7 +18,7 @@ Best Practices 100, Performance 99–100.
 | „Will it run on my PC?“ (Grafikkarten, Prozessoren, Regeln) | `src/data/hardware.js` (neue Karte: eine Zeile ergänzen) |
 | Galerie der Startseite (Texte, Reihenfolge; Bilder in `src/assets/showcase/`) | `src/texts/showcase.md` |
 | FAQ (Frage/Antwort-Liste oben in der Datei) | `src/texts/faq.md` |
-| Changelog | `src/texts/changelog.md` |
+| Changelog (nur die Kurzfassungen; Version, Download und Liste aller Releases kommen automatisch von GitHub, siehe `scripts/fetch-releases.mjs`) | `src/texts/changelog.md` |
 | Kontakt / Datenschutz | `src/texts/contact.md`, `src/texts/privacy.md` |
 
 Die `.md`-Dateien sind normaler Text (Markdown): `## Überschrift`, `**fett**`, `- Liste`,

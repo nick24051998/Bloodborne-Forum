@@ -5,13 +5,16 @@ heading: Changelog
 intro: What changed in each release. The newest version is at the top.
 ---
 
-<!-- Neue Versionen oben einfügen. Vorlage:
+<!-- Version, Datum, Download und die Liste aller Releases kommen automatisch von GitHub (Kasten oben,
+Liste unten). Hier nur die Kurzfassung in einfachen Worten ergänzen, neue Versionen oben. Vorlage:
 
 ## 1.9.3 – 20 October 2026
 
 - **Kurz, was neu ist:** ein Satz dazu.
 
 -->
+
+<div data-release-latest></div>
 
 ## 1.9.2 – 18 October 2026
 
@@ -25,4 +28,4 @@ intro: What changed in each release. The newest version is at the top.
 - **1.9.1 (17 October 2026):** hotfix for stretched polygons and the FPS drop after dying or loading.
 - **1.9 (16 October 2026):** frame generation (FSR 3.1 / DLSS), memory fixes for 4–8 GB cards.
 
-Full release notes: [github.com/Supermedo/bloodborne_pc/releases](https://github.com/Supermedo/bloodborne_pc/releases)
+<div data-release-list></div>

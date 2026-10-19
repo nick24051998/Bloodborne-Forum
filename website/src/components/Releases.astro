@@ -1,0 +1,53 @@
+---
+// Changelog-Seite (Markierungen in src/texts/changelog.md): "latest" = Kasten mit der neuesten Version oben,
+// "list" = alle Releases unten. Kommen automatisch von GitHub; die Kurzfassungen im Text schreiben wir selbst.
+import { releases, releasesSource, latest, formatDate } from '../lib/releases.js';
+import changelog from '../texts/changelog.md?raw';
+
+interface Props {
+  show: 'latest' | 'list';
+}
+const { show } = Astro.props;
+
+// Hat die neueste Version schon eine Kurzfassung ("## 1.9.2 – …")? Kommentare (die Vorlage) zählen nicht.
+const escaped = latest?.version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const text = changelog.replace(/<!--[\s\S]*?-->/g, '');
+const summarized = latest ? new RegExp(`^## ${escaped}\\b`, 'm').test(text) : true;
+const LIST_MAX = 12;
+---
+
+{show === 'latest' && latest && (
+  <div class="release-latest">
+    <p class="eyebrow">Latest version</p>
+    <p class="release-version">{latest.version} <span>released {formatDate(latest.date)}</span></p>
+    {!summarized && (
+      <p>A plain-English summary of {latest.version} follows soon. Until then, the release notes on GitHub have all the details.</p>
+    )}
+    <p class="release-actions">
+      <a class="btn btn-primary" href={latest.download ?? latest.url} rel="noopener">
+        {latest.downloadName ? `Download ${latest.downloadName}` : 'Download'}{latest.downloadSize ? ` (${latest.downloadSize} MB)` : ''}
+      </a>
+      <a class="btn btn-ghost" href={latest.url} rel="noopener">Release notes</a>
+    </p>
+    <p class="release-hint">Already installed? The launcher updates with one click.</p>
+  </div>
+)}
+
+{show === 'list' && releases.length > 0 && (
+  <>
+    <h2 id="all-releases">All releases</h2>
+    <ul class="release-list">
+      {releases.slice(0, LIST_MAX).map((r) => (
+        <li>
+          <a href={r.url} rel="noopener">{r.version}</a>
+          <span>{formatDate(r.date)}</span>
+          {r.prerelease && <span class="release-pre">pre-release</span>}
+        </li>
+      ))}
+    </ul>
+    <p>
+      {releases.length > LIST_MAX ? 'Older releases and all' : 'All'} release notes:{' '}
+      <a href={releasesSource} rel="noopener">{releasesSource.replace(/^https:\/\//, '')}</a>
+    </p>
+  </>
+)}

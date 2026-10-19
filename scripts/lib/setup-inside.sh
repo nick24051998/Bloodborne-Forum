@@ -183,6 +183,14 @@ footer=$(subst "$D/content/footer.html")
 body=$(jq -n --arg site "$SITE_URL" --arg discord "$INVITE_URL" --arg footer "$footer" \
   '{"bbforum.website_url": $site, "bbforum.discord_url": $discord, custom_footer: $footer}')
 api POST /settings "$body" >/dev/null && ok "header links and footer: website ${SITE_URL:-(not set)}, Discord ${INVITE_URL:-(not set)}"
+# Neue Themen nach Discord (flarum/extend.php); die Adresse wird nicht ausgegeben, sie ist geheim
+feed=${FORUM_DISCORD_WEBHOOK:-}
+case "$feed" in
+  "" | https://discord.com/api/webhooks/* | https://discordapp.com/api/webhooks/*) ;;
+  *) warn "FORUM_DISCORD_WEBHOOK is not a Discord webhook URL, ignored"; feed="" ;;
+esac
+body=$(jq -n --arg w "$feed" '{"bbforum.discord_webhook": $w}')
+api POST /settings "$body" >/dev/null && ok "new discussions to Discord: $([ -n "$feed" ] && echo on || echo off)"
 
 if installed fof/oauth; then
   if [ -n "${DISCORD_CLIENT_ID:-}" ]; then

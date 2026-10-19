@@ -28,13 +28,23 @@
  * deren /api/stats höchstens einmal pro Minute (nach einem Fehler erst nach 5 Minuten wieder),
  * speichert das Ergebnis zwischen und gibt nur Gesamtzahlen weiter, keine Spielernamen. Sind die
  * Zahlen älter als 15 Minuten, antwortet es mit 503 und die Felder bleiben ausgeblendet.
+ *
+ * Neue Themen nach Discord: Ist die Einstellung "bbforum.discord_webhook" gesetzt (setup-forum.sh aus
+ * FORUM_DISCORD_WEBHOOK in .env), meldet das Forum jedes neue Thema, das Gäste sehen dürfen, mit Titel,
+ * Autor, Tags, Textanfang und Link in diesem Discord-Kanal. Fehler oder ein langsames Discord halten das
+ * Forum höchstens 3 Sekunden auf und gehen nur ins Log.
  */
 
+use Flarum\Discussion\Discussion;
+use Flarum\Discussion\Event\Started;
 use Flarum\Extend;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\ValidationException;
+use Flarum\Http\SlugManager;
+use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\Saving;
+use Flarum\User\Guest;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -42,6 +52,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 
 if (! class_exists('BBForumSecurityHeaders')) {
     class BBForumSecurityHeaders implements MiddlewareInterface
@@ -176,8 +187,74 @@ if (! class_exists('BBForumHuntersDream')) {
     }
 }
 
+if (! class_exists('BBForumDiscordFeed')) {
+    class BBForumDiscordFeed
+    {
+        public function handle(Started $event): void
+        {
+            $settings = resolve(SettingsRepositoryInterface::class);
+            $webhook = (string) $settings->get('bbforum.discord_webhook');
+            if (! preg_match('#^https://(discord|discordapp)\.com/api/webhooks/#', $webhook)) {
+                return;
+            }
+
+            // Nur Themen, die auch Gäste sehen (nicht private, nicht noch ungeprüfte)
+            $discussion = $event->discussion;
+            if (! Discussion::whereVisibleTo(new Guest())->where('discussions.id', $discussion->id)->exists()) {
+                return;
+            }
+
+            try {
+                $tags = $discussion->tags()->get();
+                $post = $discussion->firstPost;
+                $color = $tags->pluck('color')->first(function ($c) {
+                    return is_string($c) && preg_match('/^#[0-9a-f]{6}$/i', $c);
+                });
+                $slug = resolve(SlugManager::class)->forResource(Discussion::class)->toSlug($discussion);
+                $site = rtrim((string) $settings->get('bbforum.website_url'), '/');
+
+                $embed = array_filter([
+                    'title' => mb_substr((string) $discussion->title, 0, 250),
+                    'url' => resolve(UrlGenerator::class)->to('forum')->route('discussion', ['id' => $slug]),
+                    'description' => $this->excerpt($post ? (string) $post->content : ''),
+                    'color' => $color ? hexdec(substr($color, 1)) : 0x9c8458,
+                    'author' => ['name' => mb_substr((string) $event->actor->display_name, 0, 250)],
+                    'footer' => ['text' => $tags->pluck('name')->implode(' · ') ?: 'Forum'],
+                    'timestamp' => $discussion->created_at ? $discussion->created_at->toIso8601String() : null,
+                ]);
+
+                (new \GuzzleHttp\Client(['timeout' => 3, 'connect_timeout' => 2]))->post($webhook, ['json' => array_filter([
+                    'username' => 'Bloodborne PC Port Forum',
+                    'avatar_url' => $site ? "$site/apple-touch-icon.png" : null,
+                    'allowed_mentions' => ['parse' => []],
+                    'embeds' => [$embed],
+                ])]);
+            } catch (\Throwable $e) {
+                // Ohne die Webhook-Adresse: sie enthält den geheimen Schlüssel
+                resolve(LoggerInterface::class)->warning('Discord feed: '.str_replace($webhook, '[webhook]', $e->getMessage()));
+            }
+        }
+
+        // Textanfang ohne Markdown, Bilder und BBCode, höchstens 280 Zeichen
+        private function excerpt(string $text): string
+        {
+            $text = preg_replace('/!\[[^\]]*\]\([^)]*\)/', '', $text);
+            $text = preg_replace('/\[([^\]]*)\]\([^)]*\)/', '$1', $text);
+            $text = preg_replace('/\[\/?[a-z0-9]+(=[^\]]*)?\]/i', '', $text);
+            $text = preg_replace('/[*_`>#~|]+/', '', $text);
+            $text = trim(preg_replace('/\s+/u', ' ', $text));
+
+            return mb_strlen($text) > 280 ? rtrim(mb_substr($text, 0, 277)).'…' : $text;
+        }
+    }
+}
+
 return [
     (new Extend\Routes('api'))->get('/hunters-dream', 'bbforum.huntersDream', BBForumHuntersDream::class),
+
+    (new Extend\Event())->listen(Started::class, function (Started $event) {
+        (new BBForumDiscordFeed())->handle($event);
+    }),
 
     (new Extend\Middleware('forum'))->add(BBForumSecurityHeaders::class),
     (new Extend\Middleware('admin'))->add(BBForumSecurityHeaders::class),

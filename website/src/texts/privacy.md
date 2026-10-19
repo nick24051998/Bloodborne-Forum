@@ -59,6 +59,10 @@ logged-in members. Report Tool archives and logs can contain information about y
 them before uploading and don't post personal data you don't want to share. When you post, the forum
 stores the IP address you used, so moderators can act against spam and abuse (Art. 6(1)(f) GDPR).
 
+**Discord announcements.** New public discussions are announced in a channel of our Discord server with
+their title, the author's name, tags, the beginning of the first post and a link. This tells the community
+about new topics (Art. 6(1)(f) GDPR); Discord's privacy policy applies there.
+
 **Cookies.** The forum sets only cookies it needs to work: a session cookie that keeps you logged in
 while you browse, and, if you choose "Remember me", a cookie that keeps you logged in longer. It also
 remembers a few choices you make, such as hiding the welcome banner, in your browser. None of this is
