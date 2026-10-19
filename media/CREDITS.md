@@ -40,7 +40,8 @@ z. B. als Tag-Icon im Admin) und `website/src/lib/icons.js` (`<Icon name="NAME" 
 ## KI-generierte Bilder (für dieses Projekt mit ChatGPT erzeugt)
 
 Prompts: ohne Bezug auf das Spiel, nur Stil (viktorianische Gotik, Nebel, Gaslaternen, Blutmond).
-Nutzung nach den OpenAI-Nutzungsbedingungen frei; kein Material aus Bloodborne.
+Nutzung nach den OpenAI-Nutzungsbedingungen frei; kein Material aus Bloodborne. Vorlage für neue
+Bilder: [`PROMPTS.md`](PROMPTS.md).
 
 | Datei | Motiv | Verwendung |
 |---|---|---|
