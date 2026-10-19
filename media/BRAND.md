@@ -15,7 +15,8 @@ mit ChatGPT: [`PROMPTS.md`](PROMPTS.md). Herkunft aller Medien: [`CREDITS.md`](C
 
 Kelch und Klinge in einer Form, darin eine Mondsichel, die in Blut schwimmt. Der Kelch steht für
 die Gemeinschaft, die Klinge für die Jagd, Mond und Blut für die Nacht in der alten Stadt. Das
-Siegel ist ein eigenes Werk und kein Symbol aus dem Spiel.
+Siegel ist ein eigenes Werk und kein Symbol aus dem Spiel. Seit dem 19.10.2026 gilt die gemeißelte
+Fassung: Knochen mit abgeschrägten Facetten, Schiefer in den Vertiefungen, feine Steinstruktur.
 
 Einsatz: Discord-Server-Icon, Favicon, Forum- und Website-Logo, Link-Vorschau.
 
@@ -75,10 +76,14 @@ Szenen sind zu etwa 85 % dunkel; Rot ist dort nur Akzent.
 
 ## Bilder
 
-Flache Illustrationen im Stil des Siegels: klare Formen mit kalligrafischen Kurven, harte
-Schattierung in zwei bis drei Tönen, Tiefe durch Silhouetten-Ebenen und Nebel. Motive aus einer
-eigenen, namenlosen viktorianischen Stadt bei Nacht. Keine Fotos, keine gemalten oder 3D-Bilder,
-keine Pixel-Art, kein Material aus dem Spiel. Prompts und Endgrößen: `PROMPTS.md`.
+Illustrationen im Stil des Siegels: Formen wie aus altem Knochen und Stein gemeißelt, mit
+kalligrafischen Kurven, abgeschrägten Facetten und harter Schattierung in drei bis vier Tönen,
+Schiefer in Rillen und Vertiefungen, feine Steinstruktur ohne Schmutzeffekte. Tiefe durch
+Silhouetten-Ebenen und Nebel. Motive aus einer eigenen, namenlosen viktorianischen Stadt bei
+Nacht. Keine Fotos, kein Glanz, keine sichtbaren Pinselstriche, keine 3D-Renderoptik, keine
+Pixel-Art, kein Material aus dem Spiel. Kleine Icons und Emojis vereinfacht (zwei Facettentöne,
+keine Struktur); die Forum-Kategorie-Icons bleiben flach und einfarbig. Prompts und Endgrößen:
+`PROMPTS.md`.
 
 ## Bewegung
 

@@ -1,10 +1,10 @@
 # Bild-Prompts für ChatGPT
 
 Mit diesen Prompts erzeugt ChatGPT Medien im Stil der Community: für Discord, den Launcher, die
-Website und das Forum. Führend ist der Stil des Siegels: klare, flache Formen mit geschwungenen,
-kalligrafischen Kurven, harte Schattierung in zwei bis drei Tönen, Knochenweiß und Blutrot auf
-dunklem Schiefergrau. Regeln für Farben, Schrift und das Siegel selbst stehen in
-[`BRAND.md`](BRAND.md).
+Website und das Forum. Führend ist der Stil des Siegels: Formen wie aus altem Knochen gemeißelt,
+mit geschwungenen, kalligrafischen Kurven, facettierter Schattierung mit harten Kanten,
+Schiefergrau in den Vertiefungen und feiner Steinstruktur, Knochenweiß und Blutrot auf dunklem
+Schiefergrau. Regeln für Farben, Schrift und das Siegel selbst stehen in [`BRAND.md`](BRAND.md).
 
 Die Prompts sind englisch, weil ChatGPT damit verlässlicher Bilder erzeugt.
 
@@ -25,8 +25,9 @@ Die Prompts sind englisch, weil ChatGPT damit verlässlicher Bilder erzeugt.
 3. **Nur einen Teil ändern:** Bild anklicken, mit dem Auswahl-Werkzeug (Pinsel oben) den Bereich
    markieren und die Änderung beschreiben. Ohne Auswahl zeichnet ChatGPT das ganze Bild neu und
    verändert nebenbei anderes.
-4. Driftet ChatGPT ab (Verläufe, gemalte Textur, zu bunt), antworten:
-   „Stick to the style guide: flat shapes, hard-edged shading, palette.“
+4. Driftet ChatGPT ab (weiche Verläufe, grobe Pinseltextur, Glanz, zu bunt), antworten:
+   „Stick to the style guide: carved, faceted shapes, hard-edged shading, subtle stone grain,
+   palette.“
 5. Das fertige Bild als PNG herunterladen (nicht das Vorschaubild im Chat), auf Endgröße bringen
    (Tabelle unten) und vor der Nutzung prüfen (Teil 4).
 
@@ -39,9 +40,9 @@ launcher artwork, website and forum images, icons. Apply this style guide to eve
 project, even when a request doesn't repeat it.
 
 REFERENCE
-The attached sigil (a chalice merged with a blade, a crescent moon floating in blood) defines
-the style: shapes, shading and colors. Match it. Do not put the sigil itself into an image
-unless I ask for it.
+The attached sigil (a chalice merged with a blade, carved from old bone with dark slate inlays,
+a crescent moon floating in blood) defines the style: shapes, carving, shading, surface and
+colors. Match it. Do not put the sigil itself into an image unless I ask for it.
 
 WORLD AND MOOD
 An original, nameless Victorian gothic city at night: steep slate roofs, spires, chimneys,
@@ -50,18 +51,22 @@ full moon. Quiet, melancholic, slightly threatening. Atmosphere over action: no 
 monsters in view, no gore.
 
 STYLE
-A flat graphic illustration in the style of the sigil. Bold, clean shapes with smooth
-calligraphic curves: thick and thin, pointed ends, curved hooks. Hard-edged cel shading in 2 to 3
-flat tones per color, light from the top left. Depth comes from layered silhouettes: the
-foreground darkest, farther layers lighter through fog, each layer one flat tone, fog as flat
-bands. Few shapes, little detail, crisp edges. No smooth gradients, no texture or noise, no
-painterly brush marks, no outlines, no glow, no photorealism, no 3D render look, no pixel art.
+A graphic illustration in the style of the sigil: everything looks carved from old bone and
+weathered stone. Bold silhouettes with smooth calligraphic curves: thick and thin, pointed ends,
+curved hooks. Forms are chiseled into bevelled facets with hard-edged shading, 3 to 4 tones per
+color, light from the top left. Grooves and recesses are filled with dark slate, like inlays.
+Surfaces carry a subtle, fine stone grain, never noisy or grungy. Depth comes from layered
+silhouettes: the foreground darkest, farther layers lighter through fog, fog as calm bands with
+little texture. Crisp edges, few shapes, no tiny detail. No soft airbrush gradients, no glossy
+shine or specular highlights, no visible brush strokes, no outlines, no glow, no photorealism,
+no 3D render look, no pixel art.
 
 PALETTE (use these and shades in between, nothing else)
 - Night and stone, cold desaturated slate: #0a0d12 #0f1317 #14191d #181e22 #1e272a #242c2e
   #2b2e2f #333b3c
 - Fog and lit stone: #828275
-- Bone and moonlight: base #e4d9bd, highlight #f3ecd9, shadow #a99d80 (never pure white)
+- Bone and moonlight: base #e4d9bd, highlight #f3ecd9, shadow #a99d80 (never pure white);
+  carved recesses and inlays in slate #2b2e2f to #333b3c
 - Blood: base #8a1118, highlight #c22a30, shadow #5a0a10
 - Lamp light and brass, small spots only: #bc9570 #9c8458 #c2a878
 - Scenes are about 85% dark. Blood red is an accent in scenes (at most about 5%); icons and
@@ -79,7 +84,8 @@ USES (compose for the final crop; you generate 1536x1024, 1024x1024 or 1024x1536
 - Discord invite background: 16:9; the invite card covers the center, put the subject at the sides.
 - Discord event cover: 5:2; subject in the middle band.
 - Discord announcement image: 16:9 or 2:1.
-- Role icon, emoji: square, one bold shape that reads at 20 px, no background detail.
+- Role icon, emoji: square, one bold shape that reads at 20 px, no background detail; keep the
+  carving simple (2 facet tones, no stone grain), it disappears at small sizes.
 - Sticker: square, one subject with a clear silhouette on a flat background.
 - Launcher background: 16:9; keep the areas I name free for the launcher's buttons and text.
 - Website hero: text on the left; website page header: very wide (about 5:1), motif in the
@@ -291,7 +297,8 @@ New image:
 - Format: landscape
 ```
 
-**Kategorie-Icons** (als Set; im Forum einfarbig, deshalb nur eine Farbe)
+**Kategorie-Icons** (als Set; im Forum einfarbig, deshalb bewusst flach in einer Farbe, als
+Ausnahme vom gemeißelten Stil)
 
 ```text
 New image:
@@ -412,4 +419,17 @@ moon floats in it, so the surface runs continuously behind the moon, with no jum
 at the moon's edges. The chalice was just tilted, so the whole surface slopes: highest on the
 side of the wave, lowest on the other side. Same three red tones, same cel shading. Nothing
 outside the selection changes.
+```
+
+Schritt 4, gemeißelte Fassung (seit 19.10.2026 das gültige Siegel): Aus der flachen Fassung wurde
+Knochen mit abgeschrägten Facetten, Schiefer in den Vertiefungen und feiner Steinstruktur. Den
+genauen Prompt dafür haben wir nicht festgehalten. Um ein anderes Zeichen (z. B. ein Rollen-Icon)
+in dieselbe Optik zu bringen, taugt dieser Vorschlag:
+
+```text
+Re-carve this emblem in the style of the attached sigil. Keep its shape, proportions and colors.
+Make it look carved from old bone: bevelled facets with hard-edged shading in 3 to 4 tones, light
+from the top left, grooves and recesses filled with dark slate #2b2e2f to #333b3c like inlays,
+a subtle fine stone grain on the surfaces. Blood stays in its three red tones. No glossy shine,
+no glow, no 3D render look. Flat dark slate background #0f1317. No text, no frame.
 ```
