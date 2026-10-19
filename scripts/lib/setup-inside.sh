@@ -207,6 +207,7 @@ log "Tags"
 # slug|name|color|icon|description
 TAGS='announcements|Announcements|#8a1118|bbicon bbicon-bell|News, releases and changelogs from the team. Only staff can start topics here.
 help-support|Help & Support|#9c8458|bbicon bbicon-lamppost|Something broken? Include port version, GPU + driver, what happens and your BB Report Tool zip.
+performance|Performance Reports|#475a6b|bbicon bbicon-droplet|Your frame rates with your hardware and settings. Use the form: real numbers help everyone choose settings.
 suggestions|Suggestions|#6e6656|bbicon bbicon-candle|Ideas and feature requests for the port.
 mods-patches|Mods & Patches|#6b3a45|bbicon bbicon-tools|Share and discuss mods, patches and tweaks. No game files.
 guides|Guides|#4c5d5a|bbicon bbicon-book|Tutorials and how-tos written by the community.
@@ -232,7 +233,7 @@ tag_id() { echo "$existing" | jq -r --arg s "$1" '.data[] | select(.attributes.s
 gen=$(echo "$existing" | jq -r '.data[] | select(.attributes.slug == "general" and .attributes.discussionCount == 0) | .id')
 [ -n "$gen" ] && api DELETE "/tags/$gen" >/dev/null && ok "empty default tag 'General' removed"
 
-order=$(for s in announcements help-support suggestions mods-patches guides hunters-dream; do tag_id "$s"; done |
+order=$(for s in announcements help-support performance suggestions mods-patches guides hunters-dream; do tag_id "$s"; done |
   jq -R . | jq -s 'map({id: ., children: []})')
 api POST /tags/order "{\"order\": $order}" >/dev/null && ok "order set"
 
@@ -257,6 +258,9 @@ fi
 if installed fof/discussion-templates; then
   body=$(jq -n --rawfile t "$D/content/help-template.md" '{data: {template: $t}}')
   api PATCH "/tags/$help/template" "$body" >/dev/null && ok "post template for Help & Support"
+  # Performance Reports: Hardware, Einstellungen und FPS auf einer festen Teststrecke (Grundlage für Schätzungen)
+  body=$(jq -n --rawfile t "$D/content/performance-template.md" '{data: {template: $t}}')
+  api PATCH "/tags/$(tag_id performance)/template" "$body" >/dev/null && ok "post template for Performance Reports"
 fi
 
 # --------------------------------------------------------------------------
@@ -283,6 +287,7 @@ pinned_topic() { # pinned_topic TAG-SLUG TAG-ID TITLE CONTENT-FILE: creates the 
 pinned_topic announcements "$ann" "Forum rules & how to ask for help" "$D/content/rules.md"
 pinned_topic guides "$(tag_id guides)" "Install guide & system requirements" "$D/content/install-topic.md"
 pinned_topic help-support "$help" "Read first: common fixes before you post" "$D/content/help-first-topic.md"
+pinned_topic performance "$(tag_id performance)" "How to post a performance report" "$D/content/performance-topic.md"
 
 # --------------------------------------------------------------------------
 log "Logo & favicon"

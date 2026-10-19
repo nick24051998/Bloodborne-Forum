@@ -405,6 +405,7 @@ h3 { font-size: var(--step-1); }
 .hw-l0 { background: var(--blood); border-color: var(--blood); color: #fff; }
 .hw-notes { margin: 0 0 1rem; padding-left: 1.2rem; color: var(--text-soft); font-size: 0.95rem; }
 .hw-foot { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.hw-report { margin: 1rem 0 0; padding-top: 0.9rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--text-soft); }
 .hw-copy { margin-top: 0.5rem; padding: 0.35rem 0.8rem; font-size: 0.85rem; display: inline-block; }
 @media (max-width: 860px) {
   .hwcheck { padding: 1.1rem 1rem 1.2rem; }

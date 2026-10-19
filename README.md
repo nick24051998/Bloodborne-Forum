@@ -40,7 +40,7 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `media/brand/`, `media/brand.py`, `media/logo.html`, `media/og.html` | Siegel der Community (`sigil.png`); daraus Discord-Icon, Logo, Favicons, Website-Emblem und Vorschaubild |
 | `theme/logo.png`, `theme/favicon.png` | Dieselben Bilder als PNG zum Hochladen (Flarum 1.x nimmt kein SVG) |
 | `theme/fonts/` | Cinzel + Inter als `.woff2`, selbst gehostet (SIL OFL) |
-| `content/` | Welcome-Banner, Fußzeile (Contact/Privacy), angepinnte Themen (Regeln, Install-Kurzfassung, „Read first“ für Help & Support), Vorlage für Help & Support |
+| `content/` | Welcome-Banner, Fußzeile (Contact/Privacy), angepinnte Themen (Regeln, Install-Kurzfassung, „Read first“ für Help & Support, Anleitung für Performance Reports), Vorlagen für Help & Support und Performance Reports |
 | `website/` | Projekt-Website (Astro, statisch, GitHub Pages), siehe `website/README.md` |
 
 ## Voraussetzungen
@@ -258,6 +258,7 @@ Für Benachrichtigungen und Passwort-Resets: **Admin → Email** → SMTP eines 
 |---|---|---|---|
 | **Announcements** | alle | nur Mods/Admins | eingeschränkter Tag, Antworten für Mitglieder erlaubt, angepinntes Regel-Thema |
 | **Help & Support** | alle | Mitglieder | **Best Answer**, Beitragsvorlage mit Pflichtangaben, Uploads |
+| **Performance Reports** | alle | Mitglieder | Vorlage für Hardware, Einstellungen und FPS auf einer festen Teststrecke, angepinnte Anleitung; Grundlage für echte Werte im Hardware-Check der Website |
 | **Suggestions** | alle | Mitglieder | |
 | **Mods & Patches** | alle | Mitglieder | keine Spieldateien (Regeln) |
 | **Guides** | alle | Mitglieder | |
@@ -273,7 +274,8 @@ Rollenfarben: Admin Blutrot `#8a1118`, Mod Messing `#9c8458`. Uploads erlaubt: B
 2. *Permissions → Restrict by tag → Announcements*: View = Everyone, Start discussions = Mods,
    Reply = Members. Moderationsrechte setzt du wie in den globalen Rechten.
 3. *Best Answer* → Tag „Help & Support“ aktivieren.
-4. *Tags → Help & Support → Edit*: Feld **Template** mit dem Inhalt von `content/help-template.md` füllen.
+4. *Tags → Help & Support → Edit*: Feld **Template** mit dem Inhalt von `content/help-template.md` füllen,
+   ebenso *Performance Reports* mit `content/performance-template.md`.
 5. *FoF Upload* → Mime-Typen und Max-Größe setzen. *Permissions* → Upload = Members, Download = Members.
 
 Die Vorlage füllt den Editor vor. Technisch erzwingen kann Flarum die Pflichtangaben nicht.

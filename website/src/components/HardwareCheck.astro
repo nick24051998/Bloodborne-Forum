@@ -3,6 +3,7 @@
 // Grafikkarte, Prozessor und Arbeitsspeicher wählen, Einschätzung nach den Regeln in src/data/hardware.js.
 // Läuft nur im Browser; gespeichert oder gesendet wird nichts. Die Auswahl steht in der Adresse (zum Teilen).
 import { gpus, cpuLines, ramOptions } from '../data/hardware.js';
+import { SITE } from '../../site.config.mjs';
 
 const gpuGroups = [...new Set(gpus.map((g) => g.group))].map((group) => ({ group, items: gpus.filter((g) => g.group === group) }));
 const cpuBrands = ['Intel', 'AMD'].map((brand) => ({ brand, lines: cpuLines.filter((l) => l.brand === brand) }));
@@ -56,6 +57,12 @@ const cpuBrands = ['Intel', 'AMD'].map((brand) => ({ brand, lines: cpuLines.filt
     </div>
   </form>
   <div class="hw-result" aria-live="polite"></div>
+  {SITE.forumUrl && (
+    <p class="hw-report">
+      Measured your own frame rate? <a href={`${SITE.forumUrl}/t/performance`}>Post a performance report in the forum</a>:
+      real numbers make this check better.
+    </p>
+  )}
   <noscript><p class="hw-hint">This check needs JavaScript. Compare your PC with the table above instead.</p></noscript>
 </section>
 
