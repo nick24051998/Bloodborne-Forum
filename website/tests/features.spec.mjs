@@ -68,6 +68,37 @@ test.describe('Galerie auf der Startseite', () => {
     await expect(dialog.locator('#lightbox-title')).not.toBeEmpty();
     const big = dialog.locator('.lightbox-img');
     await expect.poll(() => big.evaluate((i) => i.complete && i.naturalWidth)).toBeGreaterThanOrEqual(1200);
+
+    // Zoom: Klick vergrößert, 0 setzt zurück, + und Mausrad zoomen, Ziehen verschiebt
+    const stage = dialog.locator('.lightbox-stage');
+    const scaleOf = () => big.evaluate((i) => {
+      const t = getComputedStyle(i).transform;
+      return t === 'none' ? 1 : new DOMMatrix(t).a;
+    });
+    await stage.click();
+    await expect(stage).toHaveClass(/is-zoomed/);
+    await expect.poll(scaleOf).toBeGreaterThanOrEqual(1.9);
+    await expect(dialog.locator('.lightbox-zoom-out')).toBeEnabled();
+    await page.keyboard.press('0');
+    await expect(stage).not.toHaveClass(/is-zoomed/);
+    await expect.poll(scaleOf).toBe(1);
+    await dialog.locator('.lightbox-zoom-in').click();
+    await expect(stage).toHaveClass(/is-zoomed/);
+    if (test.info().project.name === 'desktop') {
+      const box = await stage.boundingBox();
+      await page.keyboard.press('0');
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+      await page.mouse.wheel(0, -200);
+      await expect(stage).toHaveClass(/is-zoomed/);
+      // Ziehen verschiebt den Ausschnitt
+      await expect.poll(scaleOf).toBeGreaterThan(1.2);
+      const before = await big.evaluate((i) => getComputedStyle(i).transform);
+      await page.mouse.down();
+      await page.mouse.move(box.x + box.width / 2 + 120, box.y + box.height / 2 + 40, { steps: 5 });
+      await page.mouse.up();
+      expect(await big.evaluate((i) => getComputedStyle(i).transform)).not.toBe(before);
+    }
+
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();
   });

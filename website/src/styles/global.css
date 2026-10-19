@@ -482,16 +482,30 @@ h3 { font-size: var(--step-1); }
 .lightbox::backdrop { background: rgba(8, 9, 10, 0.88); }
 .lightbox[open] { animation: lightbox-in 320ms var(--ease-heavy); }
 @keyframes lightbox-in { from { opacity: 0; transform: scale(0.97); } }
-.lightbox-img { display: block; width: 100%; max-height: 74vh; object-fit: contain; background: var(--bg-deep); }
+.lightbox-img { display: block; width: 100%; max-height: 74vh; object-fit: contain; background: var(--bg-deep);
+  transform-origin: 0 0; transition: transform 220ms var(--ease-heavy); user-select: none; -webkit-user-drag: none; }
+/* Zoom (Showcase.astro): Klick oder Mausrad vergrößert, Ziehen verschiebt, zwei Finger zoomen */
+.lightbox-stage { position: relative; overflow: hidden; cursor: zoom-in; touch-action: pan-y; }
+.lightbox-stage.is-zoomed { cursor: grab; touch-action: none; }
+.lightbox-stage.is-zoomed.is-dragging { cursor: grabbing; }
+.lightbox-stage.is-dragging .lightbox-img { transition: none; }
+.lightbox-zoom { position: absolute; z-index: 2; top: 0.5rem; left: 0.5rem; display: flex; gap: 0.4rem; }
+.lightbox button:disabled { opacity: 0.35; cursor: default; border-color: var(--border-strong); }
+.lightbox-hint { font-size: 0.8rem; color: var(--muted) !important; }
+.lightbox-hint .hint-touch { display: none; }
+@media (hover: none) {
+  .lightbox-hint .hint-mouse { display: none; }
+  .lightbox-hint .hint-touch { display: inline; }
+}
 .lightbox-caption { padding: 0.9rem 1.2rem 1.1rem; }
 .lightbox-caption h3 { margin: 0; }
 .lightbox-caption p { margin: 0.3rem 0 0; color: var(--text-soft); }
 .lightbox-credit { color: var(--gold-light) !important; font-size: 0.9rem; }
-.lightbox-close { position: absolute; top: 0.5rem; right: 0.5rem; margin: 0; }
+.lightbox-close { position: absolute; z-index: 2; top: 0.5rem; right: 0.5rem; margin: 0; }
 .lightbox button { font: 600 1.6rem/1 var(--font-body); width: 2.6rem; height: 2.6rem; border-radius: 50%; cursor: pointer;
   border: 1px solid var(--border-strong); background: rgba(8, 9, 10, 0.7); color: var(--text-strong); }
 .lightbox button:hover { border-color: var(--gold-light); }
-.lightbox-nav { position: absolute; top: 37vh; left: 0.6rem; right: 0.6rem; display: flex; justify-content: space-between; pointer-events: none; }
+.lightbox-nav { position: absolute; z-index: 2; top: 37vh; left: 0.6rem; right: 0.6rem; display: flex; justify-content: space-between; pointer-events: none; }
 .lightbox-nav button { pointer-events: auto; }
 .lightbox-nav[hidden] { display: none; }
 
@@ -517,6 +531,7 @@ h3 { font-size: var(--step-1); }
   .hero::before, .hero::after, .page-hero::after, .hero .emblem-art, .hero .emblem::before, .hero .emblem::after, .section, .live-lamp { animation: none !important; }
   .btn::before, .card, .nav a, .site-footer a, .tile, .tile-img, .tile-caption p { transition: none !important; }
   .lightbox[open] { animation: none; }
+  .lightbox-img { transition: none !important; }
   .card:hover, .btn:hover { transform: none; }
   html { scroll-behavior: auto; }
 }
