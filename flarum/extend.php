@@ -24,7 +24,7 @@
  * flarum/icons.less: eigene Icons (bbicon-*, CC0) für Kategorien, in Forum und Admin.
  *
  * /api/hunters-dream: Live-Zahlen vom Online-Server The Hunter's Dream (thehuntersdream.com)
- * für das Feld im Forum (flarum/forum.js) und auf der Website-Startseite. Das Forum holt
+ * für das Feld im Forum (flarum/forum.js), eingeschaltet auch für die Website-Startseite. Das Forum holt
  * deren /api/stats höchstens einmal pro Minute (nach einem Fehler erst nach 5 Minuten wieder),
  * speichert das Ergebnis zwischen und gibt nur Gesamtzahlen weiter, keine Spielernamen. Sind die
  * Zahlen älter als 15 Minuten, antwortet es mit 503 und die Felder bleiben ausgeblendet.

@@ -19,7 +19,7 @@ export const SITE = {
   githubUrl: '', // optional
 
   // Online-Server, auf dem die Community spielt. Die Live-Zahlen auf der Startseite holt der
-  // Browser über das Forum (forumUrl + '/api/hunters-dream', siehe flarum/extend.php);
-  // leer lassen, um den Abschnitt auszublenden.
-  huntersDreamUrl: 'https://thehuntersdream.com',
+  // Browser über das Forum (forumUrl + '/api/hunters-dream', siehe flarum/extend.php).
+  // Vorerst nur im Forum; zum Einschalten auf der Website 'https://thehuntersdream.com' eintragen.
+  huntersDreamUrl: '',
 };
