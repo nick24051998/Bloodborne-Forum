@@ -1,0 +1,109 @@
+---
+// Galerie der Startseite: Kacheln in unterschiedlichen Größen, Bilder aus src/assets/showcase/,
+// Texte und Reihenfolge aus src/texts/showcase.md. Klick auf ein Bild öffnet es groß (Pfeiltasten blättern).
+import { Image, getImage } from 'astro:assets';
+import Icon from './Icon.astro';
+import { SITE } from '../../site.config.mjs';
+import { frontmatter } from '../texts/showcase.md';
+
+const files = import.meta.glob('../assets/showcase/*.{webp,jpg,jpeg,png}', { eager: true });
+const byName = Object.fromEntries(Object.entries(files).map(([path, mod]) => [path.split('/').pop(), mod.default]));
+
+// Kachelmuster: groß, klein, klein, breit, klein, breit, klein (füllt auf breiten Bildschirmen 4 × 3)
+const pattern = ['large', 'small', 'small', 'wide', 'small', 'wide', 'small'];
+
+const items = await Promise.all(
+  (frontmatter.items ?? []).map(async (item, i) => {
+    const src = item.image ? byName[item.image] : undefined;
+    if (item.image && !src) console.warn(`Showcase: Bild ${item.image} fehlt in src/assets/showcase/`);
+    const full = src ? await getImage({ src, width: Math.min(src.width, 2400), format: 'webp' }) : undefined;
+    return { ...item, size: pattern[i % pattern.length], src, full: full?.src };
+  }),
+);
+---
+
+{items.length > 0 && (
+  <section class="section showcase" aria-labelledby="showcase-heading">
+    <div class="container">
+      <p class="eyebrow">{frontmatter.eyebrow}</p>
+      <h2 id="showcase-heading">{frontmatter.heading}</h2>
+      <p class="about">{frontmatter.intro}</p>
+      <ul class="showcase-grid">
+        {items.map((item) => (
+          <li class={`tile tile--${item.size}${item.src ? '' : ' tile--placeholder'}`}>
+            {item.src ? (
+              <button type="button" class="tile-open" data-full={item.full} data-title={item.title}
+                data-text={item.text} data-credit={item.credit} aria-label={`Open image: ${item.title}`}>
+                <Image src={item.src} alt={item.alt || item.title} widths={[480, 800, 1200]}
+                  sizes="(max-width: 860px) 100vw, 50vw" class="tile-img" loading="lazy" />
+              </button>
+            ) : (
+              <div class="tile-ph" aria-hidden="true">
+                <Icon name="crescent" class="tile-ph-icon" />
+                <span class="tile-chip">Image coming soon</span>
+              </div>
+            )}
+            <div class="tile-caption">
+              <h3>{item.title}</h3>
+              {item.text && <p>{item.text}</p>}
+              {item.credit && <p class="tile-credit">by {item.credit}</p>}
+            </div>
+          </li>
+        ))}
+      </ul>
+      {(SITE.forumUrl || SITE.discordUrl) && (
+        <p class="showcase-cta">
+          {SITE.forumUrl && <a class="btn btn-ghost" href={SITE.forumUrl}>Share yours in the forum</a>}
+        </p>
+      )}
+    </div>
+
+    <dialog class="lightbox" aria-labelledby="lightbox-title">
+      <form method="dialog" class="lightbox-close"><button type="submit" aria-label="Close">×</button></form>
+      <img class="lightbox-img" alt="" />
+      <div class="lightbox-caption">
+        <h3 id="lightbox-title"></h3>
+        <p class="lightbox-text"></p>
+        <p class="lightbox-credit"></p>
+      </div>
+      <div class="lightbox-nav">
+        <button type="button" class="lightbox-prev" aria-label="Previous image">‹</button>
+        <button type="button" class="lightbox-next" aria-label="Next image">›</button>
+      </div>
+    </dialog>
+  </section>
+)}
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('.lightbox');
+  const tiles = Array.from(document.querySelectorAll<HTMLButtonElement>('.tile-open'));
+  if (dialog && tiles.length) {
+    const img = dialog.querySelector<HTMLImageElement>('.lightbox-img')!;
+    const title = dialog.querySelector<HTMLElement>('#lightbox-title')!;
+    const text = dialog.querySelector<HTMLElement>('.lightbox-text')!;
+    const credit = dialog.querySelector<HTMLElement>('.lightbox-credit')!;
+    const nav = dialog.querySelector<HTMLElement>('.lightbox-nav')!;
+    let current = 0;
+
+    const show = (index: number) => {
+      current = (index + tiles.length) % tiles.length;
+      const t = tiles[current].dataset;
+      img.src = t.full ?? '';
+      img.alt = t.title ?? '';
+      title.textContent = t.title ?? '';
+      text.textContent = t.text ?? '';
+      credit.textContent = t.credit ? `by ${t.credit}` : '';
+    };
+
+    nav.hidden = tiles.length < 2;
+    tiles.forEach((tile, i) => tile.addEventListener('click', () => { show(i); dialog.showModal(); }));
+    dialog.querySelector('.lightbox-prev')!.addEventListener('click', () => show(current - 1));
+    dialog.querySelector('.lightbox-next')!.addEventListener('click', () => show(current + 1));
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') show(current - 1);
+      if (e.key === 'ArrowRight') show(current + 1);
+    });
+    // Klick neben das Bild schließt
+    dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+  }
+</script>
