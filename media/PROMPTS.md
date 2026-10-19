@@ -158,38 +158,48 @@ New image:
 - Size: 1024x1024
 ```
 
-**Zeichen / Server-Icon** (Discord-Icon, Favicon, Forum-Logo; nie das Hunter-Zeichen)
+**Zeichen / Server-Icon** (Discord-Icon, Favicon, Forum-Logo)
 
-Schritt 1, Ideen sammeln:
+Ziel ist ein eigenes Siegel mit dem Wiedererkennungswert des Hunter-Zeichens: ein abstraktes,
+einfarbiges Zeichen aus wenigen Pinselstrichen, kein Bildchen. ChatGPT entwirft die Form als
+Pinselzeichnung (das kann es gut); die Pixel-Fassungen (32 × 32, 16 × 16) entstehen danach aus dem
+gewählten Entwurf.
+
+Schritt 1, Entwürfe:
 
 ```text
-New image: emblem ideas for our Discord server icon (also used as favicon and forum logo).
-One sheet with 6 different emblems in a 3x2 grid, each on its own dark circle. I will pick one.
+New image: an original sigil for our community, used as Discord server icon, favicon and forum
+logo. Show 4 different sigils in a 2x2 grid so I can choose.
 
-Ideas to explore, add your own too:
-- a gothic pointed arch or gate framed by a full moon
-- a crescent moon with a single drop of blood
-- a gas lantern with a red flame
-- a cathedral spire piercing the moon
-- a bell, a key or a candle as the main shape
+Idea: the secret sign of an old hunters' guild in a Victorian gothic city. Meaning: a gate under
+the moon, the way into the old city.
 
-Rules for every emblem:
-- Pixel art icon on a 32x32 grid: crisp square pixels, no anti-aliasing, no gradients, 3 to 5 colors.
-- Colors: pale bone #e4d9bd, blood red #a3161e with shadow #6b0f15, optional brass #c2a878,
-  on dark slate #0f1317.
-- One bold, simple, symmetrical silhouette, recognizable at 48x48 px and still readable at
-  16x16 px. Thick shapes, strong contrast, no thin lines, no small details.
-- Fits inside a centered circle with margin (Discord crops icons round).
-- Original design: no Hunter's Mark, no Caryll runes, no symbol, logo or item from Bloodborne
-  or any other game. No letters, no text.
+Form:
+- One glyph made of 3 to 5 bold calligraphic brush strokes (thick and thin), like ink.
+- Abstract, not a picture: no objects, figures or realistic drawings. Build it from simple
+  elements such as an arch, a vertical stroke, a crescent, a dot.
+- Upright, symmetric or nearly symmetric, compact; fits inside a circle with margin.
+- Still recognizable as a silhouette at 32x32 px: thick strokes, open spaces, no fine detail.
+- One flat color: pale bone #e4d9bd on dark slate #0f1317. No texture, no glow, no frame.
+
+Originality (strict):
+- Must not resemble the Hunter's Mark, any Caryll rune, or any symbol, logo or item from
+  Bloodborne or other games.
+- No letters, no runes from real alphabets (no Norse or Germanic runes), no religious or
+  political symbols, no crosses or plus signs.
+- No text.
 ```
 
 Schritt 2, Favorit ausarbeiten:
 
 ```text
-Take emblem [number] and make it final: one emblem, centered, 1024x1024, on a 32x32 pixel grid
-(every pixel exactly 32x32 px), plain #0f1317 background, same rules as before.
+Take sigil [number]: one sigil, centered, 1024x1024, same strokes and proportions, flat
+#e4d9bd on #0f1317, no texture, no glow.
 ```
+
+Prüfen vor der Nutzung: keine Ähnlichkeit mit Spielsymbolen (Hunter-Zeichen, Caryll-Runen), mit
+Runen (einige sind in Deutschland als Kennzeichen verbotener Organisationen strafbar, § 86a StGB)
+oder mit dem Roten Kreuz (geschützt, § 125 OWiG).
 
 Rechtlich: Rein KI-erzeugte Bilder sind in Deutschland und den USA in der Regel nicht
 urheberrechtlich geschützt, andere dürften das Zeichen also kopieren. Wer das vermeiden will,
