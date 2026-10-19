@@ -373,9 +373,11 @@ h3 { font-size: var(--step-1); }
 .lightbox-nav[hidden] { display: none; }
 
 /* --- Bewegung: Abschnitte, Seitenwechsel, "Bewegung reduzieren" ---------------------------- */
-/* Abschnitte gleiten beim Scrollen herein; nie ganz unsichtbar, ohne Unterstützung einfach still */
+/* Abschnitte gleiten beim Scrollen herein; nie ganz unsichtbar, ohne Unterstützung einfach still.
+   Fertig nach 300 px statt nach einem Anteil der Bildschirmhöhe: so wird auch der letzte Abschnitt auf
+   sehr hohen Bildschirmen (4K ohne Skalierung) ganz sichtbar, unten ist überall mindestens 450 px Platz. */
 @supports (animation-timeline: view()) {
-  .section { animation: section-reveal linear both; animation-timeline: view(); animation-range: entry 0% cover 25%; }
+  .section { animation: section-reveal linear both; animation-timeline: view(); animation-range: entry 0% entry 300px; }
 }
 @keyframes section-reveal { from { opacity: 0.35; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 
