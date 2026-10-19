@@ -88,6 +88,24 @@ Alte Links und Google-Treffer bleiben so gültig.
 2. Unter **Sitemaps** `https://bbport.de/sitemap-index.xml` und `https://forum.bbport.de/sitemap.xml`
    einreichen.
 
+## Prüfungen vor dem Livegang
+
+Vor jedem Deploy baut GitHub die Seite und prüft sie mit Playwright im Browser (Chromium, Desktop und
+Handy, Tests in `tests/`, Einstellungen in `playwright.config.mjs`). Geprüft werden:
+
+- jede Seite aus der Sitemap: lädt ohne Konsolen- oder Skriptfehler, alle Bilder und internen Links
+  funktionieren, nichts ragt seitlich über den Rand, Canonical und Vorschaubild zeigen auf die echte Domain,
+  keine alten nrnetworks-Adressen
+- 404-Seite, Sitemap und robots.txt
+- Hardware-Check (Auswahl, Ergebnis, geteilter Link), Galerie mit Großansicht, „Bewegung reduzieren“
+
+Schlägt eine Prüfung fehl, bricht der Workflow ab und die alte Seite bleibt online. Welche Prüfung
+gescheitert ist, steht im Workflow-Lauf auf GitHub (Actions → Website), Screenshots dazu im Artefakt
+„playwright-ergebnisse“. Pull Requests und Branches `ci/…` werden nur geprüft, nicht veröffentlicht.
+
+Lokal (Node.js ab 22.22): `npm run build`, einmalig
+`npm install --no-save @playwright/test@1.56.1 && npx playwright install chromium`, dann `npm test`.
+
 ## Technik (zur Info)
 
 - Jede Seite hat einen eigenen Titel, eine eigene Beschreibung, einen Canonical-Link sowie eine

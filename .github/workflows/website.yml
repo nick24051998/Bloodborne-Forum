@@ -5,10 +5,16 @@
 # SITE.downloadUrl). Gibt es eine, baut er die Website neu (Version, Download, Changelog-Liste) und meldet
 # sie in Discord, wenn das Secret DISCORD_RELEASES_WEBHOOK gesetzt ist (Repo → Settings → Secrets and
 # variables → Actions; Webhook-URL eines Discord-Kanals, z. B. #announcements).
+#
+# Vor jedem Deploy prüft Playwright die fertige Seite im Browser (website/tests). Schlägt eine Prüfung fehl,
+# bricht der Build ab und nichts geht live. Pull Requests und Branches „ci/…“ werden nur gebaut und geprüft.
 name: Website
 
 on:
   push:
+    branches: [main, "ci/**"]
+    paths: ["website/**", ".github/workflows/website.yml"]
+  pull_request:
     branches: [main]
     paths: ["website/**", ".github/workflows/website.yml"]
   schedule:
@@ -22,7 +28,7 @@ permissions:
 
 # Nicht abbrechen: sonst ginge die Discord-Meldung eines laufenden Durchgangs verloren
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -65,12 +71,28 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - run: npm run build
+      # Prüfungen im echten Browser (Chromium, Desktop und Handy) gegen die gebaute Seite
+      - name: Playwright installieren
+        run: |
+          npm install --no-save @playwright/test@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Website prüfen
+        run: npx playwright test
+      - name: Bericht bei Fehlern sichern
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-ergebnisse
+          path: website/test-results
+          retention-days: 7
       - uses: actions/upload-pages-artifact@v3
         with:
           path: website/dist
 
   deploy:
     needs: build
+    # Live geht nur main; Pull Requests und ci/-Branches werden nur geprüft
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

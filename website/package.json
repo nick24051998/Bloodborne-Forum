@@ -6,6 +6,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "test": "playwright test",
     "todo": "grep -rn \"TODO\" src site.config.mjs || echo 'Keine TODOs mehr.'"
   },
   "engines": {
