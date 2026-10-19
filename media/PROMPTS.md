@@ -158,12 +158,39 @@ New image:
 - Size: 1024x1024
 ```
 
-**Emblem** (eigenes Zeichen, nie das Hunter-Zeichen)
+**Zeichen / Server-Icon** (Discord-Icon, Favicon, Forum-Logo; nie das Hunter-Zeichen)
+
+Schritt 1, Ideen sammeln:
 
 ```text
-New image:
-- Use: emblem
-- Subject: [the chosen mark, described in one sentence], at most 3 colors from the palette.
-- Text area: none
-- Size: 1024x1024
+New image: emblem ideas for our Discord server icon (also used as favicon and forum logo).
+One sheet with 6 different emblems in a 3x2 grid, each on its own dark circle. I will pick one.
+
+Ideas to explore, add your own too:
+- a gothic pointed arch or gate framed by a full moon
+- a crescent moon with a single drop of blood
+- a gas lantern with a red flame
+- a cathedral spire piercing the moon
+- a bell, a key or a candle as the main shape
+
+Rules for every emblem:
+- Pixel art icon on a 32x32 grid: crisp square pixels, no anti-aliasing, no gradients, 3 to 5 colors.
+- Colors: pale bone #e4d9bd, blood red #a3161e with shadow #6b0f15, optional brass #c2a878,
+  on dark slate #0f1317.
+- One bold, simple, symmetrical silhouette, recognizable at 48x48 px and still readable at
+  16x16 px. Thick shapes, strong contrast, no thin lines, no small details.
+- Fits inside a centered circle with margin (Discord crops icons round).
+- Original design: no Hunter's Mark, no Caryll runes, no symbol, logo or item from Bloodborne
+  or any other game. No letters, no text.
 ```
+
+Schritt 2, Favorit ausarbeiten:
+
+```text
+Take emblem [number] and make it final: one emblem, centered, 1024x1024, on a 32x32 pixel grid
+(every pixel exactly 32x32 px), plain #0f1317 background, same rules as before.
+```
+
+Rechtlich: Rein KI-erzeugte Bilder sind in Deutschland und den USA in der Regel nicht
+urheberrechtlich geschützt, andere dürften das Zeichen also kopieren. Wer das vermeiden will,
+zeichnet den Favoriten selbst nach und verändert ihn dabei; dann ist es ein eigenes Werk.
