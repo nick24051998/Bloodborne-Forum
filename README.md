@@ -33,7 +33,7 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `media/` | Icons (CC0), Banner-Bilder (`media/images/`, KI-generiert) und selbst erzeugte Texturen; Herkunft in `media/CREDITS.md`, neu erzeugen mit `python3 media/build.py`. Markenregeln in `media/BRAND.md`, ChatGPT-Prompts für neue Medien in `media/PROMPTS.md` |
 | `flarum/icons.less` | Eigene Kategorie-Icons (`bbicon bbicon-NAME`), aus `media/icons/` erzeugt |
 | `theme/custom.less` | Theme (Admin → Appearance → Custom Styles) |
-| `media/brand/`, `media/brand.py`, `media/logo.html` | Pixel-Art des Discord-Servers (Server-Icon, Einladungs-Hintergrund); daraus Logo, Favicons, Website-Emblem und Vorschaubild |
+| `media/brand/`, `media/brand.py`, `media/logo.html`, `media/og.html` | Siegel der Community (`sigil.png`); daraus Discord-Icon, Logo, Favicons, Website-Emblem und Vorschaubild |
 | `theme/logo.png`, `theme/favicon.png` | Dieselben Bilder als PNG zum Hochladen (Flarum 1.x nimmt kein SVG) |
 | `theme/fonts/` | Cinzel + Inter als `.woff2`, selbst gehostet (SIL OFL) |
 | `content/` | Welcome-Banner, Fußzeile (Imprint/Privacy), angepinnte Themen (Regeln, Install-Kurzfassung, „Read first“ für Help & Support), Vorlage für Help & Support |

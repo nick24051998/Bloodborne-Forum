@@ -1,0 +1,32 @@
+<!doctype html>
+<!-- Vorschaubild für geteilte Links (website/public/og-image.jpg, 1200 x 630).
+     Neu erzeugen: node media/render-logo.cjs (nach python3 media/brand.py). Siehe media/BRAND.md. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: Cinzel; font-weight: 700; src: url("../website/public/fonts/cinzel-latin-700-normal.woff2"); }
+  @font-face { font-family: Cinzel; font-weight: 600; src: url("../website/public/fonts/cinzel-latin-600-normal.woff2"); }
+  @font-face { font-family: Inter; font-weight: 500; src: url("../website/public/fonts/inter-latin-500-normal.woff2"); }
+  html, body { margin: 0; }
+  .og { width: 1200px; height: 630px; box-sizing: border-box; display: flex; align-items: center; gap: 64px;
+        padding: 0 90px 0 110px; background: #0f1317; }
+  .og img { height: 440px; width: auto; }
+  .name { font: 700 74px/1 Cinzel, serif; letter-spacing: 0.05em; color: #ece7dd; }
+  .sub { display: flex; align-items: center; gap: 16px; margin-top: 18px;
+         font: 600 26px/1 Cinzel, serif; letter-spacing: 0.3em; color: #c2a878; }
+  .sub::after { content: ""; flex: 1; height: 2px; background: #9c8458; }
+  .links { margin-top: 40px; font: 500 24px/1.4 Inter, sans-serif; color: #8a8c90; }
+</style>
+</head>
+<body>
+  <div class="og">
+    <img src="brand/sigil-cutout.png" alt="">
+    <div>
+      <div class="name">BLOODBORNE</div>
+      <div class="sub">PC PORT COMMUNITY</div>
+      <div class="links">Install guide · FAQ · Forum · Discord</div>
+    </div>
+  </div>
+</body>
+</html>

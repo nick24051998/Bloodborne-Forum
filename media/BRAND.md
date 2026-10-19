@@ -19,6 +19,11 @@ Siegel ist ein eigenes Werk und kein Symbol aus dem Spiel.
 
 Einsatz: Discord-Server-Icon, Favicon, Forum- und Website-Logo, Link-Vorschau.
 
+Dateien: `media/brand/sigil.png` (Original, auch Stilreferenz für ChatGPT),
+`media/brand/sigil-cutout.png` (freigestellt), `media/brand/discord-icon.png` (zum Hochladen in
+Discord). Neu erzeugen nach einer Änderung am Original: `python3 media/brand.py`, dann
+`node media/render-logo.cjs` (Logo und Vorschaubild).
+
 - Immer auf dunklem Grund (#0f1317 oder dunkler). Auf hellen Flächen oder unruhigen Bildern nur
   auf einer dunklen runden Platte.
 - Ringsum frei lassen: mindestens ein Viertel der Siegelbreite.

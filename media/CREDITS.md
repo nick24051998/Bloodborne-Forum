@@ -4,12 +4,23 @@ Alle Medien in `media/` sind gemeinfrei (CC0), vom Projekt selbst gestaltet oder
 ChatGPT erzeugt. Eine Namensnennung ist rechtlich nicht nötig; sie steht hier trotzdem, damit
 nachvollziehbar bleibt, woher jede Datei stammt.
 
-## Pixel-Art des Discord-Servers
+## Siegel
 
-Vom Admin des Discord-Servers selbst gestaltet und für Forum und Website freigegeben. `media/brand.py`
-und `media/logo.html` leiten daraus ab: Logo (`theme/logo.png`, `website/public/logo.png`), Favicons,
-das Emblem der Website-Startseite (`website/public/emblem-frame.webp`) und das Vorschaubild
-(`website/public/og-image.jpg`).
+Für dieses Projekt mit ChatGPT erzeugt; der Admin des Discord-Servers hat es in mehreren Schritten
+entworfen und ausgewählt (Prompts in `PROMPTS.md`, Regeln in `BRAND.md`). Kein Material aus
+Bloodborne. `media/brand.py`, `media/logo.html` und `media/og.html` leiten daraus ab: Discord-Icon,
+Favicons, Logo (`theme/logo.png`, `website/public/logo.png`), das Emblem der Website-Startseite
+(`website/public/emblem.webp`) und das Vorschaubild (`website/public/og-image.jpg`).
+
+| Datei | Inhalt |
+|---|---|
+| `brand/sigil.png` | Siegel: Kelch und Klinge in einer Form, Mondsichel in Blut (Original) |
+| `brand/sigil-cutout.png` | freigestellt, von `brand.py` erzeugt |
+| `brand/discord-icon.png` | Discord-Server-Icon (1024 × 1024), von `brand.py` erzeugt |
+
+## Pixel-Art des Discord-Servers (nicht mehr im Einsatz)
+
+Vom Admin des Discord-Servers selbst gestaltet; Grundlage des früheren Logos.
 
 | Datei | Motiv |
 |---|---|
