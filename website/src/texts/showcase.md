@@ -27,7 +27,7 @@ items:
     alt: ""
     credit: ""
   - title: Ultrawide
-    text: 3440×1440 with a widened camera, HUD and menus.
+    text: 21:9 at 2560×1080, with a widened camera, HUD and menus.
     image: "ultrawide-hunters-dream.webp"
     alt: "Ultrawide screenshot: a hunter in a long coat stands in a moonlit garden below a gothic church, a large full moon in the sky, a doll-like woman waiting by the stone stairs"
     credit: "joão edu"

@@ -16,7 +16,8 @@ const items = await Promise.all(
   (frontmatter.items ?? []).map(async (item, i) => {
     const src = item.image ? byName[item.image] : undefined;
     if (item.image && !src) console.warn(`Showcase: Bild ${item.image} fehlt in src/assets/showcase/`);
-    const full = src ? await getImage({ src, width: Math.min(src.width, 2400), format: 'webp' }) : undefined;
+    // Großansicht in voller Auflösung bis 3440 px (Ultrawide), mit hoher Qualität, damit beim Reinzoomen nichts verschwimmt
+    const full = src ? await getImage({ src, width: Math.min(src.width, 3440), format: 'webp', quality: 90 }) : undefined;
     return { ...item, size: pattern[i % pattern.length], src, full: full?.src };
   }),
 );
