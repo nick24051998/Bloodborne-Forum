@@ -1,6 +1,7 @@
 // Wird über flarum/extend.php ins Forum eingebunden (kein Build-Schritt nötig).
-// - Links zur Projekt-Website (gleicher Tab) und zu Discord (neuer Tab) in der Kopfzeile
-//   (auf dem Handy im Seitenmenü)
+// - Kopfzeile wie auf der Website: Logo führt zur Website, Menüpunkte Install, FAQ, Changelog,
+//   Forum (aktiv) und Discord; Website-Links im selben Tab, Discord in einem neuen
+//   (auf dem Handy im Seitenmenü, dort zusätzlich "Website")
 // - Discord-only-Registrierung: Das Registrieren-Fenster zeigt nur den Discord-Button
 // - Live-Zahlen von The Hunter's Dream (aus /api/hunters-dream, siehe extend.php): als Kasten
 //   in der Seitenleiste, auf schmalen Bildschirmen als Zeile unter dem Willkommens-Banner
@@ -12,6 +13,7 @@
   var override = compat['common/extend'].override;
   var icon = compat['common/helpers/icon'];
   var HeaderPrimary = compat['forum/components/HeaderPrimary'];
+  var LinkButton = compat['common/components/LinkButton'];
   var IndexPage = compat['forum/components/IndexPage'];
   var SignUpModal = compat['forum/components/SignUpModal'];
 
@@ -129,14 +131,36 @@
       var site = app.forum.attribute('bbforumWebsiteUrl');
       var discord = app.forum.attribute('bbforumDiscordUrl');
 
+      // Dieselben Menüpunkte wie auf der Website, "Forum" als aktiver Punkt. "Website" gibt es nur
+      // auf dem Handy (im Seitenmenü fehlt das Logo), sonst führt das Logo zur Website.
       if (site) {
-        items.add('bb-website', externalLink(site + '/', 'fas fa-home', 'Website'), 30);
-        items.add('bb-install', externalLink(site + '/install/', 'fas fa-download', 'Install guide'), 20);
-        items.add('bb-faq', externalLink(site + '/faq/', 'fas fa-question-circle', 'FAQ'), 10);
+        items.add('bb-home', externalLink(site + '/', 'fas fa-home', 'Website'), 60);
+        items.add('bb-install', externalLink(site + '/install/', 'fas fa-download', 'Install guide'), 50);
+        items.add('bb-faq', externalLink(site + '/faq/', 'fas fa-question-circle', 'FAQ'), 40);
+        items.add('bb-changelog', externalLink(site + '/changelog/', 'fas fa-scroll', 'Changelog'), 30);
+        items.add('bb-forum', LinkButton.component({
+          href: app.route('index'),
+          icon: 'fas fa-comments',
+          className: 'Button Button--link bb-navLink bb-navLink--current',
+        }, 'Forum'), 20);
       }
       if (discord) {
-        items.add('bb-discord', externalLink(discord, 'fab fa-discord', 'Discord', true), 0);
+        items.add('bb-discord', externalLink(discord, 'fab fa-discord', 'Discord', true), 10);
       }
+    });
+
+    // Logo oben links: zur Website wie auf der Website selbst. Erst nach dem Start (app.forum gibt es
+    // im Initializer noch nicht), daher beim ersten Zeichnen der Kopfzeile. Flarum fängt Klicks aufs
+    // Logo ab und springt zur Forum-Startseite; der Listener in der Capture-Phase kommt vorher und
+    // lässt den Browser dem Link normal folgen.
+    extend(HeaderPrimary.prototype, 'oncreate', function () {
+      var homeLink = document.getElementById('home-link');
+      var site = app.forum.attribute('bbforumWebsiteUrl');
+      if (!homeLink || !site) return;
+      homeLink.setAttribute('href', site + '/');
+      document.addEventListener('click', function (e) {
+        if (e.target instanceof Element && e.target.closest('#home-link')) e.stopPropagation();
+      }, true);
     });
 
     // Hunter's Dream: Kasten in der Seitenleiste (breite Bildschirme), Zeile unter dem Banner (schmale)

@@ -131,9 +131,24 @@ h1, h2, h3,
   font-weight: 600;
 }
 
+// "Forum" ist hier der aktive Bereich, markiert wie die aktive Seite auf der Website
+.Header-primary .bb-navLink--current {
+  color: @bb-text-strong;
+  box-shadow: inset 0 -2px 0 @bb-blood-hover;
+  border-radius: 0;
+}
+
+// "Website" nur auf dem Handy (im Seitenmenü gibt es kein Logo)
+@media @tablet-up {
+  .Header-primary .item-bb-home {
+    display: none;
+  }
+}
+
 @media @tablet {
   .Header-primary .item-bb-install,
-  .Header-primary .item-bb-faq {
+  .Header-primary .item-bb-faq,
+  .Header-primary .item-bb-changelog {
     display: none;
   }
 }
