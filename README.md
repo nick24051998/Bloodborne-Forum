@@ -28,6 +28,8 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `flarum/scheduler.sh` | Startet den Flarum-Scheduler (jede Minute) im Forum-Container |
 | `scripts/setup-forum.sh` | Richtet alles per Flarum-API ein: Admin, Erweiterungen, Tags, Rechte, Theme, Banner, Regeln, Logo |
 | `scripts/backup.sh` | DB-Dump + Datenvolume als `.tar.gz` |
+| `scripts/nightly-backup.sh`, `scripts/install-backup.sh` | Nächtliches Backup (3:30 Uhr, systemd-Timer) mit Prüfung und Aufräumen nach `BACKUP_KEEP_DAYS` |
+| `scripts/rotate-admin-password.sh` | Neues Admin-Passwort setzen, in `.env` eintragen und den Admin überall abmelden |
 | `scripts/auto-update.sh`, `scripts/install-auto-update.sh` | Holt neue Commits alle 5 Minuten und spielt sie ein (systemd-Timer), optional mit Meldung in Discord |
 | `flarum/extend.php` | Schalter „neue Accounts nur über Discord“, Sicherheits-Header und `/api/hunters-dream` (Live-Zahlen von The Hunter's Dream, eine Minute zwischengespeichert, nur Gesamtzahlen) |
 | `flarum/extend-loader.php` | Wird als `/opt/flarum/extend.php` eingebunden und lädt `flarum/extend.php`, damit Änderungen nach `git pull` ohne Neustart ankommen |
