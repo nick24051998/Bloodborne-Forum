@@ -18,7 +18,7 @@ Our Discord server is a separate service; Discord's own privacy policy applies t
 ## Who is responsible
 
 The Bloodborne PC Port Community, a volunteer project. Contact for all privacy questions:
-[psikarmax@gmail.com](mailto:psikarmax@gmail.com).
+[bbportpc@gmail.com](mailto:bbportpc@gmail.com).
 
 ## Website
 
@@ -73,7 +73,7 @@ settings you can export your data and request the deletion of your account; you 
 You have the right to access the data we hold about you, to have it corrected or deleted, to restrict
 its processing, to object to processing based on legitimate interests, and to receive your data in a
 portable format (Art. 15–21 GDPR). To use these rights, write to
-[psikarmax@gmail.com](mailto:psikarmax@gmail.com). You can also complain to a data protection
+[bbportpc@gmail.com](mailto:bbportpc@gmail.com). You can also complain to a data protection
 supervisory authority, for example the one where you live.
 
 ## E-mail

@@ -20,7 +20,7 @@ export const SITE = {
 
   // Kontakt für Fragen, Löschanfragen und Datenschutz (Fußzeile). Steht außerdem in
   // src/texts/contact.md, src/texts/privacy.md und content/footer.html (Forum): bei Änderung dort mitziehen.
-  contactEmail: 'psikarmax@gmail.com',
+  contactEmail: 'bbportpc@gmail.com',
 
   // Online-Server, auf dem die Community spielt. Die Live-Zahlen auf der Startseite holt der
   // Browser über das Forum (forumUrl + '/api/hunters-dream', siehe flarum/extend.php).
