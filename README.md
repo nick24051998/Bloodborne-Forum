@@ -30,7 +30,7 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `scripts/backup.sh` | DB-Dump + Datenvolume als `.tar.gz` |
 | `flarum/extend.php` | Schalter „neue Accounts nur über Discord“ und Sicherheits-Header |
 | `flarum/forum.js` | Links zur Website und zu Discord in der Forum-Kopfzeile, Registrieren-Fenster nur mit Discord-Button |
-| `media/` | Icons (CC0), Banner-Bilder (`media/images/`, KI-generiert) und selbst erzeugte Texturen; Herkunft in `media/CREDITS.md`, neu erzeugen mit `python3 media/build.py` |
+| `media/` | Icons (CC0), Banner-Bilder (`media/images/`, KI-generiert) und selbst erzeugte Texturen; Herkunft in `media/CREDITS.md`, neu erzeugen mit `python3 media/build.py`. Markenregeln in `media/BRAND.md`, ChatGPT-Prompts für neue Medien in `media/PROMPTS.md` |
 | `flarum/icons.less` | Eigene Kategorie-Icons (`bbicon bbicon-NAME`), aus `media/icons/` erzeugt |
 | `theme/custom.less` | Theme (Admin → Appearance → Custom Styles) |
 | `media/brand/`, `media/brand.py`, `media/logo.html` | Pixel-Art des Discord-Servers (Server-Icon, Einladungs-Hintergrund); daraus Logo, Favicons, Website-Emblem und Vorschaubild |
