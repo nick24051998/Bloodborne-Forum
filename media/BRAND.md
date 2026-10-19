@@ -84,6 +84,8 @@ Langsam und schwer wie die Welt des Spiels, wenige Effekte mit klarer Aufgabe.
 
 - Höchstens eine Daueranimation pro Ansicht (Ausnahme: die kleine Laterne als Statusanzeige).
 - Tempo: Interaktion 150 bis 250 ms, Auftritte 600 bis 900 ms, Atmosphäre 30 bis 110 Sekunden.
+  Ausnahme: Das Siegel auf der Startseite taucht in gut 3 Sekunden aus dem Nebel auf, mit
+  gleichmäßiger Kurve, damit man es überhaupt wahrnimmt.
 - Eine Kurve für alles: `cubic-bezier(0.2, 0.7, 0.1, 1)`, schneller Start, langes Auslaufen. Kein Federn,
   kein Hüpfen.
 - Nur Position und Deckkraft animieren, keine Unschärfe auf großen Flächen.
