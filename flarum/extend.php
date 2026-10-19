@@ -127,9 +127,32 @@ if (! class_exists('BBForumHuntersDream')) {
                 return null;
             };
 
+            // Häufigstes Blutlevel-Band, z. B. "BL 10-19"
+            $levels = (array) ($stats['activity']['level_distribution'] ?? []);
+            usort($levels, function ($a, $b) {
+                return ((int) ($b[1] ?? 0)) <=> ((int) ($a[1] ?? 0));
+            });
+
+            // Gebiete mit Beschwörungszeichen gerade jetzt (höchstens zwei Namen)
+            $bellAreas = [];
+            foreach (array_slice((array) ($stats['activity']['summon_by_area'] ?? []), 0, 2) as $area) {
+                if (is_array($area) && isset($area[0])) {
+                    $bellAreas[] = (string) $area[0];
+                }
+            }
+
+            // Neueste geteilte Kelch-Glyphe, ohne den Namen des Erstellers
+            $dungeon = $stats['chalice']['dungeons'][0] ?? null;
+            $glyph = is_array($dungeon) && preg_match('/^[a-z0-9]{6,12}$/i', (string) ($dungeon['glyph'] ?? ''))
+                ? ['glyph' => (string) $dungeon['glyph'], 'dungeon' => (string) ($dungeon['dungeon_name'] ?? ''), 'id' => (int) ($dungeon['channel_id'] ?? 0)]
+                : null;
+
             return [
                 'serverOnline' => (bool) ($sessions['server_online'] ?? false),
                 'online' => (int) ($sessions['count'] ?? 0),
+                'coopSigns' => (int) ($stats['activity']['summon_coop'] ?? 0),
+                'sinisterBells' => (int) ($stats['activity']['summon_invade'] ?? 0),
+                'bellAreas' => $bellAreas,
                 'bossClears24h' => (int) ($stats['hunt']['boss_clears_24h'] ?? 0),
                 'kills24h' => (int) ($stats['hunt']['kills_24h'] ?? 0),
                 'bossClears' => (int) ($stats['hunt']['boss_clears'] ?? 0),
@@ -137,8 +160,15 @@ if (! class_exists('BBForumHuntersDream')) {
                 'hunters' => (int) ($stats['overview']['total_users'] ?? 0),
                 'summons' => (int) ($stats['overview']['total_summons'] ?? 0),
                 'deaths' => (int) ($stats['overview']['total_deaths'] ?? 0),
+                'ghosts' => (int) ($stats['overview']['total_ghosts'] ?? 0),
+                'messages' => (int) ($stats['overview']['total_messages'] ?? 0),
+                'chaliceDungeons' => (int) ($stats['overview']['total_dungeons'] ?? 0),
                 'deadliestFoe' => $top($stats['deaths']['top_killers'] ?? []),
                 'deadliestArea' => $top($stats['deaths']['by_location'] ?? []),
+                'mostSlainBoss' => $top($stats['hunt']['slain'] ?? []),
+                'mostHunted' => $top($stats['hunt']['hunted'] ?? []),
+                'levelPeak' => isset($levels[0][0]) ? (string) $levels[0][0] : null,
+                'newestGlyph' => $glyph,
                 'updatedAt' => time(),
                 'source' => 'https://thehuntersdream.com',
             ];

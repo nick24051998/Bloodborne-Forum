@@ -78,6 +78,38 @@ Schattierung in zwei bis drei Tönen, Tiefe durch Silhouetten-Ebenen und Nebel. 
 eigenen, namenlosen viktorianischen Stadt bei Nacht. Keine Fotos, keine gemalten oder 3D-Bilder,
 keine Pixel-Art, kein Material aus dem Spiel. Prompts und Endgrößen: `PROMPTS.md`.
 
+## Bewegung
+
+Langsam und schwer wie die Welt des Spiels, wenige Effekte mit klarer Aufgabe.
+
+- Höchstens eine Daueranimation pro Ansicht (Ausnahme: die kleine Laterne als Statusanzeige).
+- Tempo: Interaktion 150 bis 250 ms, Auftritte 600 bis 900 ms, Atmosphäre 30 bis 110 Sekunden.
+- Eine Kurve für alles: `cubic-bezier(0.2, 0.7, 0.1, 1)`, schneller Start, langes Auslaufen. Kein Federn,
+  kein Hüpfen.
+- Nur Position und Deckkraft animieren, keine Unschärfe auf großen Flächen.
+- „Bewegung reduzieren“ im System schaltet alles ab außer der Ladeanzeige.
+- Nichts schneller als 3 Wechsel pro Sekunde; nichts aus dem Spiel nachbauen.
+
+Im Einsatz:
+
+| Bewegung | Website | Forum |
+|---|---|---|
+| Ziehender Nebel (`media/textures/fog.svg`) | Kopfbilder | Willkommens-Banner |
+| Tiefe beim Scrollen | Kopfbild der Startseite | – |
+| Laterne flackert | Live-Abschnitt (wenn eingeschaltet) | Hunter's-Dream-Kasten |
+| Blut füllt den Knopf | Haupt- und Rahmenknöpfe | Hauptknöpfe |
+| Messinglinie | Menü und Fußzeile | Website-Links im Kopf |
+| Karte hebt sich | Karten | Themenliste |
+| Seitenwechsel ins Dunkle | alle Seiten | – (das Forum lädt nicht neu) |
+| Siegel taucht auf | Startseite, einmal pro Sitzung | – |
+| Abschnitte erscheinen | Abschnitte der Startseite | – |
+| Zahlen zählen hoch | – | Hunter's-Dream-Kasten |
+| Blutstropfen als Ladeanzeige | – | überall |
+| Neuer Beitrag pulsiert | – | nach dem Antworten |
+| Beste Antwort glüht auf | – | markierter Beitrag |
+
+Zum Ausprobieren gibt es eine Demo-Seite (Bewegungsstudie, als Artifact geteilt).
+
 ## Icons
 
 Einfarbig, flach, gleiche Strichstärke in einem Set. Heute: CC0-Icons (`media/icons/`, Quellen in

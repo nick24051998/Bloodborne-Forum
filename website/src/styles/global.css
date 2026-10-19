@@ -28,6 +28,8 @@
   --moon: 201, 205, 210;
   --dusk: 59, 52, 72;
   --radius: 12px;
+  /* Bewegung (Regeln in media/BRAND.md): schwere Kurve, schneller Start, langes Auslaufen */
+  --ease-heavy: cubic-bezier(0.2, 0.7, 0.1, 1);
   --font-head: "Cinzel", "Cormorant Garamond", Georgia, serif;
   --font-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   /* Fließtext wächst sanft mit dem Viewport: 16 px (Handy) bis 18 px (große Monitore) */
@@ -70,7 +72,7 @@ body::after {
   background: url("../assets/grain.svg"); opacity: 0.05;
 }
 
-a { color: var(--gold-light); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a { color: var(--gold-light); text-decoration-thickness: 1px; text-underline-offset: 3px; transition: color 220ms, text-decoration-color 220ms; }
 a:hover { color: var(--text-strong); text-decoration-color: var(--gold-light); }
 
 h1, h2, h3 {
@@ -111,6 +113,14 @@ h3 { font-size: var(--step-1); }
   color: var(--text); text-decoration: none; font-weight: 500; font-size: 0.95rem;
 }
 .nav a:hover, .nav a[aria-current="page"] { background: var(--card-hover); color: var(--text-strong); }
+/* Messinglinie zeichnet sich von links nach rechts (nicht bei der aktiven Seite und beim Discord-Knopf) */
+.nav a:not(.nav-discord):not([aria-current="page"]) {
+  background-image: linear-gradient(var(--gold-light), var(--gold-light));
+  background-position: 0.8rem calc(100% - 0.35rem); background-size: 0 1px; background-repeat: no-repeat;
+  transition: background-size 220ms var(--ease-heavy), background-color 220ms, color 220ms;
+}
+.nav a:not(.nav-discord):not([aria-current="page"]):hover,
+.nav a:not(.nav-discord):not([aria-current="page"]):focus-visible { background-size: calc(100% - 1.6rem) 1px; }
 .nav a[aria-current="page"] { box-shadow: inset 0 -2px 0 var(--blood); }
 .nav .nav-discord { background: #5865f2; color: #fff; margin-left: 0.4rem; }
 .nav .nav-discord:hover { background: #4752c4; }
@@ -141,30 +151,57 @@ h3 { font-size: var(--step-1); }
 }
 .btn:hover { transform: translateY(-1px); }
 .btn-primary { background: var(--blood); color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06); }
-.btn-primary:hover { background: var(--blood-hover); color: #fff; }
+.btn-primary:hover { color: #fff; }
 .btn-ghost { border-color: rgba(156, 132, 88, 0.6); color: var(--text-strong); }
-.btn-ghost:hover { border-color: var(--gold-light); background: rgba(156, 132, 88, 0.08); color: var(--text-strong); }
+.btn-ghost:hover { border-color: var(--blood-hover); color: #fff; }
+/* Blut steigt beim Überfahren von unten auf */
+.btn-primary, .btn-ghost { position: relative; overflow: hidden; isolation: isolate; }
+.btn-primary::before, .btn-ghost::before {
+  content: ""; position: absolute; inset: -12% -2% 0; z-index: -1; background: var(--blood-hover);
+  border-radius: 46% 54% 0 0 / 14% 18% 0 0; transform: translateY(101%); transition: transform 480ms var(--ease-heavy);
+}
+.btn-ghost::before { background: var(--blood); }
+.btn-primary:hover::before, .btn-primary:focus-visible::before,
+.btn-ghost:hover::before, .btn-ghost:focus-visible::before { transform: translateY(0); }
 .btn-discord { background: #5865f2; color: #fff; }
 .btn-discord:hover { background: #4752c4; color: #fff; }
 
 /* --- Hero ---------------------------------------------------------------------------- */
 .hero {
-  position: relative; overflow: hidden;
-  /* Skyline (media/images/website-hero.webp, KI-generiert, siehe media/CREDITS.md);
-     links abgedunkelt für den Text, unten Übergang in die Seite */
-  background:
-    linear-gradient(90deg, rgba(8, 9, 10, 0.7) 0%, rgba(8, 9, 10, 0.3) 45%, transparent 70%),
-    linear-gradient(180deg, transparent 70%, var(--bg) 100%),
-    url("../assets/website-hero.webp") center bottom / cover no-repeat,
-    var(--bg-deep);
+  position: relative; overflow: hidden; isolation: isolate;
+  background: var(--bg-deep);
   border-bottom: 1px solid var(--border);
   padding: clamp(3rem, 6vw, 6.5rem) 0;
 }
+/* Skyline (media/images/website-hero.webp, KI-generiert, siehe media/CREDITS.md); links abgedunkelt
+   für den Text, unten Übergang in die Seite. Eigene Ebene, damit sie beim Scrollen langsamer wandert. */
+.hero::before {
+  content: ""; position: absolute; inset: 0; z-index: -2;
+  background:
+    linear-gradient(90deg, rgba(8, 9, 10, 0.7) 0%, rgba(8, 9, 10, 0.3) 45%, transparent 70%),
+    linear-gradient(180deg, transparent 70%, var(--bg) 100%),
+    url("../assets/website-hero.webp") center bottom / cover no-repeat;
+}
+/* Ziehender Nebel (media/textures/fog.svg, nahtlos 600 px breit) über Startseite und Unterseiten */
+.hero::after, .page-hero::after {
+  content: ""; position: absolute; inset: 0 auto 0 0; z-index: -1; width: calc(100% + 600px);
+  background: url("../assets/fog.svg") 0 0 / 600px 100% repeat-x; opacity: 0.28; pointer-events: none;
+  animation: fog-drift 80s linear infinite;
+}
+@keyframes fog-drift { from { transform: translateX(0); } to { transform: translateX(-600px); } }
+@supports (animation-timeline: scroll()) {
+  .hero::before { animation: hero-depth linear both; animation-timeline: scroll(root); animation-range: 0 100vh; }
+}
+@keyframes hero-depth { to { transform: translateY(12%); } }
 .hero .container { display: grid; grid-template-columns: 1.3fr 1fr; gap: 3rem; align-items: center; }
 .hero h1 { text-shadow: 0 4px 24px rgba(0, 0, 0, 0.8); letter-spacing: 0.05em; margin-bottom: 0.3em; }
 .hero .lead { font-size: var(--step-1); color: var(--text-soft); max-width: 38ch; margin: 0 0 1.8rem; }
 .hero .actions { display: flex; flex-wrap: wrap; gap: 0.8rem; }
-.hero .emblem { justify-self: center; width: min(330px, 75%); height: auto; filter: drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7)); }
+.hero .emblem { justify-self: center; width: min(330px, 75%); height: auto; filter: drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7));
+  animation: emblem-rise 850ms var(--ease-heavy) both; }
+/* Das Siegel taucht nur beim ersten Besuch der Startseite pro Sitzung auf (Klasse setzt index.astro) */
+.seen-emblem .hero .emblem { animation: none; }
+@keyframes emblem-rise { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: none; } }
 .eyebrow { font-family: var(--font-head); color: var(--gold-light); letter-spacing: 0.2em; text-transform: uppercase; font-size: 0.85rem; margin: 0 0 0.8rem; }
 @media (max-width: 860px) {
   .hero .container { grid-template-columns: 1fr; text-align: center; }
@@ -182,7 +219,15 @@ h3 { font-size: var(--step-1); }
 .live-status { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--muted); font-size: 0.9rem; }
 .live-lamp { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
 .live.is-online .live-status { color: var(--text-strong); }
-.live.is-online .live-lamp { background: #bc9570; } /* Laternenlicht */
+.live.is-online .live-lamp { background: #bc9570; animation: lamp-flicker 4.2s steps(1, end) infinite; } /* Laternenlicht */
+@keyframes lamp-flicker {
+  0% { opacity: 1; box-shadow: 0 0 6px 1px rgba(188, 149, 112, 0.45); }
+  14% { opacity: 0.86; box-shadow: 0 0 4px 0 rgba(188, 149, 112, 0.3); }
+  22% { opacity: 1; box-shadow: 0 0 6px 1px rgba(188, 149, 112, 0.45); }
+  51% { opacity: 0.78; box-shadow: 0 0 3px 0 rgba(188, 149, 112, 0.25); }
+  60% { opacity: 0.95; box-shadow: 0 0 5px 1px rgba(188, 149, 112, 0.4); }
+  83% { opacity: 0.88; box-shadow: 0 0 4px 0 rgba(188, 149, 112, 0.32); }
+}
 .live-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 1rem 0 0.9rem; }
 .live-stats div { border-left: 2px solid var(--border-strong); padding-left: 0.9rem; }
 .live-stats dt { color: var(--muted); font-size: 0.85rem; }
@@ -199,9 +244,12 @@ h3 { font-size: var(--step-1); }
 .grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .card {
   background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 1.4rem 1.5rem; transition: border-color 0.15s, background 0.15s;
+  padding: 1.4rem 1.5rem; transition: border-color 220ms, background 220ms, transform 220ms var(--ease-heavy), box-shadow 220ms;
 }
 .card:hover { border-color: var(--border-strong); background: var(--card-hover); }
+@media (hover: hover) {
+  .card:hover { transform: translateY(-3px); border-color: rgba(156, 132, 88, 0.6); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45); }
+}
 .card h3 { margin-bottom: 0.4em; }
 .card p { margin: 0; color: var(--text-soft); }
 .about { max-width: 75ch; margin: 0 0 2rem; color: var(--text-soft); }
@@ -217,7 +265,8 @@ h3 { font-size: var(--step-1); }
 
 /* --- Inhaltsseiten (Markdown) ------------------------------------------------------------ */
 /* Unterseiten: Kathedralen-Innenraum, 404: Friedhof unter dem Blutmond (beide KI-generiert) */
-.page-hero { padding: clamp(2.2rem, 5vw, 4rem) 0 1.5rem; border-bottom: 1px solid var(--border);
+.page-hero { position: relative; overflow: hidden; isolation: isolate;
+  padding: clamp(2.2rem, 5vw, 4rem) 0 1.5rem; border-bottom: 1px solid var(--border);
   background: linear-gradient(90deg, rgba(8, 9, 10, 0.85) 0%, rgba(8, 9, 10, 0.45) 45%, transparent 75%),
     url("../assets/page-header.webp") right center / cover no-repeat, var(--bg-deep); }
 .page-hero.not-found { min-height: 62vh; padding-top: clamp(4rem, 10vw, 8rem);
@@ -250,12 +299,37 @@ h3 { font-size: var(--step-1); }
 .faq .answer p, .faq .answer ol, .faq .answer ul { margin: 0 0 0.7rem; }
 .faq .answer > :last-child { margin-bottom: 0; }
 
+/* --- Bewegung: Abschnitte, Seitenwechsel, "Bewegung reduzieren" ---------------------------- */
+/* Abschnitte gleiten beim Scrollen herein; nie ganz unsichtbar, ohne Unterstützung einfach still */
+@supports (animation-timeline: view()) {
+  .section { animation: section-reveal linear both; animation-timeline: view(); animation-range: entry 0% cover 25%; }
+}
+@keyframes section-reveal { from { opacity: 0.35; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+/* Seitenwechsel: die alte Seite blendet ins Dunkle, die neue taucht auf (Browser ohne Unterstützung wechseln wie bisher) */
+@view-transition { navigation: auto; }
+::view-transition { background: var(--bg-deep); }
+::view-transition-old(root) { animation: 220ms ease-in both page-out; }
+::view-transition-new(root) { animation: 420ms var(--ease-heavy) 120ms both page-in; }
+@keyframes page-out { to { opacity: 0; } }
+@keyframes page-in { from { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  .hero::before, .hero::after, .page-hero::after, .hero .emblem, .section, .live-lamp { animation: none !important; }
+  .btn::before, .card, .nav a, .site-footer a { transition: none !important; }
+  .card:hover, .btn:hover { transform: none; }
+  html { scroll-behavior: auto; }
+}
+
 /* --- Footer --------------------------------------------------------------------------- */
 /* Fußzeile auf dunklem Stein (media/textures/stone.webp, KI-generiert, nahtlos gemacht) */
 .site-footer { border-top: 1px solid var(--border); padding: 2.5rem 0; color: var(--muted); font-size: 0.9rem;
   background: linear-gradient(rgba(8, 9, 10, 0.55), rgba(8, 9, 10, 0.78)), url("../assets/stone.webp") 0 0 / 320px repeat, var(--bg-deep); }
 .site-footer .cols { display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between; }
 .site-footer ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1rem; }
-.site-footer a { color: var(--text); text-decoration: none; }
-.site-footer a:hover { color: var(--gold-light); }
+.site-footer a { color: var(--text); text-decoration: none; padding-bottom: 2px;
+  background: linear-gradient(var(--gold-light), var(--gold-light)) 0 100% / 0 1px no-repeat;
+  transition: background-size 220ms var(--ease-heavy), color 220ms; }
+.site-footer a:hover, .site-footer a:focus-visible { color: var(--gold-light); background-size: 100% 1px; }
 .site-footer .disclaimer { max-width: 70ch; margin-top: 1.2rem; }

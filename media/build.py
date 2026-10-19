@@ -4,6 +4,9 @@
   python3 media/build.py
 
 - media/textures/grain.svg: selbst erzeugt (SVG-Rauschfilter), keine fremden Rechte
+- media/textures/fog.svg: ziehender Nebel über den Kopfbildern, ebenfalls selbst erzeugt; nahtlos in
+  der Breite (600 px), damit er endlos durchs Bild wandern kann. Der Filterbereich muss genau die
+  Kachel sein, sonst rechnet stitchTiles mit 720 px und an den Kachelrändern entstehen Kanten
 - media/icons/*.svg: CC0-Icons (Quellen in media/CREDITS.md)
 - schreibt flarum/icons.less (Forum + Admin) und website/src/lib/icons.js
 - kopiert die Texturen und die Website-Bilder aus media/images/ nach website/src/assets/
@@ -23,6 +26,12 @@ GRAIN_SVG = """<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180">
 <filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
 <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0"/></filter>
 <rect width="100%" height="100%" filter="url(#g)"/></svg>
+"""
+
+FOG_SVG = """<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300">
+<filter id="f" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.014" numOctaves="3" seed="7" stitchTiles="stitch"/>
+<feColorMatrix values="0 0 0 0 0.78  0 0 0 0 0.79  0 0 0 0 0.8  0 0 0 1.2 -0.5"/></filter>
+<rect width="100%" height="100%" filter="url(#f)"/></svg>
 """
 
 
@@ -54,6 +63,7 @@ def icons():
 
 def main():
     (MEDIA / "textures" / "grain.svg").write_text(GRAIN_SVG)
+    (MEDIA / "textures" / "fog.svg").write_text(FOG_SVG)
     icons()
     target = ROOT / "website" / "src" / "assets"
     target.mkdir(parents=True, exist_ok=True)

@@ -42,6 +42,13 @@ const orgLd = {
 ---
 
 <Base jsonLd={[orgLd]}>
+  <script is:inline>
+    // Das Siegel taucht nur beim ersten Besuch der Startseite pro Sitzung auf (läuft vor dem Zeichnen)
+    try {
+      if (sessionStorage.getItem('bb-emblem')) document.documentElement.classList.add('seen-emblem');
+      else sessionStorage.setItem('bb-emblem', '1');
+    } catch (e) {}
+  </script>
   <section class="hero">
     <div class="container">
       <div>

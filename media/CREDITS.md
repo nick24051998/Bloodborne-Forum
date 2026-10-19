@@ -40,6 +40,7 @@ Vom Admin des Discord-Servers selbst gestaltet; Grundlage des früheren Logos.
 | `icons/droplet.svg`, `icons/key.svg` (Website) | Pinhead, `droplet`, `cast-iron-key-with-heart-shaped-handle` | CC0 1.0 |
 | `icons/discord.svg` | [Simple Icons](https://simpleicons.org/), `discord` | CC0 1.0 (Marke: Discord Inc., Nutzung nach deren Brand Guidelines für Links zum Server) |
 | `textures/grain.svg` | selbst erzeugt (SVG-Rauschfilter) | eigenes Werk, frei |
+| `textures/fog.svg` | selbst erzeugt (SVG-Rauschfilter), ziehender Nebel über den Kopfbildern | eigenes Werk, frei |
 
 Bezogen über die Iconify-Pakete `@iconify-json/pinhead` und `@iconify-json/simple-icons` (npm),
 deren Lizenzangaben mit den Projekten übereinstimmen.
