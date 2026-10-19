@@ -10,7 +10,8 @@ Für dieses Projekt mit ChatGPT erzeugt; der Admin des Discord-Servers hat es in
 entworfen und ausgewählt (Prompts in `PROMPTS.md`, Regeln in `BRAND.md`). Kein Material aus
 Bloodborne. `media/brand.py`, `media/logo.html` und `media/og.html` leiten daraus ab: Discord-Icon,
 Favicons, Logo (`theme/logo.png`, `website/public/logo.png`), das Emblem der Website-Startseite
-(`website/public/emblem.webp`) und das Vorschaubild (`website/public/og-image.jpg`).
+(in zwei Ebenen, Knochen und Blut: `website/public/emblem-bone.webp`, `website/public/emblem-blood.webp`)
+und das Vorschaubild (`website/public/og-image.jpg`).
 
 | Datei | Inhalt |
 |---|---|

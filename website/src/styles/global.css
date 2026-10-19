@@ -197,25 +197,73 @@ h3 { font-size: var(--step-1); }
 .hero h1 { text-shadow: 0 4px 24px rgba(0, 0, 0, 0.8); letter-spacing: 0.05em; margin-bottom: 0.3em; }
 .hero .lead { font-size: var(--step-1); color: var(--text-soft); max-width: 38ch; margin: 0 0 1.8rem; }
 .hero .actions { display: flex; flex-wrap: wrap; gap: 0.8rem; }
-.hero .emblem { position: relative; justify-self: center; width: min(330px, 75%); }
-.hero .emblem img { display: block; width: 100%; height: auto; filter: drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7));
-  animation: emblem-rise 2400ms cubic-bezier(0.4, 0, 0.3, 1) 400ms both; }
-@keyframes emblem-rise { from { opacity: 0; transform: translateY(24px) scale(0.96); } to { opacity: 1; transform: none; } }
-/* Das Siegel taucht aus dem Nebel auf: eine dichte Nebelwolke steht zuerst allein da, das Siegel wird
-   dahinter langsam sichtbar, der Nebel wird dünner, zieht zur Seite und verweht (gut 3 Sekunden).
-   Ausnahme von der Hauskurve: gleichmäßig statt schnellem Start, sonst wäre alles nach einer Sekunde vorbei. */
-.hero .emblem::after {
-  content: ""; position: absolute; inset: -20% -35%; pointer-events: none; opacity: 0;
-  background: url("../assets/fog.svg") center / 700px 100%,
-    radial-gradient(closest-side, rgba(130, 130, 117, 0.45), rgba(130, 130, 117, 0.15) 60%, transparent);
-  -webkit-mask-image: radial-gradient(closest-side, #000 45%, transparent);
-  mask-image: radial-gradient(closest-side, #000 45%, transparent);
-  animation: emblem-fog 3400ms linear both;
+.hero .emblem { position: relative; isolation: isolate; justify-self: center; width: min(330px, 75%); }
+/* Siegel in zwei Ebenen (media/brand.py): Blut unten, Knochen darüber; zusammen das ganze Siegel */
+.hero .emblem-art { position: relative; z-index: 0; filter: drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7));
+  animation: emblem-rise 2600ms cubic-bezier(0.4, 0, 0.3, 1) 300ms both; }
+@media (prefers-reduced-motion: no-preference) {
+  /* Herzschlag nach dem Füllen; "forwards", damit er vorher nicht die Unschärfe vom Auftauchen überschreibt */
+  .hero .emblem-art { animation: emblem-rise 2600ms cubic-bezier(0.4, 0, 0.3, 1) 300ms both, emblem-beat 1100ms ease-out 4250ms forwards; }
 }
-@keyframes emblem-fog {
+.hero .emblem-art img { display: block; width: 100%; height: auto; }
+.hero .emblem-blood { position: absolute; inset: 0; }
+.hero .emblem-bone { position: relative; }
+/* Das Siegel taucht aus dem Nebel auf (knapp 4 Sekunden): Zwei dichte Nebelbänke liegen über dem Siegel,
+   dahinter wird es sichtbar und aus der Unschärfe scharf, dann ziehen die Bänke nach links und rechts
+   auseinander und verwehen. Ausnahme von der Hauskurve: gleichmäßig statt schnellem Start, sonst wäre
+   alles nach einer Sekunde vorbei; Unschärfe nur auf dem kleinen Siegel, nicht auf großen Flächen. */
+@keyframes emblem-rise {
+  from { opacity: 0; transform: scale(0.94); filter: blur(12px) drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7)); }
+  to { opacity: 1; transform: none; filter: blur(0) drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7)); }
+}
+.hero .emblem::before, .hero .emblem::after {
+  content: ""; position: absolute; z-index: 1; top: -20%; height: 140%; width: 150%; pointer-events: none; opacity: 0;
+  background: url("../assets/fog-bank.svg") left center / cover no-repeat,
+    radial-gradient(closest-side, rgba(176, 178, 178, 0.55), rgba(176, 178, 178, 0.2) 55%, transparent);
+  -webkit-mask-image: radial-gradient(closest-side, #000 20%, rgba(0, 0, 0, 0.55) 55%, transparent);
+  mask-image: radial-gradient(closest-side, #000 20%, rgba(0, 0, 0, 0.55) 55%, transparent);
+}
+.hero .emblem::before { left: -65%; animation: emblem-fog-left 3800ms linear both; }
+.hero .emblem::after { right: -65%; background-position: right center, 0 0; animation: emblem-fog-right 3800ms linear both; }
+@keyframes emblem-fog-left {
   0% { opacity: 1; transform: none; }
-  18% { opacity: 1; transform: translateX(-8px) scale(1.02); animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
-  100% { opacity: 0; transform: translateX(-90px) scale(1.12); }
+  15% { opacity: 1; transform: translateX(-4%); animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  100% { opacity: 0; transform: translateX(-45%); }
+}
+@keyframes emblem-fog-right {
+  0% { opacity: 1; transform: none; }
+  15% { opacity: 1; transform: translateX(4%); animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  100% { opacity: 0; transform: translateX(45%); }
+}
+/* Danach füllt sich der Kelch: Das Siegel erscheint leer, das Blut steigt mit schwappender Oberfläche
+   (Maske mit Wellenkante, die hochwandert und seitlich zieht), dann schlägt das Siegel zweimal wie ein Herz:
+   Es pocht kurz größer, rot glühend, das Blut leuchtet auf.
+   Mit "Bewegung reduzieren" gibt es keine Maske, das Blut steht gleich da. Die Höhen passen zum Siegel:
+   Blut von 28 % bis 56 % der Bildhöhe; Maske 3 × so hoch wie das Bild, daher -28,5 % = Wellenkante bei 57 %. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero .emblem-blood {
+    -webkit-mask: url("../assets/blood-wave.svg") 0 -28.5% / 50% 300% repeat-x;
+    mask: url("../assets/blood-wave.svg") 0 -28.5% / 50% 300% repeat-x;
+    animation: blood-rise 1800ms linear 2400ms both, blood-beat 1100ms ease-out 4300ms both;
+  }
+}
+@keyframes blood-rise {
+  from { -webkit-mask-position: 0 -28.5%; mask-position: 0 -28.5%; animation-timing-function: cubic-bezier(0.3, 0, 0.4, 1); }
+  to { -webkit-mask-position: 300% -11%; mask-position: 300% -11%; }
+}
+@keyframes emblem-beat {
+  0% { transform: none; filter: blur(0) drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 0 rgba(194, 42, 48, 0)); }
+  14% { transform: scale(1.035); filter: blur(0) drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 26px rgba(194, 42, 48, 0.6)); }
+  30% { transform: scale(1.005); filter: blur(0) drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 8px rgba(194, 42, 48, 0.2)); }
+  46% { transform: scale(1.02); filter: blur(0) drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 18px rgba(194, 42, 48, 0.45)); }
+  100% { transform: none; filter: blur(0) drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 0 rgba(194, 42, 48, 0)); }
+}
+@keyframes blood-beat {
+  0% { filter: brightness(1) drop-shadow(0 0 0 rgba(194, 42, 48, 0)); }
+  14% { filter: brightness(1.4) drop-shadow(0 0 14px rgba(194, 42, 48, 0.8)); }
+  30% { filter: brightness(1.05) drop-shadow(0 0 4px rgba(194, 42, 48, 0.25)); }
+  46% { filter: brightness(1.25) drop-shadow(0 0 10px rgba(194, 42, 48, 0.6)); }
+  100% { filter: brightness(1) drop-shadow(0 0 0 rgba(194, 42, 48, 0)); }
 }
 .eyebrow { font-family: var(--font-head); color: var(--gold-light); letter-spacing: 0.2em; text-transform: uppercase; font-size: 0.85rem; margin: 0 0 0.8rem; }
 @media (max-width: 860px) {
@@ -397,7 +445,7 @@ h3 { font-size: var(--step-1); }
 
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
-  .hero::before, .hero::after, .page-hero::after, .hero .emblem img, .hero .emblem::after, .section, .live-lamp { animation: none !important; }
+  .hero::before, .hero::after, .page-hero::after, .hero .emblem-art, .hero .emblem::before, .hero .emblem::after, .section, .live-lamp { animation: none !important; }
   .btn::before, .card, .nav a, .site-footer a, .tile, .tile-img, .tile-caption p { transition: none !important; }
   .lightbox[open] { animation: none; }
   .card:hover, .btn:hover { transform: none; }

@@ -29,6 +29,8 @@ Discord). Neu erzeugen nach einer Änderung am Original: `python3 media/brand.py
 - Ringsum frei lassen: mindestens ein Viertel der Siegelbreite.
 - Kleinste Größe: 24 px hoch. Darunter (Favicon 16 px) die runde Fassung mit Platte nehmen.
 - Nicht umfärben, verzerren, drehen, beschneiden; keine Effekte (Leuchten, Schatten, Verlauf).
+  Einzige Ausnahme: der Auftritt auf der Startseite (leerer Kelch, der sich füllt, kurzes rotes Pochen;
+  siehe Bewegung). Danach steht das Siegel unverändert da.
 - Nicht mit Symbolen aus dem Spiel kombinieren (Hunter-Zeichen, Runen, Waffen).
 
 ## Farben
@@ -84,8 +86,10 @@ Langsam und schwer wie die Welt des Spiels, wenige Effekte mit klarer Aufgabe.
 
 - Höchstens eine Daueranimation pro Ansicht (Ausnahme: die kleine Laterne als Statusanzeige).
 - Tempo: Interaktion 150 bis 250 ms, Auftritte 600 bis 900 ms, Atmosphäre 30 bis 110 Sekunden.
-  Ausnahme: Das Siegel auf der Startseite taucht in gut 3 Sekunden aus dem Nebel auf, mit
-  gleichmäßiger Kurve, damit man es überhaupt wahrnimmt.
+  Ausnahme: der Auftritt des Siegels auf der Startseite, gut 5 Sekunden mit gleichmäßiger Kurve, damit
+  man ihn überhaupt wahrnimmt. Zwei Nebelbänke liegen über dem Siegel; es wird dahinter sichtbar und
+  scharf, die Bänke ziehen auseinander. Dann steigt das Blut mit schwappender Oberfläche in den leeren
+  Kelch, und das Siegel schlägt zweimal wie ein Herz (kurz größer, rot glühend).
 - Eine Kurve für alles: `cubic-bezier(0.2, 0.7, 0.1, 1)`, schneller Start, langes Auslaufen. Kein Federn,
   kein Hüpfen.
 - Nur Position und Deckkraft animieren, keine Unschärfe auf großen Flächen.
@@ -103,7 +107,7 @@ Im Einsatz:
 | Messinglinie | Menü und Fußzeile | Website-Links im Kopf |
 | Karte hebt sich | Karten | Themenliste |
 | Seitenwechsel ins Dunkle | alle Seiten | – (das Forum lädt nicht neu) |
-| Siegel taucht aus dem Nebel auf | Startseite, beim Laden | – |
+| Siegel taucht aus dem Nebel auf, Kelch füllt sich, Herzschlag | Startseite, beim Laden | – |
 | Abschnitte erscheinen | Abschnitte der Startseite | – |
 | Zahlen zählen hoch | – | Hunter's-Dream-Kasten |
 | Blutstropfen als Ladeanzeige | – | überall |

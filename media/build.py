@@ -7,6 +7,10 @@
 - media/textures/fog.svg: ziehender Nebel über den Kopfbildern, ebenfalls selbst erzeugt; nahtlos in
   der Breite (600 px), damit er endlos durchs Bild wandern kann. Der Filterbereich muss genau die
   Kachel sein, sonst rechnet stitchTiles mit 720 px und an den Kachelrändern entstehen Kanten
+- media/textures/fog-bank.svg: dichte Nebelbank mit großen Schwaden, aus der das Siegel auf der
+  Startseite auftaucht (selbst erzeugt, nicht gekachelt)
+- media/textures/blood-wave.svg: Maske mit Wellenkante, mit der das Blut im Kelch des Siegels aufsteigt;
+  nahtlos in der Breite, darunter voll deckend
 - media/icons/*.svg: CC0-Icons (Quellen in media/CREDITS.md)
 - schreibt flarum/icons.less (Forum + Admin) und website/src/lib/icons.js
 - kopiert die Texturen und die Website-Bilder aus media/images/ nach website/src/assets/
@@ -32,6 +36,16 @@ FOG_SVG = """<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300">
 <filter id="f" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.014" numOctaves="3" seed="7" stitchTiles="stitch"/>
 <feColorMatrix values="0 0 0 0 0.78  0 0 0 0 0.79  0 0 0 0 0.8  0 0 0 1.2 -0.5"/></filter>
 <rect width="100%" height="100%" filter="url(#f)"/></svg>
+"""
+
+FOG_BANK_SVG = """<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400">
+<filter id="b" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.009 0.016" numOctaves="4" seed="3"/>
+<feColorMatrix values="0 0 0 0 0.74  0 0 0 0 0.75  0 0 0 0 0.76  0 0 0 1.7 -0.5"/></filter>
+<rect width="100%" height="100%" filter="url(#b)"/></svg>
+"""
+
+BLOOD_WAVE_SVG = """<svg xmlns="http://www.w3.org/2000/svg" width="100" height="300" viewBox="0 0 100 300" preserveAspectRatio="none">
+<path d="M0 2.5C12.5 0 37.5 0 50 2.5S87.5 5 100 2.5V300H0Z"/></svg>
 """
 
 
@@ -64,6 +78,8 @@ def icons():
 def main():
     (MEDIA / "textures" / "grain.svg").write_text(GRAIN_SVG)
     (MEDIA / "textures" / "fog.svg").write_text(FOG_SVG)
+    (MEDIA / "textures" / "fog-bank.svg").write_text(FOG_BANK_SVG)
+    (MEDIA / "textures" / "blood-wave.svg").write_text(BLOOD_WAVE_SVG)
     icons()
     target = ROOT / "website" / "src" / "assets"
     target.mkdir(parents=True, exist_ok=True)
