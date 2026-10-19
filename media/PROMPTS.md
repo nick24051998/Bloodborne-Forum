@@ -194,6 +194,40 @@ Originality (strict):
 - No text.
 ```
 
+Variante zu Schritt 1: Kelch, Mond und Nahkampfwaffe kombiniert (im selben Chat wie frühere
+Entwürfe, sonst bleibt der Stil trotzdem durch die Beschreibung gleich):
+
+```text
+New image: 4 new sigils in the same style as the ones above, in a 2x2 grid. Used as Discord
+server icon, favicon and forum logo.
+
+Style: the mystical sign of an old hunters' guild in a Victorian gothic city. Bold, organic
+brush strokes, thick and thin, curved hooks, like occult calligraphy in pale ink. Abstract,
+not a picture.
+
+Elements: a chalice, a moon and a melee weapon (a simple blade, dagger or sickle). Play with
+them and combine them differently in each sigil, for example:
+- the crescent moon forms the bowl of the chalice
+- the blade forms the stem of the chalice
+- a blade cuts through the moon and a drop falls into the chalice
+- the moon rests inside the chalice like in a gate
+Merge the elements into one sign instead of placing three objects next to each other.
+
+Form:
+- 3 to 6 strokes, upright, compact, fits inside a circle with margin.
+- Recognizable as a silhouette at 32x32 px: thick strokes, open spaces, no fine detail.
+- Flat pale bone #e4d9bd on dark slate #0f1317. Optional: one small accent in blood red
+  #a3161e, e.g. a drop. No texture, no glow, no frame.
+
+Originality (strict):
+- Must not resemble the Hunter's Mark, any Caryll rune, or any symbol, logo or item from
+  Bloodborne or other games.
+- Generic weapon only: no serrated saw blades, no cleavers, no scythes, no cane swords, no
+  weapons that transform.
+- The weapon must not form a cross (no straight crossguard). No crescent with a star.
+- No letters, no runes from real alphabets, no religious or political symbols, no text.
+```
+
 Schritt 2, Favorit ausarbeiten:
 
 ```text
