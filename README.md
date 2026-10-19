@@ -28,8 +28,9 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `flarum/scheduler.sh` | Startet den Flarum-Scheduler (jede Minute) im Forum-Container |
 | `scripts/setup-forum.sh` | Richtet alles per Flarum-API ein: Admin, Erweiterungen, Tags, Rechte, Theme, Banner, Regeln, Logo |
 | `scripts/backup.sh` | DB-Dump + Datenvolume als `.tar.gz` |
-| `flarum/extend.php` | Schalter „neue Accounts nur über Discord“ und Sicherheits-Header |
-| `flarum/forum.js` | Links zur Website und zu Discord in der Forum-Kopfzeile, Registrieren-Fenster nur mit Discord-Button |
+| `flarum/extend.php` | Schalter „neue Accounts nur über Discord“, Sicherheits-Header und `/api/hunters-dream` (Live-Zahlen von The Hunter's Dream, eine Minute zwischengespeichert, nur Gesamtzahlen) |
+| `flarum/extend-loader.php` | Wird als `/opt/flarum/extend.php` eingebunden und lädt `flarum/extend.php`, damit Änderungen nach `git pull` ohne Neustart ankommen |
+| `flarum/forum.js` | Links zur Website und zu Discord in der Forum-Kopfzeile, Registrieren-Fenster nur mit Discord-Button, Live-Zahlen von The Hunter's Dream (Seitenleiste, auf dem Handy unter dem Banner) |
 | `media/` | Icons (CC0), Banner-Bilder (`media/images/`, KI-generiert) und selbst erzeugte Texturen; Herkunft in `media/CREDITS.md`, neu erzeugen mit `python3 media/build.py`. Markenregeln in `media/BRAND.md`, ChatGPT-Prompts für neue Medien in `media/PROMPTS.md` |
 | `flarum/icons.less` | Eigene Kategorie-Icons (`bbicon bbicon-NAME`), aus `media/icons/` erzeugt |
 | `theme/custom.less` | Theme (Admin → Appearance → Custom Styles) |
@@ -351,6 +352,8 @@ scripts/setup-forum.sh            # Theme und Einstellungen erneut anwenden (opt
   `flarum/restore-extensions.sh` die Liste wieder her, und das Image installiert sie neu. Dafür
   braucht der Container Internet. Eigene Zusätze gehören in `flarum/extensions.local.txt`.
 - MariaDB bleibt auf 10.11 (LTS). Patch-Updates kommen über `docker compose pull`.
+- Ändert sich `docker-compose.yml` (z. B. neue Einbindungen), übernimmt erst
+  `docker compose up -d` die Änderung; `git pull` allein reicht dann nicht.
 - **Flarum 2.0:** Erst umsteigen, wenn ein 2.x-Image von crazymax erscheint und alle genutzten
   Erweiterungen stabil für 2.x verfügbar sind. Vorher eine Kopie testen, die du aus einem Backup
   wiederherstellst. 2.0 ist ein Major-Update mit eigenen Migrationen.

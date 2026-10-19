@@ -17,4 +17,9 @@ export const SITE = {
   discordUrl: 'https://discord.gg/yTMG8c4Bqm', // dauerhafte Einladung, läuft nicht ab
   downloadUrl: 'https://github.com/Supermedo/bloodborne_pc/releases/latest', // immer das neueste Release
   githubUrl: '', // optional
+
+  // Online-Server, auf dem die Community spielt. Die Live-Zahlen auf der Startseite holt der
+  // Browser über das Forum (forumUrl + '/api/hunters-dream', siehe flarum/extend.php);
+  // leer lassen, um den Abschnitt auszublenden.
+  huntersDreamUrl: 'https://thehuntersdream.com',
 };

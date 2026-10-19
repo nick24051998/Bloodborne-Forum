@@ -26,6 +26,9 @@ const features = [
 
 const helpUrl = SITE.forumUrl ? `${SITE.forumUrl}/t/help-support` : SITE.discordUrl;
 
+// Live-Zahlen von The Hunter's Dream: der Browser fragt das Forum, das sie zwischenspeichert
+const liveUrl = SITE.forumUrl && SITE.huntersDreamUrl ? `${SITE.forumUrl}/api/hunters-dream` : '';
+
 const orgLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
@@ -58,6 +61,60 @@ const orgLd = {
       <img class="emblem" src={link('emblem.webp')} alt="" width="380" height="422" />
     </div>
   </section>
+
+  {liveUrl && (
+    <section class="live" data-src={liveUrl} hidden>
+      <div class="container">
+        <div class="live-head">
+          <p class="eyebrow">Live from The Hunter's Dream</p>
+          <span class="live-status"><span class="live-lamp" aria-hidden="true"></span><span data-field="status"></span></span>
+        </div>
+        <dl class="live-stats">
+          <div><dt>Hunters online</dt><dd data-field="online"></dd></div>
+          <div><dt>Prey slaughtered (24 h)</dt><dd data-field="bossClears24h"></dd></div>
+          <div><dt>Beasts slain (24 h)</dt><dd data-field="kills24h"></dd></div>
+          <div><dt>Deadliest foe</dt><dd data-field="deadliestFoe"></dd></div>
+        </dl>
+        <p class="live-note">
+          The online server most of our hunters play on. Updated every minute.{' '}
+          <a href={`${SITE.huntersDreamUrl}/leaderboards`} rel="noopener">Leaderboards</a>{' · '}
+          <a href={SITE.huntersDreamUrl} rel="noopener">thehuntersdream.com</a>
+        </p>
+      </div>
+    </section>
+  )}
+
+  <script>
+    // Füllt den Live-Abschnitt; ohne Daten (Forum oder Server nicht erreichbar) bleibt er ausgeblendet
+    const live = document.querySelector<HTMLElement>('.live');
+    if (live) {
+      const field = (name: string) => live.querySelector<HTMLElement>(`[data-field="${name}"]`)!;
+      const number = (value: number) => Number(value).toLocaleString('en-US');
+
+      const load = async () => {
+        try {
+          const response = await fetch(live.dataset.src!, { credentials: 'omit' });
+          if (!response.ok) return;
+          const d = await response.json();
+          field('status').textContent = d.serverOnline ? 'Server online' : 'Server offline';
+          live.classList.toggle('is-online', Boolean(d.serverOnline));
+          field('online').textContent = number(d.online);
+          field('bossClears24h').textContent = number(d.bossClears24h);
+          field('kills24h').textContent = number(d.kills24h);
+          field('deadliestFoe').textContent = d.deadliestFoe ? d.deadliestFoe.name : '–';
+          live.hidden = false;
+        } catch {
+          // Netzwerkfehler: Abschnitt bleibt, wie er ist
+        }
+      };
+
+      load();
+      // Solange die Seite sichtbar ist, jede Minute auffrischen (das Forum speichert ebenfalls eine Minute)
+      setInterval(() => {
+        if (document.visibilityState === 'visible') load();
+      }, 60000);
+    }
+  </script>
 
   <section class="section">
     <div class="container">

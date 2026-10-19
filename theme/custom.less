@@ -231,6 +231,118 @@ h1, h2, h3,
   letter-spacing: 0.02em;
 }
 
+// --- The Hunter's Dream: Live-Zahlen (flarum/forum.js, Daten über /api/hunters-dream) -----------
+// Breit: Kasten unter der Kategorienliste. Schmal (Seitenleiste wird zur Zeile): Zeile unter dem Banner.
+.bb-hd {
+  margin-top: 24px;
+  padding: 14px 14px 12px;
+  background: @bb-card;
+  border: 1px solid @bb-border;
+  border-radius: 8px;
+  white-space: normal;
+  font-size: 13px;
+}
+
+.bb-hd-title {
+  display: block;
+  margin-bottom: 8px;
+  font-family: @bb-font-head;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: @bb-gold-light;
+}
+
+.bb-hd-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: @bb-muted;
+
+  &.is-online {
+    color: @bb-text-strong;
+    font-weight: 600;
+  }
+}
+
+.bb-hd-lamp {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: @bb-muted;
+
+  .is-online > & {
+    background: #bc9570; // Laternenlicht
+  }
+}
+
+.bb-hd-stats {
+  margin: 10px 0;
+
+  div {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 4px 0;
+    border-top: 1px solid @bb-border;
+  }
+
+  dt {
+    color: @bb-muted;
+    font-weight: 400;
+  }
+
+  dd {
+    margin: 0;
+    color: @bb-text;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.bb-hd-more {
+  color: @bb-gold-light;
+  font-weight: 600;
+}
+
+.bb-hdStrip {
+  display: none;
+  background: @bb-bg-deep;
+  border-bottom: 1px solid @bb-border;
+  padding: 8px 0;
+  font-size: 13px;
+
+  .container {
+    text-align: left;
+  }
+
+  a,
+  a:hover {
+    color: @bb-text;
+    text-decoration: none;
+  }
+}
+
+.bb-hdStrip-name,
+.bb-hdStrip-stat {
+  color: @bb-muted;
+}
+
+.bb-hdStrip-stat {
+  white-space: nowrap;
+}
+
+@media (max-width: 991.98px) {
+  .IndexPage-nav .item-bbHuntersDream {
+    display: none;
+  }
+
+  .bb-hdStrip {
+    display: block;
+  }
+}
+
 // --- Buttons -----------------------------------------------------------------------
 .Button--primary {
   background: @bb-blood;

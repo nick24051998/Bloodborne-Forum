@@ -75,8 +75,9 @@ services:
     environment: *flarum-env
     volumes:
       - flarum-data:/data
-      # Discord-only-Registrierung + Sicherheits-Header (siehe flarum/extend.php)
-      - ./flarum/extend.php:/opt/flarum/extend.php:ro
+      # Discord-only-Registrierung, Sicherheits-Header, Live-Zahlen (flarum/extend.php; der Lader
+      # liest sie über /bbforum, damit Änderungen nach git pull ohne Neustart ankommen)
+      - ./flarum/extend-loader.php:/opt/flarum/extend.php:ro
       # Erweiterungsliste aus dem Repo, vor jedem Start wiederhergestellt
       - ./flarum:/bbforum:ro
       - ./flarum/restore-extensions.sh:/etc/cont-init.d/02-zz-bbforum-extensions.sh
