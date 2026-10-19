@@ -198,8 +198,8 @@ Take sigil [number]: one sigil, centered, 1024x1024, same strokes and proportion
 ```
 
 Prüfen vor der Nutzung: keine Ähnlichkeit mit Spielsymbolen (Hunter-Zeichen, Caryll-Runen), mit
-Runen (einige sind in Deutschland als Kennzeichen verbotener Organisationen strafbar, § 86a StGB)
-oder mit dem Roten Kreuz (geschützt, § 125 OWiG).
+Runen (einige Runenformen sind in Deutschland Kennzeichen verbotener Organisationen, § 86a StGB)
+oder mit dem Roten Kreuz (auch ähnliche Zeichen sind geschützt, § 125 OWiG).
 
 Rechtlich: Rein KI-erzeugte Bilder sind in Deutschland und den USA in der Regel nicht
 urheberrechtlich geschützt, andere dürften das Zeichen also kopieren. Wer das vermeiden will,
