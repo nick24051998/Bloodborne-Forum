@@ -18,6 +18,10 @@ export const SITE = {
   downloadUrl: 'https://github.com/Supermedo/bloodborne_pc/releases/latest', // immer das neueste Release
   githubUrl: '', // optional
 
+  // Kontakt für Fragen, Löschanfragen und Datenschutz (Fußzeile). Steht außerdem in
+  // src/texts/contact.md, src/texts/privacy.md und content/footer.html (Forum): bei Änderung dort mitziehen.
+  contactEmail: 'psikarmax@gmail.com',
+
   // Online-Server, auf dem die Community spielt. Die Live-Zahlen auf der Startseite holt der
   // Browser über das Forum (forumUrl + '/api/hunters-dream', siehe flarum/extend.php).
   // Vorerst nur im Forum; zum Einschalten auf der Website 'https://thehuntersdream.com' eintragen.

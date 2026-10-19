@@ -94,7 +94,7 @@ const baseLd = {
             {SITE.discordUrl && <li><a href={SITE.discordUrl} rel="noopener">Discord</a></li>}
           </ul>
           <ul>
-            <li><a href={link('imprint/')}>Imprint</a></li>
+            <li><a href={link('contact/')}>Contact</a></li>
             <li><a href={link('privacy/')}>Privacy</a></li>
           </ul>
         </div>
@@ -103,6 +103,7 @@ const baseLd = {
           Entertainment or FromSoftware. Bloodborne is a trademark of its respective owners. You need your own
           legally obtained copy of the game – we do not provide or link to game files.
         </p>
+        {SITE.contactEmail && <p class="disclaimer">Contact: <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a></p>}
       </div>
     </footer>
   </body>

@@ -1,12 +1,13 @@
 ---
-// Erzeugt /install/, /changelog/, /imprint/, /privacy/ aus src/texts/*.md
+// Erzeugt /install/, /changelog/, /contact/, /privacy/ aus src/texts/*.md
+// (faq.md hat eine eigene Seite, showcase.md liefert nur die Texte der Galerie auf der Startseite)
 import Page from '../layouts/Page.astro';
 
 export function getStaticPaths() {
   const texts = import.meta.glob('../texts/*.md', { eager: true });
   return Object.entries(texts)
     .map(([file, mod]) => ({ page: file.split('/').pop().replace(/\.md$/, ''), mod }))
-    .filter(({ page }) => page !== 'faq')
+    .filter(({ page }) => !['faq', 'showcase'].includes(page))
     .map(({ page, mod }) => ({ params: { page }, props: { mod } }));
 }
 

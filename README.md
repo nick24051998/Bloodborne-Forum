@@ -40,7 +40,7 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `media/brand/`, `media/brand.py`, `media/logo.html`, `media/og.html` | Siegel der Community (`sigil.png`); daraus Discord-Icon, Logo, Favicons, Website-Emblem und Vorschaubild |
 | `theme/logo.png`, `theme/favicon.png` | Dieselben Bilder als PNG zum Hochladen (Flarum 1.x nimmt kein SVG) |
 | `theme/fonts/` | Cinzel + Inter als `.woff2`, selbst gehostet (SIL OFL) |
-| `content/` | Welcome-Banner, Fußzeile (Imprint/Privacy), angepinnte Themen (Regeln, Install-Kurzfassung, „Read first“ für Help & Support), Vorlage für Help & Support |
+| `content/` | Welcome-Banner, Fußzeile (Contact/Privacy), angepinnte Themen (Regeln, Install-Kurzfassung, „Read first“ für Help & Support), Vorlage für Help & Support |
 | `website/` | Projekt-Website (Astro, statisch, GitHub Pages), siehe `website/README.md` |
 
 ## Voraussetzungen
@@ -303,7 +303,7 @@ aus `media/images/` (z. B. das Willkommens-Banner `forum-banner.webp`) kopiert `
 
 **Verbindung zur Website:** `setup-forum.sh` trägt `WEBSITE_URL` und `DISCORD_INVITE_URL` aus
 `.env` ein. Daraus entstehen die Links in der Kopfzeile (Website, Install guide, FAQ, Discord; auf dem
-Handy im Seitenmenü) und die Fußzeile mit Imprint und Privacy aus `content/footer.html`
+Handy im Seitenmenü) und die Fußzeile mit Contact, Privacy und Kontaktadresse aus `content/footer.html`
 (*Admin → Appearance → Custom Footer*). Ist eine Adresse leer oder noch ein Platzhalter, fehlen die
 zugehörigen Links einfach. Nach Änderungen an `flarum/forum.js` das Skript erneut ausführen, es baut
 das JavaScript des Forums neu.

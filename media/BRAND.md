@@ -101,7 +101,7 @@ Im Einsatz:
 | Messinglinie | Menü und Fußzeile | Website-Links im Kopf |
 | Karte hebt sich | Karten | Themenliste |
 | Seitenwechsel ins Dunkle | alle Seiten | – (das Forum lädt nicht neu) |
-| Siegel taucht auf | Startseite, einmal pro Sitzung | – |
+| Siegel taucht auf | Startseite, beim Laden | – |
 | Abschnitte erscheinen | Abschnitte der Startseite | – |
 | Zahlen zählen hoch | – | Hunter's-Dream-Kasten |
 | Blutstropfen als Ladeanzeige | – | überall |

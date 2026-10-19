@@ -199,8 +199,6 @@ h3 { font-size: var(--step-1); }
 .hero .actions { display: flex; flex-wrap: wrap; gap: 0.8rem; }
 .hero .emblem { justify-self: center; width: min(330px, 75%); height: auto; filter: drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7));
   animation: emblem-rise 850ms var(--ease-heavy) both; }
-/* Das Siegel taucht nur beim ersten Besuch der Startseite pro Sitzung auf (Klasse setzt index.astro) */
-.seen-emblem .hero .emblem { animation: none; }
 @keyframes emblem-rise { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: none; } }
 .eyebrow { font-family: var(--font-head); color: var(--gold-light); letter-spacing: 0.2em; text-transform: uppercase; font-size: 0.85rem; margin: 0 0 0.8rem; }
 @media (max-width: 860px) {
