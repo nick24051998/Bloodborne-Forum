@@ -11,11 +11,10 @@
   /* 3-fache Größe: wird im Forum mit 40 px Höhe angezeigt */
   .logo { display: inline-flex; align-items: center; gap: 22px; height: 120px; padding: 0 6px 0 0; }
   .logo img { height: 116px; width: auto; }
-  .text { display: flex; flex-direction: column; align-items: center; }
-  .name { font: 700 50px/1 Cinzel, serif; letter-spacing: 0.06em; color: #ece7dd; }
-  .sub { display: flex; align-items: center; gap: 12px; margin-top: 10px;
-         font: 600 17px/1 Cinzel, serif; letter-spacing: 0.32em; color: #c2a878; }
-  .sub::before, .sub::after { content: ""; width: 34px; height: 2px; background: #9c8458; }
+  .text { display: flex; flex-direction: column; align-items: flex-start; }
+  .name { font: 700 46px/1 Cinzel, serif; letter-spacing: 0.06em; color: #ece7dd; }
+  /* Untertitel groß genug, dass er bei 40 px Logohöhe lesbar bleibt (rund 9 px Schrifthöhe) */
+  .sub { margin-top: 8px; font: 700 27px/1 Cinzel, serif; letter-spacing: 0.14em; color: #c2a878; }
 </style>
 </head>
 <body>
