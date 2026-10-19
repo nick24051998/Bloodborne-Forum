@@ -239,7 +239,7 @@ h3 { font-size: var(--step-1); }
    (Maske mit Wellenkante, die hochwandert und seitlich zieht), dann schlägt das Siegel zweimal wie ein Herz:
    Es pocht kurz größer, rot glühend, das Blut leuchtet auf.
    Mit "Bewegung reduzieren" gibt es keine Maske, das Blut steht gleich da. Die Höhen passen zum Siegel:
-   Blut von 28 % bis 56 % der Bildhöhe; Maske 3 × so hoch wie das Bild, daher -28,5 % = Wellenkante bei 57 %. */
+   Blut von 29 % bis 55 % der Bildhöhe; Maske 3 × so hoch wie das Bild, daher -28,5 % = Wellenkante bei 57 %. */
 @media (prefers-reduced-motion: no-preference) {
   .hero .emblem-blood {
     -webkit-mask: url("../assets/blood-wave.svg") 0 -28.5% / 50% 300% repeat-x;

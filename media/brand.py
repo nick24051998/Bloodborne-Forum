@@ -33,13 +33,15 @@ def cutout():
 def split_blood(sigil):
     """Teilt das Siegel in Knochen und Blut, damit sich der Kelch auf der Startseite füllen kann.
 
-    Blut = deutlich röter als grün und blau. Nur im Bereich des Bluts im Kelch, sonst färben rötliche
-    Kantenpixel am Umriss mit. Die Blut-Ebene reicht 2 px unter die Knochen-Ebene: übereinander gelegt
-    ergeben beide wieder das Original, ohne Lücken an den Übergängen.
+    Blut = Rot mindestens doppelt so stark wie Grün und Blau (Verhältnis statt Abstand, damit auch das
+    dunkle Blut im Schatten zählt; Knochen und Stein liegen bei etwa 1,1). Nur im Bereich des Bluts im
+    Kelch, sonst färben rötliche Kantenpixel am Umriss mit. Die Blut-Ebene reicht 2 px unter die
+    Knochen-Ebene: übereinander gelegt ergeben beide wieder das Original, ohne Lücken an den Übergängen.
     """
     a = np.asarray(sigil).astype(float)
     rgb, cover = a[..., :3], a[..., 3] / 255
-    red = np.clip((rgb[..., 0] - np.maximum(rgb[..., 1], rgb[..., 2]) - 45) / 30, 0, 1)
+    ratio = rgb[..., 0] / (np.maximum(rgb[..., 1], rgb[..., 2]) + 8)
+    red = np.clip((ratio - 1.5) / 0.6, 0, 1) * np.clip((rgb[..., 0] - 30) / 20, 0, 1)
     ys, xs = np.nonzero((red > 0.5) & (cover > 0.5))
     m = 4
     area = np.zeros_like(red)
