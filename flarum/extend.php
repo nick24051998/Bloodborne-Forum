@@ -112,7 +112,7 @@ if (! class_exists('BBForumHuntersDream')) {
                 $response = (new \GuzzleHttp\Client(['timeout' => 5, 'connect_timeout' => 3]))->get(self::SOURCE, [
                     'headers' => [
                         'Accept' => 'application/json',
-                        'User-Agent' => 'BBPP-Community-Forum (+https://bbport.nrnetworks.de)',
+                        'User-Agent' => 'BBPP-Community-Forum (+https://bbport.de)',
                     ],
                 ]);
                 $raw = json_decode((string) $response->getBody(), true);

@@ -12,7 +12,7 @@ Hinweis: Die DSGVO verlangt die Angabe des Verantwortlichen (Name und Kontakt). 
 vorerst nur die Kontaktadresse; die Entscheidung dazu liegt beim Betreiber.
 -->
 
-This notice covers our website (bbport.nrnetworks.de) and our forum (bbport-forum.nrnetworks.de).
+This notice covers our website (bbport.de) and our forum (forum.bbport.de).
 Our Discord server is a separate service; Discord's own privacy policy applies there.
 
 ## Who is responsible

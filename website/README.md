@@ -63,29 +63,30 @@ Solange `forumUrl` und `discordUrl` in `site.config.mjs` leer sind, blendet die 
 Forum- und Discord-Buttons aus. Links im Text zeigen auf die Seite `/community/`, die anzeigt, was
 gerade verfügbar ist. So gibt es keine toten Links.
 
-## Später: eigene Domain (z. B. bbport.com)
+## Eigene Domain: bbport.de
 
-1. In `site.config.mjs` `url: 'https://bbport.com'` und `base: '/'` setzen, außerdem `forumUrl`
-   und `discordUrl` eintragen. Committen.
-2. GitHub → **Settings → Pages → Custom domain** → `bbport.com` → Save → **Enforce HTTPS**.
-3. Beim Domain-Anbieter bzw. in Cloudflare-DNS die vier `A`-Einträge von GitHub Pages auf
-   `bbport.com` setzen sowie `www` als `CNAME` auf `nick24051998.github.io` (die aktuellen
-   IP-Adressen nennt GitHub in der Pages-Hilfe unter „Managing a custom domain“).
+Seit dem 19.10.2026 läuft die Website unter **https://bbport.de** (und `www.bbport.de`), das Forum
+unter **https://forum.bbport.de**. Die Domain ist bei checkdomain registriert, ihr DNS liegt bei
+Cloudflare.
 
-GitHub leitet die alten `github.io`-Adressen danach automatisch auf die Domain um. Die
-Google-Platzierungen gehen also nicht verloren. Alternativ kannst du die Seite dann auch
-über Cloudflare Pages ausliefern (Root directory `website`, Build `npm run build`,
-Output `dist`, `NODE_VERSION=22.22.0`).
+1. `site.config.mjs`: `url: 'https://bbport.de'`, `base: '/'`, `forumUrl: 'https://forum.bbport.de'`.
+2. GitHub → **Settings → Pages → Custom domain** → `bbport.de` → Save → **Enforce HTTPS**.
+3. Cloudflare-DNS von `bbport.de`, alle mit grauer Wolke (sonst kann GitHub kein Zertifikat
+   ausstellen): vier `A`-Einträge `185.199.108.153` bis `185.199.111.153`, vier `AAAA`-Einträge
+   `2606:50c0:8000::153` bis `2606:50c0:8003::153`, `www` als `CNAME` auf `nick24051998.github.io`.
+   `forum` ist ein `CNAME` auf den Cloudflare-Tunnel (orange Wolke).
+
+Die alten Adressen `bbport.nrnetworks.de` und `bbport-forum.nrnetworks.de` leiten über
+Redirect Rules in der Cloudflare-Zone `nrnetworks.de` dauerhaft (301) auf die neuen um, mit Pfad.
+Alte Links und Google-Treffer bleiben so gültig.
 
 ## Bei Google anmelden
 
 1. [Google Search Console](https://search.google.com/search-console) → **Property hinzufügen** →
-   Typ **URL-Präfix** → `https://nick24051998.github.io/Bloodborne-Forum/` → Bestätigung per
-   **HTML-Tag**: den `<meta name="google-site-verification" …>`-Code kopieren und mir schicken
-   (oder in `src/layouts/Base.astro` im `<head>` einfügen).
-2. Unter **Sitemaps** `https://nick24051998.github.io/Bloodborne-Forum/sitemap-index.xml` einreichen.
-3. Mit eigener Domain später dasselbe für `bbport.com` (Typ *Domain*, Bestätigung per DNS-Eintrag)
-   und für das Forum (`https://forum.bbport.com/sitemap.xml`).
+   Typ **Domain** → `bbport.de` → Bestätigung per DNS-`TXT`-Eintrag in Cloudflare. Damit sind
+   Website und Forum gemeinsam erfasst.
+2. Unter **Sitemaps** `https://bbport.de/sitemap-index.xml` und `https://forum.bbport.de/sitemap.xml`
+   einreichen.
 
 ## Technik (zur Info)
 

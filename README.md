@@ -13,8 +13,8 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 > dieses Setup bewusst auf 1.8 (siehe [Update](#update)).
 
 > **Website:** Die Projekt-Website (Startseite, Install-Guide, FAQ, Changelog) liegt in
-> [`website/`](website/README.md). Sie wird automatisch über GitHub Pages veröffentlicht
-> (https://nick24051998.github.io/Bloodborne-Forum/), später optional unter eigener Domain.
+> [`website/`](website/README.md). Sie wird automatisch über GitHub Pages unter https://bbport.de
+> veröffentlicht, das Forum läuft unter https://forum.bbport.de.
 
 ## Inhalt
 

@@ -32,8 +32,8 @@ jobs:
       - id: check
         name: Website und Forum prüfen
         env:
-          WEBSITE_URL: https://bbport.nrnetworks.de/
-          FORUM_URL: https://bbport-forum.nrnetworks.de
+          WEBSITE_URL: https://bbport.de/
+          FORUM_URL: https://forum.bbport.de
           DISCORD_STATUS_WEBHOOK: ${{ secrets.DISCORD_STATUS_WEBHOOK }}
         run: bash scripts/uptime-check.sh
       # Nur bei einem Wechsel speichern; der jüngste Eintrag ist der aktuelle Zustand
