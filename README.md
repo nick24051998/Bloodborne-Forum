@@ -28,6 +28,7 @@ Bloodborne-Gothic-Theme im Discord-Stil.
 | `flarum/scheduler.sh` | Startet den Flarum-Scheduler (jede Minute) im Forum-Container |
 | `scripts/setup-forum.sh` | Richtet alles per Flarum-API ein: Admin, Erweiterungen, Tags, Rechte, Theme, Banner, Regeln, Logo |
 | `scripts/backup.sh` | DB-Dump + Datenvolume als `.tar.gz` |
+| `scripts/auto-update.sh`, `scripts/install-auto-update.sh` | Holt neue Commits alle 5 Minuten und spielt sie ein (systemd-Timer), optional mit Meldung in Discord |
 | `flarum/extend.php` | Schalter „neue Accounts nur über Discord“, Sicherheits-Header und `/api/hunters-dream` (Live-Zahlen von The Hunter's Dream, eine Minute zwischengespeichert, nur Gesamtzahlen) |
 | `flarum/extend-loader.php` | Wird als `/opt/flarum/extend.php` eingebunden und lädt `flarum/extend.php`, damit Änderungen nach `git pull` ohne Neustart ankommen |
 | `flarum/forum.js` | Links zur Website und zu Discord in der Forum-Kopfzeile, Registrieren-Fenster nur mit Discord-Button, Live-Zahlen von The Hunter's Dream (Seitenleiste, auf dem Handy unter dem Banner) |
@@ -336,6 +337,27 @@ docker compose restart flarum
 Alternativ sicherst du die Volumes roh, bei gestopptem Stack:
 `docker run --rm -v bloodborne-forum_db-data:/v -v "$PWD":/b alpine tar czf /b/db-volume.tgz -C /v .`
 (analog für `bloodborne-forum_flarum-data`).
+
+## Automatische Updates
+
+Einmal als root auf dem Server einrichten:
+
+```bash
+scripts/install-auto-update.sh
+```
+
+Danach prüft ein systemd-Timer alle 5 Minuten, ob es auf dem Branch neue Commits gibt, und spielt sie
+ein (`scripts/auto-update.sh`): nur Fast-Forward, Forum-Einrichtung nur bei Forum-Änderungen, Backup
+und Container-Neustart nur, wenn sich die Container-Konfiguration ändert. Schlägt ein Update fehl,
+geht der Code auf den alten Stand zurück; der nächste Versuch kommt mit dem nächsten Commit oder per
+`scripts/auto-update.sh --force`. Mit `AUTO_UPDATE_DISCORD_WEBHOOK` in `.env` meldet sich jedes
+Update in einem Discord-Kanal.
+
+```bash
+journalctl -u bbforum-auto-update -n 100          # Log
+systemctl start bbforum-auto-update               # sofort prüfen
+systemctl disable --now bbforum-auto-update.timer # abschalten
+```
 
 ## Update
 
