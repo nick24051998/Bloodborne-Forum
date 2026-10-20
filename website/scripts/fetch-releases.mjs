@@ -9,6 +9,7 @@
 // statt der GitHub-API, LIVE_RELEASE_URL statt <Website>/release.json.
 import { readFile, writeFile, appendFile } from 'node:fs/promises';
 import { SITE } from '../site.config.mjs';
+import { cleanNotes } from './release-notes.mjs';
 
 const repo = SITE.downloadUrl.match(/github\.com\/([^/]+\/[^/]+)/)?.[1];
 const dataFile = new URL('../src/data/releases.json', import.meta.url);
@@ -16,7 +17,8 @@ const siteUrl = `${SITE.url}${SITE.base}`.replace(/\/$/, '');
 
 async function fetchReleases() {
   if (process.env.RELEASES_FIXTURE) return JSON.parse(await readFile(process.env.RELEASES_FIXTURE, 'utf8'));
-  const headers = { Accept: 'application/vnd.github+json', 'User-Agent': 'bbport-website' };
+  // full+json: Release-Text zusätzlich als HTML (body_html), so wie GitHub ihn anzeigt
+  const headers = { Accept: 'application/vnd.github.full+json', 'User-Agent': 'bbport-website' };
   if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
   const response = await fetch(`https://api.github.com/repos/${repo}/releases?per_page=40`, { headers, signal: AbortSignal.timeout(20000) });
   if (!response.ok) throw new Error(`GitHub antwortet mit ${response.status}`);
@@ -42,6 +44,9 @@ export function normalize(api) {
         download: zip?.browser_download_url ?? null,
         downloadName: zip?.name ?? null,
         downloadSize: zip ? Math.round(zip.size / 1048576) : null,
+        // GitHub rechnet die Prüfsumme selbst aus ("sha256:…"), damit lässt sich die ZIP nach dem Download prüfen
+        sha256: /^sha256:[0-9a-f]{64}$/i.test(zip?.digest ?? '') ? zip.digest.slice(7) : null,
+        notes: cleanNotes(r.body_html),
       };
     })
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));

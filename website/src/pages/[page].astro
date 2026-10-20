@@ -4,6 +4,7 @@
 import Page from '../layouts/Page.astro';
 import HardwareCheck from '../components/HardwareCheck.astro';
 import Releases from '../components/Releases.astro';
+import { withDownloadLinks } from '../lib/releases.js';
 
 export function getStaticPaths() {
   const texts = import.meta.glob('../texts/*.md', { eager: true });
@@ -14,23 +15,20 @@ export function getStaticPaths() {
 }
 
 const { mod } = Astro.props;
-const { Content, frontmatter } = mod;
+const { frontmatter } = mod;
 
 // Bausteine im Text: <div data-hwcheck></div> (install.md), <div data-release-latest></div> und
 // <div data-release-list></div> (changelog.md). Der Text wird dort geteilt und der Baustein eingesetzt.
-const html = await mod.compiledContent();
+// Links auf "#latest-download" werden zur ZIP der neuesten Version.
+const html = withDownloadLinks(await mod.compiledContent());
 const parts = html.split(/<div data-([a-z-]+)><\/div>/);
 ---
 
 <Page frontmatter={frontmatter}>
-  {parts.length === 1 ? (
-    <Content />
-  ) : (
-    parts.map((part, i) =>
-      i % 2 === 0 ? <Fragment set:html={part} />
-      : part === 'hwcheck' ? <HardwareCheck />
-      : part === 'release-latest' ? <Releases show="latest" />
-      : part === 'release-list' ? <Releases show="list" />
-      : null)
-  )}
+  {parts.map((part, i) =>
+    i % 2 === 0 ? <Fragment set:html={part} />
+    : part === 'hwcheck' ? <HardwareCheck />
+    : part === 'release-latest' ? <Releases show="latest" />
+    : part === 'release-list' ? <Releases show="list" />
+    : null)}
 </Page>

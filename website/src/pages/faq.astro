@@ -1,8 +1,9 @@
 ---
 import Page from '../layouts/Page.astro';
 import { frontmatter } from '../texts/faq.md';
+import { withDownloadLinks } from '../lib/releases.js';
 
-const questions = frontmatter.questions ?? [];
+const questions = (frontmatter.questions ?? []).map(({ q, a }) => ({ q, a: withDownloadLinks(a) }));
 const strip = (html) => html.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
 
 // Strukturierte Daten für Google (FAQPage)

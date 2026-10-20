@@ -53,7 +53,7 @@ intro: Everything you need to get Bloodborne running on Windows – from system 
 
 ### Step 2: unpack the port
 
-1. Download `Bloodborne-Windows.zip` from the [official release page](https://github.com/Supermedo/bloodborne_pc/releases/latest) (under Assets).
+1. [Download `Bloodborne-Windows.zip`](#latest-download), the newest version straight from Supermedo's [official release on GitHub](https://github.com/Supermedo/bloodborne_pc/releases/latest).
 2. Right-click it, choose Extract All, and pick a plain folder like `C:\Games\BBPort`. Avoid OneDrive or other synced folders, and avoid Program Files.
 
 ### Step 3: first start

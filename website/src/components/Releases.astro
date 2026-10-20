@@ -1,7 +1,9 @@
 ---
 // Changelog-Seite (Markierungen in src/texts/changelog.md): "latest" = Kasten mit der neuesten Version oben,
 // "list" = alle Releases unten. Kommen automatisch von GitHub; die Kurzfassungen im Text schreiben wir selbst.
-import { releases, releasesSource, latest, formatDate } from '../lib/releases.js';
+// Download und Release-Texte stehen direkt hier: Der Knopf lädt die ZIP aus Supermedos GitHub-Release, die Texte
+// sind GitHubs eigene Fassung (bereinigt, siehe scripts/release-notes.mjs).
+import { releases, releasesSource, latest, downloadUrl, releaseAnchor, formatDate } from '../lib/releases.js';
 import changelog from '../texts/changelog.md?raw';
 
 interface Props {
@@ -17,37 +19,57 @@ const LIST_MAX = 12;
 ---
 
 {show === 'latest' && latest && (
-  <div class="release-latest">
+  <div class="release-latest" id="download">
     <p class="eyebrow">Latest version</p>
     <p class="release-version">{latest.version} <span>released {formatDate(latest.date)}</span></p>
     {!summarized && (
-      <p>A plain-English summary of {latest.version} follows soon. Until then, the release notes on GitHub have all the details.</p>
+      <p>A plain-English summary of {latest.version} follows soon. Until then, the <a href={`#${releaseAnchor(latest)}`}>release notes</a> below have all the details.</p>
     )}
     <p class="release-actions">
-      <a class="btn btn-primary" href={latest.download ?? latest.url} rel="noopener">
+      <a class="btn btn-primary" href={downloadUrl} rel="noopener">
         {latest.downloadName ? `Download ${latest.downloadName}` : 'Download'}{latest.downloadSize ? ` (${latest.downloadSize} MB)` : ''}
       </a>
-      <a class="btn btn-ghost" href={latest.url} rel="noopener">Release notes</a>
+      <a class="btn btn-ghost" href={`#${releaseAnchor(latest)}`}>Release notes</a>
     </p>
-    <p class="release-hint">Already installed? The launcher updates with one click.</p>
+    <p class="release-hint">
+      For Windows 10 and 11, straight from Supermedo's <a href={latest.url} rel="noopener">official release on GitHub</a>.
+      Already installed? The launcher updates with one click.
+    </p>
+    {latest.sha256 && (
+      <details class="release-verify">
+        <summary>Check the download (SHA-256)</summary>
+        <p>In PowerShell, <code>{`Get-FileHash .\\${latest.downloadName}`}</code> must show this hash:</p>
+        <p><code class="release-hash">{latest.sha256.toUpperCase()}</code></p>
+      </details>
+    )}
   </div>
 )}
 
 {show === 'list' && releases.length > 0 && (
   <>
     <h2 id="all-releases">All releases</h2>
-    <ul class="release-list">
+    <div class="release-list">
       {releases.slice(0, LIST_MAX).map((r) => (
-        <li>
-          <a href={r.url} rel="noopener">{r.version}</a>
-          <span>{formatDate(r.date)}</span>
-          {r.prerelease && <span class="release-pre">pre-release</span>}
-        </li>
+        <details class="release" id={releaseAnchor(r)} open={r === latest}>
+          <summary>
+            <span class="release-v">{r.version}</span>
+            <span class="release-date">{formatDate(r.date)}</span>
+            {r.prerelease && <span class="release-pre">pre-release</span>}
+          </summary>
+          <div class="release-body">
+            {r.notes ? <div class="release-notes" set:html={r.notes} /> : <p>The release notes for this version are on GitHub.</p>}
+            <p class="release-links">
+              {r.download && <a href={r.download} rel="noopener">Download {r.downloadName} ({r.downloadSize} MB)</a>}
+              <a href={r.url} rel="noopener">{r.version} on GitHub</a>
+            </p>
+          </div>
+        </details>
       ))}
-    </ul>
+    </div>
     <p>
-      {releases.length > LIST_MAX ? 'Older releases and all' : 'All'} release notes:{' '}
-      <a href={releasesSource} rel="noopener">{releasesSource.replace(/^https:\/\//, '')}</a>
+      {releases.length > LIST_MAX ? 'Older releases' : 'All releases'} on GitHub:{' '}
+      <a href={releasesSource} rel="noopener">{releasesSource.replace(/^https:\/\//, '')}</a>.
+      Already installed? Advanced &gt; Other versions in the launcher switches to any version from 1.8.2 on.
     </p>
   </>
 )}

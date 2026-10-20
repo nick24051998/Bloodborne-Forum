@@ -11,7 +11,7 @@ questions:
       <p>The port's FPS, resolution and effect patches need the unmodified 1.09 <code>eboot.bin</code>. Other versions run at 30 FPS, and pre-patched files ("60 fps" eboots, repacks) make the port skip its patches, break co-op and can crash the game.</p>
   - q: Where can I download the port?
     a: |
-      <p>Only from the <a href="https://github.com/Supermedo/bloodborne_pc/releases/latest" rel="noopener">official release page</a>: <code>Bloodborne-Windows.zip</code> under Assets. The <a href="../install/">install guide</a> walks you through the rest.</p>
+      <p>Right here: <a href="#latest-download">download Bloodborne-Windows.zip</a>. The button fetches the file straight from Supermedo's <a href="https://github.com/Supermedo/bloodborne_pc/releases/latest" rel="noopener">official release on GitHub</a>, so both are the same file. Don't take it from anywhere else. Older versions and all release notes are in the <a href="../changelog/">changelog</a>, and the <a href="../install/">install guide</a> walks you through the rest.</p>
   - q: The game closes right after I press PLAY (code 3).
     a: |
       <p>Usually Windows gives the port too little memory. Press Win + R, type <code>sysdm.cpl</code>, then go to Advanced &gt; Performance Settings &gt; Advanced &gt; Virtual memory &gt; Change. Tick "Automatically manage paging file size for all drives", then restart the PC.</p>
@@ -42,7 +42,7 @@ questions:
       <p>Yes. On screens wider than 16:9 (like 3440×1440) the port widens the camera, HUD and menus. A true 16:10 mode isn't there yet.</p>
   - q: Windows or my antivirus warns me about the port.
     a: |
-      <p>The port is new, so Windows SmartScreen doesn't know it yet. Download it only from the <a href="https://github.com/Supermedo/bloodborne_pc/releases/latest" rel="noopener">official release page</a>, then click More info, then Run anyway. If your antivirus blocks files in the port folder, add the folder as an exclusion.</p>
+      <p>The port is new, so Windows SmartScreen doesn't know it yet. Download it only <a href="#latest-download">here</a> or from the <a href="https://github.com/Supermedo/bloodborne_pc/releases/latest" rel="noopener">official release page</a>, then click More info, then Run anyway. If your antivirus blocks files in the port folder, add the folder as an exclusion.</p>
   - q: Will updates delete my saves?
     a: |
       <p>No. Updating from the launcher keeps saves, settings and mods. Under Advanced &gt; Other versions you can also go back to any version from 1.8.2 on.</p>

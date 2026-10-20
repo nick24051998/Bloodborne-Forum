@@ -197,8 +197,10 @@ h3 { font-size: var(--step-1); }
 .hero h1 { text-shadow: 0 4px 24px rgba(0, 0, 0, 0.8); letter-spacing: 0.05em; margin-bottom: 0.3em; }
 .hero .lead { font-size: var(--step-1); color: var(--text-soft); max-width: 38ch; margin: 0 0 1.8rem; }
 .hero .actions { display: flex; flex-wrap: wrap; gap: 0.8rem; }
-/* Welcher Port: Supermedos Bloodborne for Windows, mit Link zu GitHub */
+/* Unter den Knöpfen: was der Download-Knopf lädt; darunter welcher Port (Supermedos, mit Link zu GitHub) */
+.hero-download { margin: 1rem 0 0; color: var(--muted); font-size: 0.88rem; }
 .hero-port { margin: 1.4rem 0 0; color: var(--muted); font-size: 0.92rem; }
+.hero-download + .hero-port { margin-top: 0.35rem; }
 .hero-port strong { color: var(--text-soft); font-weight: 600; }
 .hero .emblem { position: relative; isolation: isolate; justify-self: center; width: min(330px, 75%); }
 /* Siegel in zwei Ebenen (media/brand.py): Blut unten, Knochen darüber; zusammen das ganze Siegel */
@@ -428,10 +430,24 @@ h3 { font-size: var(--step-1); }
 .release-version span { font-family: var(--font-body); font-weight: 400; font-size: 1rem; color: var(--muted); margin-left: 0.4rem; }
 .release-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 0.9rem !important; }
 .release-hint { color: var(--muted); font-size: 0.9rem; margin-bottom: 0 !important; }
-.prose .release-list { list-style: none; padding: 0; columns: 2 16rem; column-gap: 2rem; }
-.prose .release-list li { margin: 0 0 0.4rem; break-inside: avoid; }
-.release-list a { font-weight: 600; min-width: 3.2rem; display: inline-block; }
-.release-list span { color: var(--muted); font-size: 0.92rem; }
+.release-verify { margin-top: 0.8rem; color: var(--muted); font-size: 0.9rem; }
+.release-verify summary { cursor: pointer; width: fit-content; }
+.release-verify p { margin: 0.5rem 0 0 !important; }
+.prose .release-hash { display: inline-block; word-break: break-all; }
+/* Alle Releases: aufklappbar wie die FAQ, die neueste ist offen */
+.release-list { margin: 1rem 0 1.2rem; }
+.release { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin: 0 0 0.6rem; }
+.release[open] { border-color: var(--border-strong); }
+.release summary { cursor: pointer; padding: 0.75rem 1.25rem; list-style: none; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.8rem; }
+.release summary::-webkit-details-marker { display: none; }
+.release summary::after { content: "+"; margin-left: auto; color: var(--gold-light); font-weight: 700; }
+.release[open] summary::after { content: "–"; }
+.release-v { font-weight: 700; color: var(--text-strong); min-width: 3.2rem; }
+.release-date { color: var(--muted); font-size: 0.92rem; }
+.release-body { padding: 0 1.25rem 1rem; color: var(--text-soft); overflow-wrap: break-word; }
+.release-notes > :first-child { margin-top: 0; }
+.prose .release-notes h3, .prose .release-notes h4 { font-family: var(--font-body); font-size: 1rem; color: var(--text-strong); margin: 1.1rem 0 0.4rem; }
+.release-links { display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; font-size: 0.92rem; margin: 0.9rem 0 0 !important; }
 .release-pre { margin-left: 0.4rem; padding: 0 0.45rem; border: 1px solid var(--border-strong); border-radius: 999px; font-size: 0.75rem !important; }
 
 /* --- Showcase: Galerie der Startseite (src/components/Showcase.astro) ------------------------ */

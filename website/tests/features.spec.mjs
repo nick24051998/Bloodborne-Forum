@@ -1,7 +1,15 @@
-// Interaktive Teile: Hardware-Check, Galerie-Großansicht, Animationen bei „Bewegung reduzieren“, Links ins Forum.
+// Interaktive Teile: Hardware-Check, Galerie-Großansicht, Animationen bei „Bewegung reduzieren“, Links ins Forum,
+// Download und Release-Texte.
+import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
 import { SITE } from '../site.config.mjs';
 import { TIERS } from '../src/data/hardware.js';
+import { cleanNotes } from '../scripts/release-notes.mjs';
+
+// Dieselben Daten, aus denen die Seite gebaut wurde (im Workflow frisch von GitHub)
+const { releases } = JSON.parse(readFileSync(new URL('../src/data/releases.json', import.meta.url), 'utf8'));
+const latest = releases.find((r) => !r.prerelease);
+const zipUrl = latest?.download ?? SITE.downloadUrl;
 
 test.describe('Hardware-Check (Install Guide)', () => {
   const pick = async (page, { gpu, cpu, gen, ram }) => {
@@ -120,6 +128,49 @@ test('Startseite nennt den Port von Supermedo mit Link zu GitHub', async ({ page
   await expect(line).toContainText(SITE.portAuthor);
   await expect(line.locator(`a[href="${SITE.portRepoUrl}"]`)).toBeVisible();
   await expect(page.locator(`footer a[href="${SITE.portRepoUrl}"]`)).toHaveCount(1);
+});
+
+test.describe('Download und Releases', () => {
+  test('Startseite lädt die ZIP direkt, ohne Umweg über GitHub', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.hero .actions a', { hasText: /^Download/ })).toHaveAttribute('href', zipUrl);
+    if (latest?.download) {
+      expect(latest.download).toMatch(/^https:\/\/github\.com\/Supermedo\/bloodborne_pc\/releases\/download\/[^/]+\/[^/]+\.zip$/);
+      await expect(page.locator('.hero-download')).toContainText(`${latest.downloadSize} MB`);
+    }
+  });
+
+  test('Install Guide und FAQ verlinken die ZIP direkt', async ({ page }) => {
+    for (const path of ['/install/', '/faq/']) {
+      await page.goto(path);
+      await expect(page.locator('a[href="#latest-download"]'), path).toHaveCount(0);
+      expect(await page.locator(`a[href="${zipUrl}"]`).count(), path).toBeGreaterThan(0);
+    }
+  });
+
+  test('Changelog zeigt Download, Prüfsumme und Release-Texte', async ({ page }) => {
+    test.skip(!latest, 'keine Releases in src/data/releases.json');
+    await page.goto('/changelog/');
+    const box = page.locator('.release-latest');
+    await expect(box.locator('a.btn-primary')).toHaveAttribute('href', zipUrl);
+    if (latest.sha256) await expect(box.locator('.release-hash')).toHaveText(latest.sha256.toUpperCase());
+
+    const entry = page.locator(`#release-${latest.version.replace(/[^0-9a-z]+/gi, '-')}`);
+    await expect(entry).toHaveAttribute('open', '');
+    await box.getByRole('link', { name: 'Release notes', exact: true }).click();
+    await expect(entry).toBeInViewport();
+    if (latest.notes) await expect(entry.locator('.release-notes li').first()).toBeVisible();
+  });
+});
+
+test('Release-Texte behalten nur einfache Auszeichnung', () => {
+  const html = cleanNotes(
+    '<h2 id="x" onclick="alert(1)">New</h2><p>a <script>alert(1)</script><img src=x onerror=alert(1)>' +
+    '<a href="javascript:alert(1)">x</a> <a class="u" href="https://github.com/a?b=1&amp;c=2" data-x="1">@a</a></p>' +
+    '<style>p{}</style><iframe src="https://e"></iframe>',
+  );
+  expect(html).toBe('<h3>New</h3><p>a <a>x</a> <a href="https://github.com/a?b=1&amp;c=2" rel="noopener">@a</a></p>');
+  expect(cleanNotes('')).toBeNull();
 });
 
 test('Links zu Forum und Discord zeigen auf die aktuellen Adressen', async ({ page }) => {
