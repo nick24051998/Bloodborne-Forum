@@ -383,7 +383,7 @@ er muss nur Mitglied des Servers sein:
 3. Bot einladen, ohne Rechte:
    `https://discord.com/oauth2/authorize?client_id=<Client-ID>&scope=bot&permissions=0&guild_id=<Server-ID>`
 
-Sofort abgleichen statt zu warten: `docker compose exec flarum php /opt/flarum/flarum bbforum:discord-roles --all`
+Sofort abgleichen statt zu warten: `docker compose exec --user flarum flarum php /opt/flarum/flarum bbforum:discord-roles --all`
 
 ## Meldungen in Discord
 
