@@ -197,6 +197,9 @@ h3 { font-size: var(--step-1); }
 .hero h1 { text-shadow: 0 4px 24px rgba(0, 0, 0, 0.8); letter-spacing: 0.05em; margin-bottom: 0.3em; }
 .hero .lead { font-size: var(--step-1); color: var(--text-soft); max-width: 38ch; margin: 0 0 1.8rem; }
 .hero .actions { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+/* Welcher Port: Supermedos Bloodborne for Windows, mit Link zu GitHub */
+.hero-port { margin: 1.4rem 0 0; color: var(--muted); font-size: 0.92rem; }
+.hero-port strong { color: var(--text-soft); font-weight: 600; }
 .hero .emblem { position: relative; isolation: isolate; justify-self: center; width: min(330px, 75%); }
 /* Siegel in zwei Ebenen (media/brand.py): Blut unten, Knochen darüber; zusammen das ganze Siegel */
 .hero .emblem-art { position: relative; z-index: 0; filter: drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7));

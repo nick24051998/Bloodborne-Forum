@@ -92,6 +92,7 @@ const baseLd = {
             {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
             <li><a href={link('community/')}>Community</a></li>
             {SITE.discordUrl && <li><a href={SITE.discordUrl} rel="noopener">Discord</a></li>}
+            {SITE.portRepoUrl && <li><a href={SITE.portRepoUrl} rel="noopener">Port on GitHub</a></li>}
           </ul>
           <ul>
             <li><a href={link('contact/')}>Contact</a></li>

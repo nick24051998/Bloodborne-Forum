@@ -59,6 +59,14 @@ const orgLd = {
           {SITE.discordUrl && <a class="btn btn-discord" href={SITE.discordUrl} rel="noopener"><Icon name="discord" />Join Discord</a>}
           {SITE.forumUrl && <a class="btn btn-ghost" href={SITE.forumUrl}>Visit forum</a>}
         </div>
+        {SITE.portRepoUrl && (
+          <p class="hero-port">
+            The community for <strong>{SITE.portName}</strong> by{' '}
+            <a href={SITE.portAuthorUrl} rel="noopener">{SITE.portAuthor}</a>
+            <span aria-hidden="true"> · </span>
+            <a href={SITE.portRepoUrl} rel="noopener">Source code on GitHub</a>
+          </p>
+        )}
       </div>
       <div class="emblem">
         <div class="emblem-art">
@@ -130,8 +138,10 @@ const orgLd = {
         Bloodborne for Windows runs the original PlayStation 4 game natively on Windows 10 and 11. It is not an
         emulator: the game's own x86-64 code runs directly on your PC, and its graphics are translated to Vulkan. Unpack
         the zip, pick your game folder and press PLAY, and you get Bloodborne at 60 FPS or more, in up to 4K, with DLSS
-        or FSR, frame generation and online co-op. It's free, open source and made by Supermedo, built on bbport and the
-        shadPS4 renderer.
+        or FSR, frame generation and online co-op. It's free and open source, made by{' '}
+        <a href={SITE.portAuthorUrl} rel="noopener">{SITE.portAuthor}</a> and built on bbport and the shadPS4 renderer.
+        Code, releases and release notes are on <a href={SITE.portRepoUrl} rel="noopener">GitHub</a>; download it only
+        from there. This site and the forum are run by the community around the port.
       </p>
       <div class="grid">
         {features.map((f) => (

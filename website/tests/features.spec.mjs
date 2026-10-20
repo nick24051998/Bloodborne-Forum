@@ -113,6 +113,15 @@ test('„Bewegung reduzieren“ schaltet die Animationen ab', async ({ browser }
   await context.close();
 });
 
+test('Startseite nennt den Port von Supermedo mit Link zu GitHub', async ({ page }) => {
+  await page.goto('/');
+  const line = page.locator('.hero-port');
+  await expect(line).toContainText(SITE.portName);
+  await expect(line).toContainText(SITE.portAuthor);
+  await expect(line.locator(`a[href="${SITE.portRepoUrl}"]`)).toBeVisible();
+  await expect(page.locator(`footer a[href="${SITE.portRepoUrl}"]`)).toHaveCount(1);
+});
+
 test('Links zu Forum und Discord zeigen auf die aktuellen Adressen', async ({ page }) => {
   await page.goto('/');
   const hrefs = await page.$$eval('a[href]', (as) => as.map((a) => a.href));

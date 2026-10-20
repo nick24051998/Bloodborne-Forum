@@ -16,7 +16,14 @@ export const SITE = {
   forumUrl: 'https://forum.bbport.de',
   discordUrl: 'https://discord.gg/yTMG8c4Bqm', // dauerhafte Einladung, läuft nicht ab
   downloadUrl: 'https://github.com/Supermedo/bloodborne_pc/releases/latest', // immer das neueste Release
-  githubUrl: '', // optional
+  githubUrl: '', // optional: ein eigenes GitHub-Profil der Community (nicht das des Ports)
+
+  // Der Port, um den es hier geht: Bloodborne for Windows von Supermedo. Steht auf der Startseite und in der
+  // Fußzeile, damit klar ist, welcher Port gemeint ist und wo es ihn gibt.
+  portName: 'Bloodborne for Windows',
+  portAuthor: 'Supermedo',
+  portAuthorUrl: 'https://github.com/Supermedo',
+  portRepoUrl: 'https://github.com/Supermedo/bloodborne_pc',
 
   // Kontakt für Fragen, Löschanfragen und Datenschutz (Fußzeile). Steht außerdem in
   // src/texts/contact.md, src/texts/privacy.md und content/footer.html (Forum): bei Änderung dort mitziehen.
