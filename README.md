@@ -365,6 +365,26 @@ systemctl start bbforum-auto-update               # sofort prüfen
 systemctl disable --now bbforum-auto-update.timer # abschalten
 ```
 
+## Discord-Rollen im Forum
+
+Wer sich mit Discord anmeldet, bekommt im Forum dieselben Rollen wie auf dem Discord-Server, als Gruppen mit
+gleichem Namen und gleicher Farbe (Abzeichen an Beiträgen). Discord bleibt die Quelle: Kommt eine Rolle dazu
+oder fällt sie weg, passiert das spätestens 10 Minuten später auch im Forum. Nach einer Anmeldung dauert es
+höchstens eine Minute. Owner, Admin und Mod kommen zusätzlich in die Gruppe „Mod“ und dürfen moderieren. Die
+Admin-Gruppe und von Hand ernannte Mods fasst der Abgleich nicht an. Code: `flarum/discord-roles.php`.
+
+Gelesen wird mit dem Bot der Forum-App im Developer Portal. Der Bot braucht keine Rechte und keine Intents,
+er muss nur Mitglied des Servers sein:
+
+1. Developer Portal → App „Bloodborne PC Port Forum“ → **Bot**: „Public Bot“ ausschalten, dann
+   **Reset Token** und das Token kopieren.
+2. Token auf dem Server in `.env` bei `DISCORD_BOT_TOKEN=` eintragen (nie ins Repo oder in Chats),
+   dann `scripts/setup-forum.sh`.
+3. Bot einladen, ohne Rechte:
+   `https://discord.com/oauth2/authorize?client_id=<Client-ID>&scope=bot&permissions=0&guild_id=<Server-ID>`
+
+Sofort abgleichen statt zu warten: `docker compose exec flarum php /opt/flarum/flarum bbforum:discord-roles --all`
+
 ## Meldungen in Discord
 
 Drei automatische Meldungen, jede mit einem eigenen Webhook (in Discord: Servereinstellungen →

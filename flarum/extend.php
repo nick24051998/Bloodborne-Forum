@@ -33,6 +33,8 @@
  * FORUM_DISCORD_WEBHOOK in .env), meldet das Forum jedes neue Thema, das Gäste sehen dürfen, mit Titel,
  * Autor, Tags, Textanfang und Link in diesem Discord-Kanal. Fehler oder ein langsames Discord halten das
  * Forum höchstens 3 Sekunden auf und gehen nur ins Log.
+ *
+ * Discord-Rollen als Forum-Gruppen: flarum/discord-roles.php (Befehl bbforum:discord-roles, jede Minute).
  */
 
 use Flarum\Discussion\Discussion;
@@ -249,8 +251,17 @@ if (! class_exists('BBForumDiscordFeed')) {
     }
 }
 
+require_once __DIR__.'/discord-roles.php';
+
 return [
     (new Extend\Routes('api'))->get('/hunters-dream', 'bbforum.huntersDream', BBForumHuntersDream::class),
+
+    // Discord-Rollen übernehmen: jede Minute frisch angemeldete Nutzer, alle 10 Minuten alle
+    (new Extend\Console())
+        ->command(BBForumDiscordRolesCommand::class)
+        ->schedule(BBForumDiscordRolesCommand::class, function ($event) {
+            $event->everyMinute();
+        }),
 
     (new Extend\Event())->listen(Started::class, function (Started $event) {
         (new BBForumDiscordFeed())->handle($event);

@@ -191,6 +191,18 @@ case "$feed" in
 esac
 body=$(jq -n --arg w "$feed" '{"bbforum.discord_webhook": $w}')
 api POST /settings "$body" >/dev/null && ok "new discussions to Discord: $([ -n "$feed" ] && echo on || echo off)"
+# Discord-Rollen als Forum-Gruppen (flarum/discord-roles.php); das Bot-Token wird nicht ausgegeben
+bot=${DISCORD_BOT_TOKEN:-}
+case "$bot" in
+  "" | *.*.*) ;;
+  *) warn "DISCORD_BOT_TOKEN does not look like a bot token, ignored"; bot="" ;;
+esac
+guild=$(printf '%s' "${DISCORD_GUILD_ID:-}" | tr -cd '0-9')
+modroles=$(printf '%s' "${DISCORD_MOD_ROLE_IDS:-}" | tr -cd '0-9,')
+body=$(jq -n --arg t "$bot" --arg g "$guild" --arg m "$modroles" \
+  '{"bbforum.discord_bot_token": $t, "bbforum.discord_guild_id": $g, "bbforum.discord_mod_role_ids": $m}')
+api POST /settings "$body" >/dev/null &&
+  ok "Discord roles as forum groups: $([ -n "$bot" ] && [ -n "$guild" ] && echo "on (server $guild)" || echo off)"
 
 if installed fof/oauth; then
   if [ -n "${DISCORD_CLIENT_ID:-}" ]; then
