@@ -209,8 +209,12 @@ neue Accounts ohne Discord-Login ab und zeigt die Meldung „New accounts can on
 
 ### E-Mail-Versand (empfohlen)
 
-Für Benachrichtigungen und Passwort-Resets: **Admin → Email** → SMTP eines Mail-Dienstes eintragen
-(z. B. Brevo, Mailgun oder ein eigener Server). Ohne SMTP läuft das Forum, verschickt aber keine Mails.
+Für Benachrichtigungen per Mail: **Admin → Email** → SMTP eines Mail-Dienstes eintragen
+(z. B. Brevo, Mailgun oder ein eigener Server). Das Setup lässt einen eingetragenen Dienst stehen.
+
+Ohne Mail-Dienst stellt das Setup den Treiber auf `log`: Mails landen nur im Forum-Log, Benachrichtigungen gibt es
+im Forum selbst. Der Flarum-Standard `mail` funktioniert im Container nicht (BusyBox-`sendmail` kann kein `-bs`) und
+lässt sonst Antworten mit Fehler abbrechen, sobald jemand per Mail benachrichtigt würde.
 
 ## Sicherheit
 

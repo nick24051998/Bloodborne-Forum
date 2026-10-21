@@ -204,6 +204,17 @@ body=$(jq -n --arg t "$bot" --arg g "$guild" --arg m "$modroles" \
 api POST /settings "$body" >/dev/null &&
   ok "Discord roles as forum groups: $([ -n "$bot" ] && [ -n "$guild" ] && echo "on (server $guild)" || echo off)"
 
+# Mails: Der Treiber "mail" ruft "sendmail -bs" auf, das BusyBox im Container nicht kann. Flarum verschickt Mails
+# direkt in der Anfrage, dann bricht z. B. eine Antwort mit Fehler ab, sobald jemand per Mail benachrichtigt wird.
+# Ohne Mail-Dienst landen Mails darum nur im Log; einen im Admin eingetragenen Dienst (SMTP usw.) lassen wir stehen.
+mail_driver=$(sql "SELECT value FROM ${DB_PREFIX}settings WHERE \`key\`='mail_driver'")
+case "$mail_driver" in
+  "" | mail | log)
+    api POST /settings '{"mail_driver": "log"}' >/dev/null &&
+      ok "mail: written to the forum log only (enter a mail service under Admin > Email to send real mail)" ;;
+  *) ok "mail: sent via $mail_driver" ;;
+esac
+
 if installed fof/oauth; then
   if [ -n "${DISCORD_CLIENT_ID:-}" ]; then
     body=$(jq -n --arg id "$DISCORD_CLIENT_ID" '{"fof-oauth.discord": "1", "fof-oauth.discord.client_id": $id}')
