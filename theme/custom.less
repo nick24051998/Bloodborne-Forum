@@ -621,6 +621,11 @@ h1, h2, h3,
   background: @bb-gold;
 }
 
+// Am Beitrag höchstens drei Abzeichen, sonst laufen sie über den Namen (im Profil stehen alle)
+.PostUser-badges li:nth-child(n + 4) {
+  display: none;
+}
+
 // fof/best-answer: Lösung hervorheben
 .CommentPost.Post--bestAnswer,
 .Post--bestAnswer {

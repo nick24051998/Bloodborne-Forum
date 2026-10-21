@@ -53,6 +53,13 @@ and overwritten after a short time.
 your Discord user ID, username, avatar and e-mail address. We use them to create and run your account
 (Art. 6(1)(b) GDPR). Your e-mail address is not shown to other members.
 
+**Your profile on our Discord server.** While your account is linked, the forum regularly reads your
+nickname, profile picture and roles on our Discord server, and whether you are banned there. Your forum name
+and picture follow that profile, unless you upload your own picture in the forum. Team roles show as badges,
+all other roles stay hidden and only control access. A ban on our Discord server suspends your forum account,
+and a forum suspension also bans you from our Discord server until it ends. We do this to keep one community
+with the same names and rules in both places (Art. 6(1)(f) GDPR).
+
 **What you post.** Discussions, posts, likes and your profile are visible to everyone who visits the
 forum, including search engines. Files you upload (images, logs, zip/7z archives) can only be opened by
 logged-in members. Report Tool archives and logs can contain information about your PC, so please check

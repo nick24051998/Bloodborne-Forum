@@ -388,6 +388,13 @@ Discord-Anzeigenamen (Erweiterung Nicknames, Treiber „nickname“). Ändert er
 nach; selbst ändern lässt er sich im Forum nicht. Der Benutzername bleibt für Anmeldung, Profil-Adresse und
 @-Erwähnungen.
 
+**Profilbilder:** das Server-Profilbild, sonst das Discord-Bild, als Kopie im Forum (Besucher laden nichts von
+Discord). Ändert es sich auf Discord, zieht der Abgleich nach. Ein im Forum selbst hochgeladenes Bild bleibt.
+
+**Abzeichen:** `flarum/forum.js` zeigt versteckte Gruppen nie als Abzeichen, auch nicht Admins und Mods, die sie
+sehen dürfen. Flarums eigenes Admin- und Mod-Abzeichen entfällt, wenn jemand eine Team-Rolle von Discord hat. Am
+Beitrag stehen höchstens drei (`theme/custom.less`).
+
 **Bann und Sperre:**
 - Wer auf dem Server gebannt wird, ist spätestens 10 Minuten später im Forum gesperrt. Hebt Discord den Bann
   auf, hebt der Abgleich die Sperre wieder auf.

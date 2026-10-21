@@ -17,6 +17,10 @@
  * den Namen auf dem Discord-Server, sonst den Discord-Anzeigenamen. Der Benutzername bleibt für Anmeldung,
  * Profil-Adresse und @-Erwähnungen.
  *
+ * Profilbilder: das Server-Profilbild, sonst das Discord-Bild, als Kopie im Forum (Besucher laden nichts von
+ * Discord). Ändert es sich auf Discord, zieht der Abgleich nach. Hat jemand im Forum selbst ein anderes Bild
+ * hochgeladen, bleibt das (bbforum.discord_avatars merkt sich, welches Bild der Abgleich zuletzt gesetzt hat).
+ *
  * Bann und Sperre: Wer auf dem Server gebannt ist, wird im Forum gesperrt; hebt Discord den Bann auf,
  * hebt der Abgleich seine Sperre wieder auf. Sperrt ein Mod jemanden im Forum (Ereignis Suspended von
  * flarum/suspend), bannt der Bot ihn auf dem Server; endet die Sperre, hebt er den Bann wieder auf. Beides
@@ -41,6 +45,7 @@
  * - bbforum.discord_roles_full_at: Zeitpunkt des letzten vollständigen Abgleichs
  * - bbforum.discord_ban_suspensions: Nutzer, die wegen eines Discord-Banns gesperrt sind
  * - bbforum.forum_suspension_bans: Nutzer → Discord-ID, die wegen einer Forensperre gebannt sind
+ * - bbforum.discord_avatars: Nutzer → zuletzt übernommenes Discord-Bild (Hash) und seine Datei im Forum
  */
 
 use Flarum\Console\AbstractCommand;
@@ -60,6 +65,7 @@ if (! class_exists('BBForumDiscordRoles')) {
         const FULL_AT = 'bbforum.discord_roles_full_at';
         const BAN_SUSPENSIONS = 'bbforum.discord_ban_suspensions';
         const FORUM_BANS = 'bbforum.forum_suspension_bans';
+        const AVATARS = 'bbforum.discord_avatars';
         // Sperre wegen eines Discord-Banns: gilt, bis Discord den Bann aufhebt (Flarums „unbefristet“ ist auch ein Datum)
         const BAN_UNTIL = '2038-01-01 00:00:00';
         // Owner, Admin, Mod auf dem Discord-Server (Standard, falls nichts eingestellt ist)
@@ -243,13 +249,58 @@ if (! class_exists('BBForumDiscordRoles')) {
                 $this->settings->set(self::MOD_GRANTS, json_encode(array_values(array_unique($grants))));
             }
             $renamed = $status === 200 && $this->syncName($user, $member);
+            try {
+                $pictured = $status === 200 && $this->syncAvatar($user, $member);
+            } catch (Throwable $e) {
+                // Ein kaputtes Bild oder ein langsames Discord-CDN darf den Abgleich nicht aufhalten
+                $this->log->warning("Discord avatar for user {$user->id}: ".$e->getMessage());
+                $pictured = false;
+            }
             if ($this->syncBan($user, $discordId, $status === 404)) {
                 return 'banned';
             }
             if ($status === 404) {
                 return 'left';
             }
-            return ($attach || $detach || $renamed) ? 'changed' : 'same';
+            return ($attach || $detach || $renamed || $pictured) ? 'changed' : 'same';
+        }
+
+        /**
+         * Profilbild = Server-Profilbild, sonst Discord-Bild, als Kopie im Forum. Ohne Eintrag in AVATARS (neues
+         * Konto, Bild von der Registrierung oder keins) übernimmt der Abgleich das Bild; danach nur, solange das
+         * Forum noch das zuletzt übernommene Bild zeigt (oder keins mehr). Ein selbst hochgeladenes Bild bleibt.
+         */
+        private function syncAvatar(User $user, array $member): bool
+        {
+            $discordId = (string) ($member['user']['id'] ?? '');
+            if (! empty($member['avatar'])) {
+                $hash = (string) $member['avatar'];
+                $url = 'https://cdn.discordapp.com/guilds/'.$this->guild().'/users/'.$discordId.'/avatars/'.$hash.'.png?size=256';
+            } elseif (! empty($member['user']['avatar'])) {
+                $hash = (string) $member['user']['avatar'];
+                $url = 'https://cdn.discordapp.com/avatars/'.$discordId.'/'.$hash.'.png?size=256';
+            } else {
+                return false; // Kein eigenes Bild auf Discord: das Forum zeigt seinen Buchstaben
+            }
+            $state = $this->json(self::AVATARS, []);
+            $last = $state[$user->id] ?? null;
+            $current = $user->getRawOriginal('avatar_url');
+            if ($last && $current && $current !== ($last['path'] ?? null)) {
+                return false; // selbst hochgeladen
+            }
+            if ($last && $current && ($last['hash'] ?? null) === $hash) {
+                return false; // unverändert
+            }
+            $response = $this->client->get($url);
+            if ($response->getStatusCode() !== 200) {
+                throw new RuntimeException('CDN answered HTTP '.$response->getStatusCode());
+            }
+            $image = resolve(\Intervention\Image\ImageManager::class)->make((string) $response->getBody());
+            resolve(\Flarum\User\AvatarUploader::class)->upload($user, $image);
+            $user->save();
+            $state[$user->id] = ['hash' => $hash, 'path' => $user->getRawOriginal('avatar_url')];
+            $this->settings->set(self::AVATARS, json_encode($state, JSON_FORCE_OBJECT));
+            return true;
         }
 
         /** Anzeigename = Name auf dem Server, sonst Discord-Anzeigename; nur mit Display-Name-Treiber „nickname“. */

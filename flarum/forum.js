@@ -5,6 +5,7 @@
 // - Discord-only-Registrierung: Das Registrieren-Fenster zeigt nur den Discord-Button
 // - Live-Zahlen von The Hunter's Dream (aus /api/hunters-dream, siehe extend.php): als Kasten
 //   in der Seitenleiste, auf schmalen Bildschirmen als Zeile unter dem Willkommens-Banner
+// - Abzeichen: nur die sichtbaren Team-Rollen von Discord (siehe flarum/discord-roles.php)
 // Die Adressen setzt scripts/setup-forum.sh (WEBSITE_URL, DISCORD_INVITE_URL aus .env).
 (function () {
   var compat = flarum.core.compat;
@@ -16,6 +17,7 @@
   var LinkButton = compat['common/components/LinkButton'];
   var IndexPage = compat['forum/components/IndexPage'];
   var SignUpModal = compat['forum/components/SignUpModal'];
+  var User = compat['common/models/User'];
 
   var HD_URL = 'https://thehuntersdream.com';
 
@@ -171,6 +173,19 @@
 
     override(IndexPage.prototype, 'hero', function (original) {
       return [original(), hd.data ? huntersDreamStrip(hd.data) : null];
+    });
+
+    // Abzeichen: Versteckte Gruppen (Waffen-, GPU-, Setup-Rollen von Discord) nie, auch nicht für Admins und
+    // Mods, die sie sehen dürfen, sonst stapeln sich dort ein Dutzend graue Kreise. Flarums eigenes Admin- und
+    // Mod-Abzeichen nur ohne Team-Rolle von Discord, die sagt dasselbe (Gruppen ab ID 5 kommen aus Discord).
+    extend(User.prototype, 'badges', function (items) {
+      var groups = (this.groups() || []).filter(Boolean);
+      var discordTeam = groups.some(function (g) { return Number(g.id()) > 4 && !g.isHidden(); });
+      groups.forEach(function (g) {
+        var key = 'group' + g.id();
+        if (!items.has(key)) return;
+        if (g.isHidden() || (discordTeam && (g.id() === '1' || g.id() === '4'))) items.remove(key);
+      });
     });
 
     // Das E-Mail-Formular blendet custom.less aus, sobald ein Login-Button (Discord) da ist
