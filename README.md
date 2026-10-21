@@ -372,10 +372,16 @@ systemctl disable --now bbforum-auto-update.timer # abschalten
 ## Discord-Rollen im Forum
 
 Wer sich mit Discord anmeldet, bekommt im Forum dieselben Rollen wie auf dem Discord-Server, als Gruppen mit
-gleichem Namen und gleicher Farbe (Abzeichen an Beiträgen). Discord bleibt die Quelle: Kommt eine Rolle dazu
-oder fällt sie weg, passiert das spätestens 10 Minuten später auch im Forum. Nach einer Anmeldung dauert es
-höchstens eine Minute. Owner, Admin und Mod kommen zusätzlich in die Gruppe „Mod“ und dürfen moderieren. Die
-Admin-Gruppe und von Hand ernannte Mods fasst der Abgleich nicht an. Code: `flarum/discord-roles.php`.
+gleichem Namen und gleicher Farbe. Discord bleibt die Quelle: Kommt eine Rolle dazu oder fällt sie weg,
+passiert das spätestens 10 Minuten später auch im Forum. Nach einer Anmeldung dauert es höchstens eine Minute.
+Owner, Admin und Mod kommen zusätzlich in die Gruppe „Mod“ und dürfen moderieren. Die Admin-Gruppe und von Hand
+ernannte Mods fasst der Abgleich nicht an. Code: `flarum/discord-roles.php`.
+
+Als Abzeichen an Beiträgen sichtbar sind nur die Team-Rollen: Owner, Admin, Contributor, Mod, Support und Helper
+(`DISCORD_SHOWN_ROLE_IDS` in `.env`). Alle anderen Gruppen sind versteckt. In Discord sieht Waffen-, GPU- oder
+Setup-Rollen nur der Server, das Forum dagegen ist öffentlich. Für Rechte, etwa eine Kategorie nur für
+„Beta Hunter“, lassen sich auch die versteckten Gruppen nutzen. Der Abgleich setzt „versteckt“ bei jedem Lauf
+neu: Von Hand im Admin umgestellt, gilt es nur bis zum nächsten Lauf.
 
 Gelesen wird mit dem Bot der Forum-App im Developer Portal. Der Bot braucht keine Rechte und keine Intents,
 er muss nur Mitglied des Servers sein:

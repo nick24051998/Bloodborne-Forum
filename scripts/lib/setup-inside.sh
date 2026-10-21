@@ -199,8 +199,9 @@ case "$bot" in
 esac
 guild=$(printf '%s' "${DISCORD_GUILD_ID:-}" | tr -cd '0-9')
 modroles=$(printf '%s' "${DISCORD_MOD_ROLE_IDS:-}" | tr -cd '0-9,')
-body=$(jq -n --arg t "$bot" --arg g "$guild" --arg m "$modroles" \
-  '{"bbforum.discord_bot_token": $t, "bbforum.discord_guild_id": $g, "bbforum.discord_mod_role_ids": $m}')
+shownroles=$(printf '%s' "${DISCORD_SHOWN_ROLE_IDS:-}" | tr -cd '0-9,')
+body=$(jq -n --arg t "$bot" --arg g "$guild" --arg m "$modroles" --arg s "$shownroles" \
+  '{"bbforum.discord_bot_token": $t, "bbforum.discord_guild_id": $g, "bbforum.discord_mod_role_ids": $m, "bbforum.discord_shown_role_ids": $s}')
 api POST /settings "$body" >/dev/null &&
   ok "Discord roles as forum groups: $([ -n "$bot" ] && [ -n "$guild" ] && echo "on (server $guild)" || echo off)"
 

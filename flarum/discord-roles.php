@@ -4,15 +4,20 @@
  * Discord-Rollen als Forum-Gruppen (geladen von flarum/extend.php).
  *
  * Wer sich im Forum mit Discord anmeldet, bekommt dieselben Rollen wie auf dem Discord-Server, als
- * Gruppen mit gleichem Namen und gleicher Farbe (Abzeichen an Beiträgen). Discord ist die Quelle:
- * kommt eine Rolle dazu oder fällt weg, passiert das auch im Forum. Owner, Admin und Mod
- * (bbforum.discord_mod_role_ids) kommen zusätzlich in Flarums Gruppe „Mod“ und dürfen moderieren;
- * die Admin-Gruppe des Forums fasst der Abgleich nie an.
+ * Gruppen mit gleichem Namen und gleicher Farbe. Discord ist die Quelle: kommt eine Rolle dazu oder
+ * fällt weg, passiert das auch im Forum. Owner, Admin und Mod (bbforum.discord_mod_role_ids) kommen
+ * zusätzlich in Flarums Gruppe „Mod“ und dürfen moderieren; die Admin-Gruppe des Forums fasst der
+ * Abgleich nie an.
+ *
+ * Als Abzeichen an Beiträgen sichtbar sind nur die Team-Rollen (bbforum.discord_shown_role_ids). Alle
+ * anderen Gruppen sind versteckt: Waffen-, GPU- oder Setup-Rollen sieht in Discord nur der Server, im
+ * Forum wären sie für alle sichtbar. Für Rechte (etwa eine Kategorie nur für eine Rolle) taugen sie trotzdem.
  *
  * Gelesen wird mit dem Bot der Forum-App „Bloodborne PC Port Forum“ (ohne Rechte auf dem Server, nur
  * REST, keine privilegierten Intents): GET /guilds/{id}/roles und /guilds/{id}/members/{user}.
  * Einstellungen (setzt scripts/setup-forum.sh aus .env): bbforum.discord_bot_token,
- * bbforum.discord_guild_id, bbforum.discord_mod_role_ids. Ohne Token passiert nichts.
+ * bbforum.discord_guild_id, bbforum.discord_mod_role_ids, bbforum.discord_shown_role_ids.
+ * Ohne Token passiert nichts.
  *
  * Ablauf: Der Befehl „php flarum bbforum:discord-roles“ läuft jede Minute (Flarum-Scheduler). Er gleicht
  * Nutzer ab, die sich in den letzten Minuten mit Discord angemeldet oder verknüpft haben, und alle
@@ -42,6 +47,9 @@ if (! class_exists('BBForumDiscordRoles')) {
         const FULL_AT = 'bbforum.discord_roles_full_at';
         // Owner, Admin, Mod auf dem Discord-Server (Standard, falls nichts eingestellt ist)
         const DEFAULT_MOD_ROLES = '1557459945291513996,1557459946994401412,1557459950312103976';
+        // Team-Rollen, die als Abzeichen sichtbar bleiben: Owner, Admin, Contributor, Mod, Support, Helper
+        const DEFAULT_SHOWN_ROLES = '1557459945291513996,1557459946994401412,1559601172107493427,'
+            .'1557459950312103976,1557459952396673196,1559561716642222122';
 
         private $settings;
         private $log;
@@ -71,7 +79,17 @@ if (! class_exists('BBForumDiscordRoles')) {
 
         private function modRoles(): array
         {
-            $raw = (string) ($this->settings->get('bbforum.discord_mod_role_ids') ?: self::DEFAULT_MOD_ROLES);
+            return $this->roleIds('bbforum.discord_mod_role_ids', self::DEFAULT_MOD_ROLES);
+        }
+
+        private function shownRoles(): array
+        {
+            return $this->roleIds('bbforum.discord_shown_role_ids', self::DEFAULT_SHOWN_ROLES);
+        }
+
+        private function roleIds(string $key, string $default): array
+        {
+            $raw = (string) ($this->settings->get($key) ?: $default);
             return array_values(array_filter(array_map('trim', explode(',', $raw)), 'ctype_digit'));
         }
 
@@ -112,19 +130,23 @@ if (! class_exists('BBForumDiscordRoles')) {
             usort($roles, fn ($a, $b) => ($b['position'] ?? 0) <=> ($a['position'] ?? 0));
 
             $map = $this->json(self::MAP, []);
+            $shown = $this->shownRoles();
             $next = [];
             foreach ($roles as $role) {
                 $id = (string) $role['id'];
                 $name = mb_substr(trim((string) $role['name']), 0, 100) ?: 'Discord role';
                 $color = ! empty($role['color']) ? sprintf('#%06x', (int) $role['color']) : null;
+                $hidden = ! in_array($id, $shown, true);
                 $group = isset($map[$id]) ? Group::find($map[$id]) : null;
                 if (! $group) {
                     $group = Group::build($name, $name, $color, null);
+                    $group->is_hidden = $hidden;
                     $group->save();
-                } elseif ($group->name_singular !== $name || ($group->color ?: null) !== $color) {
+                } elseif ($group->name_singular !== $name || ($group->color ?: null) !== $color || (bool) $group->is_hidden !== $hidden) {
                     $group->name_singular = $name;
                     $group->name_plural = $name;
                     $group->color = $color;
+                    $group->is_hidden = $hidden;
                     $group->save();
                 }
                 $next[$id] = $group->id;

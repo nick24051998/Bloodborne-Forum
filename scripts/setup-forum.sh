@@ -57,6 +57,7 @@ docker compose exec -T \
   -e DISCORD_BOT_TOKEN="${DISCORD_BOT_TOKEN:-}" \
   -e DISCORD_GUILD_ID="${DISCORD_GUILD_ID:-1557458508096610446}" \
   -e DISCORD_MOD_ROLE_IDS="${DISCORD_MOD_ROLE_IDS:-}" \
+  -e DISCORD_SHOWN_ROLE_IDS="${DISCORD_SHOWN_ROLE_IDS:-}" \
   -e DISCORD_ONLY_SIGNUP="${DISCORD_ONLY_SIGNUP:-true}" \
   flarum sh /tmp/bbsetup/scripts/lib/setup-inside.sh || status=$?
 
