@@ -82,6 +82,9 @@ DB_PREFIX=$(php -r '$c = include "/opt/flarum/config.php"; echo $c["database"]["
 log "Admin account"
 if login "$FLARUM_ADMIN_USER" "$FLARUM_ADMIN_PASS"; then
   ok "logged in as $FLARUM_ADMIN_USER"
+elif login "$FLARUM_ADMIN_MAIL" "$FLARUM_ADMIN_PASS"; then
+  # Der Admin heißt im Forum inzwischen anders (z. B. sein Discord-Name): Anmeldung über die Mail-Adresse
+  ok "logged in with the admin e-mail (the username differs from FLARUM_ADMIN_USER)"
 elif login flarum flarum; then
   # The image creates the root admin (id 1) as flarum/flarum. Flarum cannot delete
   # the root admin, and changing your own e-mail needs a confirmation mail. So a
