@@ -34,7 +34,8 @@
  * Autor, Tags, Textanfang und Link in diesem Discord-Kanal. Fehler oder ein langsames Discord halten das
  * Forum höchstens 3 Sekunden auf und gehen nur ins Log.
  *
- * Discord-Rollen als Forum-Gruppen: flarum/discord-roles.php (Befehl bbforum:discord-roles, jede Minute).
+ * Discord-Rollen als Forum-Gruppen, Namen vom Server und Bann/Sperre in beide Richtungen:
+ * flarum/discord-roles.php (Befehl bbforum:discord-roles jede Minute, dazu das Ereignis Suspended).
  */
 
 use Flarum\Discussion\Discussion;
@@ -262,6 +263,9 @@ return [
         ->schedule(BBForumDiscordRolesCommand::class, function ($event) {
             $event->everyMinute();
         }),
+
+    // Sperrt ein Mod jemanden im Forum, wird er auch auf dem Discord-Server gebannt
+    (new Extend\Event())->listen('Flarum\Suspend\Event\Suspended', BBForumDiscordBanOnSuspend::class),
 
     (new Extend\Event())->listen(Started::class, function (Started $event) {
         (new BBForumDiscordFeed())->handle($event);

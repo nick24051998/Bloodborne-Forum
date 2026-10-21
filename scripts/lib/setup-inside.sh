@@ -140,7 +140,7 @@ enable_ext() { # enable_ext vendor/package
 }
 for e in flarum/lang-english flarum/markdown flarum/bbcode flarum/emoji flarum/mentions \
          flarum/likes flarum/tags flarum/sticky flarum/lock flarum/subscriptions flarum/flags \
-         flarum/approval flarum/suspend flarum/statistics flarum/gdpr \
+         flarum/approval flarum/suspend flarum/statistics flarum/gdpr flarum/nicknames \
          fof/oauth fof/upload fof/best-answer fof/discussion-templates fof/sitemap \
          v17development/flarum-seo fof/user-directory; do
   case "$e" in
@@ -207,6 +207,14 @@ body=$(jq -n --arg t "$bot" --arg g "$guild" --arg m "$modroles" --arg s "$shown
   '{"bbforum.discord_bot_token": $t, "bbforum.discord_guild_id": $g, "bbforum.discord_mod_role_ids": $m, "bbforum.discord_shown_role_ids": $s}')
 api POST /settings "$body" >/dev/null &&
   ok "Discord roles as forum groups: $([ -n "$bot" ] && [ -n "$guild" ] && echo "on (server $guild)" || echo off)"
+# Anzeigenamen kommen vom Discord-Server (flarum/discord-roles.php): Treiber „nickname“, Name nicht bei der
+# Registrierung abfragen und nicht selbst änderbar, sonst überschreibt ihn der Abgleich ohnehin wieder
+if installed flarum/nicknames; then
+  api POST /settings '{"display_name_driver": "nickname", "flarum-nicknames.set_on_registration": "0",
+    "flarum-nicknames.random_username": "0", "flarum-nicknames.unique": "0"}' >/dev/null &&
+    api POST /permission '{"permission": "user.editOwnNickname", "groupIds": []}' >/dev/null &&
+    ok "display names from the Discord server (nicknames)"
+fi
 
 # Mails: Der Treiber "mail" ruft "sendmail -bs" auf, das BusyBox im Container nicht kann. Flarum verschickt Mails
 # direkt in der Anfrage, dann bricht z. B. eine Antwort mit Fehler ab, sobald jemand per Mail benachrichtigt wird.

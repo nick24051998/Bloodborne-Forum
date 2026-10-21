@@ -383,15 +383,32 @@ Setup-Rollen nur der Server, das Forum dagegen ist öffentlich. Für Rechte, etw
 „Beta Hunter“, lassen sich auch die versteckten Gruppen nutzen. Der Abgleich setzt „versteckt“ bei jedem Lauf
 neu: Von Hand im Admin umgestellt, gilt es nur bis zum nächsten Lauf.
 
-Gelesen wird mit dem Bot der Forum-App im Developer Portal. Der Bot braucht keine Rechte und keine Intents,
-er muss nur Mitglied des Servers sein:
+**Namen:** Das Forum zeigt den Namen, den jemand auf unserem Discord-Server trägt, sonst seinen
+Discord-Anzeigenamen (Erweiterung Nicknames, Treiber „nickname“). Ändert er ihn auf Discord, zieht der Abgleich
+nach; selbst ändern lässt er sich im Forum nicht. Der Benutzername bleibt für Anmeldung, Profil-Adresse und
+@-Erwähnungen.
+
+**Bann und Sperre:**
+- Wer auf dem Server gebannt wird, ist spätestens 10 Minuten später im Forum gesperrt. Hebt Discord den Bann
+  auf, hebt der Abgleich die Sperre wieder auf.
+- Sperrt ein Mod jemanden im Forum, bannt der Bot ihn sofort auch auf dem Server. Endet die Sperre (aufgehoben
+  oder abgelaufen), hebt der Bot den Bann innerhalb einer Minute wieder auf. Zurück auf den Server kommt
+  der Nutzer dann über einen Einladungslink.
+- Beides gilt nur für Sperren und Banns, die der Abgleich selbst gesetzt hat, und nie für Admins. Die
+  Begründung steht im Audit-Log des Servers.
+
+Gelesen wird mit dem Bot der Forum-App im Developer Portal. Er braucht nur das Recht **Mitglieder bannen**
+(für Bannliste und Banns) und keine Intents:
 
 1. Developer Portal → App „Bloodborne PC Port Forum“ → **Bot**: „Public Bot“ ausschalten, dann
    **Reset Token** und das Token kopieren.
 2. Token auf dem Server in `.env` bei `DISCORD_BOT_TOKEN=` eintragen (nie ins Repo oder in Chats),
    dann `scripts/setup-forum.sh`.
-3. Bot einladen, ohne Rechte:
-   `https://discord.com/oauth2/authorize?client_id=<Client-ID>&scope=bot&permissions=0&guild_id=<Server-ID>`
+3. Bot einladen, nur mit „Mitglieder bannen“ (`permissions=4`; ein zweiter Aufruf ändert die Rechte eines schon
+   eingeladenen Bots):
+   `https://discord.com/oauth2/authorize?client_id=<Client-ID>&scope=bot&permissions=4&guild_id=<Server-ID>`
+4. Servereinstellungen → Rollen: die Rolle des Bots über die Rollen der Mitglieder ziehen, aber unter die
+   Team-Rollen. Bannen kann der Bot nur Leute, deren höchste Rolle unter seiner steht.
 
 Sofort abgleichen statt zu warten: `docker compose exec --user flarum flarum php /opt/flarum/flarum bbforum:discord-roles --all`
 

@@ -13,8 +13,19 @@
  * anderen Gruppen sind versteckt: Waffen-, GPU- oder Setup-Rollen sieht in Discord nur der Server, im
  * Forum wären sie für alle sichtbar. Für Rechte (etwa eine Kategorie nur für eine Rolle) taugen sie trotzdem.
  *
- * Gelesen wird mit dem Bot der Forum-App „Bloodborne PC Port Forum“ (ohne Rechte auf dem Server, nur
- * REST, keine privilegierten Intents): GET /guilds/{id}/roles und /guilds/{id}/members/{user}.
+ * Namen: Mit dem Display-Name-Treiber „nickname“ (flarum/nicknames, setzt setup-forum.sh) zeigt das Forum
+ * den Namen auf dem Discord-Server, sonst den Discord-Anzeigenamen. Der Benutzername bleibt für Anmeldung,
+ * Profil-Adresse und @-Erwähnungen.
+ *
+ * Bann und Sperre: Wer auf dem Server gebannt ist, wird im Forum gesperrt; hebt Discord den Bann auf,
+ * hebt der Abgleich seine Sperre wieder auf. Sperrt ein Mod jemanden im Forum (Ereignis Suspended von
+ * flarum/suspend), bannt der Bot ihn auf dem Server; endet die Sperre, hebt er den Bann wieder auf. Beides
+ * gilt nur für Sperren und Banns, die der Abgleich selbst gesetzt hat, und nie für Admins. Dafür braucht der
+ * Bot das Recht „Mitglieder bannen“, und seine Rolle muss auf dem Server über den Rollen der Mitglieder
+ * stehen (Team-Rollen bleiben darüber, die kann er nicht bannen).
+ *
+ * Gelesen wird mit dem Bot der Forum-App „Bloodborne PC Port Forum“ (nur REST, keine privilegierten
+ * Intents): GET /guilds/{id}/roles, /guilds/{id}/members/{user} und /guilds/{id}/bans/{user}.
  * Einstellungen (setzt scripts/setup-forum.sh aus .env): bbforum.discord_bot_token,
  * bbforum.discord_guild_id, bbforum.discord_mod_role_ids, bbforum.discord_shown_role_ids.
  * Ohne Token passiert nichts.
@@ -28,6 +39,8 @@
  * - bbforum.discord_mod_grants: Nutzer, die „Mod“ über Discord bekommen haben (nur ihnen wird es
  *   wieder entzogen; von Hand ernannte Mods bleiben)
  * - bbforum.discord_roles_full_at: Zeitpunkt des letzten vollständigen Abgleichs
+ * - bbforum.discord_ban_suspensions: Nutzer, die wegen eines Discord-Banns gesperrt sind
+ * - bbforum.forum_suspension_bans: Nutzer → Discord-ID, die wegen einer Forensperre gebannt sind
  */
 
 use Flarum\Console\AbstractCommand;
@@ -45,6 +58,10 @@ if (! class_exists('BBForumDiscordRoles')) {
         const MAP = 'bbforum.discord_role_groups';
         const MOD_GRANTS = 'bbforum.discord_mod_grants';
         const FULL_AT = 'bbforum.discord_roles_full_at';
+        const BAN_SUSPENSIONS = 'bbforum.discord_ban_suspensions';
+        const FORUM_BANS = 'bbforum.forum_suspension_bans';
+        // Sperre wegen eines Discord-Banns: gilt, bis Discord den Bann aufhebt (Flarums „unbefristet“ ist auch ein Datum)
+        const BAN_UNTIL = '2038-01-01 00:00:00';
         // Owner, Admin, Mod auf dem Discord-Server (Standard, falls nichts eingestellt ist)
         const DEFAULT_MOD_ROLES = '1557459945291513996,1557459946994401412,1557459950312103976';
         // Team-Rollen, die als Abzeichen sichtbar bleiben: Owner, Admin, Contributor, Mod, Support, Helper
@@ -118,6 +135,20 @@ if (! class_exists('BBForumDiscordRoles')) {
             return [429, null];
         }
 
+        /** PUT/DELETE an die Discord-API, mit Begründung fürs Audit-Log des Servers; gibt den Status zurück. */
+        private function send(string $method, string $path, string $reason): int
+        {
+            $options = ['headers' => [
+                'Authorization' => 'Bot '.$this->token(),
+                'User-Agent' => 'DiscordBot (https://forum.bbport.de, 1.0) BBPP-Forum',
+                'X-Audit-Log-Reason' => rawurlencode(mb_substr($reason, 0, 400)),
+            ]];
+            if ($method === 'PUT') {
+                $options['json'] = ['delete_message_seconds' => 0];
+            }
+            return $this->client->request($method, self::API.$path, $options)->getStatusCode();
+        }
+
         /** Gruppen an die Rollen des Servers angleichen; gibt Rolle → Gruppen-ID zurück. */
         public function syncGroups(): array
         {
@@ -162,7 +193,7 @@ if (! class_exists('BBForumDiscordRoles')) {
             return $next;
         }
 
-        /** Rollen eines Nutzers übernehmen; 'changed', 'same', 'left' (nicht mehr auf dem Server) oder 'error'. */
+        /** Rollen, Namen und Bann eines Nutzers übernehmen; 'changed', 'same', 'left' (nicht mehr auf dem Server), 'banned' oder 'error'. */
         public function syncUser(User $user, string $discordId, array $map): string
         {
             [$status, $member] = $this->get('/guilds/'.$this->guild().'/members/'.rawurlencode($discordId));
@@ -211,10 +242,113 @@ if (! class_exists('BBForumDiscordRoles')) {
             if ($grantsChanged) {
                 $this->settings->set(self::MOD_GRANTS, json_encode(array_values(array_unique($grants))));
             }
+            $renamed = $status === 200 && $this->syncName($user, $member);
+            if ($this->syncBan($user, $discordId, $status === 404)) {
+                return 'banned';
+            }
             if ($status === 404) {
                 return 'left';
             }
-            return ($attach || $detach) ? 'changed' : 'same';
+            return ($attach || $detach || $renamed) ? 'changed' : 'same';
+        }
+
+        /** Anzeigename = Name auf dem Server, sonst Discord-Anzeigename; nur mit Display-Name-Treiber „nickname“. */
+        private function syncName(User $user, array $member): bool
+        {
+            if ($this->settings->get('display_name_driver') !== 'nickname') {
+                return false;
+            }
+            $name = trim((string) ($member['nick'] ?? '')) ?: trim((string) ($member['user']['global_name'] ?? ''));
+            $name = $name !== '' ? mb_substr($name, 0, 150) : null;
+            if ($user->nickname === $name) {
+                return false;
+            }
+            $user->nickname = $name;
+            $user->save();
+            return true;
+        }
+
+        /**
+         * Discord-Bann → Forensperre, aufgehobener Bann → Sperre weg. Fasst nur Sperren an, die der Abgleich selbst
+         * gesetzt hat; Banns, die eine Forensperre ausgelöst hat (FORUM_BANS), regelt die Forensperre. True = gebannt.
+         */
+        private function syncBan(User $user, string $discordId, bool $gone): bool
+        {
+            if (array_key_exists($user->id, $this->json(self::FORUM_BANS, []))) {
+                return false;
+            }
+            $suspended = array_map('intval', $this->json(self::BAN_SUSPENSIONS, []));
+            $ours = in_array($user->id, $suspended, true);
+            $banned = false;
+            if ($gone) {
+                // Nur wer nicht mehr auf dem Server ist, kann gebannt sein; ohne Recht „Mitglieder bannen“ (403)
+                // oder bei Störungen ändert sich nichts
+                [$status] = $this->get('/guilds/'.$this->guild().'/bans/'.rawurlencode($discordId));
+                if ($status !== 200 && $status !== 404) {
+                    return $ours;
+                }
+                $banned = $status === 200;
+            }
+            if ($banned && ! $ours && ! $user->isAdmin()) {
+                $user->suspended_until = \Carbon\Carbon::parse(self::BAN_UNTIL);
+                $user->suspend_reason = 'Banned on the Discord server (role sync)';
+                $user->suspend_message = 'You were banned from our Discord server, so your forum account is suspended as well.';
+                $user->save();
+                $suspended[] = $user->id;
+            } elseif (! $banned && $ours) {
+                $user->suspended_until = null;
+                $user->suspend_reason = null;
+                $user->suspend_message = null;
+                $user->save();
+                $suspended = array_diff($suspended, [$user->id]);
+            } else {
+                return $banned;
+            }
+            $this->settings->set(self::BAN_SUSPENSIONS, json_encode(array_values(array_unique($suspended))));
+            return $banned;
+        }
+
+        /** Forensperre durch einen Mod → Bann auf dem Discord-Server (Ereignis Suspended von flarum/suspend). */
+        public function banForSuspension(User $user, User $actor): void
+        {
+            if (! $this->enabled() || $user->isAdmin()) {
+                return;
+            }
+            $discordId = (string) LoginProvider::where('provider', 'discord')->where('user_id', $user->id)->value('identifier');
+            if ($discordId === '') {
+                return;
+            }
+            $reason = 'Suspended in the forum by '.$actor->username.($user->suspend_reason ? ': '.$user->suspend_reason : '');
+            $status = $this->send('PUT', '/guilds/'.$this->guild().'/bans/'.rawurlencode($discordId), $reason);
+            if ($status !== 204 && $status !== 200) {
+                $this->log->warning("Discord ban for the forum suspension of user {$user->id}: HTTP $status");
+                return;
+            }
+            $bans = $this->json(self::FORUM_BANS, []);
+            $bans[$user->id] = $discordId;
+            $this->settings->set(self::FORUM_BANS, json_encode($bans, JSON_FORCE_OBJECT));
+        }
+
+        /** Endet eine Forensperre (aufgehoben oder abgelaufen), wird der Discord-Bann wieder aufgehoben. */
+        public function releaseForumBans(): int
+        {
+            $bans = $this->json(self::FORUM_BANS, []);
+            $released = 0;
+            foreach ($bans as $userId => $discordId) {
+                $user = User::find((int) $userId);
+                if ($user && $user->suspended_until && $user->suspended_until->isFuture()) {
+                    continue;
+                }
+                $status = $this->send('DELETE', '/guilds/'.$this->guild().'/bans/'.rawurlencode((string) $discordId), 'Forum suspension ended');
+                if ($status === 204 || $status === 404) {
+                    unset($bans[$userId]);
+                    $released++;
+                }
+            }
+            if ($released) {
+                $this->settings->set(self::FORUM_BANS, json_encode($bans, JSON_FORCE_OBJECT));
+            }
+            return $released;
         }
 
         /** Abgleich: alle verknüpften Nutzer ($all) oder nur die seit $since angemeldeten. */
@@ -226,7 +360,8 @@ if (! class_exists('BBForumDiscordRoles')) {
                 $since = \Carbon\Carbon::now()->subMinutes($sinceMinutes);
                 $query->where(fn ($q) => $q->where('created_at', '>=', $since)->orWhere('last_login_at', '>=', $since));
             }
-            $stats = ['roles' => count($map), 'users' => 0, 'changed' => 0, 'left' => 0, 'error' => 0];
+            $stats = ['roles' => count($map), 'users' => 0, 'changed' => 0, 'left' => 0, 'banned' => 0, 'error' => 0,
+                'unbanned' => $this->releaseForumBans()];
             foreach ($query->get() as $provider) {
                 if (! $provider->user) {
                     continue;
@@ -246,6 +381,22 @@ if (! class_exists('BBForumDiscordRoles')) {
         public function fullDue(): bool
         {
             return time() - (int) $this->settings->get(self::FULL_AT, 0) >= 600;
+        }
+    }
+}
+
+if (! class_exists('BBForumDiscordBanOnSuspend')) {
+    /** Forensperre → Bann auf Discord (flarum/extend.php hängt das an das Ereignis Suspended von flarum/suspend). */
+    class BBForumDiscordBanOnSuspend
+    {
+        public function handle($event): void
+        {
+            try {
+                resolve(BBForumDiscordRoles::class)->banForSuspension($event->user, $event->actor);
+            } catch (Throwable $e) {
+                // Ein Fehler bei Discord darf die Sperre im Forum nicht verhindern
+                resolve(LoggerInterface::class)->warning('Discord ban for a forum suspension: '.$e->getMessage());
+            }
         }
     }
 }
