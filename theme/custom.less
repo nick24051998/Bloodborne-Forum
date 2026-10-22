@@ -391,7 +391,7 @@ h1, h2, h3,
 // Die Füllung sagt die Rolle: Blut = Hauptaktion (Button--primary), Stein = alles andere, Discord-Blau nur für Discord.
 // Beim Zeigen steigt von unten Blut auf (bei Discord dessen dunkleres Blau), die Haarlinie glüht; Drücken sinkt ein;
 // die Tastatur zeigt einen Messingring. Text- und Symbolknöpfe (Menü, Antworten, Liken …) bleiben schlicht.
-// :where() hält die Spezifität niedrig, damit die Ecken der SplitDropdown-Knöpfe unten greifen.
+// :where() hält die Spezifität niedrig, damit die Ecken der geteilten Knöpfe (Dropdown--split) unten greifen.
 @bb-btn-line: fade(#c2a878, 40%);
 @bb-btn-line-hot: fade(#e0c694, 95%);
 
@@ -400,7 +400,7 @@ h1, h2, h3,
 }
 
 .Button:where(:not(.Button--link):not(.Button--icon):not(.Button--text):not(.Button--flat)),
-:where(.SplitDropdown) .Button {
+:where(.Dropdown--split) .Button {
   // Werte ausgeschrieben: less.php übersetzt Variablen und Farbfunktionen in --Eigenschaften nicht zuverlässig
   --btn-fill: rgba(16, 17, 19, 0.8); // Stein
   --btn-rise: #8a1118; // @bb-blood
@@ -484,16 +484,18 @@ h1, h2, h3,
   color: #fff;
 }
 
-// Antworten-Knopf mit Pfeil: zwei Platten, innen ohne Rundung
-.SplitDropdown .SplitDropdown-button {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+// Antworten-Knopf mit Pfeil (Dropdown--split): zwei Platten, innen ohne Rundung; ohne Pfeil (itemCount1) rundum
+.Dropdown--split .SplitDropdown-button {
+  border-radius: 10px 0 0 10px;
 }
 
-.SplitDropdown .Dropdown-toggle {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-left-color: fade(#000, 35%);
+.Dropdown--split .Dropdown-toggle {
+  border-radius: 0 10px 10px 0;
+  border-left-color: rgba(0, 0, 0, 0.35);
+}
+
+.Dropdown--split.itemCount1 .Button {
+  border-radius: 10px;
 }
 
 .FormControl {
