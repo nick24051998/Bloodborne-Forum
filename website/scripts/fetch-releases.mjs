@@ -17,12 +17,20 @@ const siteUrl = `${SITE.url}${SITE.base}`.replace(/\/$/, '');
 
 async function fetchReleases() {
   if (process.env.RELEASES_FIXTURE) return JSON.parse(await readFile(process.env.RELEASES_FIXTURE, 'utf8'));
-  // full+json: Release-Text zusätzlich als HTML (body_html), so wie GitHub ihn anzeigt
-  const headers = { Accept: 'application/vnd.github.full+json', 'User-Agent': 'bbport-website' };
-  if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
-  const response = await fetch(`https://api.github.com/repos/${repo}/releases?per_page=40`, { headers, signal: AbortSignal.timeout(20000) });
-  if (!response.ok) throw new Error(`GitHub antwortet mit ${response.status}`);
-  return response.json();
+  const get = async (accept) => {
+    const headers = { Accept: accept, 'User-Agent': 'bbport-website' };
+    if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+    const response = await fetch(`https://api.github.com/repos/${repo}/releases?per_page=20`, { headers, signal: AbortSignal.timeout(20000) });
+    if (!response.ok) throw new Error(`GitHub antwortet mit ${response.status}`);
+    return response.json();
+  };
+  // full+json: Release-Text zusätzlich als HTML (body_html), so wie GitHub ihn anzeigt. Bei zu vielen Releases auf
+  // einmal (40 ab 24 Releases) liefert GitHub damit eine leere Liste; dann ohne Texte, Version und Download stimmen so
+  // trotzdem. Die Website zeigt ohnehin nur die 12 neuesten.
+  const full = await get('application/vnd.github.full+json');
+  if (Array.isArray(full) && full.length) return full;
+  console.log('::warning::GitHub lieferte die Releases mit Texten leer, hole sie ohne Texte');
+  return get('application/vnd.github+json');
 }
 
 // Nur veröffentlichte Releases; gibt es Windows-Tags (windows-v1.9.2), dann nur diese
@@ -31,7 +39,9 @@ export function normalize(api) {
   const windows = visible.filter((r) => /^windows-/i.test(r.tag_name));
   return (windows.length ? windows : visible)
     .map((r) => {
-      const zip = (r.assets ?? []).find((a) => /\.zip$/i.test(a.name));
+      // Seit 1.9.4 hängen zwei ZIPs am Release (Port und fsr4vk-…-src.zip): die des Ports nehmen
+      const zips = (r.assets ?? []).filter((a) => /\.zip$/i.test(a.name));
+      const zip = zips.find((a) => /^Bloodborne/i.test(a.name)) ?? zips.find((a) => !/-src\.zip$/i.test(a.name)) ?? zips[0];
       const published = r.published_at ?? r.created_at ?? '';
       return {
         version: r.tag_name.replace(/^windows-/i, '').replace(/^v/i, ''),
