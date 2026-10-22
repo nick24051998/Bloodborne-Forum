@@ -22,6 +22,7 @@ const nav = [
   { href: link('guide/'), label: 'Guide' },
   { href: link('faq/'), label: 'FAQ' },
   { href: link('changelog/'), label: 'Changelog' },
+  { href: link('supermedo/'), label: 'Supermedo' },
   ...(SITE.forumUrl ? [{ href: SITE.forumUrl, label: 'Forum' }] : []),
 ];
 
@@ -97,7 +98,6 @@ const baseLd = {
             <li><a href={link('community/')}>Community</a></li>
             {SITE.discordUrl && <li><a href={SITE.discordUrl} rel="noopener">Discord</a></li>}
             {SITE.portRepoUrl && <li><a href={SITE.portRepoUrl} rel="noopener">Port on GitHub</a></li>}
-            <li><a href={link('supermedo/')}>{SITE.portAuthor}'s ports</a></li>
           </ul>
           <ul>
             <li><a href={link('contact/')}>Contact</a></li>

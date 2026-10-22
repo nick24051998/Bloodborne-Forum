@@ -170,7 +170,7 @@ test('Menü: Links neben dem Logo, Discord ganz rechts', async ({ page, isMobile
   test.skip(isMobile, 'auf dem Handy steckt das Menü hinter dem Menü-Knopf');
   await page.goto('/');
   expect(await page.$$eval('.nav a', (all) => all.map((a) => a.textContent.trim())))
-    .toEqual(['Install', 'Guide', 'FAQ', 'Changelog', 'Forum', 'Discord']);
+    .toEqual(['Install', 'Guide', 'FAQ', 'Changelog', 'Supermedo', 'Forum', 'Discord']);
   const logo = await page.locator('.brand').boundingBox();
   const first = await page.locator('.nav a').first().boundingBox();
   const discord = await page.locator('.nav .nav-discord').boundingBox();
@@ -244,7 +244,8 @@ test('Supermedo-Seite zeigt seine Projekte und verlinkt NativeRetro', async ({ p
   expect(external).toEqual([]);
   expect(await page.evaluate(async () => (await document.fonts.load('20px VT323')).length)).toBeGreaterThan(0);
 
-  // Startseite und Fußzeile führen hierher
+  // Menü, Startseite und Fußzeile führen hierher
+  await expect(page.locator('.nav a[aria-current="page"]')).toHaveText('Supermedo');
   await page.goto('/');
   await expect(page.locator('.nr-teaser a[href="/supermedo/"]')).toBeVisible();
   await expect(page.locator('footer a[href="/supermedo/"]')).toHaveCount(1);

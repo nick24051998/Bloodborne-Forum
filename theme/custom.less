@@ -240,6 +240,13 @@ h1, h2, h3,
   }
 }
 
+// "Supermedo" erst ab 1200 px: darunter reicht der Platz neben Suche und Anmelden nicht (Handy: im Seitenmenü)
+@media (min-width: 768px) and (max-width: 1199px) {
+  .Header-primary .item-bb-supermedo {
+    display: none;
+  }
+}
+
 // --- Willkommens-Banner --------------------------------------------------------
 .WelcomeHero {
   // Gotische Stadt unter dem Blutmond (media/images/forum-banner.webp, für dieses Projekt mit
