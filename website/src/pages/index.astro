@@ -47,6 +47,14 @@ const orgLd = {
   <section class="hero">
     <div class="container">
       <div>
+        <p class="hero-wip">
+          <strong>Work in progress</strong>
+          <span>
+            This site is still being built, so pages and answers may change or be missing. Bug hunters may keep
+            every bug they find, but please tell us about it
+            {SITE.discordUrl ? <> on <a href={SITE.discordUrl} rel="noopener">Discord</a>.</> : ' in the forum.'}
+          </span>
+        </p>
         <p class="eyebrow">Community hub</p>
         <h1>{SITE.name}</h1>
         <p class="lead">

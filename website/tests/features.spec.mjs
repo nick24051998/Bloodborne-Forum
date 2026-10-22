@@ -121,6 +121,14 @@ test('„Bewegung reduzieren“ schaltet die Animationen ab', async ({ browser }
   await context.close();
 });
 
+test('Startseite sagt, dass die Seite noch im Aufbau ist', async ({ page }) => {
+  await page.goto('/');
+  const note = page.locator('.hero-wip');
+  await expect(note).toBeVisible();
+  await expect(note).toContainText('Work in progress');
+  await expect(note).toContainText('Bug hunters may keep every bug they find');
+});
+
 test('Startseite nennt den Port von Supermedo mit Link zu GitHub', async ({ page }) => {
   await page.goto('/');
   const line = page.locator('.hero-port');

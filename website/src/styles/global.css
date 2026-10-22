@@ -197,6 +197,11 @@ h3 { font-size: var(--step-1); }
 .hero h1 { text-shadow: 0 4px 24px rgba(0, 0, 0, 0.8); letter-spacing: 0.05em; margin-bottom: 0.3em; }
 .hero .lead { font-size: var(--step-1); color: var(--text-soft); max-width: 38ch; margin: 0 0 1.8rem; }
 .hero .actions { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+/* Über der Überschrift: Hinweis, dass die Seite noch im Aufbau ist */
+.hero-wip { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.7rem; max-width: 52ch; margin: 0 0 1.4rem;
+  padding: 0.55rem 0.9rem; background: rgba(0, 0, 0, 0.45); border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--gold); border-radius: var(--radius); color: var(--text-soft); font-size: 0.88rem; line-height: 1.5; }
+.hero-wip strong { color: var(--gold-light); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
 /* Unter den Knöpfen: was der Download-Knopf lädt; darunter welcher Port (Supermedos, mit Link zu GitHub) */
 .hero-download { margin: 1rem 0 0; color: var(--muted); font-size: 0.88rem; }
 .hero-port { margin: 1.4rem 0 0; color: var(--muted); font-size: 0.92rem; }
