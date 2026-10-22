@@ -240,6 +240,12 @@ test('Hardware-Check bewertet Intels Arc-Grafik im Prozessor wie der Launcher', 
   expect(v.score).toBeGreaterThan(h.score);
 });
 
+test('Release-Daten: neueste Version mit Download der Port-ZIP', () => {
+  // Fiel der Abruf beim Bauen aus, stammen sie aus dem Repo: auch dann kein veraltetes Release ohne Download
+  expect(releases.length).toBeGreaterThan(0);
+  expect(latest?.download, 'Download der neuesten Version').toMatch(/\/Bloodborne[^/]*\.zip$/);
+});
+
 test('Release-Texte behalten nur einfache Auszeichnung', () => {
   const html = cleanNotes(
     '<h2 id="x" onclick="alert(1)">New</h2><p>a <script>alert(1)</script><img src=x onerror=alert(1)>' +
