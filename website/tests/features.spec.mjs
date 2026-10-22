@@ -164,6 +164,25 @@ test('Startseite zeigt den echten Launcher (Play-Seite)', async ({ page }) => {
   expect((await page.request.get(full)).ok(), 'Bild in voller Größe').toBe(true);
 });
 
+// Eine Regel für alle Knöpfe (global.css „Knöpfe: eine Regel für alle“): gleiche Rundung, Messing-Haarlinie,
+// Blut steigt beim Zeigen auf; nur die Füllung unterscheidet Hauptaktion, Rest und Discord
+test('Alle Knöpfe folgen einer Regel', async ({ page }) => {
+  for (const path of ['/', '/changelog/', '/install/']) {
+    await page.goto(path);
+    const buttons = await page.$$eval('.btn, .hw-detect, .lightbox button', (all) => all.map((b) => {
+      const c = getComputedStyle(b);
+      const rise = getComputedStyle(b, '::before');
+      return { radius: c.borderTopLeftRadius, width: c.borderTopWidth, line: c.borderTopColor, rise: rise.content !== 'none' && rise.content !== 'normal' };
+    }));
+    expect(buttons.length, path).toBeGreaterThan(0);
+    for (const b of buttons) expect(b, path).toEqual({ radius: '10px', width: '1px', line: 'rgba(194, 168, 120, 0.4)', rise: true });
+  }
+  await page.goto('/');
+  const fill = (sel) => page.locator(sel).first().evaluate((b) => getComputedStyle(b).backgroundColor);
+  expect(await fill('.hero .btn-primary')).toBe('rgb(138, 17, 24)');
+  expect(await fill('.hero .btn-discord')).toBe('rgb(88, 101, 242)');
+});
+
 // Nick will nirgends farbige Streifen am linken Rand von Kästen oder Hinweisen sehen
 test('Keine Streifen am linken Rand', async ({ page }) => {
   for (const path of ['/', '/install/', '/guide/', '/faq/', '/changelog/']) {
