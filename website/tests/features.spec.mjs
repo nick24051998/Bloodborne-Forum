@@ -174,8 +174,10 @@ test('Menü: Links neben dem Logo, Discord ganz rechts', async ({ page, isMobile
   const logo = await page.locator('.brand').boundingBox();
   const first = await page.locator('.nav a').first().boundingBox();
   const discord = await page.locator('.nav .nav-discord').boundingBox();
+  const column = await page.locator('.site-header .container').boundingBox();
   expect(first.x - (logo.x + logo.width), 'erster Link direkt neben dem Logo').toBeLessThan(60);
-  expect(discord.x + discord.width, 'Discord ganz rechts').toBeGreaterThan(page.viewportSize().width - 80);
+  // rechts in der Inhaltsspalte (die ist auf breiten Bildschirmen mittig), nicht am Fensterrand
+  expect(column.x + column.width - (discord.x + discord.width), 'Discord ganz rechts').toBeLessThan(40);
 });
 
 // Eine Regel für alle Knöpfe (global.css „Knöpfe: eine Regel für alle“): gleiche Rundung, Messing-Haarlinie,
