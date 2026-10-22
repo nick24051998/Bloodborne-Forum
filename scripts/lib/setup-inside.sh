@@ -356,9 +356,9 @@ pinned_topic() { # pinned_topic TAG-SLUG TAG-ID TITLE CONTENT-FILE: creates the 
     jq -r --arg t "$3" '[.data[] | select(.attributes.title == $t) | .id][0] // empty' 2>/dev/null || true)
   if [ -n "$_did" ]; then
     # Text aus dem Repo übernehmen, wenn er sich geändert hat
-    _post=$(api GET "/discussions/$_did?include=firstPost" | jq -c '.included[]? | select(.type == "posts") | {id, c: .attributes.content}' | head -n 1)
-    _pid=$(echo "$_post" | jq -r '.id // empty')
-    if [ -n "$_pid" ] && [ "$(echo "$_post" | jq -r '.c')" != "$_content" ]; then
+    # Den Text liefert nur /posts/ID (die Themen-Abfrage enthält ihn nicht)
+    _pid=$(api GET "/discussions/$_did?include=firstPost" | jq -r '[.included[]? | select(.type == "posts") | .id][0] // empty')
+    if [ -n "$_pid" ] && [ "$(api GET "/posts/$_pid" | jq -r '.data.attributes.content // empty')" != "$_content" ]; then
       _body=$(jq -n --arg c "$_content" --arg id "$_pid" '{data: {type: "posts", id: $id, attributes: {content: $c}}}')
       api PATCH "/posts/$_pid" "$_body" >/dev/null && ok "$3 (text updated)"
     else
