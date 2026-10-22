@@ -183,7 +183,7 @@ test('Menü: Links neben dem Logo, Discord ganz rechts', async ({ page, isMobile
 // Eine Regel für alle Knöpfe (global.css „Knöpfe: eine Regel für alle“): gleiche Rundung, Messing-Haarlinie,
 // Blut steigt beim Zeigen auf; nur die Füllung unterscheidet Hauptaktion, Rest und Discord
 test('Alle Knöpfe folgen einer Regel', async ({ page }) => {
-  for (const path of ['/', '/changelog/', '/install/']) {
+  for (const path of ['/', '/changelog/', '/install/', '/supermedo/']) {
     await page.goto(path);
     const buttons = await page.$$eval('.btn, .hw-detect, .lightbox button', (all) => all.map((b) => {
       const c = getComputedStyle(b);
@@ -201,7 +201,7 @@ test('Alle Knöpfe folgen einer Regel', async ({ page }) => {
 
 // Nick will nirgends farbige Streifen am linken Rand von Kästen oder Hinweisen sehen
 test('Keine Streifen am linken Rand', async ({ page }) => {
-  for (const path of ['/', '/install/', '/guide/', '/faq/', '/changelog/']) {
+  for (const path of ['/', '/install/', '/guide/', '/faq/', '/changelog/', '/supermedo/']) {
     await page.goto(path);
     const stripes = await page.$$eval('body *', (all) => all.filter((el) => {
       const cs = getComputedStyle(el);
@@ -227,6 +227,27 @@ test('Startseite nennt den Port von Supermedo mit Link zu GitHub', async ({ page
   await expect(line).toContainText(SITE.portAuthor);
   await expect(line.locator(`a[href="${SITE.portRepoUrl}"]`)).toBeVisible();
   await expect(page.locator(`footer a[href="${SITE.portRepoUrl}"]`)).toHaveCount(1);
+});
+
+test('Supermedo-Seite zeigt seine Projekte und verlinkt NativeRetro', async ({ page }) => {
+  await page.goto('/supermedo/');
+  await expect(page.locator('h1')).toHaveText(`${SITE.portAuthor}'s ports`);
+  await expect(page.locator('.nr-hero a.btn-primary')).toHaveAttribute('href', 'https://nativeretro.com/');
+  // bbport ist als „hier“ markiert, die anderen Ports führen zu NativeRetro und GitHub
+  await expect(page.locator('.nr-card.is-here h3')).toHaveText('Bloodborne for Windows');
+  await expect(page.locator('.nr-card a[href^="https://nativeretro.com/game/"]').first()).toBeVisible();
+  await expect(page.locator('.nr-dir a[href^="https://nativeretro.com/game/"]')).not.toHaveCount(0);
+  // Die Terminalschrift liegt auf dieser Seite, nichts wird von NativeRetro geladen
+  const external = [];
+  page.on('request', (req) => { if (/^https?:/.test(req.url()) && !req.url().startsWith('http://127.0.0.1')) external.push(req.url()); });
+  await page.reload({ waitUntil: 'networkidle' });
+  expect(external).toEqual([]);
+  expect(await page.evaluate(async () => (await document.fonts.load('20px VT323')).length)).toBeGreaterThan(0);
+
+  // Startseite und Fußzeile führen hierher
+  await page.goto('/');
+  await expect(page.locator('.nr-teaser a[href="/supermedo/"]')).toBeVisible();
+  await expect(page.locator('footer a[href="/supermedo/"]')).toHaveCount(1);
 });
 
 test.describe('Download und Releases', () => {

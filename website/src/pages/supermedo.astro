@@ -1,0 +1,154 @@
+---
+// Supermedos Projekte und seine Seite NativeRetro. Gestaltung: Yharnam trifft das Terminal. Rahmen, Schrift der
+// Überschriften, Knöpfe und Blut bleiben bbport; Bernstein, Terminal-Grün, Röhrenmonitor und die Schrift VT323
+// kommen von nativeretro.com. Alles liegt auf dieser Seite, nichts wird von NativeRetro geladen (Datenschutz).
+import Base from '../layouts/Base.astro';
+import { SITE } from '../../site.config.mjs';
+import { link, absolute } from '../lib/url.js';
+import { NATIVERETRO, screen, ports, classics, tools } from '../data/supermedo.js';
+
+const title = `${SITE.portAuthor}'s ports & NativeRetro`;
+const description = `All game ports by ${SITE.portAuthor}, the maker of ${SITE.brand}: Uncharted, WET, Prince of Persia 2, Commander Keen and more, native on Windows without an emulator. His site: NativeRetro.`;
+
+const profileLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  url: absolute('supermedo/'),
+  name: title,
+  mainEntity: {
+    '@type': 'Person',
+    name: SITE.portAuthor,
+    url: NATIVERETRO.url,
+    sameAs: [SITE.portAuthorUrl],
+  },
+};
+
+const href = (l) => (l.internal ? link(l.href) : l.href);
+---
+
+<Base title={title} description={description} jsonLd={[profileLd]}>
+  <section class="page-hero nr-hero">
+    <div class="container">
+      <p class="nr-prompt" aria-hidden="true">C:\BBPORT&gt; cd ..\NATIVERETRO<span class="nr-caret"></span></p>
+      <h1>{SITE.portAuthor}'s ports</h1>
+      <p>
+        {SITE.brand} is one game of many. {SITE.portAuthor} rebuilds games as real Windows programs, from DOS classics of
+        the late 1980s to PlayStation 4 games. His site NativeRetro collects them all.
+      </p>
+      <div class="nr-actions">
+        <a class="btn btn-primary" href={NATIVERETRO.url} rel="noopener">Visit NativeRetro</a>
+        <a class="btn btn-ghost" href={SITE.portAuthorUrl} rel="noopener">{SITE.portAuthor} on GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section nr-intro">
+    <div class="container nr-split">
+      <figure class="nr-monitor" aria-hidden="true">
+        <div class="nr-screen">
+          <p><span class="nr-green">C:\{SITE.portAuthor.toUpperCase()}&gt;</span> dir /ports</p>
+          <ul>
+            {screen.map(([code, system, year], i) => (
+              <li class:list={[{ 'nr-here': i === 0 }]}>
+                <span>{code}</span><span>{system}</span><span>{year}</span>{i === 0 && <span class="nr-here-tag">◄ you are here</span>}
+              </li>
+            ))}
+          </ul>
+          <p class="nr-dim">0 emulators needed</p>
+          <p><span class="nr-green">C:\{SITE.portAuthor.toUpperCase()}&gt;</span> <span class="nr-caret"></span></p>
+        </div>
+        <figcaption><span>NativeRetro</span><span class="nr-led"></span></figcaption>
+      </figure>
+      <div>
+        <p class="eyebrow">NativeRetro</p>
+        <h2>From Yharnam to the DOS prompt</h2>
+        <p class="about">
+          Every port on NativeRetro is the original game code, rebuilt as a normal 64-bit Windows program. There is no
+          emulator and nothing to set up. Your own copy of the game supplies the data, art and music, and nothing in it
+          is changed. That is the same idea behind {SITE.brand}.
+        </p>
+        <ol class="nr-steps">
+          <li><span>01</span><p><strong>Download the port.</strong> A small zip with the game program and a launcher.</p></li>
+          <li><span>02</span><p><strong>Point it at your copy.</strong> The launcher asks for the folder with your original game.</p></li>
+          <li><span>03</span><p><strong>Play natively.</strong> Fullscreen or windowed, modern display options and controller support.</p></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="ports">
+    <div class="container">
+      <h2 class="nr-heading"><span class="nr-path" aria-hidden="true">C:\PORTS&gt;</span> Console ports</h2>
+      <div class="grid nr-cards">
+        {ports.map((p) => (
+          <article class:list={['card', 'nr-card', { 'is-here': p.here }]}>
+            <p class="nr-meta"><span>{p.system}</span><span>{p.year}</span><span>{p.studio}</span></p>
+            <h3>{p.title}</h3>
+            <p>{p.text}</p>
+            <p class="nr-links">
+              {p.here && <span class="nr-badge">You are here</span>}
+              {p.links.map((l) => <a href={href(l)} rel={l.internal ? undefined : 'noopener'}>{l.label}</a>)}
+            </p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="classics">
+    <div class="container">
+      <h2 class="nr-heading"><span class="nr-path" aria-hidden="true">C:\CLASSICS&gt;</span> Retro classics</h2>
+      <p class="about">Games from 1989 onwards, rebuilt the same way. Each one has its own page on NativeRetro with the download.</p>
+      <ul class="nr-dir">
+        {classics.map((c) => (
+          <li>
+            <a href={c.href} rel="noopener">
+              <span class="nr-code" aria-hidden="true">{c.code}</span>
+              <span class="nr-title">{c.title}</span>
+              <span class="nr-year">{c.year}</span>
+              <span class="nr-studio">{c.studio}</span>
+            </a>
+            {c.source && <a class="nr-source" href={c.source} rel="noopener" aria-label={`${c.title}: source code on GitHub`}>Source</a>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="tools">
+    <div class="container">
+      <h2 class="nr-heading"><span class="nr-path" aria-hidden="true">C:\TOOLS&gt;</span> Tools</h2>
+      <div class="grid nr-cards">
+        {tools.map((t) => (
+          <article class="card nr-card">
+            <h3>{t.title}</h3>
+            <p>{t.text}</p>
+            <p class="nr-links"><a href={t.href} rel="noopener">GitHub</a></p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="next">
+    <div class="container">
+      <div class="nr-next">
+        <div>
+          <h2>Which game should be next?</h2>
+          <p>
+            Anyone can ask for a game on NativeRetro and vote for the requests of others. If one of his ports brought a
+            game back for you, you can also buy {SITE.portAuthor} a coffee: the ports are free and stay free.
+          </p>
+          <p class="nr-note">
+            For Bloodborne, this site and the <a href={SITE.portRepoUrl} rel="noopener">GitHub releases</a> always have
+            the newest build. Help with {SITE.brand} is in our <a href={link('community/')}>forum and on Discord</a>.
+          </p>
+        </div>
+        <div class="nr-actions">
+          <a class="btn btn-primary" href={NATIVERETRO.requests} rel="noopener">Request a game</a>
+          <a class="btn btn-ghost" href={NATIVERETRO.coffee} rel="noopener">Buy him a coffee</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

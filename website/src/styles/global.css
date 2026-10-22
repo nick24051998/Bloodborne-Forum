@@ -6,6 +6,8 @@
 @font-face { font-family: "Inter"; font-weight: 500; font-display: swap; src: url("/fonts/inter-latin-500-normal.woff2") format("woff2"); }
 @font-face { font-family: "Inter"; font-weight: 600; font-display: swap; src: url("/fonts/inter-latin-600-normal.woff2") format("woff2"); }
 @font-face { font-family: "Inter"; font-weight: 700; font-display: swap; src: url("/fonts/inter-latin-700-normal.woff2") format("woff2"); }
+/* Terminalschrift von NativeRetro, nur auf der Supermedo-Seite und im Hinweis auf der Startseite */
+@font-face { font-family: "VT323"; font-weight: 400; font-display: swap; src: url("/fonts/vt323-latin-400-normal.woff2") format("woff2"); }
 
 :root {
   /* Wie das Forum: kühles Anthrazit, Pergament-Text, Messing-Akzente, Blutrot sparsam */
@@ -566,6 +568,115 @@ h3 { font-size: var(--step-1); }
 .lightbox-nav button { pointer-events: auto; }
 .lightbox-nav[hidden] { display: none; }
 
+/* --- Supermedo und NativeRetro (src/pages/supermedo.astro, Hinweis auf der Startseite) ------------
+   Yharnam trifft das Terminal: Rahmen, Überschriften, Knöpfe und Blut bleiben bbport. Von nativeretro.com kommen
+   Bernstein, Terminal-Grün, VT323, Pfade wie C:\PORTS> und der Röhrenmonitor. Blut glüht von oben links,
+   Bernstein von unten rechts; wo NativeRetro gemeint ist, leuchtet beim Zeigen Bernstein statt Messing. */
+:root {
+  --nr-amber: #ffb000;
+  --nr-amber-dim: rgba(255, 176, 0, 0.6);
+  --nr-green: #5dff8a;
+  --nr-screen: #07080c;
+  --font-term: "VT323", "Cascadia Mono", Consolas, ui-monospace, monospace;
+}
+.nr-prompt { margin: 0 0 0.5rem; font-family: var(--font-term); font-size: 1.35rem; line-height: 1.2; color: var(--nr-green);
+  text-shadow: 0 0 8px rgba(93, 255, 138, 0.35); }
+.nr-caret { display: inline-block; width: 0.55em; height: 0.95em; margin-left: 0.15em; vertical-align: -0.1em;
+  background: currentColor; animation: nr-blink 1.1s steps(1, end) infinite; }
+@keyframes nr-blink { 50% { opacity: 0; } }
+.nr-green { color: var(--nr-green); text-shadow: 0 0 6px rgba(93, 255, 138, 0.4); }
+.nr-actions { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1.4rem; }
+/* Kopf: die Kathedrale wie durch eine Bildröhre gesehen, rechts ein Bernstein-Schein */
+.nr-hero::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px),
+    radial-gradient(55% 90% at 88% 65%, rgba(255, 176, 0, 0.13), transparent 70%); }
+.nr-hero p:not(.nr-prompt) { color: var(--text-soft); }
+
+.nr-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(2rem, 4vw, 3.5rem); align-items: center; }
+.nr-split h2 { margin-top: 0; }
+/* Monitor: Gehäuse wie eine bbport-Karte mit Messing-Haarlinie, Bildschirm wie bei NativeRetro */
+.nr-monitor { margin: 0; padding: 1rem 1rem 0.6rem; border: 1px solid var(--btn-line); border-radius: 22px;
+  background: linear-gradient(180deg, #1b1c20, #111215);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 30px 60px -20px rgba(0, 0, 0, 0.85), 0 0 90px -30px rgba(255, 176, 0, 0.28); }
+.nr-screen { position: relative; overflow: hidden; padding: 1rem 1.2rem; border: 1px solid #222838; border-radius: 12px;
+  background: radial-gradient(120% 90% at 50% 40%, #0e1119, #050609); box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.85);
+  font-family: var(--font-term); font-size: clamp(1.1rem, 0.95rem + 0.5vw, 1.45rem); line-height: 1.3;
+  color: var(--nr-amber); text-shadow: 0 0 6px rgba(255, 176, 0, 0.45); }
+.nr-screen::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px); }
+.nr-screen p { margin: 0; }
+.nr-screen ul { list-style: none; margin: 0.35rem 0; padding: 0; }
+.nr-screen li { display: grid; grid-template-columns: 12ch 5ch 5ch auto; padding: 0 0.35em; white-space: nowrap; }
+/* Die Auswahl wie in einem DOS-Menü, aber in Blut: hier steht bbport */
+.nr-screen .nr-here { background: var(--blood); color: #fff; text-shadow: 0 0 8px rgba(255, 120, 110, 0.6); }
+.nr-here-tag { padding-left: 1ch; }
+.nr-dim { color: var(--nr-amber-dim); }
+.nr-monitor figcaption { display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.4rem 0;
+  font-family: var(--font-head); font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); }
+.nr-led { width: 8px; height: 8px; border-radius: 50%; background: var(--nr-green); box-shadow: 0 0 8px rgba(93, 255, 138, 0.8); }
+.nr-steps { list-style: none; margin: 1.4rem 0 0; padding: 0; display: grid; gap: 0.9rem; }
+.nr-steps li { display: grid; grid-template-columns: auto 1fr; gap: 0.9rem; align-items: baseline; }
+.nr-steps span { font-family: var(--font-term); font-size: 1.6rem; line-height: 1; color: var(--nr-amber); }
+.nr-steps p { margin: 0; color: var(--text-soft); }
+.nr-steps strong { color: var(--text-strong); }
+
+/* Überschriften: Pfad im Terminal (NativeRetro), Titel in Cinzel (bbport) */
+.nr-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.7rem; margin-top: 0; }
+.nr-path { font-family: var(--font-term); font-size: 0.8em; font-weight: 400; letter-spacing: 0; color: var(--nr-amber); }
+.nr-cards { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+.nr-card { display: flex; flex-direction: column; }
+.nr-card.is-here { border-color: var(--border-strong);
+  background: radial-gradient(120% 90% at 50% 0%, rgba(138, 17, 24, 0.24), transparent 70%), var(--card); }
+@media (hover: hover) {
+  .nr-card:not(.is-here):hover { border-color: rgba(255, 176, 0, 0.45); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45), 0 0 40px -18px rgba(255, 176, 0, 0.4); }
+}
+.card .nr-meta { display: flex; flex-wrap: wrap; gap: 0 0.5rem; margin: 0 0 0.6rem; font-family: var(--font-term); font-size: 1.2rem;
+  line-height: 1.1; color: var(--nr-amber); }
+.nr-meta span + span::before { content: "·"; margin-right: 0.5rem; color: var(--nr-amber-dim); }
+.card .nr-links { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; margin-top: auto; padding-top: 1rem; font-size: 0.92rem; }
+.nr-badge { padding: 0.1rem 0.6rem; border: 1px solid rgba(201, 74, 68, 0.7); border-radius: 999px; background: rgba(138, 17, 24, 0.35);
+  color: #ffd9d4; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+
+/* Klassiker als Verzeichnisliste: eine Zeile pro Spiel, beim Zeigen markiert wie in einem DOS-Menü */
+.nr-dir { list-style: none; margin: 1.2rem 0 0; padding: 0.5rem; border: 1px solid var(--border-strong); border-radius: var(--radius);
+  background: var(--nr-screen); box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6); }
+.nr-dir li { display: flex; align-items: center; gap: 0.5rem; }
+.nr-dir li + li { border-top: 1px solid rgba(255, 255, 255, 0.04); }
+.nr-dir a:not(.nr-source) { flex: 1; min-width: 0; display: grid; grid-template-columns: 11ch minmax(0, 1fr) 5ch minmax(0, 13rem);
+  gap: 1rem; align-items: baseline; padding: 0.5rem 0.8rem; border-radius: 6px; color: var(--text); text-decoration: none;
+  transition: background-color 220ms, box-shadow 220ms, color 220ms; }
+.nr-dir a:not(.nr-source):is(:hover, :focus-visible) { background: rgba(255, 176, 0, 0.08); box-shadow: inset 0 0 0 1px rgba(255, 176, 0, 0.35); }
+.nr-code, .nr-year { font-family: var(--font-term); font-size: 1.2rem; line-height: 1; color: var(--nr-amber); }
+.nr-year { color: var(--nr-amber-dim); }
+.nr-title { color: var(--text-strong); font-weight: 500; }
+.nr-studio { color: var(--muted); font-size: 0.9rem; }
+.nr-dir .nr-source { flex-shrink: 0; margin-right: 0.5rem; font-size: 0.85rem; }
+
+/* Schluss und Hinweis auf der Startseite: Blut von oben links, Bernstein von unten rechts */
+.nr-next { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1.5rem 2.5rem; align-items: center;
+  padding: clamp(1.3rem, 3vw, 2rem) clamp(1.2rem, 3vw, 2.2rem); border: 1px solid var(--border-strong); border-radius: var(--radius);
+  background: radial-gradient(80% 140% at 0% 0%, rgba(138, 17, 24, 0.22), transparent 60%),
+    radial-gradient(80% 140% at 100% 100%, rgba(255, 176, 0, 0.1), transparent 60%), var(--card); }
+.nr-next h2 { margin-top: 0; }
+.nr-next p { margin: 0 0 0.6rem; color: var(--text-soft); max-width: 70ch; }
+.nr-next .nr-prompt { color: var(--nr-green); }
+.nr-next .nr-actions { margin-top: 0; }
+.nr-next .nr-note { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.nr-teaser { padding-top: 0; }
+
+@media (max-width: 860px) {
+  .nr-split { grid-template-columns: 1fr; }
+  .nr-next { grid-template-columns: 1fr; }
+  .nr-dir a:not(.nr-source) { grid-template-columns: minmax(0, 1fr) auto; gap: 0.1rem 1rem; }
+  .nr-dir .nr-code { display: none; }
+  .nr-dir .nr-studio { grid-column: 1 / -1; }
+}
+@media (max-width: 420px) {
+  .nr-screen { padding: 0.8rem 0.7rem; font-size: 1rem; }
+  .nr-screen li { grid-template-columns: 11ch 5ch 5ch auto; }
+  .nr-here-tag { display: none; }
+}
+
 /* --- Bewegung: Abschnitte, Seitenwechsel, "Bewegung reduzieren" ---------------------------- */
 /* Abschnitte gleiten beim Scrollen herein; nie ganz unsichtbar, ohne Unterstützung einfach still.
    Fertig nach 300 px statt nach einem Anteil der Bildschirmhöhe: so wird auch der letzte Abschnitt auf
@@ -585,10 +696,10 @@ h3 { font-size: var(--step-1); }
 
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
-  .hero::before, .hero::after, .page-hero::after, .hero .emblem-art, .hero .emblem::before, .hero .emblem::after, .section, .live-lamp { animation: none !important; }
+  .hero::before, .hero::after, .page-hero::after, .hero .emblem-art, .hero .emblem::before, .hero .emblem::after, .section, .live-lamp, .nr-caret { animation: none !important; }
   :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord),
   :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord)::before,
-  .card, .nav a, .site-footer a, .tile, .tile-img, .tile-caption p { transition: none !important; }
+  .card, .nav a, .site-footer a, .tile, .tile-img, .tile-caption p, .nr-dir a { transition: none !important; }
   .lightbox[open] { animation: none; }
   .lightbox-img { transition: none !important; }
   .card:hover, :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord):active { transform: none; }

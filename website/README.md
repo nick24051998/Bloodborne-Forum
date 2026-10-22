@@ -13,6 +13,7 @@ Best Practices 100, Performance 99–100.
 |---|---|
 | Name, Adresse, Discord-, Forum- und Download-Link, Google-Beschreibung | `site.config.mjs` |
 | Community-Seite (Forum/Discord, Hilfe-Hinweise) | `src/pages/community.astro` |
+| Supermedos Projekte und NativeRetro | `src/data/supermedo.js` (Ports, Klassiker, Werkzeuge), Seite `src/pages/supermedo.astro` |
 | Startseite (Einleitung, Feature-Karten) | `src/pages/index.astro` (oben die Liste `features`, im Hero der Satz mit `TODO`) |
 | Installationsanleitung und Systemanforderungen | `src/texts/install.md` |
 | „Will it run on my PC?“ (Grafikkarten, Prozessoren, Regeln) | `src/data/hardware.js` (neue Karte: eine Zeile ergänzen) |
@@ -112,4 +113,4 @@ Lokal (Node.js ab 22.22): `npm run build`, einmalig
   Social-Vorschau für Discord, X und andere (`public/og-image.jpg`, aus dem Einladungs-Hintergrund des Discord-Servers, erzeugt mit `python3 media/brand.py`).
 - Strukturierte Daten für Google: `WebSite` und `Organization`, auf der FAQ-Seite `FAQPage`.
 - `sitemap-index.xml` und `robots.txt` werden beim Build automatisch erzeugt.
-- Die Schriften Cinzel und Inter stehen unter der SIL Open Font License (`public/fonts/OFL-*.txt`).
+- Die Schriften Cinzel, Inter und VT323 (Terminalschrift der Supermedo-Seite) stehen unter der SIL Open Font License (`public/fonts/OFL-*.txt`).
