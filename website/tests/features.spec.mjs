@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
 import { SITE } from '../site.config.mjs';
-import { TIERS } from '../src/data/hardware.js';
+import { TIERS, gpus, cpuLines, evaluate } from '../src/data/hardware.js';
 import { cleanNotes } from '../scripts/release-notes.mjs';
 
 // Dieselben Daten, aus denen die Seite gebaut wurde (im Workflow frisch von GitHub)
@@ -141,7 +141,7 @@ test.describe('Download und Releases', () => {
   });
 
   test('Install Guide und FAQ verlinken die ZIP direkt', async ({ page }) => {
-    for (const path of ['/install/', '/faq/']) {
+    for (const path of ['/install/', '/faq/', '/guide/']) {
       await page.goto(path);
       await expect(page.locator('a[href="#latest-download"]'), path).toHaveCount(0);
       expect(await page.locator(`a[href="${zipUrl}"]`).count(), path).toBeGreaterThan(0);
@@ -161,6 +161,30 @@ test.describe('Download und Releases', () => {
     await expect(entry).toBeInViewport();
     if (latest.notes) await expect(entry.locator('.release-notes li').first()).toBeVisible();
   });
+});
+
+test('Launcher guide: im Menü, mit den Abschnitten und dem Beta-Link', async ({ page }) => {
+  await page.goto('/');
+  // Auf dem Handy steckt das Menü im Seitenmenü, der Link ist trotzdem da
+  await expect(page.locator('header a[href$="/guide/"]').first()).toHaveCount(1);
+  await page.goto('/guide/');
+  await expect(page.locator('h1')).toHaveText(/Launcher guide/i);
+  for (const id of ['whats-included', 'online-play', 'saves', 'mods', 'test-build-195-beta-2']) {
+    await expect(page.locator(`h2#${id}`), id).toHaveCount(1);
+  }
+  await expect(page.locator('a[href*="nick24051998/bloodborne_pc/releases/tag/v1.9.5-beta"]')).toHaveCount(1);
+});
+
+test('Hardware-Check bewertet Intels Arc-Grafik im Prozessor wie der Launcher', () => {
+  const ultra = cpuLines.find((l) => l.id === 'intel-core-ultra');
+  const gen = ultra.gens.find((g) => g.id === 'u1-5');
+  for (const name of ['Arc graphics (Core Ultra 100H)', 'Arc 140V / 130V (Core Ultra 200V)']) {
+    const gpu = gpus.find((g) => g.name === name);
+    expect(TIERS[evaluate(gpu, ultra, gen, 32).tiers.gpu], name).toBe('Above minimum');
+  }
+  const h = gpus.find((g) => g.name === 'Arc graphics (Core Ultra 100H)');
+  const v = gpus.find((g) => g.name === 'Arc 140V / 130V (Core Ultra 200V)');
+  expect(v.score).toBeGreaterThan(h.score);
 });
 
 test('Release-Texte behalten nur einfache Auszeichnung', () => {

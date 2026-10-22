@@ -1,5 +1,5 @@
 // Wird über flarum/extend.php ins Forum eingebunden (kein Build-Schritt nötig).
-// - Kopfzeile wie auf der Website: Logo führt zur Website, Menüpunkte Install, FAQ, Changelog,
+// - Kopfzeile wie auf der Website: Logo führt zur Website, Menüpunkte Install, Guide, FAQ, Changelog,
 //   Forum (aktiv) und Discord; Website-Links im selben Tab, Discord in einem neuen
 //   (auf dem Handy im Seitenmenü, dort zusätzlich "Website")
 // - Discord-only-Registrierung: Das Registrieren-Fenster zeigt nur den Discord-Button
@@ -138,6 +138,7 @@
       if (site) {
         items.add('bb-home', externalLink(site + '/', 'fas fa-home', 'Website'), 60);
         items.add('bb-install', externalLink(site + '/install/', 'fas fa-download', 'Install guide'), 50);
+        items.add('bb-guide', externalLink(site + '/guide/', 'fas fa-book-open', 'Guide'), 45);
         items.add('bb-faq', externalLink(site + '/faq/', 'fas fa-question-circle', 'FAQ'), 40);
         items.add('bb-changelog', externalLink(site + '/changelog/', 'fas fa-scroll', 'Changelog'), 30);
         items.add('bb-forum', LinkButton.component({

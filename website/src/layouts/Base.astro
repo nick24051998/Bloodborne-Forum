@@ -18,6 +18,7 @@ const path = Astro.url.pathname;
 
 const nav = [
   { href: link('install/'), label: 'Install' },
+  { href: link('guide/'), label: 'Guide' },
   { href: link('faq/'), label: 'FAQ' },
   { href: link('changelog/'), label: 'Changelog' },
   ...(SITE.forumUrl ? [{ href: SITE.forumUrl, label: 'Forum' }] : []),

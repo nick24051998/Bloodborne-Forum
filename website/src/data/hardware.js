@@ -97,7 +97,9 @@ export const gpus = [
     ['Radeon Graphics 2 CU (Ryzen 7000/9000 desktop)', 0, 7, igpu],
   ]).map((g) => ({ ...g, fsr4: false, amdDriverNote: false })),
   ...intel('Integrated graphics (Intel)', [
-    ['Arc 140V / 130V (Core Ultra 200V)', 0, 50, igpu], ['Arc graphics (Core Ultra 100H)', 0, 42, igpu],
+    // Wie im Launcher (launcher/bbport_hardware.py, PR #122): Ein Tester mit Core Ultra 5 125H hat 40–55 FPS bei
+    // 1080p nativ gemessen; der Arc der 200V ist schneller
+    ['Arc 140V / 130V (Core Ultra 200V)', 0, 85, igpu], ['Arc graphics (Core Ultra 100H)', 0, 70, igpu],
     ['Iris Xe (11th–13th gen laptops)', 0, 20, igpu], ['UHD 770 / 730 (12th gen+ desktop)', 0, 10, igpu],
     ['UHD 620 / 630', 0, 6, igpu],
   ]),

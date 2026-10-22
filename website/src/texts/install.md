@@ -34,7 +34,7 @@ intro: Everything you need to get Bloodborne running on Windows – from system 
 - **DLSS** needs a GeForce RTX 20 series or newer. **DLSS Frame Generation** needs RTX 40 (2×) or RTX 50 (up to 4×). **FSR 3.1** frame generation works on any card and works best from about 60 base FPS.
 - **FSR 4** is slow below Radeon RX 7000/9000; use FSR 3.1 there.
 - **AMD driver 26.8.1:** if an RX 6000/9000 crashes or shows broken graphics, clear the shader cache (Advanced), or try another driver.
-- **Intel graphics:** stretched polygons can still appear with an upscaler on (known issue in 1.9.2), so turn it off.
+- **Intel graphics** get no upscaler, and FSR 4 freezes on Intel Arc.
 - **Overlays:** if the game won't start or keeps crashing, close MSI Afterburner, RTSS and other overlays.
 
 *Rough guide, not a guarantee.*
@@ -49,7 +49,7 @@ intro: Everything you need to get Bloodborne running on Windows – from system 
 
 1. Unpack the base game and the 1.09 update into two new, empty folders, for example with ShadPs4Plus PKG Extractor 1.1.
 2. Copy everything from the update folder into the base game folder and choose "Replace the files in the destination".
-3. Check the result. The folder now has `eboot.bin` (about 89.4 MB), `sce_module`, `sce_sys` and `dvdroot_ps4` (about 29 GB) directly inside. The Old Hunters DLC is already part of the GOTY edition.
+3. Check the result. The folder now has `eboot.bin` (exactly 93,825,704 bytes), `sce_module`, `sce_sys` and `dvdroot_ps4` (about 29 GB) directly inside. The Old Hunters DLC is already part of the GOTY edition.
 
 ### Step 2: unpack the port
 
@@ -59,20 +59,22 @@ intro: Everything you need to get Bloodborne running on Windows – from system 
 ### Step 3: first start
 
 1. Double-click `Bloodborne.exe`. If Windows says "Windows protected your PC", click More info, then Run anyway.
-2. Go to Game & effects > Game folder > Browse, and pick your game folder from step 1.
-3. The Play page should show "Game version 01.09: every patch available".
+2. The first time, a short guide picks your game folder from step 1 and the settings for your PC.
+3. The Play page checks the game version, your saves and the graphics card.
 4. Press PLAY. The first minutes can stutter while the shader cache is built, which is normal.
 
 ### After that
 
 - `Play Bloodborne.exe` starts the game straight away with your settings.
 - In the game, Insert (keyboard) or L3 + R3 (controller) opens the port's menu.
+- The FPS, resolution and effect patches are already included. The [launcher guide](../guide/) shows where to set them, and how online play, saves and mods work.
 
 ## Updating
 
-New versions show up in the launcher. Update keeps your saves, settings and mods. Under Advanced > Other versions you can also go back to any version from 1.8.2 on. See the [changelog](../changelog/) for what changed.
+New versions show up at the bottom left of the launcher. Update keeps your saves, settings and mods. Under Advanced > Other versions you can also go back to any version from 1.8.2 on. On 1.9.3 the update button never appears: [download the newest version](#latest-download) and unpack it over your port folder. See the [changelog](../changelog/) for what changed.
 
 ## Something went wrong?
 
-1. Check the [FAQ](../faq/) – it covers the most common problems, from code 3 at start to crashes and stutter.
-2. Still stuck? Run the BB Report Tool (pinned in #help on our Discord) and ask the [community](../community/) with its zip. It shows our helpers your PC, settings and the log.
+1. Open **Help** in the launcher. It checks your game folder and PC and lists the known problems with their fixes.
+2. Check the [FAQ](../faq/) – it covers the most common problems, from code 3 at start to crashes and stutter.
+3. Still stuck? Press Help > Save a report and ask the [community](../community/) with its zip. It shows our helpers your PC, settings and the log.
