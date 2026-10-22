@@ -237,8 +237,7 @@ h1, h2, h3,
 
 .IndexPage-nav.sideNav .Dropdown-menu > li.active > a {
   background: @bb-card-hover;
-  color: @bb-text-strong;
-  box-shadow: inset 2px 0 0 @bb-blood-hover;
+  color: @bb-gold-light;
   font-weight: 600;
 }
 
@@ -585,8 +584,8 @@ h1, h2, h3,
 
   blockquote {
     background: @bb-bg-deep;
-    border-left: 3px solid @bb-stone;
-    border-radius: 0 6px 6px 0;
+    border: 1px solid @bb-border;
+    border-radius: 6px;
     color: @bb-text-soft;
   }
 
@@ -849,9 +848,9 @@ body::after {
 }
 
 @keyframes bb-newpost {
-  0% { box-shadow: inset 3px 0 0 @bb-blood; }
-  30% { box-shadow: inset 5px 0 0 @bb-blood-light; background-color: #1d1416; }
-  100% { box-shadow: inset 3px 0 0 transparent; }
+  0% { background-color: #241517; }
+  30% { background-color: #1d1416; }
+  100% { background-color: transparent; }
 }
 
 // Beste Antwort: der Messingrahmen glüht einmal auf, wenn der Beitrag erscheint

@@ -164,9 +164,22 @@ test('Startseite zeigt den echten Launcher (Play-Seite)', async ({ page }) => {
   expect((await page.request.get(full)).ok(), 'Bild in voller Größe').toBe(true);
 });
 
+// Nick will nirgends farbige Streifen am linken Rand von Kästen oder Hinweisen sehen
+test('Keine Streifen am linken Rand', async ({ page }) => {
+  for (const path of ['/', '/install/', '/guide/', '/faq/', '/changelog/']) {
+    await page.goto(path);
+    const stripes = await page.$$eval('body *', (all) => all.filter((el) => {
+      const cs = getComputedStyle(el);
+      const left = parseFloat(cs.borderLeftWidth);
+      return cs.borderLeftStyle !== 'none' && left >= 2 && left > parseFloat(cs.borderTopWidth);
+    }).map((el) => `${el.tagName.toLowerCase()}.${String(el.className).split(' ')[0]}`));
+    expect(stripes, path).toEqual([]);
+  }
+});
+
 test('Startseite sagt, dass die Seite noch im Aufbau ist', async ({ page }) => {
   await page.goto('/');
-  const note = page.locator('.hero-wip');
+  const note = page.locator('.wip-bar');
   await expect(note).toBeVisible();
   await expect(note).toContainText('Work in progress');
   await expect(note).toContainText('Bug hunters may keep every bug they find');
