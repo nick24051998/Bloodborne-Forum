@@ -7,6 +7,10 @@
 // - Live-Zahlen von The Hunter's Dream (aus /api/hunters-dream, siehe extend.php): als Kasten
 //   in der Seitenleiste, auf schmalen Bildschirmen als Zeile unter dem Willkommens-Banner
 // - Abzeichen: nur die sichtbaren Team-Rollen von Discord (siehe flarum/discord-roles.php)
+// - Wegweiser „Where does my post go?“ unter dem Banner der Startseite: Known Fixes, Help & Support, Suggestions,
+//   Bug Reports mit je einem Satz; lässt sich ausblenden (merkt sich der Browser)
+// - Team (wer in Known Fixes Themen starten darf, also Mods und Admins): Block „Team“ in der Seitenleiste mit
+//   Arbeitslisten (ohne Antwort, ungelöst, offene Bugs, Vorschläge) und an Hilfe-Themen „Save as Known Fix“
 // Die Adressen setzt scripts/setup-forum.sh (WEBSITE_URL, DISCORD_INVITE_URL aus .env).
 (function () {
   var compat = flarum.core.compat;
@@ -18,6 +22,11 @@
   var HeaderSecondary = compat['forum/components/HeaderSecondary'];
   var LinkButton = compat['common/components/LinkButton'];
   var IndexPage = compat['forum/components/IndexPage'];
+  var DiscussionControls = compat['forum/utils/DiscussionControls'];
+  var DiscussionComposer = compat['forum/components/DiscussionComposer'];
+  var Button = compat['common/components/Button'];
+  var Separator = compat['common/components/Separator'];
+  var Stream = compat['common/utils/Stream'];
   var SignUpModal = compat['forum/components/SignUpModal'];
   var User = compat['common/models/User'];
 
@@ -134,6 +143,88 @@
     ]));
   }
 
+  // Wegweiser: welcher Bereich wofür ist. Nur Bereiche, die es gibt (Setup legt sie an), in dieser Reihenfolge.
+  var GUIDE = [
+    ['known-fixes', 'Search here first', 'Solutions that worked, checked by a helper.'],
+    ['help-support', "Something doesn't work", 'Crash, error, setup or performance. One problem per topic.'],
+    ['suggestions', 'You have an idea', 'For the port, the launcher, this forum or Discord.'],
+    ['bug-reports', 'Confirmed bugs', 'With their status, from Open to Fixed. The team moves them here from Help.'],
+  ];
+  var GUIDE_KEY = 'bbforum.guideHidden';
+
+  function guideHidden() {
+    try { return localStorage.getItem(GUIDE_KEY) === '1'; } catch (e) { return false; }
+  }
+
+  function postGuide() {
+    var tags = app.store.all('tags');
+    var cards = GUIDE.map(function (entry) {
+      var tag = tags.filter(function (t) { return t.slug() === entry[0]; })[0];
+      if (!tag) return null;
+      return m('a.bb-guide-card', { href: app.route('tag', { tags: tag.slug() }), style: { '--tag': tag.color() || '' } }, [
+        tag.icon() ? icon(tag.icon(), { className: 'bb-guide-icon' }) : null,
+        m('span.bb-guide-name', tag.name()),
+        m('strong', entry[1]),
+        m('span.bb-guide-text', entry[2]),
+      ]);
+    }).filter(Boolean);
+    if (!cards.length) return null;
+    return m('div.bb-guide', m('div.container', [
+      m('div.bb-guide-head', [
+        m('h2', 'Where does my post go?'),
+        m('button.bb-guide-hide', {
+          type: 'button',
+          'aria-label': 'Hide this guide',
+          onclick: function () {
+            try { localStorage.setItem(GUIDE_KEY, '1'); } catch (e) {}
+            m.redraw();
+          },
+        }, 'Hide'),
+      ]),
+      m('div.bb-guide-cards', cards),
+    ]));
+  }
+
+  function tagBySlug(slug) {
+    return app.store.all('tags').filter(function (t) { return t.slug() === slug; })[0];
+  }
+
+  // Zum Team gehört, wer in Known Fixes Themen starten darf (setup-inside.sh: nur Mods, Admins immer)
+  function isTeam() {
+    var fixes = tagBySlug('known-fixes');
+    return !!(app.session.user && fixes && fixes.canStartDiscussion());
+  }
+
+  // Arbeitslisten fürs Team: Suche mit Gambits (is:unanswered aus extend.php, is:solved von Best Answer)
+  var TEAM_LISTS = [
+    ['bbTeamUnanswered', 'Waiting for an answer', { q: 'tag:help-support is:unanswered', sort: 'oldest' }, 'fas fa-hourglass-half'],
+    ['bbTeamUnsolved', 'Help not solved yet', { q: 'tag:help-support -is:solved', sort: 'latest' }, 'fas fa-life-ring'],
+    ['bbTeamBugs', 'Open bugs', { q: 'tag:bug-reports tag:status-open', sort: 'latest' }, 'fas fa-bug'],
+    ['bbTeamIdeas', 'New suggestions', { q: 'tag:suggestions', sort: 'newest' }, 'fas fa-lightbulb'],
+  ];
+
+  function teamNavItems(items) {
+    items.add('bbTeamSeparator', Separator.component(), -40);
+    items.add('bbTeamTitle', m('span.bb-teamTitle', 'Team'), -41);
+    TEAM_LISTS.forEach(function (list, i) {
+      items.add(list[0], LinkButton.component({ href: app.route('index', list[2]), icon: list[3] }, list[1]), -42 - i);
+    });
+  }
+
+  // Aus einem Hilfe-Thema einen Known Fix machen: Composer in Known Fixes, Titel und Link vorausgefüllt
+  function saveAsKnownFix(discussion) {
+    var fixes = tagBySlug('known-fixes');
+    var link = app.forum.attribute('baseUrl') + app.route.discussion(discussion);
+    app.composer.load(DiscussionComposer, {
+      user: app.session.user,
+      originalContent: '**Problem:** \n**Fix:** \n**Port version:** \n**Found in:** ' + link + '\n',
+    });
+    // Wie Flarum selbst beim Start aus einem Bereich: Tags und Titel als Felder des Composers
+    app.composer.fields.tags = [fixes];
+    app.composer.fields.title = Stream(discussion.title());
+    app.composer.show();
+  }
+
   app.initializers.add('bbforum', function () {
     extend(HeaderPrimary.prototype, 'items', function (items) {
       var site = app.forum.attribute('bbforumWebsiteUrl');
@@ -181,8 +272,26 @@
       if (hd.data) items.add('bbHuntersDream', huntersDreamCard(hd.data), -100);
     });
 
+    // Team-Block in der Seitenleiste (Startseite und Bereiche)
+    extend(IndexPage.prototype, 'navItems', function (items) {
+      if (isTeam()) teamNavItems(items);
+    });
+
+    // Gelöstes oder beantwortetes Hilfe-Thema als Known Fix sichern (wie „Save the fix“ im Discord)
+    extend(DiscussionControls, 'moderationControls', function (items, discussion) {
+      var tags = discussion.tags ? discussion.tags() || [] : [];
+      var isHelp = tags.some(function (t) { return t && t.slug() === 'help-support'; });
+      if (!isHelp || !isTeam()) return;
+      items.add('bbSaveFix', Button.component({
+        icon: 'bbicon bbicon-key',
+        onclick: function () { saveAsKnownFix(discussion); },
+      }, 'Save as Known Fix'));
+    });
+
+    // Unter dem Banner: Hunter's Dream (schmale Bildschirme) und auf der Startseite (nicht in einem Bereich) der Wegweiser
     override(IndexPage.prototype, 'hero', function (original) {
-      return [original(), hd.data ? huntersDreamStrip(hd.data) : null];
+      var inTag = this.currentTag && this.currentTag();
+      return [original(), hd.data ? huntersDreamStrip(hd.data) : null, inTag || guideHidden() ? null : postGuide()];
     });
 
     // Abzeichen: Versteckte Gruppen (Waffen-, GPU-, Setup-Rollen von Discord) nie, auch nicht für Admins und

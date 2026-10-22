@@ -36,10 +36,20 @@
  *
  * Discord-Rollen als Forum-Gruppen, Namen vom Server und Bann/Sperre in beide Richtungen:
  * flarum/discord-roles.php (Befehl bbforum:discord-roles jede Minute, dazu das Ereignis Suspended).
+ *
+ * Arbeitslisten fürs Team (Team-Block in flarum/forum.js): Suche und Filter "is:unanswered" = Themen ohne Antwort.
+ * Wer ein Thema startet oder antwortet, folgt ihm (Voreinstellung, jeder kann es in den Einstellungen abschalten):
+ * so meldet das Forum Antworten auf die eigene Hilfe-Frage.
  */
 
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Started;
+use Flarum\Discussion\Filter\DiscussionFilterer;
+use Flarum\Discussion\Search\DiscussionSearcher;
+use Flarum\Filter\FilterInterface;
+use Flarum\Filter\FilterState;
+use Flarum\Search\AbstractRegexGambit;
+use Flarum\Search\SearchState;
 use Flarum\Extend;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\ValidationException;
@@ -252,6 +262,37 @@ if (! class_exists('BBForumDiscordFeed')) {
     }
 }
 
+if (! class_exists('BBForumUnansweredGambit')) {
+    // "is:unanswered": nur der Eröffnungsbeitrag, noch keine Antwort ("-is:unanswered": mit Antwort)
+    class BBForumUnansweredGambit extends AbstractRegexGambit implements FilterInterface
+    {
+        protected function getGambitPattern()
+        {
+            return 'is:unanswered';
+        }
+
+        protected function conditions(SearchState $search, array $matches, $negate)
+        {
+            $this->constrain($search->getQuery(), $negate);
+        }
+
+        public function getFilterKey(): string
+        {
+            return 'unanswered';
+        }
+
+        public function filter(FilterState $filterState, string $filterValue, bool $negate)
+        {
+            $this->constrain($filterState->getQuery(), $negate);
+        }
+
+        private function constrain($query, bool $negate): void
+        {
+            $query->where('discussions.comment_count', $negate ? '>' : '<=', 1);
+        }
+    }
+}
+
 require_once __DIR__.'/discord-roles.php';
 
 return [
@@ -270,6 +311,12 @@ return [
     (new Extend\Event())->listen(Started::class, function (Started $event) {
         (new BBForumDiscordFeed())->handle($event);
     }),
+
+    (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->addGambit(BBForumUnansweredGambit::class),
+    (new Extend\Filter(DiscussionFilterer::class))->addFilter(BBForumUnansweredGambit::class),
+
+    // Eigenen Themen folgen (statt Flarums "aus"): Antworten erscheinen in den Benachrichtigungen
+    (new Extend\User())->registerPreference('followAfterReply', 'boolval', true),
 
     (new Extend\Middleware('forum'))->add(BBForumSecurityHeaders::class),
     (new Extend\Middleware('admin'))->add(BBForumSecurityHeaders::class),

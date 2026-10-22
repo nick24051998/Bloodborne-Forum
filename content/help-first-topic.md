@@ -1,4 +1,4 @@
-Most problems have a quick fix. Please try these before you start a new discussion.
+Most problems have a quick fix. Please try these before you start a new discussion, and search [Known Fixes](/t/known-fixes): solutions that worked for others, checked by a helper.
 
 - **The game closes right after PLAY (code 3):** Windows gives the port too little memory. Press Win + R, type `sysdm.cpl`, then go to Advanced > Performance Settings > Advanced > Virtual memory > Change, tick "Automatically manage paging file size for all drives" and restart the PC.
 - **Crashes while playing:** update to the newest version in the launcher, set Advanced > Two-stage GPU pipeline to "Off (more stable)", close MSI Afterburner, RTSS and other overlays, and update your graphics driver.

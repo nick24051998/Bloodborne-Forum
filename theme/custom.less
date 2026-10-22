@@ -206,16 +206,30 @@ h1, h2, h3,
   font-size: 14.4px;
 }
 
-// Alles in einer Zeile: Suche schmaler, erst beim Tippen breiter; bei mittlerer Breite ohne "Sign Up"
-// (Log In führt ohnehin über Discord, das legt auch das Konto an)
+// Alles in einer Zeile: Suche schmaler als bei Flarum und beim Reinklicken gleich breit. Flarum macht das Feld fest
+// 225 px breit und beim Fokus 400 px, um 400 px nach links verschoben: Das ragte aus unserem Rahmen und schob sich
+// über das Menü. Hier füllt das Feld den Rahmen, nichts springt; die Trefferliste ist breiter und hängt rechtsbündig
+// darunter. Bei mittlerer Breite ohne "Sign Up" (Log In führt ohnehin über Discord, das legt auch das Konto an)
 @media @desktop-up {
-  .Header-secondary .Search-input {
-    width: 170px;
-    transition: width 220ms @bb-ease;
+  .Header-secondary .Search,
+  .Header-secondary .Search.focused {
+    margin-left: 0;
+  }
 
-    &:focus-within {
-      width: 240px;
-    }
+  .Header-secondary .Search-input {
+    width: 180px;
+  }
+
+  .Header-secondary .Search-input input,
+  .Header-secondary .Search.focused .Search-input input {
+    width: 100%;
+  }
+
+  .Header-secondary .Search-results,
+  .Header-secondary .Search.focused .Search-results {
+    left: auto;
+    right: 0;
+    width: 380px;
   }
 }
 
@@ -468,6 +482,116 @@ h1, h2, h3,
 
 .bb-hdStrip-stat {
   white-space: nowrap;
+}
+
+// --- Team-Block in der Seitenleiste (flarum/forum.js): Überschrift wie die übrigen Abschnitte -----------
+.bb-teamTitle {
+  display: block;
+  padding: 8px 0 4px 12px;
+  font-family: @bb-font-head;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: @bb-gold-light;
+}
+
+// --- Wegweiser unter dem Banner (flarum/forum.js): welcher Bereich wofür ist -------------------------
+// Rundum gerahmte Karten (keine Streifen am Rand), das Symbol in der Farbe des Bereichs
+.bb-guide {
+  background: @bb-bg-deep;
+  border-bottom: 1px solid @bb-border;
+  padding: 14px 0 16px;
+}
+
+.bb-guide-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+
+  h2 {
+    margin: 0;
+    font-family: @bb-font-head;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: @bb-gold-light;
+  }
+}
+
+.bb-guide-hide {
+  padding: 2px 6px;
+  border: 0;
+  background: none;
+  color: @bb-muted;
+  font-size: 12px;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: @bb-text-strong;
+  }
+}
+
+.bb-guide-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.bb-guide-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 10px;
+  align-content: start;
+  padding: 12px 14px;
+  border: 1px solid @bb-border;
+  border-radius: 10px;
+  background: @bb-card;
+  color: @bb-text-soft;
+  font-size: 13px;
+  line-height: 1.45;
+  transition: border-color 220ms, background 220ms;
+
+  &:hover,
+  &:focus-visible {
+    border-color: fade(@bb-gold, 60%);
+    background: @bb-card-hover;
+    text-decoration: none;
+    color: @bb-text-soft;
+  }
+
+  .bb-guide-icon {
+    grid-row: span 3;
+    margin-top: 2px;
+    font-size: 18px;
+    color: var(--tag, #c2a878);
+  }
+
+  .bb-guide-name {
+    color: @bb-muted;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  strong {
+    color: @bb-text-strong;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .bb-guide-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 479.98px) {
+  .bb-guide-card .bb-guide-text {
+    display: none;
+  }
 }
 
 @media (max-width: 991.98px) {

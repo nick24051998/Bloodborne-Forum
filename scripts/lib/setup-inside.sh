@@ -249,16 +249,38 @@ fi
 log "Tags"
 # slug|name|color|icon|description
 TAGS='announcements|Announcements|#8a1118|bbicon bbicon-bell|News, releases and changelogs from the team. Only staff can start topics here.
-help-support|Help & Support|#9c8458|bbicon bbicon-lamppost|Something broken? Include port version, GPU + driver, what happens and your BB Report Tool zip.
+known-fixes|Known Fixes|#4f6b55|bbicon bbicon-key|Solutions that worked, checked by a helper. Search here first. Only the team starts topics here.
+help-support|Help & Support|#9c8458|bbicon bbicon-lamppost|Something doesn't work for you: crash, error, setup, performance. Include port version, GPU + driver and your BB Report Tool zip.
+bug-reports|Bug Reports|#7a2a2e|fas fa-bug|Confirmed bugs in the port and their status. Only the team starts topics here: report problems in Help & Support.
 performance|Performance Reports|#475a6b|bbicon bbicon-droplet|Your frame rates with your hardware and settings. Use the form: real numbers help everyone choose settings.
-suggestions|Suggestions|#6e6656|bbicon bbicon-candle|Ideas and feature requests for the port.
+suggestions|Suggestions|#6e6656|bbicon bbicon-candle|Ideas and feature requests for the port, the launcher, this forum or Discord.
 mods-patches|Mods & Patches|#6b3a45|bbicon bbicon-tools|Share and discuss mods, patches and tweaks. No game files.
 guides|Guides|#4c5d5a|bbicon bbicon-book|Tutorials and how-tos written by the community.
 hunters-dream|The Hunter'"'"'s Dream|#57526e|bbicon bbicon-crescent|Off-topic. Rest a while, good hunter.'
 
+# Zusatz-Tags (ohne Platz in der Reihenfolge). Themen: jeder darf sie setzen, damit man Hilfe, Bugs und Fixes
+# nach Thema filtern kann. Status: setzt nur das Team (siehe Permissions), Ablauf eines Bugs oder Vorschlags.
+TOPIC_TAGS='crash|Crash|#6b2f2f||Crashes, freezes, Device lost, the game closes.
+graphics|Graphics|#4c5a6e||Wrong colours, flicker, stretched polygons, black screen.
+fps|Performance|#475a6b||Low FPS, stutter, VRAM.
+launcher|Launcher|#5a5070||The launcher, updates, settings.
+online|Online & Co-op|#3f5f6b||Co-op, servers, sign-in.
+setup|Setup & Install|#5e5a48||Installing, game files, first start.
+controls|Controls & Input|#4f5f4a||Controller, keyboard and mouse, key mapping.
+audio|Audio|#5b4e5e||Sound and music.
+saves|Saves|#4e5560||Save files and backups.'
+STATUS_TAGS='status-open|Open|#8a1118||Confirmed and not fixed yet.
+status-in-progress|In progress|#9a6b1f||The developer is working on it.
+status-fixed|Fixed|#3f6b4a||Fixed in a release. The topic says which version.
+status-planned|Planned|#475a6b||Accepted idea, not built yet.
+status-done|Done|#3f6b4a||The idea is in a release.
+status-not-planned|Not planned|#4a4a4e||Won'"'"'t be done, the topic says why.
+status-duplicate|Duplicate|#4a4a4e||Already covered by another topic, linked inside.'
+
 if ! installed flarum/tags; then die "flarum/tags is missing"; fi
 existing=$(api GET /tags)
-echo "$TAGS" | while IFS='|' read -r slug name color icon desc; do
+printf '%s\n%s\n%s\n' "$TAGS" "$TOPIC_TAGS" "$STATUS_TAGS" | while IFS='|' read -r slug name color icon desc; do
+  [ -n "$slug" ] || continue
   attrs=$(jq -n --arg n "$name" --arg s "$slug" --arg c "$color" --arg i "$icon" --arg d "$desc" \
     '{name: $n, slug: $s, color: $c, icon: $i, description: $d, isHidden: false}')
   id=$(echo "$existing" | jq -r --arg s "$slug" '.data[] | select(.attributes.slug == $s) | .id')
@@ -276,7 +298,8 @@ tag_id() { echo "$existing" | jq -r --arg s "$1" '.data[] | select(.attributes.s
 gen=$(echo "$existing" | jq -r '.data[] | select(.attributes.slug == "general" and .attributes.discussionCount == 0) | .id')
 [ -n "$gen" ] && api DELETE "/tags/$gen" >/dev/null && ok "empty default tag 'General' removed"
 
-order=$(for s in announcements help-support performance suggestions mods-patches guides hunters-dream; do tag_id "$s"; done |
+# Alles, was hier fehlt, wird ein Zusatz-Tag (Flarum setzt bei der Reihenfolge die übrigen Plätze zurück)
+order=$(for s in announcements known-fixes help-support bug-reports suggestions performance mods-patches guides hunters-dream; do tag_id "$s"; done |
   jq -R . | jq -s 'map({id: ., children: []})')
 api POST /tags/order "{\"order\": $order}" >/dev/null && ok "order set"
 
@@ -284,14 +307,24 @@ api POST /tags/order "{\"order\": $order}" >/dev/null && ok "order set"
 log "Permissions"
 ann=$(tag_id announcements)
 help=$(tag_id help-support)
-# Announcements: restricted tag. Copy all global discussion permissions to the
-# tag, then let only moderators (group 4) start topics (admins always can).
-api PATCH "/tags/$ann" "{\"data\":{\"type\":\"tags\",\"id\":\"$ann\",\"attributes\":{\"isRestricted\":true}}}" >/dev/null
-sql "INSERT IGNORE INTO ${DB_PREFIX}group_permission (group_id, permission)
-       SELECT group_id, CONCAT('tag${ann}.', permission) FROM ${DB_PREFIX}group_permission
-       WHERE permission = 'viewForum' OR permission LIKE 'discussion.%';"
-api POST /permission "{\"permission\": \"tag${ann}.startDiscussion\", \"groupIds\": [4]}" >/dev/null
+# team_only TAG-SLUG: restricted tag. Copy all global discussion permissions to the tag, then let only
+# moderators (group 4; the Discord team gets it from discord-roles.php) start topics or add the tag (admins always can).
+team_only() {
+  _id=$(tag_id "$1")
+  [ -n "$_id" ] || { warn "tag $1 missing"; return 0; }
+  api PATCH "/tags/$_id" "{\"data\":{\"type\":\"tags\",\"id\":\"$_id\",\"attributes\":{\"isRestricted\":true}}}" >/dev/null
+  sql "INSERT IGNORE INTO ${DB_PREFIX}group_permission (group_id, permission)
+         SELECT group_id, CONCAT('tag${_id}.', permission) FROM ${DB_PREFIX}group_permission
+         WHERE permission = 'viewForum' OR permission LIKE 'discussion.%';"
+  api POST /permission "{\"permission\": \"tag${_id}.startDiscussion\", \"groupIds\": [4]}" >/dev/null
+}
+team_only announcements
 ok "Announcements: everyone can read, members can reply, only staff (mods/admins) can start topics"
+team_only known-fixes
+team_only bug-reports
+ok "Known Fixes, Bug Reports: everyone can read and reply, only the team starts topics (confirmed bugs are moved from Help & Support)"
+echo "$STATUS_TAGS" | while IFS='|' read -r slug _rest; do team_only "$slug"; done
+ok "status tags (Open, In progress, Fixed, Planned, Done, Not planned, Duplicate): only the team sets them"
 
 # --------------------------------------------------------------------------
 log "Help & Support: Best Answer + template"
@@ -304,6 +337,10 @@ if installed fof/discussion-templates; then
   # Performance Reports: Hardware, Einstellungen und FPS auf einer festen Teststrecke (Grundlage für Schätzungen)
   body=$(jq -n --rawfile t "$D/content/performance-template.md" '{data: {template: $t}}')
   api PATCH "/tags/$(tag_id performance)/template" "$body" >/dev/null && ok "post template for Performance Reports"
+  for t in known-fixes:known-fix bug-reports:bug suggestions:suggestion; do
+    body=$(jq -n --rawfile t "$D/content/${t#*:}-template.md" '{data: {template: $t}}')
+    api PATCH "/tags/$(tag_id "${t%%:*}")/template" "$body" >/dev/null && ok "post template for ${t%%:*}"
+  done
 fi
 
 # --------------------------------------------------------------------------
@@ -314,12 +351,21 @@ api PATCH /groups/4 '{"data":{"type":"groups","id":"4","attributes":{"color":"#9
 # --------------------------------------------------------------------------
 log "Pinned topics"
 pinned_topic() { # pinned_topic TAG-SLUG TAG-ID TITLE CONTENT-FILE: creates the topic once, pinned and locked
-  if api GET "/discussions?filter%5Btag%5D=$1&page%5Blimit%5D=50" |
-    jq -e --arg t "$3" '.data[] | select(.attributes.title == $t)' >/dev/null 2>&1; then
-    ok "$3 (already exists)"
+  _content=$(subst "$4")
+  _did=$(api GET "/discussions?filter%5Btag%5D=$1&page%5Blimit%5D=50" |
+    jq -r --arg t "$3" '[.data[] | select(.attributes.title == $t) | .id][0] // empty' 2>/dev/null || true)
+  if [ -n "$_did" ]; then
+    # Text aus dem Repo übernehmen, wenn er sich geändert hat
+    _post=$(api GET "/discussions/$_did?include=firstPost" | jq -c '.included[]? | select(.type == "posts") | {id, c: .attributes.content}' | head -n 1)
+    _pid=$(echo "$_post" | jq -r '.id // empty')
+    if [ -n "$_pid" ] && [ "$(echo "$_post" | jq -r '.c')" != "$_content" ]; then
+      _body=$(jq -n --arg c "$_content" --arg id "$_pid" '{data: {type: "posts", id: $id, attributes: {content: $c}}}')
+      api PATCH "/posts/$_pid" "$_body" >/dev/null && ok "$3 (text updated)"
+    else
+      ok "$3 (already exists)"
+    fi
     return 0
   fi
-  _content=$(subst "$4")
   _body=$(jq -n --arg c "$_content" --arg t "$2" --arg title "$3" \
     '{data: {type: "discussions", attributes: {title: $title, content: $c},
       relationships: {tags: {data: [{type: "tags", id: $t}]}}}}')
