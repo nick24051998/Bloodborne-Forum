@@ -22,7 +22,8 @@ test.describe('Hardware-Check (Install Guide)', () => {
 
   test('Empfohlener PC ergibt eine Einschätzung mit Tabelle und Teilen-Link', async ({ page }) => {
     await page.goto('/install/');
-    await expect(page.locator('#hwcheck-heading')).toHaveText('Will it run on my PC?');
+    // Das # dahinter ist der Link zu dieser Stelle (Sprungmarken in Base.astro)
+    await expect(page.locator('#hwcheck-heading')).toHaveText(/^Will it run on my PC\?/);
     await pick(page, { gpu: 'RTX 3060 Ti', cpu: 'Core i7', gen: '12th gen (i7-12xxx)', ram: '32' });
 
     const tier = page.locator('.hw-result .hw-tier');
