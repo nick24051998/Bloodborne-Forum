@@ -15,22 +15,33 @@ const repo = SITE.downloadUrl.match(/github\.com\/([^/]+\/[^/]+)/)?.[1];
 const dataFile = new URL('../src/data/releases.json', import.meta.url);
 const siteUrl = `${SITE.url}${SITE.base}`.replace(/\/$/, '');
 
+async function github(path, accept = 'application/vnd.github+json') {
+  const headers = { Accept: accept, 'User-Agent': 'bbport-website' };
+  if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  const response = await fetch(`https://api.github.com/repos/${repo}${path}`, { headers, signal: AbortSignal.timeout(20000) });
+  if (!response.ok) throw new Error(`GitHub antwortet mit ${response.status}`);
+  return response.json();
+}
+
 async function fetchReleases() {
   if (process.env.RELEASES_FIXTURE) return JSON.parse(await readFile(process.env.RELEASES_FIXTURE, 'utf8'));
-  const get = async (accept) => {
-    const headers = { Accept: accept, 'User-Agent': 'bbport-website' };
-    if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
-    const response = await fetch(`https://api.github.com/repos/${repo}/releases?per_page=20`, { headers, signal: AbortSignal.timeout(20000) });
-    if (!response.ok) throw new Error(`GitHub antwortet mit ${response.status}`);
-    return response.json();
-  };
-  // full+json: Release-Text zusätzlich als HTML (body_html), so wie GitHub ihn anzeigt. Bei zu vielen Releases auf
-  // einmal (40 ab 24 Releases) liefert GitHub damit eine leere Liste; dann ohne Texte, Version und Download stimmen so
-  // trotzdem. Die Website zeigt ohnehin nur die 12 neuesten.
-  const full = await get('application/vnd.github.full+json');
-  if (Array.isArray(full) && full.length) return full;
-  console.log('::warning::GitHub lieferte die Releases mit Texten leer, hole sie ohne Texte');
-  return get('application/vnd.github+json');
+  return github('/releases?per_page=40');
+}
+
+// Release-Texte als HTML (body_html, so wie GitHub sie anzeigt) für die Releases, die der Changelog zeigt, einzeln
+// je Release: Die ganze Liste mit Texten (full+json) kam von GitHub mal leer zurück, beim Bauen auch bei 20 Stück.
+// Fehlt ein Text, verlinkt der Changelog für dieses Release auf GitHub.
+const NOTES_FOR = 12;
+async function addNotes(api) {
+  const shown = new Set(normalize(api).slice(0, NOTES_FOR).map((r) => r.tag));
+  for (const r of api.filter((x) => shown.has(x.tag_name))) {
+    try {
+      r.body_html = (await github(`/releases/${r.id}`, 'application/vnd.github.html+json')).body_html;
+    } catch (e) {
+      console.log(`::warning::Release-Text von ${r.tag_name} nicht abrufbar: ${e.message}`);
+    }
+  }
+  return api;
 }
 
 // Nur veröffentlichte Releases; gibt es Windows-Tags (windows-v1.9.2), dann nur diese
@@ -138,10 +149,11 @@ if (mode === '--check') {
   console.log(`Gemeldet: ${latest.version}`);
 } else {
   try {
-    const releases = normalize(await fetchReleases());
+    const api = await fetchReleases();
+    const releases = normalize(process.env.RELEASES_FIXTURE ? api : await addNotes(api));
     if (!releases.length) throw new Error('keine Releases gefunden');
     await writeFile(dataFile, `${JSON.stringify({ source: `https://github.com/${repo}/releases`, fetchedAt: new Date().toISOString(), releases }, null, 2)}\n`);
-    console.log(`${releases.length} Releases, neueste: ${latestOf(releases)?.version}`);
+    console.log(`${releases.length} Releases, neueste: ${latestOf(releases)?.version}, mit Text: ${releases.filter((r) => r.notes).length}`);
   } catch (e) {
     // Die Website baut dann mit dem Stand aus dem Repo
     console.log(`::warning::Releases nicht abrufbar, nutze src/data/releases.json aus dem Repo: ${e.message}`);
