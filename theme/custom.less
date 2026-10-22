@@ -386,17 +386,37 @@ h1, h2, h3,
   }
 }
 
-// --- Buttons -----------------------------------------------------------------------
-.Button--primary {
-  background: @bb-blood;
-  color: #fff;
-  border-radius: 6px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  // Blut steigt beim Überfahren von unten auf (Bewegung, siehe unten)
+// --- Knöpfe: eine Regel für alle (wie auf der Website, website/src/styles/global.css) --------------
+// Jeder echte Knopf ist eine dunkle Platte mit Messing-Haarlinie: gleiche Rundung, Schrift und Höhe.
+// Die Füllung sagt die Rolle: Blut = Hauptaktion (Button--primary), Stein = alles andere, Discord-Blau nur für Discord.
+// Beim Zeigen steigt von unten Blut auf (bei Discord dessen dunkleres Blau), die Haarlinie glüht; Drücken sinkt ein;
+// die Tastatur zeigt einen Messingring. Text- und Symbolknöpfe (Menü, Antworten, Liken …) bleiben schlicht.
+// :where() hält die Spezifität niedrig, damit die Ecken der SplitDropdown-Knöpfe unten greifen.
+@bb-btn-line: fade(#c2a878, 40%);
+@bb-btn-line-hot: fade(#e0c694, 95%);
+
+.Button {
+  border-radius: 10px;
+}
+
+.Button:where(:not(.Button--link):not(.Button--icon):not(.Button--text):not(.Button--flat)),
+:where(.SplitDropdown) .Button {
+  // Werte ausgeschrieben: less.php übersetzt Variablen und Farbfunktionen in --Eigenschaften nicht zuverlässig
+  --btn-fill: rgba(16, 17, 19, 0.8); // Stein
+  --btn-rise: #8a1118; // @bb-blood
+  --btn-glow: rgba(138, 17, 24, 0.4);
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  background: var(--btn-fill);
+  color: @bb-text-strong;
+  border: 1px solid @bb-btn-line;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 22px rgba(0, 0, 0, 0.35);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: border-color 220ms, color 220ms, box-shadow 220ms, transform 120ms;
 
+  // Blut steigt beim Zeigen von unten auf
   &::before {
     content: "";
     position: absolute;
@@ -405,16 +425,19 @@ h1, h2, h3,
     bottom: 0;
     left: -2%;
     z-index: -1;
-    background: @bb-blood-hover;
+    background: var(--btn-rise);
     border-radius: ~"46% 54% 0 0 / 14% 18% 0 0";
     transform: translateY(101%);
     transition: transform 480ms @bb-ease;
   }
 
   &:hover,
-  &:focus {
-    background: @bb-blood;
+  &:focus,
+  &:focus-visible {
+    background: var(--btn-fill);
+    border-color: @bb-btn-line-hot;
     color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 26px var(--btn-glow);
   }
 
   &:hover::before,
@@ -424,12 +447,53 @@ h1, h2, h3,
 
   &:active,
   &.active {
-    background: darken(@bb-blood, 6%);
+    background: var(--btn-fill);
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid @bb-gold-light;
+    outline-offset: 3px;
+  }
+
+  &:disabled,
+  &.disabled {
+    opacity: 0.4;
+    cursor: default;
+    transform: none;
+    border-color: @bb-btn-line;
+    box-shadow: none;
+
+    &::before {
+      transform: translateY(101%);
+    }
   }
 }
 
-.Button {
-  border-radius: 6px;
+// Rollen: nur die Füllung ändert sich
+.Button--primary {
+  --btn-fill: #8a1118; // @bb-blood
+  --btn-rise: #a3161e; // @bb-blood-hover
+  color: #fff;
+}
+
+.LogInButton--discord {
+  --btn-fill: #5865f2;
+  --btn-rise: #3a44a8;
+  --btn-glow: rgba(88, 101, 242, 0.4);
+  color: #fff;
+}
+
+// Antworten-Knopf mit Pfeil: zwei Platten, innen ohne Rundung
+.SplitDropdown .SplitDropdown-button {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.SplitDropdown .Dropdown-toggle {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left-color: fade(#000, 35%);
 }
 
 .FormControl {
@@ -873,7 +937,8 @@ body::after {
     animation: none;
   }
 
-  .Button--primary::before,
+  .Button,
+  .Button::before,
   .Header-primary .bb-navLink .Button-label,
   .DiscussionListItem {
     transition: none;

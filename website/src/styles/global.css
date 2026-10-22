@@ -122,8 +122,7 @@ h3 { font-size: var(--step-1); }
 .nav a:not(.nav-discord):not([aria-current="page"]):hover,
 .nav a:not(.nav-discord):not([aria-current="page"]):focus-visible { background-size: calc(100% - 1.6rem) 1px; }
 .nav a[aria-current="page"] { box-shadow: inset 0 -2px 0 var(--blood); }
-.nav .nav-discord { background: #5865f2; color: #fff; margin-left: 0.4rem; }
-.nav .nav-discord:hover { background: #4752c4; }
+.nav .nav-discord { margin-left: 0.4rem; }
 /* Mobiles Menü ohne JavaScript (Checkbox + Label) */
 .menu-input { position: absolute; opacity: 0; pointer-events: none; }
 .menu-button { display: none; }
@@ -132,39 +131,60 @@ h3 { font-size: var(--step-1); }
   .site-header .container { flex-wrap: wrap; min-height: 56px; gap: 0; }
   .brand img { height: 34px; }
   .menu-button {
-    display: block; margin-left: auto; cursor: pointer; user-select: none;
-    padding: 0.45rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
-    color: var(--text); font-size: 0.9rem; font-weight: 600;
+    display: block; margin-left: auto; user-select: none;
   }
   .menu-input:focus-visible + .menu-button { outline: 2px solid var(--gold-light); outline-offset: 2px; }
   .nav { display: none; width: 100%; margin: 0; }
   .menu-input:checked ~ .nav { display: block; }
   .nav ul { flex-direction: column; align-items: stretch; padding: 0.5rem 0 0.9rem; }
   .nav .nav-discord { margin: 0.4rem 0 0; text-align: center; }
+  .nav .nav-discord:active { transform: none; }
 }
 
-/* --- Buttons ------------------------------------------------------------------------ */
-.btn {
-  display: inline-flex; align-items: center; gap: 0.5rem; justify-content: center;
-  padding: 0.8rem 1.4rem; border-radius: 10px; font-weight: 700; text-decoration: none;
-  border: 1px solid transparent; transition: background 0.15s, border-color 0.15s, transform 0.15s;
+/* --- Knöpfe: eine Regel für alle -------------------------------------------------------------
+   Jeder Knopf ist eine dunkle Platte mit Messing-Haarlinie: gleiche Rundung, Schrift und Mindesthöhe.
+   Die Füllung sagt die Rolle: Blut = die Hauptaktion eines Bereichs, Stein = alles andere, Discord-Blau nur für Discord.
+   Beim Zeigen steigt von unten Blut auf wie in einer Phiole (bei Discord dessen dunkleres Blau), die Haarlinie glüht;
+   Drücken lässt ihn einsinken; mit der Tastatur zeigt ein Messingring, wo man ist. „Bewegung reduzieren“: nur Farbe.
+   Gilt für .btn, Hardware-Check, Großansicht der Galerie, Menü-Knopf, Discord im Menü und das Forum (theme/custom.less). */
+:root {
+  --btn-radius: 10px;
+  --btn-line: rgba(194, 168, 120, 0.4);
+  --btn-line-hot: rgba(224, 198, 148, 0.95);
 }
-.btn:hover { transform: translateY(-1px); }
-.btn-primary { background: var(--blood); color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06); }
-.btn-primary:hover { color: #fff; }
-.btn-ghost { border-color: rgba(156, 132, 88, 0.6); color: var(--text-strong); }
-.btn-ghost:hover { border-color: var(--blood-hover); color: #fff; }
-/* Blut steigt beim Überfahren von unten auf */
-.btn-primary, .btn-ghost { position: relative; overflow: hidden; isolation: isolate; }
-.btn-primary::before, .btn-ghost::before {
-  content: ""; position: absolute; inset: -12% -2% 0; z-index: -1; background: var(--blood-hover);
+:is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord) {
+  --btn-fill: rgba(16, 17, 19, 0.8);
+  --btn-rise: var(--blood);
+  --btn-glow: rgba(138, 17, 24, 0.4);
+  position: relative; isolation: isolate; overflow: hidden;
+  background: var(--btn-fill); color: var(--text-strong);
+  border: 1px solid var(--btn-line); border-radius: var(--btn-radius);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 22px rgba(0, 0, 0, 0.35);
+  font-family: var(--font-body); font-weight: 700; letter-spacing: 0.02em; text-decoration: none; cursor: pointer;
+  transition: border-color 220ms, color 220ms, box-shadow 220ms, transform 120ms;
+}
+:is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord)::before {
+  content: ""; position: absolute; inset: -12% -2% 0; z-index: -1; background: var(--btn-rise);
   border-radius: 46% 54% 0 0 / 14% 18% 0 0; transform: translateY(101%); transition: transform 480ms var(--ease-heavy);
 }
-.btn-ghost::before { background: var(--blood); }
-.btn-primary:hover::before, .btn-primary:focus-visible::before,
-.btn-ghost:hover::before, .btn-ghost:focus-visible::before { transform: translateY(0); }
-.btn-discord { background: #5865f2; color: #fff; }
-.btn-discord:hover { background: #4752c4; color: #fff; }
+:is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord):is(:hover, :focus-visible):not(:disabled) {
+  background: var(--btn-fill); border-color: var(--btn-line-hot); color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 26px var(--btn-glow);
+}
+:is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord):is(:hover, :focus-visible):not(:disabled)::before {
+  transform: translateY(0);
+}
+:is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord):active { transform: translateY(1px); }
+:is(.btn, .hw-detect, .hw-copy, .lightbox button, .nav .nav-discord):focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; }
+:is(.btn, .hw-detect, .hw-copy, .lightbox button):disabled { opacity: 0.4; cursor: default; transform: none;
+  border-color: var(--btn-line); box-shadow: none; }
+:is(.btn, .hw-detect, .hw-copy, .lightbox button):disabled::before { transform: translateY(101%); }
+/* Rollen: nur die Füllung ändert sich (gleich gewichtet wie die Regel oben, damit sie greifen) */
+.btn.btn-primary { --btn-fill: var(--blood); --btn-rise: var(--blood-hover); color: #fff; }
+:is(.btn.btn-discord, .nav .nav-discord) { --btn-fill: #5865f2; --btn-rise: #3a44a8; --btn-glow: rgba(88, 101, 242, 0.4); color: #fff; }
+/* Größen */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.9rem; padding: 0.75rem 1.4rem; }
+:is(.hw-detect, .hw-copy, .menu-button, .nav .nav-discord) { min-height: 2.4rem; padding: 0.45rem 0.9rem; font-size: 0.9rem; }
 
 /* --- Hero ---------------------------------------------------------------------------- */
 .hero {
@@ -404,10 +424,6 @@ h3 { font-size: var(--step-1); }
 .hw-form select:disabled { color: var(--muted); }
 .hw-row { display: flex; gap: 0.6rem; }
 .hw-row select { flex: 1; }
-.hw-detect, .hw-copy { font: inherit; font-weight: 600; cursor: pointer; border-radius: 8px; color: var(--text-strong);
-  background: none; border: 1px solid rgba(156, 132, 88, 0.6); transition: border-color 220ms, color 220ms; }
-.hw-detect { padding: 0 1rem; font-size: 0.95rem; }
-.hw-detect:hover, .hw-copy:hover { border-color: var(--gold-light); color: var(--gold-light); }
 .hw-hint { margin: 0.4rem 0 0; font-size: 0.85rem; color: var(--muted); }
 .hw-hint:empty { display: none; }
 .hw-result:not(:empty) { margin-top: 1.3rem; padding-top: 1.2rem; border-top: 1px solid var(--border); }
@@ -434,7 +450,7 @@ h3 { font-size: var(--step-1); }
 .hw-notes { margin: 0 0 1rem; padding-left: 1.2rem; color: var(--text-soft); font-size: 0.95rem; }
 .hw-foot { margin: 0; font-size: 0.85rem; color: var(--muted); }
 .hw-report { margin: 1rem 0 0; padding-top: 0.9rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--text-soft); }
-.hw-copy { margin-top: 0.5rem; padding: 0.35rem 0.8rem; font-size: 0.85rem; display: inline-block; }
+.hw-copy { margin-top: 0.5rem; display: inline-block; }
 @media (max-width: 860px) {
   .hwcheck { padding: 1.1rem 1rem 1.2rem; }
   .hw-form { grid-template-columns: 1fr; }
@@ -532,7 +548,6 @@ h3 { font-size: var(--step-1); }
 .lightbox-stage.is-zoomed.is-dragging { cursor: grabbing; }
 .lightbox-stage.is-dragging .lightbox-img { transition: none; }
 .lightbox-zoom { position: absolute; z-index: 2; top: 0.5rem; left: 0.5rem; display: flex; gap: 0.4rem; }
-.lightbox button:disabled { opacity: 0.35; cursor: default; border-color: var(--border-strong); }
 .lightbox-hint { font-size: 0.8rem; color: var(--muted) !important; }
 .lightbox-hint .hint-touch { display: none; }
 @media (hover: none) {
@@ -544,9 +559,7 @@ h3 { font-size: var(--step-1); }
 .lightbox-caption p { margin: 0.3rem 0 0; color: var(--text-soft); }
 .lightbox-credit { color: var(--gold-light) !important; font-size: 0.9rem; }
 .lightbox-close { position: absolute; z-index: 2; top: 0.5rem; right: 0.5rem; margin: 0; }
-.lightbox button { font: 600 1.6rem/1 var(--font-body); width: 2.6rem; height: 2.6rem; border-radius: 50%; cursor: pointer;
-  border: 1px solid var(--border-strong); background: rgba(8, 9, 10, 0.7); color: var(--text-strong); }
-.lightbox button:hover { border-color: var(--gold-light); }
+.lightbox button { width: 2.6rem; height: 2.6rem; padding: 0; font-size: 1.5rem; line-height: 1; }
 .lightbox-nav { position: absolute; z-index: 2; top: 37vh; left: 0.6rem; right: 0.6rem; display: flex; justify-content: space-between; pointer-events: none; }
 .lightbox-nav button { pointer-events: auto; }
 .lightbox-nav[hidden] { display: none; }
@@ -571,10 +584,12 @@ h3 { font-size: var(--step-1); }
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
   .hero::before, .hero::after, .page-hero::after, .hero .emblem-art, .hero .emblem::before, .hero .emblem::after, .section, .live-lamp { animation: none !important; }
-  .btn::before, .card, .nav a, .site-footer a, .tile, .tile-img, .tile-caption p { transition: none !important; }
+  :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord),
+  :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord)::before,
+  .card, .nav a, .site-footer a, .tile, .tile-img, .tile-caption p { transition: none !important; }
   .lightbox[open] { animation: none; }
   .lightbox-img { transition: none !important; }
-  .card:hover, .btn:hover { transform: none; }
+  .card:hover, :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord):active { transform: none; }
   html { scroll-behavior: auto; }
 }
 
