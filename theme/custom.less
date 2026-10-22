@@ -126,16 +126,73 @@ h1, h2, h3,
   color: @bb-gold-light;
 }
 
-// Links zur Website und zu Discord (flarum/forum.js); auf dem Handy im Seitenmenü
-.Header-primary .bb-navLink {
-  font-weight: 600;
+// --- Ein Menü für Website und Forum (wie .nav in website/src/styles/global.css) ------------------------
+// Links neben dem Logo: Install, Guide, FAQ, Changelog, Forum in derselben Schrift und Größe wie auf der Website,
+// ohne Symbole; beim Zeigen dunkle Fläche und Messinglinie, der aktive Bereich mit Blutlinie darunter.
+// Rechts die Aktionen: Suche, Anmelden, Discord-Knopf. Höhe 64px wie die Website.
+@bb-nav-size: 15.2px; // 0.95rem auf der Website
+
+// Höhe über Flarums Variable: Inhalt, Seitenleiste und Scrubber rücken mit
+:root {
+  --header-height: 64px;
 }
 
-// "Forum" ist hier der aktive Bereich, markiert wie die aktive Seite auf der Website
-.Header-primary .bb-navLink--current {
+.Header-primary .bb-navLink,
+.Header-secondary .item-signUp .Button,
+.Header-secondary .item-logIn .Button {
+  height: auto;
+  padding: 8px 13px;
+  border-radius: 8px;
+  color: @bb-text;
+  font-size: @bb-nav-size;
+  font-weight: 500;
+  line-height: 1.5;
+
+  &:hover,
+  &:focus-visible {
+    background: @bb-card-hover;
+    color: @bb-text-strong;
+  }
+}
+
+// "Forum" ist hier die aktive Seite: markiert wie die aktive Seite auf der Website
+.Header-primary .bb-navLink--current,
+.Header-primary .bb-navLink--current:hover {
+  background: @bb-card-hover;
   color: @bb-text-strong;
-  box-shadow: inset 0 -2px 0 @bb-blood-hover;
-  border-radius: 0;
+  box-shadow: inset 0 -2px 0 @bb-blood;
+}
+
+.Header-primary .bb-navLink--current .Button-label {
+  background: none;
+}
+
+// Discord ganz rechts: kleiner Knopf nach der Knopf-Regel (Discord-Blau, siehe Knöpfe unten)
+.Header-secondary .bb-discordButton {
+  height: auto;
+  min-height: 38px;
+  margin-left: 6px;
+  padding: 7px 14px;
+  font-size: 14.4px;
+}
+
+// Alles in einer Zeile: Suche schmaler, erst beim Tippen breiter; bei mittlerer Breite ohne "Sign Up"
+// (Log In führt ohnehin über Discord, das legt auch das Konto an)
+@media @desktop-up {
+  .Header-secondary .Search-input {
+    width: 170px;
+    transition: width 220ms @bb-ease;
+
+    &:focus-within {
+      width: 240px;
+    }
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .Header-secondary .item-signUp {
+    display: none;
+  }
 }
 
 // "Website" nur auf dem Handy (im Seitenmenü gibt es kein Logo)
@@ -477,7 +534,8 @@ h1, h2, h3,
   color: #fff;
 }
 
-.LogInButton--discord {
+.LogInButton--discord,
+.bb-discordButton {
   --btn-fill: #5865f2;
   --btn-rise: #3a44a8;
   --btn-glow: rgba(88, 101, 242, 0.4);

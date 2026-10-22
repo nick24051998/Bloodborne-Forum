@@ -1,6 +1,7 @@
 // Wird über flarum/extend.php ins Forum eingebunden (kein Build-Schritt nötig).
-// - Kopfzeile wie auf der Website: Logo führt zur Website, Menüpunkte Install, Guide, FAQ, Changelog,
-//   Forum (aktiv) und Discord; Website-Links im selben Tab, Discord in einem neuen
+// - Kopfzeile wie auf der Website (ein Menü für beide): links neben dem Logo Install, Guide, FAQ, Changelog,
+//   Forum (aktiv) in derselben Schrift, ohne Symbole; rechts die Aktionen, hier Suche, Anmelden und als letzter
+//   Knopf Discord wie auf der Website. Website-Links im selben Tab, Discord in einem neuen
 //   (auf dem Handy im Seitenmenü, dort zusätzlich "Website")
 // - Discord-only-Registrierung: Das Registrieren-Fenster zeigt nur den Discord-Button
 // - Live-Zahlen von The Hunter's Dream (aus /api/hunters-dream, siehe extend.php): als Kasten
@@ -14,6 +15,7 @@
   var override = compat['common/extend'].override;
   var icon = compat['common/helpers/icon'];
   var HeaderPrimary = compat['forum/components/HeaderPrimary'];
+  var HeaderSecondary = compat['forum/components/HeaderSecondary'];
   var LinkButton = compat['common/components/LinkButton'];
   var IndexPage = compat['forum/components/IndexPage'];
   var SignUpModal = compat['forum/components/SignUpModal'];
@@ -23,11 +25,15 @@
 
   // Website-Links öffnen im selben Tab (Website und Forum sollen wie eine Seite wirken),
   // fremde Dienste wie Discord in einem neuen
-  function externalLink(href, iconName, label, newTab) {
-    var attrs = newTab ? { href: href, target: '_blank', rel: 'noopener' } : { href: href };
-    return m('a.Button.Button--link.bb-navLink', attrs, [
-      icon(iconName, { className: 'Button-icon' }),
-      m('span.Button-label', label),
+  function externalLink(href, label) {
+    return m('a.Button.Button--link.bb-navLink', { href: href }, m('span.Button-label', label));
+  }
+
+  // Discord als Knopf ganz rechts, wie auf der Website (Knopf-Regel: Discord-Blau, siehe theme/custom.less)
+  function discordButton(href) {
+    return m('a.Button.bb-discordButton', { href: href, target: '_blank', rel: 'noopener' }, [
+      icon('fab fa-discord', { className: 'Button-icon' }),
+      m('span.Button-label', 'Discord'),
     ]);
   }
 
@@ -136,20 +142,22 @@
       // Dieselben Menüpunkte wie auf der Website, "Forum" als aktiver Punkt. "Website" gibt es nur
       // auf dem Handy (im Seitenmenü fehlt das Logo), sonst führt das Logo zur Website.
       if (site) {
-        items.add('bb-home', externalLink(site + '/', 'fas fa-home', 'Website'), 60);
-        items.add('bb-install', externalLink(site + '/install/', 'fas fa-download', 'Install guide'), 50);
-        items.add('bb-guide', externalLink(site + '/guide/', 'fas fa-book-open', 'Guide'), 45);
-        items.add('bb-faq', externalLink(site + '/faq/', 'fas fa-question-circle', 'FAQ'), 40);
-        items.add('bb-changelog', externalLink(site + '/changelog/', 'fas fa-scroll', 'Changelog'), 30);
+        items.add('bb-home', externalLink(site + '/', 'Website'), 60);
+        items.add('bb-install', externalLink(site + '/install/', 'Install'), 50);
+        items.add('bb-guide', externalLink(site + '/guide/', 'Guide'), 45);
+        items.add('bb-faq', externalLink(site + '/faq/', 'FAQ'), 40);
+        items.add('bb-changelog', externalLink(site + '/changelog/', 'Changelog'), 30);
         items.add('bb-forum', LinkButton.component({
           href: app.route('index'),
-          icon: 'fas fa-comments',
           className: 'Button Button--link bb-navLink bb-navLink--current',
         }, 'Forum'), 20);
       }
-      if (discord) {
-        items.add('bb-discord', externalLink(discord, 'fab fa-discord', 'Discord', true), 10);
-      }
+    });
+
+    // Rechts, nach Suche und Anmelden: Discord als letzter Knopf, wie auf der Website
+    extend(HeaderSecondary.prototype, 'items', function (items) {
+      var discord = app.forum.attribute('bbforumDiscordUrl');
+      if (discord) items.add('bb-discord', discordButton(discord), -100);
     });
 
     // Logo oben links: zur Website wie auf der Website selbst. Erst nach dem Start (app.forum gibt es
