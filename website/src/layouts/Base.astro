@@ -79,7 +79,7 @@ const baseLd = {
                 <a href={item.href} aria-current={path === item.href ? 'page' : undefined}>{item.label}</a>
               </li>
             ))}
-            {SITE.discordUrl && <li><a class="nav-discord" href={SITE.discordUrl} rel="noopener"><Icon name="discord" />Discord</a></li>}
+            {SITE.discordUrl && <li class="nav-action"><a class="nav-discord" href={SITE.discordUrl} rel="noopener"><Icon name="discord" />Discord</a></li>}
           </ul>
         </nav>
       </div>

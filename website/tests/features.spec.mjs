@@ -164,6 +164,20 @@ test('Startseite zeigt den echten Launcher (Play-Seite)', async ({ page }) => {
   expect((await page.request.get(full)).ok(), 'Bild in voller Größe').toBe(true);
 });
 
+// Ein Menü für Website und Forum (das Forum baut es in flarum/forum.js und theme/custom.less nach):
+// dieselben Links direkt neben dem Logo, Discord als Knopf ganz rechts
+test('Menü: Links neben dem Logo, Discord ganz rechts', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'auf dem Handy steckt das Menü hinter dem Menü-Knopf');
+  await page.goto('/');
+  expect(await page.$$eval('.nav a', (all) => all.map((a) => a.textContent.trim())))
+    .toEqual(['Install', 'Guide', 'FAQ', 'Changelog', 'Forum', 'Discord']);
+  const logo = await page.locator('.brand').boundingBox();
+  const first = await page.locator('.nav a').first().boundingBox();
+  const discord = await page.locator('.nav .nav-discord').boundingBox();
+  expect(first.x - (logo.x + logo.width), 'erster Link direkt neben dem Logo').toBeLessThan(60);
+  expect(discord.x + discord.width, 'Discord ganz rechts').toBeGreaterThan(page.viewportSize().width - 80);
+});
+
 // Eine Regel für alle Knöpfe (global.css „Knöpfe: eine Regel für alle“): gleiche Rundung, Messing-Haarlinie,
 // Blut steigt beim Zeigen auf; nur die Füllung unterscheidet Hauptaktion, Rest und Discord
 test('Alle Knöpfe folgen einer Regel', async ({ page }) => {
