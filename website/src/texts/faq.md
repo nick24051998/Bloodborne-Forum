@@ -17,7 +17,13 @@ questions:
       <p>Right here: <a href="#latest-download">download Bloodborne-Windows.zip</a>. The button fetches the file straight from Supermedo's <a href="https://github.com/Supermedo/bloodborne_pc/releases/latest" rel="noopener">official release on GitHub</a>, so both are the same file. Don't take it from anywhere else. Older versions and all release notes are in the <a href="../changelog/">changelog</a>, and the <a href="../install/">install guide</a> walks you through the rest.</p>
   - q: The launcher doesn't offer the update (1.9.3).
     a: |
-      <p>On 1.9.3 the update button never appears, and the sign-in to The Hunter's Dream hangs. <a href="#latest-download">Download the newest version</a> by hand and unpack it over your port folder, replacing the files. From then on, updates show up at the bottom left of the launcher again.</p>
+      <p>On 1.9.3 the update button never appears, and the sign-in to The Hunter's Dream hangs. Update by hand, over your old port folder:</p>
+      <ol>
+        <li>Close the game and the launcher, including its tray icon at the bottom right.</li>
+        <li><a href="#latest-download">Download the newest version</a>. The zip holds one folder, <code>bbport-windows</code>.</li>
+        <li>Copy what is inside that folder (<code>Bloodborne.exe</code>, <code>_internal</code>, <code>bin</code> …) into your port folder and replace the files.</li>
+      </ol>
+      <p>Saves, graphics settings, key bindings and mods stay. Don't use a new folder for this. From then on, updates show up at the bottom left of the launcher again. Details in the <a href="../guide/#updating-by-hand-193">launcher guide</a>.</p>
   - q: The game closes right after I press PLAY (code 3).
     a: |
       <p>Usually Windows gives the port too little memory: it reserves about 6 GB at its start (10 GB at 1440p and 4K), from RAM and page file together. Press Win + R, type <code>sysdm.cpl</code>, then go to Advanced &gt; Performance Settings &gt; Advanced &gt; Virtual memory &gt; Change. Tick "Automatically manage paging file size for all drives", then restart the PC. Close browsers and other big programs before you press PLAY.</p>

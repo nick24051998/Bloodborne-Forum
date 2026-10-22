@@ -283,7 +283,9 @@ export function evaluate(gpu, line, gen, ram) {
 
   if (tier > 0) {
     if (!gpu.igpu && gpu.vram === 4) notes.push('Use the settings for 4 GB cards above: 720p/1080p, FSR 3.1 Performance, Model detail Default, Object motion vectors off, frame generation off, a 60 FPS cap.');
-    if (gpu.vendor === 'intel') notes.push('Intel graphics: keep the upscaler off, stretched polygons can still appear with it on (known issue in 1.9.2).');
+    if (gpu.vendor === 'intel') notes.push('Intel graphics get no upscaler, and FSR 4 freezes on Intel Arc.');
+    // Die höhere Bewertung steht erst in 1.9.5 beta 2 (Supermedo/bloodborne_pc#122); bis dahin zeigt der Launcher weniger
+    if (gpu.igpu && /^Arc /.test(gpu.name)) notes.push('The launcher in 1.9.4 may still show an older, lower rating for this chip. This rating follows newer measurements: 40–55 FPS at 1080p on a Core Ultra 5 125H.');
     if (gpu.amdDriverNote) notes.push('AMD driver 26.8.1: if the game crashes or shows broken graphics, clear the shader cache (Advanced) or try another driver.');
     const fps1440 = rows[1].level;
     if (gpu.frameGen && fps1440 >= 4) notes.push(`${gpu.frameGen} is available on your card for even higher frame rates.`);

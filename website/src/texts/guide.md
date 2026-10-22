@@ -41,7 +41,16 @@ You can change the game folder later on **Game files** (expert view). `Play Bloo
 
 - When a new version is out, the launcher shows it at the **bottom left**. **Update** downloads and installs it and opens the launcher again. Saves, settings and mods are kept.
 - **Advanced → Check for updates** checks by hand. **Advanced → Other versions** goes back to any version from 1.8.2 on.
-- **On 1.9.3 the update button never appears**, and the sign-in to The Hunter's Dream hangs. [Download the newest version](#latest-download) by hand and unpack it over your port folder, replacing the files.
+
+### Updating by hand (1.9.3)
+
+On 1.9.3 the update button never appears, and the sign-in to The Hunter's Dream hangs. Update by hand, **over your old port folder**:
+
+1. Close the game and the launcher, including its tray icon at the bottom right. Windows won't replace `Bloodborne.exe` while it runs.
+2. [Download the newest version](#latest-download). The zip holds one folder, `bbport-windows`.
+3. Copy what is **inside** that folder (`Bloodborne.exe`, `_internal`, `bin`, `scripts`, `run.py` …) into your port folder and replace the files. Copying the folder itself only makes a nested `bbport-windows` folder.
+
+Your saves, graphics settings, key bindings and mods stay: the zip has no `user` folder, no `bbport.ini`, `input.ini` or `mods` folder, and the launcher settings in `%APPDATA%` aren't touched. Don't start a new folder for this: it would begin with default graphics, which froze Intel Arc and is slow on small cards, while the launcher keeps pointing to the old folder's saves and mods.
 
 ## Online play
 

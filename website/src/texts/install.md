@@ -71,7 +71,7 @@ intro: Everything you need to get Bloodborne running on Windows – from system 
 
 ## Updating
 
-New versions show up at the bottom left of the launcher. Update keeps your saves, settings and mods. Under Advanced > Other versions you can also go back to any version from 1.8.2 on. On 1.9.3 the update button never appears: [download the newest version](#latest-download) and unpack it over your port folder. See the [changelog](../changelog/) for what changed.
+New versions show up at the bottom left of the launcher. Update keeps your saves, settings and mods. Under Advanced > Other versions you can also go back to any version from 1.8.2 on. On 1.9.3 the update button never appears: [update by hand](../guide/#updating-by-hand-193), over your old port folder. See the [changelog](../changelog/) for what changed.
 
 ## Something went wrong?
 

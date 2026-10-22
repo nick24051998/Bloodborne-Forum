@@ -180,7 +180,9 @@ test('Hardware-Check bewertet Intels Arc-Grafik im Prozessor wie der Launcher', 
   const gen = ultra.gens.find((g) => g.id === 'u1-5');
   for (const name of ['Arc graphics (Core Ultra 100H)', 'Arc 140V / 130V (Core Ultra 200V)']) {
     const gpu = gpus.find((g) => g.name === name);
-    expect(TIERS[evaluate(gpu, ultra, gen, 32).tiers.gpu], name).toBe('Above minimum');
+    const result = evaluate(gpu, ultra, gen, 32);
+    expect(TIERS[result.tiers.gpu], name).toBe('Above minimum');
+    expect(result.notes.join(' '), name).toContain('1.9.4 may still show an older, lower rating');
   }
   const h = gpus.find((g) => g.name === 'Arc graphics (Core Ultra 100H)');
   const v = gpus.find((g) => g.name === 'Arc 140V / 130V (Core Ultra 200V)');
