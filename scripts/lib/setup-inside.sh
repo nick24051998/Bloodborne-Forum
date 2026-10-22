@@ -352,6 +352,8 @@ api PATCH /groups/4 '{"data":{"type":"groups","id":"4","attributes":{"color":"#9
 log "Pinned topics"
 pinned_topic() { # pinned_topic TAG-SLUG TAG-ID TITLE CONTENT-FILE: creates the topic once, pinned and locked
   _content=$(subst "$4")
+  # Ohne Text nie etwas anlegen oder überschreiben (z. B. wenn ein zweiter Lauf /tmp/bbsetup schon aufgeräumt hat)
+  [ -n "$_content" ] || { warn "$3: $4 missing or empty, skipped"; return 0; }
   _did=$(api GET "/discussions?filter%5Btag%5D=$1&page%5Blimit%5D=50" |
     jq -r --arg t "$3" '[.data[] | select(.attributes.title == $t) | .id][0] // empty' 2>/dev/null || true)
   if [ -n "$_did" ]; then
