@@ -2,6 +2,8 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import Showcase from '../components/Showcase.astro';
+import { Image, getImage } from 'astro:assets';
+import launcherPlay from '../assets/launcher/launcher-play.png';
 import { SITE } from '../../site.config.mjs';
 import { link, absolute } from '../lib/url.js';
 import { latest, downloadUrl, formatDate } from '../lib/releases.js';
@@ -41,6 +43,9 @@ const orgLd = {
     sameAs: [SITE.forumUrl, SITE.discordUrl, SITE.githubUrl].filter(Boolean),
   }),
 };
+
+// Bild der Play-Seite in voller Größe für den Klick auf die Vorschau ("So sieht der echte Launcher aus")
+const launcherFull = await getImage({ src: launcherPlay, format: 'webp', quality: 90 });
 
 // Der Port selbst, damit Google "bbport" mit dieser Seite, Supermedo und dem Download verbindet
 const appLd = {
@@ -184,6 +189,25 @@ const appLd = {
           </div>
         ))}
       </div>
+    </div>
+  </section>
+
+  <section class="section section-alt launcher" id="launcher">
+    <div class="container">
+      <h2>The official launcher</h2>
+      <p class="about">
+        This is what the real launcher of {SITE.portName} ({SITE.brand}) looks like: the Play page with the ready check,
+        your goal and the big PLAY button, and Picture &amp; performance, Online play, Saves, Mods and Help in the side
+        bar. It comes in the download from this site or from {SITE.portAuthor}'s GitHub releases. A launcher that looks
+        different, or a download from another site, is not ours.
+      </p>
+      <a class="launcher-shot" href={launcherFull.src} aria-label="Open the launcher screenshot in full size">
+        <Image src={launcherPlay} alt="The launcher's Play page: ready check, your goal (Smooth, Balanced, Quiet), controller or keyboard and mouse, Fullscreen and Play online switches, and the PLAY button"
+          widths={[700, 1000, 1380]} sizes="(max-width: 1180px) 100vw, 1100px" loading="lazy" />
+      </a>
+      <p class="launcher-caption">
+        The Play page, version 1.9.5 beta 2. How each page works: <a href={link('guide/')}>launcher guide</a>.
+      </p>
     </div>
   </section>
 

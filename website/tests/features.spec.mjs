@@ -151,6 +151,18 @@ test('Suchname „bbport“ in Titeln und Seitendaten für Google', async ({ pag
   }
 });
 
+test('Startseite zeigt den echten Launcher (Play-Seite)', async ({ page }) => {
+  await page.goto('/');
+  const section = page.locator('#launcher');
+  await expect(section.locator('h2')).toHaveText('The official launcher');
+  const img = section.locator('.launcher-shot img');
+  await img.scrollIntoViewIfNeeded();
+  await expect(img).toHaveAttribute('alt', /Play page/);
+  await expect.poll(() => img.evaluate((i) => (i.complete ? i.naturalWidth : 0))).toBeGreaterThan(0);
+  const full = await section.locator('a.launcher-shot').getAttribute('href');
+  expect((await page.request.get(full)).ok(), 'Bild in voller Größe').toBe(true);
+});
+
 test('Startseite sagt, dass die Seite noch im Aufbau ist', async ({ page }) => {
   await page.goto('/');
   const note = page.locator('.hero-wip');
