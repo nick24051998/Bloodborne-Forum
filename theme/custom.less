@@ -137,6 +137,31 @@ h1, h2, h3,
   --header-height: 64px;
 }
 
+// Dieselbe Spalte wie die Website (--container in website/src/styles/global.css): Logo, Links und Discord
+// stehen beim Wechsel zwischen Website und Forum an derselben Stelle
+@media @desktop-up {
+  .App-header .container {
+    width: ~"min(1200px, 100% - 2rem)";
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .Header-title {
+    margin-right: 24px;
+  }
+
+  // Zurück-Pfeil nur auf dem Handy; am Rechner führt "Forum" im Menü zur Übersicht
+  .Header-navigation {
+    display: none;
+  }
+}
+
+@media (min-width: 1800px) {
+  .App-header .container {
+    width: ~"min(1400px, 100% - 4rem)";
+  }
+}
+
 .Header-primary .bb-navLink,
 .Header-secondary .item-signUp .Button,
 .Header-secondary .item-logIn .Button {
