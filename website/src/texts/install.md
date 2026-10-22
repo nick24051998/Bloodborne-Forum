@@ -1,6 +1,6 @@
 ---
 title: Install Guide & System Requirements
-description: How to install Bloodborne for Windows step by step, plus minimum and recommended system requirements, CPU limits and driver notes.
+description: How to install bbport (Bloodborne for Windows) step by step, plus minimum and recommended system requirements, CPU limits and driver notes.
 heading: Install guide
 intro: Everything you need to get Bloodborne running on Windows – from system requirements to the first launch.
 ---

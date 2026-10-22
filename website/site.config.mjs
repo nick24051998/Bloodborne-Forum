@@ -1,7 +1,11 @@
 // Zentrale Einstellungen der Website. Alles, was mit "TODO" markiert ist, bitte ersetzen.
 export const SITE = {
-  // Name des Projekts (erscheint in Titeln, Google-Ergebnissen, Social-Vorschau)
+  // Name des Projekts (Überschrift der Startseite, Logo, Fußzeile)
   name: 'Bloodborne PC Port',
+  // Name für Suchmaschinen: steht in jedem Seitentitel und ist der Seitenname bei Google (WebSite-Daten).
+  // "bbport" nennt der Port sich selbst ("Bloodborne (bbport) for Windows") und ist die Domain.
+  brand: 'bbport',
+  alternateNames: ['bbport.de', 'Bloodborne PC Port', 'Bloodborne for Windows'],
 
   // Adresse der Website (GitHub Pages mit eigener Domain, siehe README).
   // Ohne eigene Domain: url: 'https://nick24051998.github.io', base: '/Bloodborne-Forum/'
@@ -10,7 +14,7 @@ export const SITE = {
 
   // Standard-Beschreibung für Google (max. ~155 Zeichen)
   description:
-    'Community hub for Bloodborne for Windows, the native PC port: download, install guide, system requirements, FAQ and changelog.',
+    'bbport.de is the community hub for bbport, the native Bloodborne PC port for Windows by Supermedo: download, install guide, FAQ and forum.',
 
   // Links – leer lassen, solange es sie noch nicht gibt (Buttons/Menüpunkte werden dann ausgeblendet)
   forumUrl: 'https://forum.bbport.de',

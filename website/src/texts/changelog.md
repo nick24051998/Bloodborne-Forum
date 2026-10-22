@@ -1,6 +1,6 @@
 ---
 title: Changelog
-description: Release notes for Bloodborne for Windows – new features, fixes and known issues of every version.
+description: Release notes for bbport (Bloodborne for Windows) – new features, fixes and known issues of every version, with direct downloads.
 heading: Changelog
 intro: What changed in each release. The newest version is at the top.
 ---

@@ -121,6 +121,20 @@ test('„Bewegung reduzieren“ schaltet die Animationen ab', async ({ browser }
   await context.close();
 });
 
+test('Suchname „bbport“ in Titeln und Seitendaten für Google', async ({ page }) => {
+  await page.goto('/');
+  await expect(page).toHaveTitle(/^bbport – /);
+  const ld = JSON.parse(await page.locator('script[type="application/ld+json"]').first().textContent());
+  expect(ld.find((x) => x['@type'] === 'WebSite').name).toBe('bbport');
+  expect(ld.find((x) => x['@type'] === 'SoftwareApplication')?.alternateName).toContain('bbport');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /bbport/);
+  for (const path of ['/install/', '/guide/', '/faq/', '/changelog/']) {
+    await page.goto(path);
+    await expect(page, path).toHaveTitle(/\| bbport$/);
+    await expect(page.locator('meta[name="description"]'), path).toHaveAttribute('content', /bbport/);
+  }
+});
+
 test('Startseite sagt, dass die Seite noch im Aufbau ist', async ({ page }) => {
   await page.goto('/');
   const note = page.locator('.hero-wip');

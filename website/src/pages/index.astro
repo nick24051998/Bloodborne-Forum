@@ -41,9 +41,26 @@ const orgLd = {
     sameAs: [SITE.forumUrl, SITE.discordUrl, SITE.githubUrl].filter(Boolean),
   }),
 };
+
+// Der Port selbst, damit Google "bbport" mit dieser Seite, Supermedo und dem Download verbindet
+const appLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: `${SITE.portName} (${SITE.brand})`,
+  alternateName: [SITE.brand, SITE.name],
+  applicationCategory: 'GameApplication',
+  operatingSystem: 'Windows 10, Windows 11',
+  url: absolute(),
+  ...(latest && { softwareVersion: latest.version, datePublished: latest.date }),
+  ...(downloadUrl && { downloadUrl }),
+  ...(SITE.portAuthor && { author: { '@type': 'Person', name: SITE.portAuthor, url: SITE.portAuthorUrl } }),
+  ...(SITE.portRepoUrl && { codeRepository: SITE.portRepoUrl }),
+  isAccessibleForFree: true,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+};
 ---
 
-<Base jsonLd={[orgLd]}>
+<Base jsonLd={[orgLd, appLd]}>
   <section class="hero">
     <div class="container">
       <div>
@@ -55,11 +72,11 @@ const orgLd = {
             {SITE.discordUrl ? <> on <a href={SITE.discordUrl} rel="noopener">Discord</a>.</> : ' in the forum.'}
           </span>
         </p>
-        <p class="eyebrow">Community hub</p>
+        <p class="eyebrow">{SITE.brand} · Community hub</p>
         <h1>{SITE.name}</h1>
         <p class="lead">
-          The original PS4 game, running natively on Windows 10 and 11 – at 60 FPS or more, in up to 4K, with online
-          co-op.
+          bbport brings the original PS4 game natively to Windows 10 and 11 – at 60 FPS or more, in up to 4K, with
+          online co-op.
         </p>
         <div class="actions">
           <a class="btn btn-primary" href={link('install/')}>Install guide</a>
@@ -76,7 +93,7 @@ const orgLd = {
         )}
         {SITE.portRepoUrl && (
           <p class="hero-port">
-            The community for <strong>{SITE.portName}</strong> by{' '}
+            The community for <strong>{SITE.portName}</strong> ({SITE.brand}) by{' '}
             <a href={SITE.portAuthorUrl} rel="noopener">{SITE.portAuthor}</a>
             <span aria-hidden="true"> · </span>
             <a href={SITE.portRepoUrl} rel="noopener">Source code on GitHub</a>

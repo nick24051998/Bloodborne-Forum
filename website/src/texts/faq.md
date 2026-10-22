@@ -1,6 +1,6 @@
 ---
 title: FAQ – Frequently Asked Questions
-description: Answers to the most common questions about Bloodborne for Windows – game version, code 3, crashes, stutter, co-op, controllers and more.
+description: Answers to the most common questions about bbport, the Bloodborne PC port for Windows – game files, code 3, crashes, online co-op, mods and more.
 heading: Frequently asked questions
 intro: Quick answers to the questions we get most often. How the launcher works, page by page, is in the launcher guide. Missing something? Ask in the forum or on Discord.
 # Fragen und Antworten, sortiert nach Häufigkeit in #help. Antworten sind HTML (<p>, <ol>, <code>, Links).
@@ -76,6 +76,9 @@ questions:
   - q: How do I install mods?
     a: |
       <p>Put each mod in its own folder under <code>mods</code>, then switch it on and put it in order on Mods &amp; patches (drag and drop). Your game files are never changed. Rebirth, the HUD layout and the field of view are built into the port, not mods.</p>
+  - q: Is bbport.org your site?
+    a: |
+      <p>No. bbport.de is the community site of Bloodborne for Windows (bbport) by Supermedo, together with our forum and Discord. bbport.org is not run by us: it offers its own download (a "v0.6.2" build) and links to a different GitHub repository. Get the port only <a href="#latest-download">here</a> or from Supermedo's <a href="https://github.com/Supermedo/bloodborne_pc/releases/latest" rel="noopener">official release page</a>.</p>
   - q: Is this an official Sony or FromSoftware product?
     a: |
       <p>No. Bloodborne for Windows is a free, open-source project by Supermedo, and this site is run by its community. Neither is affiliated with or endorsed by Sony Interactive Entertainment or FromSoftware.</p>

@@ -12,7 +12,8 @@ interface Props {
 }
 
 const { title, description = SITE.description, jsonLd = [], noindex = false } = Astro.props;
-const fullTitle = title ? `${title} | ${SITE.name}` : `${SITE.name} – Install Guide, FAQ & Community`;
+// Suchname vorn auf der Startseite, hinten auf den Unterseiten: Google zeigt ihn so bei der Suche nach "bbport"
+const fullTitle = title ? `${title} | ${SITE.brand}` : `${SITE.brand} – ${SITE.name}: Download, Install Guide & Community`;
 const canonical = new URL(Astro.url.pathname, SITE.url).href;
 const path = Astro.url.pathname;
 
@@ -24,10 +25,12 @@ const nav = [
   ...(SITE.forumUrl ? [{ href: SITE.forumUrl, label: 'Forum' }] : []),
 ];
 
+// Seitenname für Google (erscheint über dem Titel im Suchergebnis)
 const baseLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: SITE.name,
+  name: SITE.brand,
+  alternateName: SITE.alternateNames,
   url: absolute(),
 };
 ---
@@ -49,7 +52,7 @@ const baseLd = {
     <link rel="preload" href={link('fonts/inter-latin-400-normal.woff2')} as="font" type="font/woff2" crossorigin />
 
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:site_name" content={SITE.brand} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />

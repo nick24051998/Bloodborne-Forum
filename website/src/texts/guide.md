@@ -1,6 +1,6 @@
 ---
 title: Launcher Guide – How the Port Works
-description: How Bloodborne for Windows works – the included FPS and resolution patches, game files, updates, online play, Steam, saves, mods, help and test builds.
+description: How bbport, the Bloodborne PC port for Windows, works – included FPS and resolution patches, game files, updates, online play, Steam, saves and mods.
 heading: Launcher guide
 intro: How the port and its launcher work, page by page – and the answers to what people ask most on Discord.
 ---
