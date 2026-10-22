@@ -250,7 +250,7 @@ log "Tags"
 # slug|name|color|icon|description
 TAGS='announcements|Announcements|#8a1118|bbicon bbicon-bell|News, releases and changelogs from the team. Only staff can start topics here.
 known-fixes|Known Fixes|#4f6b55|bbicon bbicon-key|Solutions that worked, checked by a helper. Search here first. Only the team starts topics here.
-help-support|Help & Support|#9c8458|bbicon bbicon-lamppost|Something doesn't work for you: crash, error, setup, performance. Include port version, GPU + driver and your BB Report Tool zip.
+help-support|Help & Support|#9c8458|bbicon bbicon-lamppost|Something doesn'"'"'t work for you: crash, error, setup, performance. Include port version, GPU + driver and your BB Report Tool zip.
 bug-reports|Bug Reports|#7a2a2e|fas fa-bug|Confirmed bugs in the port and their status. Only the team starts topics here: report problems in Help & Support.
 performance|Performance Reports|#475a6b|bbicon bbicon-droplet|Your frame rates with your hardware and settings. Use the form: real numbers help everyone choose settings.
 suggestions|Suggestions|#6e6656|bbicon bbicon-candle|Ideas and feature requests for the port, the launcher, this forum or Discord.
