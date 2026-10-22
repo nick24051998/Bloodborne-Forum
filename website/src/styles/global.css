@@ -590,6 +590,7 @@ h3 { font-size: var(--step-1); }
 .nr-hero::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px),
     radial-gradient(55% 90% at 88% 65%, rgba(255, 176, 0, 0.13), transparent 70%); }
+.page-hero.nr-hero .nr-prompt { color: var(--nr-green); }
 .nr-hero p:not(.nr-prompt) { color: var(--text-soft); }
 
 .nr-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(2rem, 4vw, 3.5rem); align-items: center; }
@@ -605,11 +606,12 @@ h3 { font-size: var(--step-1); }
 .nr-screen::after { content: ""; position: absolute; inset: 0; pointer-events: none;
   background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px); }
 .nr-screen p { margin: 0; }
-.nr-screen ul { list-style: none; margin: 0.35rem 0; padding: 0; }
-.nr-screen li { display: grid; grid-template-columns: 12ch 5ch 5ch auto; padding: 0 0.35em; white-space: nowrap; }
+.nr-screen ul { list-style: none; margin: 0.35rem 0; padding: 0; display: grid; grid-template-columns: repeat(3, max-content) 1fr; column-gap: 1.5ch; }
+/* Spalten nach dem längsten Namen: In VT323 sind Ziffern schmaler als Buchstaben, ch passt deshalb nicht */
+.nr-screen li { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; padding: 0 0.35em; white-space: nowrap; }
 /* Die Auswahl wie in einem DOS-Menü, aber in Blut: hier steht bbport */
 .nr-screen .nr-here { background: var(--blood); color: #fff; text-shadow: 0 0 8px rgba(255, 120, 110, 0.6); }
-.nr-here-tag { padding-left: 1ch; }
+.nr-here-tag { padding-left: 0.5ch; }
 .nr-dim { color: var(--nr-amber-dim); }
 .nr-monitor figcaption { display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.4rem 0;
   font-family: var(--font-head); font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); }
@@ -630,9 +632,10 @@ h3 { font-size: var(--step-1); }
 @media (hover: hover) {
   .nr-card:not(.is-here):hover { border-color: rgba(255, 176, 0, 0.45); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45), 0 0 40px -18px rgba(255, 176, 0, 0.4); }
 }
-.card .nr-meta { display: flex; flex-wrap: wrap; gap: 0 0.5rem; margin: 0 0 0.6rem; font-family: var(--font-term); font-size: 1.2rem;
+.nr-card-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.4rem 0.8rem; margin: 0 0 0.6rem; }
+.card .nr-meta { display: flex; flex-wrap: wrap; gap: 0 0.5rem; margin: 0; font-family: var(--font-term); font-size: 1.2rem;
   line-height: 1.1; color: var(--nr-amber); }
-.nr-meta span + span::before { content: "·"; margin-right: 0.5rem; color: var(--nr-amber-dim); }
+.nr-meta span:not(:last-child)::after { content: "·"; margin-left: 0.5rem; color: var(--nr-amber-dim); }
 .card .nr-links { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; margin-top: auto; padding-top: 1rem; font-size: 0.92rem; }
 .nr-badge { padding: 0.1rem 0.6rem; border: 1px solid rgba(201, 74, 68, 0.7); border-radius: 999px; background: rgba(138, 17, 24, 0.35);
   color: #ffd9d4; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
@@ -640,17 +643,16 @@ h3 { font-size: var(--step-1); }
 /* Klassiker als Verzeichnisliste: eine Zeile pro Spiel, beim Zeigen markiert wie in einem DOS-Menü */
 .nr-dir { list-style: none; margin: 1.2rem 0 0; padding: 0.5rem; border: 1px solid var(--border-strong); border-radius: var(--radius);
   background: var(--nr-screen); box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6); }
-.nr-dir li { display: flex; align-items: center; gap: 0.5rem; }
 .nr-dir li + li { border-top: 1px solid rgba(255, 255, 255, 0.04); }
-.nr-dir a:not(.nr-source) { flex: 1; min-width: 0; display: grid; grid-template-columns: 11ch minmax(0, 1fr) 5ch minmax(0, 13rem);
+.nr-dir a { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr) 3rem minmax(0, 13rem);
   gap: 1rem; align-items: baseline; padding: 0.5rem 0.8rem; border-radius: 6px; color: var(--text); text-decoration: none;
   transition: background-color 220ms, box-shadow 220ms, color 220ms; }
-.nr-dir a:not(.nr-source):is(:hover, :focus-visible) { background: rgba(255, 176, 0, 0.08); box-shadow: inset 0 0 0 1px rgba(255, 176, 0, 0.35); }
+.nr-dir a:is(:hover, :focus-visible) { background: rgba(255, 176, 0, 0.08); box-shadow: inset 0 0 0 1px rgba(255, 176, 0, 0.35); }
 .nr-code, .nr-year { font-family: var(--font-term); font-size: 1.2rem; line-height: 1; color: var(--nr-amber); }
 .nr-year { color: var(--nr-amber-dim); }
 .nr-title { color: var(--text-strong); font-weight: 500; }
 .nr-studio { color: var(--muted); font-size: 0.9rem; }
-.nr-dir .nr-source { flex-shrink: 0; margin-right: 0.5rem; font-size: 0.85rem; }
+.nr-dir-note { margin: 0.8rem 0 0; color: var(--muted); font-size: 0.9rem; }
 
 /* Schluss und Hinweis auf der Startseite: Blut von oben links, Bernstein von unten rechts */
 .nr-next { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1.5rem 2.5rem; align-items: center;
@@ -667,13 +669,12 @@ h3 { font-size: var(--step-1); }
 @media (max-width: 860px) {
   .nr-split { grid-template-columns: 1fr; }
   .nr-next { grid-template-columns: 1fr; }
-  .nr-dir a:not(.nr-source) { grid-template-columns: minmax(0, 1fr) auto; gap: 0.1rem 1rem; }
+  .nr-dir a { grid-template-columns: minmax(0, 1fr) auto; gap: 0.1rem 1rem; }
   .nr-dir .nr-code { display: none; }
   .nr-dir .nr-studio { grid-column: 1 / -1; }
 }
 @media (max-width: 420px) {
   .nr-screen { padding: 0.8rem 0.7rem; font-size: 1rem; }
-  .nr-screen li { grid-template-columns: 11ch 5ch 5ch auto; }
   .nr-here-tag { display: none; }
 }
 

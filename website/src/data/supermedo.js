@@ -82,11 +82,13 @@ export const classics = [
 export const tools = [
   {
     title: 'KytyPS5 – SuperMedo version',
+    tags: ['PS5', 'Emulator'],
     text: "A Windows build of the KytyPS5 emulator with its own launcher, a DLSS frame generation fix, audio fixes and game fixes for Demon's Souls and God of War: Sons of Sparta.",
     href: repo('KytyPS5-SuperMedo'),
   },
   {
     title: 'X360 Manager',
+    tags: ['X360', 'Game manager'],
     text: 'A modern Xbox 360 game manager with Xenia emulator built in.',
     href: repo('x360-manager'),
   },

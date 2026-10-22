@@ -24,6 +24,8 @@ const profileLd = {
 };
 
 const href = (l) => (l.internal ? link(l.href) : l.href);
+// Klassiker mit eigenem Quellcode auf GitHub: ein Satz unter der Liste (eine Spalte nur dafür bliebe meist leer)
+const sources = classics.filter((c) => c.source);
 ---
 
 <Base title={title} description={description} jsonLd={[profileLd]}>
@@ -32,7 +34,7 @@ const href = (l) => (l.internal ? link(l.href) : l.href);
       <p class="nr-prompt" aria-hidden="true">C:\BBPORT&gt; cd ..\NATIVERETRO<span class="nr-caret"></span></p>
       <h1>{SITE.portAuthor}'s ports</h1>
       <p>
-        {SITE.brand} is one game of many. {SITE.portAuthor} rebuilds games as real Windows programs, from DOS classics of
+        {SITE.brand} is just one of his ports. {SITE.portAuthor} rebuilds games as real Windows programs, from DOS classics of
         the late 1980s to PlayStation 4 games. His site NativeRetro collects them all.
       </p>
       <div class="nr-actions">
@@ -82,11 +84,13 @@ const href = (l) => (l.internal ? link(l.href) : l.href);
       <div class="grid nr-cards">
         {ports.map((p) => (
           <article class:list={['card', 'nr-card', { 'is-here': p.here }]}>
-            <p class="nr-meta"><span>{p.system}</span><span>{p.year}</span><span>{p.studio}</span></p>
+            <div class="nr-card-top">
+              <p class="nr-meta"><span>{p.system}</span><span>{p.year}</span><span>{p.studio}</span></p>
+              {p.here && <span class="nr-badge">You are here</span>}
+            </div>
             <h3>{p.title}</h3>
             <p>{p.text}</p>
             <p class="nr-links">
-              {p.here && <span class="nr-badge">You are here</span>}
               {p.links.map((l) => <a href={href(l)} rel={l.internal ? undefined : 'noopener'}>{l.label}</a>)}
             </p>
           </article>
@@ -108,10 +112,14 @@ const href = (l) => (l.internal ? link(l.href) : l.href);
               <span class="nr-year">{c.year}</span>
               <span class="nr-studio">{c.studio}</span>
             </a>
-            {c.source && <a class="nr-source" href={c.source} rel="noopener" aria-label={`${c.title}: source code on GitHub`}>Source</a>}
           </li>
         ))}
       </ul>
+      {sources.map((c) => (
+        <p class="nr-dir-note">
+          The recompiler behind {c.title} is open source: <a href={c.source} rel="noopener">source code on GitHub</a>.
+        </p>
+      ))}
     </div>
   </section>
 
@@ -121,6 +129,7 @@ const href = (l) => (l.internal ? link(l.href) : l.href);
       <div class="grid nr-cards">
         {tools.map((t) => (
           <article class="card nr-card">
+            <div class="nr-card-top"><p class="nr-meta">{t.tags.map((tag) => <span>{tag}</span>)}</p></div>
             <h3>{t.title}</h3>
             <p>{t.text}</p>
             <p class="nr-links"><a href={t.href} rel="noopener">GitHub</a></p>
