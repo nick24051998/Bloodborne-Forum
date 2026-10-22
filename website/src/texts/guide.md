@@ -94,7 +94,7 @@ Everyone in a session needs game version 1.09 and the same co-op pool. Please as
 - **Help** checks your game folder and your PC, lists the known problems with their fixes, and after a game that ended with an error names the cause its log shows. Start there.
 - **Help → Save a report** makes the zip our helpers ask for: the log, your settings without passwords, and your PC. Post it in #help on our [Discord](https://discord.gg/yTMG8c4Bqm) or in the forum's Help & Support section.
 - **Only a black screen**, often after a driver update: **Help → Only a black screen → Clear the shader cache**, then start again (1.9.5 also has the button on **Advanced**). The first minutes stutter while the cache is built again.
-- **The game closes right away (code 3):** Windows gives it too little memory. See the [FAQ](../faq/) for the page file setting.
+- **The game closes right away (code 3):** Windows gives it too little memory. See the [FAQ](../faq/#code-3) for the page file setting.
 - **Overlays** like RivaTuner (RTSS) and MSI Afterburner can break the game. Close them.
 - **Intel graphics** get no upscaler. FSR 4 freezes on Intel Arc.
 

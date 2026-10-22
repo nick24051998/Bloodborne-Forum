@@ -121,6 +121,22 @@ test('„Bewegung reduzieren“ schaltet die Animationen ab', async ({ browser }
   await context.close();
 });
 
+test('Sprungmarken: FAQ-Fragen öffnen per Link, Überschriften haben #-Links', async ({ page }) => {
+  await page.goto('/faq/#code-3');
+  const question = page.locator('details#code-3');
+  await expect(question).toHaveAttribute('open', '');
+  await expect(question.locator('summary a.anchor-link')).toHaveAttribute('href', '#code-3');
+  const ids = await page.$$eval('.faq details', (all) => all.map((d) => d.id));
+  expect(ids.every(Boolean), 'jede Frage hat eine id').toBe(true);
+  expect(new Set(ids).size, 'ids sind eindeutig').toBe(ids.length);
+
+  await page.goto('/guide/');
+  const link = page.locator('h2#online-play a.anchor-link');
+  await expect(link).toHaveAttribute('href', '#online-play');
+  await link.click();
+  await expect(page).toHaveURL(/\/guide\/#online-play$/);
+});
+
 test('Suchname „bbport“ in Titeln und Seitendaten für Google', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveTitle(/^bbport – /);

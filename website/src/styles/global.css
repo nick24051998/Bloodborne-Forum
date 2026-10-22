@@ -366,6 +366,16 @@ h3 { font-size: var(--step-1); }
 .faq summary { cursor: pointer; padding: 1rem 1.25rem; font-weight: 600; color: var(--text-strong); list-style: none; }
 .faq summary::-webkit-details-marker { display: none; }
 .faq summary::after { content: "+"; float: right; color: var(--gold-light); font-weight: 700; }
+/* Sprungmarken (Skript in Base.astro): # neben Überschriften und FAQ-Fragen kopiert den Link zu dieser Stelle */
+.anchor-link { position: relative; margin-left: 0.45em; color: var(--gold); font-family: var(--font-body); font-weight: 400;
+  text-decoration: none; opacity: 0; transition: opacity 0.15s; }
+:is(h2, h3, summary):hover > .anchor-link, .anchor-link:focus-visible, .anchor-link[data-copied] { opacity: 1; }
+@media (hover: none) { .anchor-link { opacity: 0.5; } }
+.anchor-link[data-copied]::after { content: "Link copied"; position: absolute; left: 1.3em; top: 50%; transform: translateY(-50%);
+  padding: 0.15rem 0.45rem; background: var(--card); border: 1px solid var(--border-strong); border-radius: 6px;
+  color: var(--text-strong); font: 600 0.75rem var(--font-body); letter-spacing: 0; text-transform: none; white-space: nowrap; }
+/* Unter der festen Kopfzeile landen, nicht dahinter */
+.prose :is(h2, h3)[id], .faq details[id] { scroll-margin-top: 5.5rem; }
 .faq details[open] summary::after { content: "–"; }
 .faq details[open] { border-color: var(--border-strong); }
 .faq .answer { padding: 0 1.25rem 1.1rem; color: var(--text-soft); }

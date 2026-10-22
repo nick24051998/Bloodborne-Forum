@@ -3,16 +3,21 @@ import Page from '../layouts/Page.astro';
 import { frontmatter } from '../texts/faq.md';
 import { withDownloadLinks } from '../lib/releases.js';
 
-const questions = (frontmatter.questions ?? []).map(({ q, a }) => ({ q, a: withDownloadLinks(a) }));
+import { absolute } from '../lib/url.js';
+
+// Jede Frage hat eine feste Sprungmarke (id in faq.md), z. B. bbport.de/faq/#code-3: Links aus Discord öffnen
+// genau diese Frage (Skript in Base.astro), das # neben der Frage kopiert den Link
+const questions = (frontmatter.questions ?? []).map(({ id, q, a }) => ({ id, q, a: withDownloadLinks(a) }));
 const strip = (html) => html.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
 
 // Strukturierte Daten für Google (FAQPage)
 const faqLd = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
-  mainEntity: questions.map(({ q, a }) => ({
+  mainEntity: questions.map(({ id, q, a }) => ({
     '@type': 'Question',
     name: q,
+    ...(id && { url: absolute(`faq/#${id}`) }),
     acceptedAnswer: { '@type': 'Answer', text: strip(a) },
   })),
 };
@@ -20,9 +25,9 @@ const faqLd = {
 
 <Page frontmatter={frontmatter} jsonLd={[faqLd]}>
   <div class="faq">
-    {questions.map(({ q, a }, i) => (
-      <details open={i === 0}>
-        <summary>{q}</summary>
+    {questions.map(({ id, q, a }, i) => (
+      <details open={i === 0} id={id}>
+        <summary>{q}{id && <a class="anchor-link" href={`#${id}`} aria-label={`Link to: ${q}`}>#</a>}</summary>
         <div class="answer" set:html={a} />
       </details>
     ))}

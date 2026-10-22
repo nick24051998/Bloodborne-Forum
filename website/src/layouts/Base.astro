@@ -111,5 +111,46 @@ const baseLd = {
         {SITE.contactEmail && <p class="disclaimer">Contact: <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a></p>}
       </div>
     </footer>
+    <script>
+      // Sprungmarken: Ein # neben jeder Überschrift der Textseiten (und jeder FAQ-Frage, siehe faq.astro) kopiert
+      // den Link zu genau dieser Stelle. Ein Link auf eine FAQ-Frage klappt sie beim Öffnen auf.
+      document.querySelectorAll('.prose h2[id], .prose h3[id]').forEach((heading) => {
+        const anchor = document.createElement('a');
+        anchor.className = 'anchor-link';
+        anchor.href = `#${heading.id}`;
+        anchor.setAttribute('aria-label', `Link to: ${heading.textContent?.trim()}`);
+        anchor.textContent = '#';
+        heading.append(anchor);
+      });
+
+      const openTarget = () => {
+        const target = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+        if (target instanceof HTMLDetailsElement && !target.open) {
+          target.open = true;
+          target.scrollIntoView();
+        }
+      };
+      openTarget();
+      addEventListener('hashchange', openTarget);
+
+      document.addEventListener('click', async (event) => {
+        const anchor = event.target instanceof Element ? event.target.closest('.anchor-link') : null;
+        if (!(anchor instanceof HTMLAnchorElement)) return;
+        // Kein Auf- und Zuklappen der FAQ-Frage, keine neue Seite im Verlauf: nur Adresse setzen und Link kopieren
+        event.preventDefault();
+        const id = anchor.hash.slice(1);
+        const target = document.getElementById(id);
+        if (target instanceof HTMLDetailsElement) target.open = true;
+        history.replaceState(null, '', `#${id}`);
+        target?.scrollIntoView();
+        try {
+          await navigator.clipboard.writeText(`${location.origin}${location.pathname}#${id}`);
+          anchor.dataset.copied = '';
+          setTimeout(() => delete anchor.dataset.copied, 1500);
+        } catch {
+          // Ohne Zugriff auf die Zwischenablage steht der Link trotzdem in der Adresszeile
+        }
+      });
+    </script>
   </body>
 </html>
