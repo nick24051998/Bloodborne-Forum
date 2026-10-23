@@ -138,6 +138,29 @@ test('Sprungmarken: FAQ-Fragen öffnen per Link, Überschriften haben #-Links', 
   await expect(page).toHaveURL(/\/guide\/#online-play$/);
 });
 
+// FAQ übersichtlich: Fragen nach Themen, oben Themenleiste und Suche; ohne Treffer der Weg zu Known Fixes im Forum
+test('FAQ: Themen, Themenleiste und Suche', async ({ page }) => {
+  await page.goto('/faq/');
+  const topics = page.locator('.faq-topics a');
+  expect(await topics.count()).toBeGreaterThanOrEqual(6);
+  expect(await page.locator('.faq-group details').count(), 'jede Frage steht in einem Thema')
+    .toBe(await page.locator('.faq details').count());
+  expect(await page.locator('.faq details[open]').count(), 'anfangs ist alles zu').toBe(0);
+
+  await topics.filter({ hasText: 'Crashes & errors' }).click();
+  await expect(page).toHaveURL(/#topic-crashes$/);
+
+  const search = page.locator('[data-faq-search]');
+  await search.fill('code 3');
+  await expect(page.locator('details#code-3')).toBeVisible();
+  await expect(page.locator('details#code-3')).toHaveAttribute('open', '');
+  await expect(page.locator('details#online')).toBeHidden();
+
+  await search.fill('xyzzy nothing');
+  await expect(page.locator('[data-faq-empty]')).toBeVisible();
+  await expect(page.locator('[data-faq-forum]')).toHaveAttribute('href', /\?q=xyzzy%20nothing$/);
+});
+
 test('Suchname „bbport“ in Titeln und Seitendaten für Google', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveTitle(/^bbport – /);

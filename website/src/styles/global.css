@@ -410,6 +410,29 @@ h3 { font-size: var(--step-1); }
 .prose :is(h2, h3)[id], .faq details[id] { scroll-margin-top: 5.5rem; }
 .faq details[open] summary::after { content: "–"; }
 .faq details[open] { border-color: var(--border-strong); }
+/* FAQ-Übersicht (faq.astro): Suche und Themenleiste oben, Fragen nach Themen; nichts mit Streifen am Rand */
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.faq-tools { margin: 0 0 1.8rem; }
+.faq-search input { width: 100%; padding: 0.75rem 1rem 0.75rem 2.7rem; font: inherit; color: var(--text-strong);
+  background: var(--bg-deep) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a8c90' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='m15.5 15.5 5 5'/%3E%3C/svg%3E") no-repeat 0.95rem center / 1.15rem;
+  border: 1px solid var(--border-strong); border-radius: 10px; transition: border-color 220ms; }
+.faq-search input::placeholder { color: var(--muted); }
+.faq-search input:focus { border-color: var(--gold); }
+.faq-topics { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem; }
+.faq-topics a { padding: 0.3rem 0.8rem; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--card);
+  color: var(--text); font-size: 0.9rem; text-decoration: none; transition: border-color 220ms, color 220ms; }
+.faq-topics a span { margin-left: 0.15rem; color: var(--muted); font-size: 0.8rem; }
+.faq-topics a:hover, .faq-topics a:focus-visible { border-color: rgba(156, 132, 88, 0.7); color: var(--text-strong); }
+.faq-status { margin: 0.7rem 0 0; color: var(--muted); font-size: 0.9rem; }
+.faq-status:empty { display: none; }
+.faq-group + .faq-group { margin-top: 2.4rem; }
+.prose .faq-group h2 { margin-top: 0; }
+.faq-group-text { margin: -0.2rem 0 0.9rem; color: var(--muted); font-size: 0.95rem; }
+.faq-empty { margin-top: 1rem; padding: 1.1rem 1.3rem; border: 1px solid rgba(156, 132, 88, 0.45); border-radius: var(--radius);
+  background: rgba(156, 132, 88, 0.07); color: var(--text-soft); }
+.faq-empty[hidden] { display: none; }
+.faq-empty p { margin: 0 0 0.8rem; }
+.faq-empty .faq-empty-links { display: flex; flex-wrap: wrap; gap: 0.7rem; margin: 0; }
 .faq .answer { padding: 0 1.25rem 1.1rem; color: var(--text-soft); }
 .faq .answer p, .faq .answer ol, .faq .answer ul { margin: 0 0 0.7rem; }
 .faq .answer > :last-child { margin-bottom: 0; }

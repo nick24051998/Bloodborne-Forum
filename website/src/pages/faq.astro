@@ -2,13 +2,20 @@
 import Page from '../layouts/Page.astro';
 import { frontmatter } from '../texts/faq.md';
 import { withDownloadLinks } from '../lib/releases.js';
+import { SITE } from '../../site.config.mjs';
 
 import { absolute } from '../lib/url.js';
 
 // Jede Frage hat eine feste Sprungmarke (id in faq.md), z. B. bbport.de/faq/#code-3: Links aus Discord öffnen
-// genau diese Frage (Skript in Base.astro), das # neben der Frage kopiert den Link
-const questions = (frontmatter.questions ?? []).map(({ id, q, a }) => ({ id, q, a: withDownloadLinks(a) }));
+// genau diese Frage (Skript in Base.astro), das # neben der Frage kopiert den Link.
+// Übersicht: Fragen nach Themen (groups in faq.md, Sprungmarke #topic-<id>), oben Suche und Themenleiste; alle
+// Fragen sind zu, bis man sie öffnet oder sucht.
+const questions = (frontmatter.questions ?? []).map(({ id, group, q, a }) => ({ id, group, q, a: withDownloadLinks(a) }));
+const groups = (frontmatter.groups ?? [])
+  .map((g) => ({ ...g, questions: questions.filter((q) => q.group === g.id) }))
+  .filter((g) => g.questions.length);
 const strip = (html) => html.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+const forumSearch = SITE.forumUrl ? `${SITE.forumUrl}/t/known-fixes` : '';
 
 // Strukturierte Daten für Google (FAQPage)
 const faqLd = {
@@ -24,12 +31,74 @@ const faqLd = {
 ---
 
 <Page frontmatter={frontmatter} jsonLd={[faqLd]}>
+  <div class="faq-tools">
+    <label class="faq-search">
+      <span class="visually-hidden">Search the FAQ</span>
+      <input type="search" placeholder="Search the FAQ, e.g. code 3, stutter, co-op" autocomplete="off" data-faq-search />
+    </label>
+    <nav class="faq-topics" aria-label="FAQ topics">
+      {groups.map((g) => (
+        <a href={`#topic-${g.id}`}>{g.title} <span>{g.questions.length}</span></a>
+      ))}
+    </nav>
+    <p class="faq-status" aria-live="polite" data-faq-status></p>
+  </div>
+
   <div class="faq">
-    {questions.map(({ id, q, a }, i) => (
-      <details open={i === 0} id={id}>
-        <summary>{q}{id && <a class="anchor-link" href={`#${id}`} aria-label={`Link to: ${q}`}>#</a>}</summary>
-        <div class="answer" set:html={a} />
-      </details>
+    {groups.map((g) => (
+      <section class="faq-group" data-faq-group>
+        <h2 id={`topic-${g.id}`}>{g.title}</h2>
+        <p class="faq-group-text">{g.text}</p>
+        {g.questions.map(({ id, q, a }) => (
+          <details id={id} data-faq-question>
+            <summary>{q}{id && <a class="anchor-link" href={`#${id}`} aria-label={`Link to: ${q}`}>#</a>}</summary>
+            <div class="answer" set:html={a} />
+          </details>
+        ))}
+      </section>
     ))}
   </div>
+
+  <div class="faq-empty" hidden data-faq-empty>
+    <p><strong>No answer here yet.</strong> Search the solutions that worked for others, or ask a person:</p>
+    <p class="faq-empty-links">
+      {forumSearch && <a class="btn btn-primary" href={forumSearch} data-faq-forum>Search Known Fixes</a>}
+      {SITE.forumUrl && <a class="btn btn-ghost" href={`${SITE.forumUrl}/t/help-support`}>Ask in Help &amp; Support</a>}
+    </p>
+  </div>
+
+  <script>
+    // Suche in Fragen und Antworten: blendet nicht passende Fragen und leere Themen aus, öffnet bei wenigen Treffern die
+    // Antworten. Ohne Treffer: Hinweis auf Known Fixes im Forum (mit dem Suchbegriff).
+    const input = document.querySelector<HTMLInputElement>('[data-faq-search]');
+    const status = document.querySelector<HTMLElement>('[data-faq-status]');
+    const empty = document.querySelector<HTMLElement>('[data-faq-empty]');
+    const forumLink = document.querySelector<HTMLAnchorElement>('[data-faq-forum]');
+    const groups = [...document.querySelectorAll<HTMLElement>('[data-faq-group]')];
+    const forumBase = forumLink?.href.replace(/\/t\/known-fixes$/, '');
+    const norm = (text: string) => text.toLowerCase().replace(/\s+/g, ' ');
+
+    input?.addEventListener('input', () => {
+      const words = norm(input.value).trim().split(' ').filter(Boolean);
+      let hits = 0;
+      for (const group of groups) {
+        let groupHits = 0;
+        for (const q of group.querySelectorAll<HTMLDetailsElement>('[data-faq-question]')) {
+          const match = words.every((w) => norm(q.textContent ?? '').includes(w));
+          q.hidden = !match;
+          if (match) groupHits++;
+        }
+        group.hidden = groupHits === 0;
+        hits += groupHits;
+      }
+      for (const q of document.querySelectorAll<HTMLDetailsElement>('[data-faq-question]')) {
+        q.open = words.length > 0 && !q.hidden && hits <= 3;
+      }
+      if (status) status.textContent = words.length ? `${hits} ${hits === 1 ? 'answer' : 'answers'} found` : '';
+      if (empty) empty.hidden = !(words.length && hits === 0);
+      if (forumLink && forumBase) {
+        forumLink.href = words.length ? `${forumBase}/?q=${encodeURIComponent(input.value.trim())}` : `${forumBase}/t/known-fixes`;
+      }
+    });
+  </script>
 </Page>
