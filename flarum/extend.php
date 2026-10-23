@@ -331,6 +331,8 @@ return [
     (new Extend\Event())->listen('Flarum\Likes\Event\PostWasLiked', function ($event) {
         BBForumContest::keepOneVote($event->post, $event->user);
     }),
+    // Die Seite /logo-contest auch beim direkten Aufruf (Link von bbport.de) ausliefern, nicht nur im Browser
+    (new Extend\Frontend('forum'))->route('/logo-contest', 'logoContest'),
     (new Extend\ApiSerializer(Flarum\Api\Serializer\DiscussionSerializer::class))
         ->attributes(function ($serializer, $discussion) {
             return BBForumContest::attributes($serializer->getActor(), $discussion);
