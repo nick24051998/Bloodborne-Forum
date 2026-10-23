@@ -209,7 +209,7 @@ h1, h2, h3,
 // Alles in einer Zeile: Suche schmaler als bei Flarum und beim Reinklicken gleich breit. Flarum macht das Feld fest
 // 225 px breit und beim Fokus 400 px, um 400 px nach links verschoben: Das ragte aus unserem Rahmen und schob sich
 // über das Menü. Hier füllt das Feld den Rahmen, nichts springt; die Trefferliste ist breiter und hängt rechtsbündig
-// darunter. Bei mittlerer Breite ohne "Sign Up" (Log In führt ohnehin über Discord, das legt auch das Konto an)
+// darunter.
 @media @desktop-up {
   .Header-secondary .Search,
   .Header-secondary .Search.focused {
@@ -233,9 +233,27 @@ h1, h2, h3,
   }
 }
 
-@media (min-width: 992px) and (max-width: 1199px) {
+// Platz im Kopf (gemessen, abgemeldet; angemeldet sind Glocke und Name etwa 30 px breiter als "Log In"):
+// - "Sign Up" am Rechner nie: "Log In" führt über Discord und legt das Konto ohnehin an
+// - bis 1399 px Menülinks etwas schmaler, bis 1279 px die Suche
+// - "Supermedo" ab 1280 px, "Changelog" ab 1800 px (dort ist die Spalte 1400 px breit); auf dem Handy steht alles
+//   im Seitenmenü, auf der Website immer im Menü
+@media @desktop-up {
   .Header-secondary .item-signUp {
     display: none;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1399px) {
+  .Header-primary .bb-navLink {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1279px) {
+  .Header-secondary .Search-input {
+    width: 150px;
   }
 }
 
@@ -248,15 +266,20 @@ h1, h2, h3,
 
 @media @tablet {
   .Header-primary .item-bb-install,
-  .Header-primary .item-bb-faq,
-  .Header-primary .item-bb-changelog {
+  .Header-primary .item-bb-best,
+  .Header-primary .item-bb-faq {
     display: none;
   }
 }
 
-// "Supermedo" erst ab 1200 px: darunter reicht der Platz neben Suche und Anmelden nicht (Handy: im Seitenmenü)
-@media (min-width: 768px) and (max-width: 1199px) {
+@media (min-width: 768px) and (max-width: 1279px) {
   .Header-primary .item-bb-supermedo {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1799px) {
+  .Header-primary .item-bb-changelog {
     display: none;
   }
 }

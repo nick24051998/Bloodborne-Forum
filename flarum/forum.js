@@ -1,6 +1,6 @@
 // Wird über flarum/extend.php ins Forum eingebunden (kein Build-Schritt nötig).
-// - Kopfzeile wie auf der Website (ein Menü für beide): links neben dem Logo Install, Guide, FAQ, Changelog,
-//   Supermedo, Forum (aktiv) in derselben Schrift, ohne Symbole; rechts die Aktionen, hier Suche, Anmelden und als letzter
+// - Kopfzeile wie auf der Website (ein Menü für beide): links neben dem Logo Install, Guide, Best settings, FAQ,
+//   Changelog, Supermedo, Forum (aktiv) in derselben Schrift, ohne Symbole; rechts die Aktionen, hier Suche, Anmelden und als letzter
 //   Knopf Discord wie auf der Website. Website-Links im selben Tab, Discord in einem neuen
 //   (auf dem Handy im Seitenmenü, dort zusätzlich "Website")
 // - Discord-only-Registrierung: Das Registrieren-Fenster zeigt nur den Discord-Button
@@ -236,6 +236,7 @@
         items.add('bb-home', externalLink(site + '/', 'Website'), 60);
         items.add('bb-install', externalLink(site + '/install/', 'Install'), 50);
         items.add('bb-guide', externalLink(site + '/guide/', 'Guide'), 45);
+        items.add('bb-best', externalLink(site + '/best-settings/', 'Best settings'), 42);
         items.add('bb-faq', externalLink(site + '/faq/', 'FAQ'), 40);
         items.add('bb-changelog', externalLink(site + '/changelog/', 'Changelog'), 30);
         items.add('bb-supermedo', externalLink(site + '/supermedo/', 'Supermedo'), 25);

@@ -20,6 +20,7 @@ const path = Astro.url.pathname;
 const nav = [
   { href: link('install/'), label: 'Install' },
   { href: link('guide/'), label: 'Guide' },
+  { href: link('best-settings/'), label: 'Best settings' },
   { href: link('faq/'), label: 'FAQ' },
   { href: link('changelog/'), label: 'Changelog' },
   { href: link('supermedo/'), label: 'Supermedo' },
@@ -95,7 +96,6 @@ const baseLd = {
         <div class="cols">
           <ul>
             {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
-            <li><a href={link('best-settings/')}>Best settings</a></li>
             <li><a href={link('community/')}>Community</a></li>
             {SITE.discordUrl && <li><a href={SITE.discordUrl} rel="noopener">Discord</a></li>}
             {SITE.portRepoUrl && <li><a href={SITE.portRepoUrl} rel="noopener">Port on GitHub</a></li>}

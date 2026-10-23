@@ -193,7 +193,7 @@ test('Menü: Links neben dem Logo, Discord ganz rechts', async ({ page, isMobile
   test.skip(isMobile, 'auf dem Handy steckt das Menü hinter dem Menü-Knopf');
   await page.goto('/');
   expect(await page.$$eval('.nav a', (all) => all.map((a) => a.textContent.trim())))
-    .toEqual(['Install', 'Guide', 'FAQ', 'Changelog', 'Supermedo', 'Forum', 'Discord']);
+    .toEqual(['Install', 'Guide', 'Best settings', 'FAQ', 'Changelog', 'Supermedo', 'Forum', 'Discord']);
   const logo = await page.locator('.brand').boundingBox();
   const first = await page.locator('.nav a').first().boundingBox();
   const discord = await page.locator('.nav .nav-discord').boundingBox();
@@ -226,6 +226,7 @@ test('Alle Knöpfe folgen einer Regel', async ({ page }) => {
 test('Best settings: Erststart mit Bildern, Ziele, Werte je Karte, verlinkt', async ({ page }) => {
   await page.goto('/best-settings/');
   await expect(page.locator('h1')).toHaveText('Best settings');
+  await expect(page.locator('.nav a[aria-current="page"]')).toHaveText('Best settings');
   await expect(page.locator('.settings-steps > li')).toHaveCount(4);
   await expect(page.locator('.settings table').first().locator('tbody tr')).toHaveCount(3);
   await expect(page.locator('.settings-table tbody tr')).toHaveCount(5);

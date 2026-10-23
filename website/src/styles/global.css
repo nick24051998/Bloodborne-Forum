@@ -130,7 +130,8 @@ h3 { font-size: var(--step-1); }
 .menu-input { position: absolute; opacity: 0; pointer-events: none; }
 .menu-button { display: none; }
 
-@media (max-width: 860px) {
+/* Menü-Knopf statt Leiste bis 1000 px: Darunter passen die sieben Links neben Logo und Discord nicht in eine Zeile */
+@media (max-width: 1000px) {
   .site-header .container { flex-wrap: wrap; min-height: 56px; gap: 0; }
   .brand img { height: 34px; }
   .menu-button {
