@@ -507,6 +507,152 @@ h1, h2, h3,
   white-space: nowrap;
 }
 
+// --- Logo-Contest: Seite /logo-contest (flarum/forum.js) --------------------------------------------------
+// Kopf mit Blut-Schein, darunter die Werke als Karten auf dunklem Grund (so dunkel wie der Launcher, #0d0e10)
+.bb-contest-hero {
+  padding: 48px 0 36px;
+  border-bottom: 1px solid @bb-border;
+  background: radial-gradient(80% 140% at 50% 0%, fade(@bb-blood, 30%), transparent 70%), @bb-bg-deep;
+  text-align: center;
+
+  h1 {
+    margin: 0 0 12px;
+    font-family: @bb-font-head;
+    font-size: 34px;
+    color: @bb-text-strong;
+  }
+}
+
+.bb-contest-eyebrow {
+  margin: 0 0 8px;
+  font-family: @bb-font-head;
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: @bb-gold-light;
+}
+
+.bb-contest-lead,
+.bb-contest-status {
+  max-width: 640px;
+  margin: 0 auto 10px;
+  color: @bb-text-soft;
+  font-size: 15px;
+}
+
+.bb-contest-status {
+  color: @bb-text-strong;
+  font-weight: 600;
+}
+
+.bb-contest-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.bb-contest-body {
+  padding-top: 24px;
+  padding-bottom: 48px;
+}
+
+.bb-contest-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
+  color: @bb-muted;
+}
+
+.bb-contest-sort {
+  display: flex;
+  gap: 8px;
+
+  .Button.is-active {
+    border-color: @bb-btn-line-hot;
+    color: @bb-text-strong;
+  }
+}
+
+.bb-contest-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 16px;
+}
+
+.bb-entry {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid @bb-border;
+  border-radius: 12px;
+  background: @bb-card;
+  transition: border-color 220ms;
+
+  &:hover {
+    border-color: fade(@bb-gold, 60%);
+  }
+
+  &.is-voted {
+    border-color: @bb-gold-light;
+    box-shadow: 0 0 0 1px fade(@bb-gold-light, 40%), 0 12px 30px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.bb-entry-art {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: 18px;
+  background: radial-gradient(70% 70% at 50% 40%, #16171a, #0d0e10);
+  color: @bb-muted;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+}
+
+.bb-entry-info {
+  padding: 12px 14px 4px;
+
+  h3 {
+    margin: 0 0 4px;
+    font-size: 16px;
+  }
+
+  p {
+    margin: 0;
+    color: @bb-muted;
+    font-size: 13px;
+  }
+}
+
+.bb-entry-vote {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding: 10px 14px 14px;
+}
+
+.bb-entry-votes {
+  color: @bb-text-strong;
+  font-weight: 600;
+}
+
+.bb-contest-empty {
+  padding: 40px 0;
+  color: @bb-muted;
+  text-align: center;
+}
+
 // --- Team-Block in der Seitenleiste (flarum/forum.js): Überschrift wie die übrigen Abschnitte -----------
 .bb-teamTitle {
   display: block;

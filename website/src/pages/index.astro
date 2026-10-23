@@ -7,6 +7,7 @@ import launcherPlay from '../assets/launcher/launcher-play.png';
 import { SITE } from '../../site.config.mjs';
 import { link, absolute } from '../lib/url.js';
 import { latest, downloadUrl, formatDate } from '../lib/releases.js';
+import { CONTEST, contestDates, contestRunning } from '../data/contest.js';
 
 // Texte der Startseite. Icons: Namen aus media/icons (droplet, crescent, key, tools, bell, …)
 const features = [
@@ -114,6 +115,35 @@ const appLd = {
       </div>
     </div>
   </section>
+
+  {contestRunning && (
+    <section class="contest-banner" id="logo-contest" aria-labelledby="contest-heading">
+      <div class="container">
+        <div class="contest-text">
+          <p class="eyebrow">Community contest</p>
+          <h2 id="contest-heading">Design the new launcher logo</h2>
+          <p class="contest-lead">
+            The {SITE.brand} launcher gets a new logo, and you can make it. Send in your design, then everyone with a
+            forum account votes. The winning design becomes the new launcher logo, credited with your name.
+          </p>
+          <ul class="contest-dates">
+            <li><strong>Entries</strong> until {contestDates.submit}</li>
+            <li><strong>Voting</strong> {contestDates.voteFrom} – {contestDates.vote}</li>
+          </ul>
+          <p class="contest-specs"><span>SVG or PNG</span><span>1024 × 1024</span><span>Transparent background</span><span>Readable at 32 px</span></p>
+          <div class="actions">
+            <a class="btn btn-primary" href={CONTEST.page}>Enter the contest</a>
+            <a class="btn btn-ghost" href={link(CONTEST.template)} download="logo-contest-template.svg">Download the template</a>
+          </div>
+        </div>
+        <a class="contest-sigil" href={CONTEST.page} aria-label="See the entries and vote in the forum">
+          <img src={link('emblem-bone.webp')} alt="" width="380" height="433" loading="lazy" />
+          <span class="contest-mark" aria-hidden="true">?</span>
+          <span class="contest-slot">Your logo here</span>
+        </a>
+      </div>
+    </section>
+  )}
 
   {liveUrl && (
     <section class="live" data-src={liveUrl} hidden>

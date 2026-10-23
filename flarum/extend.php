@@ -295,6 +295,7 @@ if (! class_exists('BBForumUnansweredGambit')) {
 
 require_once __DIR__.'/discord-roles.php';
 require_once __DIR__.'/betas.php';
+require_once __DIR__.'/contest.php';
 
 return [
     (new Extend\Routes('api'))->get('/hunters-dream', 'bbforum.huntersDream', BBForumHuntersDream::class),
@@ -323,6 +324,18 @@ return [
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->addGambit(BBForumUnansweredGambit::class),
     (new Extend\Filter(DiscussionFilterer::class))->addFilter(BBForumUnansweredGambit::class),
 
+    // Logo-Contest (flarum/contest.php): Stimme = „Gefällt mir“ auf einem Werk, eine pro Mitglied, nur in der Abstimmung
+    (new Extend\Policy())
+        ->modelPolicy(Flarum\Post\Post::class, BBForumContestLikePolicy::class)
+        ->modelPolicy(Flarum\Tags\Tag::class, BBForumContestTagPolicy::class),
+    (new Extend\Event())->listen('Flarum\Likes\Event\PostWasLiked', function ($event) {
+        BBForumContest::keepOneVote($event->post, $event->user);
+    }),
+    (new Extend\ApiSerializer(Flarum\Api\Serializer\DiscussionSerializer::class))
+        ->attributes(function ($serializer, $discussion) {
+            return BBForumContest::attributes($serializer->getActor(), $discussion);
+        }),
+
     // Eigenen Themen folgen (statt Flarums "aus"): Antworten erscheinen in den Benachrichtigungen
     (new Extend\User())->registerPreference('followAfterReply', 'boolval', true),
 
@@ -350,7 +363,9 @@ return [
     (new Extend\Settings())
         ->serializeToForum('bbforumWebsiteUrl', 'bbforum.website_url')
         ->serializeToForum('bbforumDiscordUrl', 'bbforum.discord_url')
-        ->serializeToForum('bbforumDiscordOnly', 'bbforum.oauth_only_signup', 'boolval'),
+        ->serializeToForum('bbforumDiscordOnly', 'bbforum.oauth_only_signup', 'boolval')
+        ->serializeToForum('bbContestSubmitUntil', 'bbforum.contest_submit_until')
+        ->serializeToForum('bbContestVoteUntil', 'bbforum.contest_vote_until'),
 
     ...(is_file('/bbforum/forum.js') ? [(new Extend\Frontend('forum'))->js('/bbforum/forum.js')] : []),
     ...(is_file('/bbforum/icons.less') ? [

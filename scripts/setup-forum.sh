@@ -60,6 +60,8 @@ docker compose exec -T \
   -e DISCORD_SHOWN_ROLE_IDS="${DISCORD_SHOWN_ROLE_IDS:-}" \
   -e DISCORD_BETA_ROLE_IDS="${DISCORD_BETA_ROLE_IDS:-}" \
   -e BETA_REPOS="${BETA_REPOS:-}" \
+  -e CONTEST_SUBMIT_UNTIL="${CONTEST_SUBMIT_UNTIL:-}" \
+  -e CONTEST_VOTE_UNTIL="${CONTEST_VOTE_UNTIL:-}" \
   -e DISCORD_ONLY_SIGNUP="${DISCORD_ONLY_SIGNUP:-true}" \
   flarum sh /tmp/bbsetup/scripts/lib/setup-inside.sh || status=$?
 

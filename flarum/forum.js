@@ -11,6 +11,8 @@
 //   Bug Reports mit je einem Satz; lässt sich ausblenden (merkt sich der Browser)
 // - Team (wer in Known Fixes Themen starten darf, also Mods und Admins): Block „Team“ in der Seitenleiste mit
 //   Arbeitslisten (ohne Antwort, ungelöst, offene Bugs, Vorschläge) und an Hilfe-Themen „Save as Known Fix“
+// - Logo-Contest: Seite /logo-contest mit allen Werken (erstes Bild im Eröffnungsbeitrag eines Themas im Bereich
+//   Logo Contest), Einreichen und Abstimmen; Regeln und Daten in flarum/contest.php, Link in der Seitenleiste
 // Die Adressen setzt scripts/setup-forum.sh (WEBSITE_URL, DISCORD_INVITE_URL aus .env).
 (function () {
   var compat = flarum.core.compat;
@@ -28,6 +30,10 @@
   var Separator = compat['common/components/Separator'];
   var Stream = compat['common/utils/Stream'];
   var SignUpModal = compat['forum/components/SignUpModal'];
+  var LogInModal = compat['forum/components/LogInModal'];
+  var Page = compat['common/components/Page'];
+  var Link = compat['common/components/Link'];
+  var LoadingIndicator = compat['common/components/LoadingIndicator'];
   var User = compat['common/models/User'];
 
   var HD_URL = 'https://thehuntersdream.com';
@@ -225,7 +231,159 @@
     app.composer.show();
   }
 
+  // --- Logo-Contest ---------------------------------------------------------------------------------------
+  var CONTEST_TAG = 'logo-contest';
+  var ENTRY_TEMPLATE = '**Name of the logo:** \n**Idea:** (what it shows, in one or two sentences)\n\n'
+    + '**Preview:** attach a PNG, 1024 × 1024, transparent background (the first picture is shown in the gallery)\n'
+    + '**Source:** attach the SVG (or AI/PSD) in a zip\n';
+
+  function contestDate(key) {
+    var value = app.forum.attribute(key);
+    return value ? new Date(value) : null;
+  }
+
+  // submit = Einsendungen offen, vote = Abstimmung, closed = vorbei (oder keine Daten gesetzt)
+  function contestPhase() {
+    var submit = contestDate('bbContestSubmitUntil');
+    var vote = contestDate('bbContestVoteUntil');
+    var now = new Date();
+    if (!submit || !vote) return 'closed';
+    return now <= submit ? 'submit' : now <= vote ? 'vote' : 'closed';
+  }
+
+  function dayText(date) {
+    return date ? date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', timeZone: 'UTC' }) : '';
+  }
+
+  // Das Werk = das erste Bild im Eröffnungsbeitrag
+  function entryImage(discussion) {
+    var post = discussion.firstPost && discussion.firstPost();
+    var match = post && /<img[^>]+src="([^"]+)"/.exec(post.contentHtml() || '');
+    return match ? match[1].replace(/&amp;/g, '&') : null;
+  }
+
+  function submitEntry() {
+    if (!app.session.user) return app.modal.show(LogInModal);
+    var tag = tagBySlug(CONTEST_TAG);
+    app.composer.load(DiscussionComposer, {
+      user: app.session.user,
+      originalContent: (tag && tag.attribute('template')) || ENTRY_TEMPLATE,
+    });
+    app.composer.fields.tags = tag ? [tag] : [];
+    app.composer.show();
+  }
+
+  class LogoContestPage extends Page {
+    oninit(vnode) {
+      super.oninit(vnode);
+      this.entries = null;
+      this.rules = null;
+      this.sort = 'votes';
+      this.busy = null;
+      app.setTitle('Logo contest');
+      app.setTitleCount(0);
+      this.load();
+    }
+
+    load() {
+      var page = this;
+      return app.store.find('discussions', { filter: { tag: CONTEST_TAG }, include: 'firstPost,user,tags', page: { limit: 50 } })
+        .then(function (list) {
+          page.rules = list.filter(function (d) { return d.isSticky(); })[0] || null;
+          page.entries = list.filter(function (d) { return !d.isSticky(); });
+        })
+        .catch(function () { page.entries = []; })
+        .then(function () { m.redraw(); });
+    }
+
+    // Stimme geben oder zurücknehmen (= „Gefällt mir“ auf dem Eröffnungsbeitrag); danach neu laden, weil eine neue
+    // Stimme die alte für ein anderes Werk entfernt
+    vote(discussion) {
+      var page = this;
+      if (!app.session.user) return app.modal.show(LogInModal);
+      var post = app.store.getById('posts', discussion.attribute('bbFirstPostId'));
+      if (!post) return;
+      page.busy = discussion.id();
+      post.save({ isLiked: !discussion.attribute('bbVoted') })
+        .then(function () { return page.load(); })
+        .catch(function () {})
+        .then(function () { page.busy = null; m.redraw(); });
+    }
+
+    card(discussion, phase) {
+      var page = this;
+      var img = entryImage(discussion);
+      var votes = discussion.attribute('bbVotes') || 0;
+      var voted = discussion.attribute('bbVoted');
+      var own = app.session.user && discussion.user() === app.session.user;
+      var user = discussion.user();
+      var url = app.route.discussion(discussion);
+      return m('article.bb-entry' + (voted ? '.is-voted' : ''), [
+        m(Link, { className: 'bb-entry-art', href: url }, img ? m('img', { src: img, alt: discussion.title(), loading: 'lazy' }) : m('span', 'No picture yet')),
+        m('div.bb-entry-info', [
+          m('h3', m(Link, { href: url }, discussion.title())),
+          m('p', 'by ' + (user ? user.displayName() : 'a former member') + ' · ' + (discussion.commentCount() - 1) + ' comments'),
+        ]),
+        phase !== 'submit' ? m('div.bb-entry-vote', [
+          m('span.bb-entry-votes', votes + (votes === 1 ? ' vote' : ' votes')),
+          phase === 'vote' ? Button.component({
+            className: 'Button' + (voted ? ' Button--primary' : ''),
+            disabled: page.busy === discussion.id() || own || (app.session.user && !voted && !discussion.attribute('bbCanVote')),
+            title: own ? 'You cannot vote for your own logo' : '',
+            onclick: function () { page.vote(discussion); },
+          }, voted ? 'Your vote' : app.session.user ? 'Vote' : 'Log in to vote') : null,
+        ]) : null,
+      ]);
+    }
+
+    view() {
+      var page = this;
+      var phase = contestPhase();
+      var submit = contestDate('bbContestSubmitUntil');
+      var vote = contestDate('bbContestVoteUntil');
+      var site = app.forum.attribute('bbforumWebsiteUrl');
+      var entries = (this.entries || []).slice().sort(this.sort === 'votes' && phase !== 'submit'
+        ? function (a, b) { return (b.attribute('bbVotes') || 0) - (a.attribute('bbVotes') || 0) || b.createdAt() - a.createdAt(); }
+        : function (a, b) { return b.createdAt() - a.createdAt(); });
+      var status = phase === 'submit'
+        ? 'Send in your logo until ' + dayText(submit) + '. Then every member votes until ' + dayText(vote) + ': one vote each, and you can move it.'
+        : phase === 'vote'
+          ? 'Submissions are closed. Vote until ' + dayText(vote) + ': one vote each, and you can move it.'
+          : 'The contest has ended. Thank you to everyone who took part!';
+
+      return m('div.bb-contest', [
+        m('div.bb-contest-hero', m('div.container', [
+          m('p.bb-contest-eyebrow', 'Community contest'),
+          m('h1', 'Design the new launcher logo'),
+          m('p.bb-contest-lead', 'The launcher gets a new logo, and you can make it. The winning design becomes the new launcher logo, credited with your name.'),
+          m('p.bb-contest-status', status),
+          m('div.bb-contest-actions', [
+            phase === 'submit' ? Button.component({ className: 'Button Button--primary', onclick: submitEntry }, 'Submit your logo') : null,
+            this.rules ? m(Link, { className: 'Button', href: app.route.discussion(this.rules) }, 'Rules & requirements') : null,
+            site ? m('a.Button', { href: site + '/logo-contest-template.svg', download: 'logo-contest-template.svg' }, 'Download the template') : null,
+          ]),
+        ])),
+        m('div.container.bb-contest-body', [
+          m('div.bb-contest-toolbar', [
+            m('span', this.entries ? entries.length + (entries.length === 1 ? ' entry' : ' entries') : ''),
+            phase !== 'submit' ? m('div.bb-contest-sort', [
+              Button.component({ className: 'Button' + (this.sort === 'votes' ? ' is-active' : ''), onclick: function () { page.sort = 'votes'; } }, 'Most votes'),
+              Button.component({ className: 'Button' + (this.sort === 'new' ? ' is-active' : ''), onclick: function () { page.sort = 'new'; } }, 'Newest'),
+            ]) : null,
+          ]),
+          this.entries === null
+            ? m(LoadingIndicator)
+            : entries.length
+              ? m('div.bb-contest-grid', entries.map(function (d) { return page.card(d, phase); }))
+              : m('p.bb-contest-empty', phase === 'submit' ? 'No entries yet. Yours could be the first.' : 'No entries.'),
+        ]),
+      ]);
+    }
+  }
+
   app.initializers.add('bbforum', function () {
+    app.routes.logoContest = { path: '/logo-contest', component: LogoContestPage };
+
     extend(HeaderPrimary.prototype, 'items', function (items) {
       var site = app.forum.attribute('bbforumWebsiteUrl');
       var discord = app.forum.attribute('bbforumDiscordUrl');
@@ -273,8 +431,11 @@
       if (hd.data) items.add('bbHuntersDream', huntersDreamCard(hd.data), -100);
     });
 
-    // Team-Block in der Seitenleiste (Startseite und Bereiche)
+    // Team-Block in der Seitenleiste (Startseite und Bereiche); für alle der Link zum Logo-Contest, solange er läuft
     extend(IndexPage.prototype, 'navItems', function (items) {
+      if (contestPhase() !== 'closed') {
+        items.add('bbLogoContest', LinkButton.component({ href: app.route('logoContest'), icon: 'fas fa-trophy' }, 'Logo contest'), 95);
+      }
       if (isTeam()) teamNavItems(items);
     });
 

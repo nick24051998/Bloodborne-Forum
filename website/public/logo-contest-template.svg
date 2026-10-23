@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>bbport launcher logo contest: template</title>
+  <!-- Draw your logo in the layer "your-logo", inside the dashed square. Before you export, delete the layers
+       "background", "guides" and "labels": export a PNG (1024 x 1024, transparent background) or an SVG. -->
+  <rect id="background" width="1024" height="1024" fill="#0d0e10"/>
+  <g id="guides" fill="none" stroke-width="2">
+    <rect x="64" y="64" width="896" height="896" stroke="#c2a878" stroke-dasharray="14 10"/>
+    <circle cx="512" cy="512" r="448" stroke="#9c8458" stroke-opacity="0.45" stroke-dasharray="4 8"/>
+    <line x1="512" y1="64" x2="512" y2="960" stroke="#34373c"/>
+    <line x1="64" y1="512" x2="960" y2="512" stroke="#34373c"/>
+  </g>
+  <g id="labels" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#8a8c90">
+    <text x="64" y="44">bbport launcher logo · 1024 × 1024 · keep your logo inside the dashed square</text>
+    <text x="64" y="996">Before you export: delete background, guides and labels. PNG with transparent background, or SVG.</text>
+  </g>
+  <g id="your-logo"></g>
+</svg>

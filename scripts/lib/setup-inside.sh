@@ -249,6 +249,7 @@ fi
 log "Tags"
 # slug|name|color|icon|description
 TAGS='announcements|Announcements|#8a1118|bbicon bbicon-bell|News, releases and changelogs from the team. Only staff can start topics here.
+logo-contest|Logo Contest|#8a1118|fas fa-trophy|Design the new launcher logo. Post your logo here; vote on the contest page (forum.bbport.de/logo-contest).
 known-fixes|Known Fixes|#4f6b55|bbicon bbicon-key|Solutions that worked, checked by a helper. Search here first. Only the team starts topics here.
 help-support|Help & Support|#9c8458|bbicon bbicon-lamppost|Something doesn'"'"'t work for you: crash, error, setup, performance. Include port version, GPU + driver and your BB Report Tool zip.
 bug-reports|Bug Reports|#7a2a2e|fas fa-bug|Confirmed bugs in the port and their status. Only the team starts topics here: report problems in Help & Support.
@@ -300,7 +301,7 @@ gen=$(echo "$existing" | jq -r '.data[] | select(.attributes.slug == "general" a
 [ -n "$gen" ] && api DELETE "/tags/$gen" >/dev/null && ok "empty default tag 'General' removed"
 
 # Alles, was hier fehlt, wird ein Zusatz-Tag (Flarum setzt bei der Reihenfolge die übrigen Plätze zurück)
-order=$(for s in announcements known-fixes help-support bug-reports suggestions beta performance mods-patches guides hunters-dream; do tag_id "$s"; done |
+order=$(for s in announcements logo-contest known-fixes help-support bug-reports suggestions beta performance mods-patches guides hunters-dream; do tag_id "$s"; done |
   jq -R . | jq -s 'map({id: ., children: []})')
 api POST /tags/order "{\"order\": $order}" >/dev/null && ok "order set"
 
@@ -326,6 +327,14 @@ team_only bug-reports
 ok "Known Fixes, Bug Reports: everyone can read and reply, only the team starts topics (confirmed bugs are moved from Help & Support)"
 echo "$STATUS_TAGS" | while IFS='|' read -r slug _rest; do team_only "$slug"; done
 ok "status tags (Open, In progress, Fixed, Planned, Done, Not planned, Duplicate): only the team sets them"
+
+# --------------------------------------------------------------------------
+log "Logo contest"
+# Daten der Seite /logo-contest und der Regeln in flarum/contest.php (Einsendeschluss, Ende der Abstimmung, UTC)
+csub=${CONTEST_SUBMIT_UNTIL:-2026-11-08T23:59:59Z}
+cvote=${CONTEST_VOTE_UNTIL:-2026-11-15T23:59:59Z}
+body=$(jq -n --arg s "$csub" --arg v "$cvote" '{"bbforum.contest_submit_until": $s, "bbforum.contest_vote_until": $v}')
+api POST /settings "$body" >/dev/null && ok "logo contest: entries until $csub, voting until $cvote"
 
 # --------------------------------------------------------------------------
 log "Beta: only for unlocked testers"
@@ -376,7 +385,7 @@ if installed fof/discussion-templates; then
   # Performance Reports: Hardware, Einstellungen und FPS auf einer festen Teststrecke (Grundlage für Schätzungen)
   body=$(jq -n --rawfile t "$D/content/performance-template.md" '{data: {template: $t}}')
   api PATCH "/tags/$(tag_id performance)/template" "$body" >/dev/null && ok "post template for Performance Reports"
-  for t in known-fixes:known-fix bug-reports:bug suggestions:suggestion beta:beta; do
+  for t in known-fixes:known-fix bug-reports:bug suggestions:suggestion beta:beta logo-contest:logo-entry; do
     body=$(jq -n --rawfile t "$D/content/${t#*:}-template.md" '{data: {template: $t}}')
     api PATCH "/tags/$(tag_id "${t%%:*}")/template" "$body" >/dev/null && ok "post template for ${t%%:*}"
   done
@@ -418,6 +427,7 @@ pinned_topic announcements "$ann" "Forum rules & how to ask for help" "$D/conten
 pinned_topic guides "$(tag_id guides)" "Install guide & system requirements" "$D/content/install-topic.md"
 pinned_topic guides "$(tag_id guides)" "Best settings & first start, with pictures" "$D/content/best-settings-topic.md"
 [ -n "$(tag_id beta)" ] && pinned_topic beta "$(tag_id beta)" "How the beta works" "$D/content/beta-topic.md"
+[ -n "$(tag_id logo-contest)" ] && pinned_topic logo-contest "$(tag_id logo-contest)" "Logo contest: rules and how to enter" "$D/content/logo-contest-topic.md"
 pinned_topic help-support "$help" "Read first: common fixes before you post" "$D/content/help-first-topic.md"
 pinned_topic performance "$(tag_id performance)" "How to post a performance report" "$D/content/performance-topic.md"
 

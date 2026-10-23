@@ -337,6 +337,18 @@ test('Launcher guide: im Menü und mit den Abschnitten', async ({ page }) => {
   }
 });
 
+// Logo-Contest: große Ankündigung auf der Startseite, führt auf die Contest-Seite im Forum; die Vorlage liegt auf der Website
+test('Startseite kündigt den Logo-Contest an und führt ins Forum', async ({ page }) => {
+  await page.goto('/');
+  const banner = page.locator('.contest-banner');
+  await expect(banner.locator('h2')).toHaveText('Design the new launcher logo');
+  await expect(banner.locator('a.btn-primary')).toHaveAttribute('href', `${SITE.forumUrl}/logo-contest`);
+  const template = await banner.locator('a[download]').getAttribute('href');
+  const res = await page.request.get(template);
+  expect(res.ok()).toBe(true);
+  expect(await res.text()).toContain('viewBox="0 0 1024 1024"');
+});
+
 // Betas gibt es nur im Forum (Bereich Beta, für freigeschaltete Tester), nicht auf der Website
 test('Keine Beta auf der Website', async ({ page }) => {
   for (const path of ['/', '/install/', '/guide/', '/faq/', '/best-settings/']) {
