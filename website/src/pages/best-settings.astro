@@ -1,0 +1,142 @@
+---
+// Best settings und erster Start für Einsteiger: der Einrichtungs-Assistent Bild für Bild, die drei Ziele, Werte je
+// Grafikkarte und was hilft, wenn es hakt. Die Bilder sind englische Launcher-Bilder (launcher_src/preview/full_en);
+// Ordnerpfad und Konto-Name sind übermalt. Werte je Karte wie der Hardware-Check (src/data/hardware.js, settingsFor).
+import Base from '../layouts/Base.astro';
+import { Image, getImage } from 'astro:assets';
+import { SITE } from '../../site.config.mjs';
+import { link } from '../lib/url.js';
+import setup1 from '../assets/launcher/setup-1-welcome.png';
+import setup2 from '../assets/launcher/setup-2-game.png';
+import setup3 from '../assets/launcher/setup-3-picture.png';
+import setup5 from '../assets/launcher/setup-5-ready.png';
+import picture from '../assets/launcher/picture-performance.png';
+import help from '../assets/launcher/help.png';
+
+const full = async (img) => (await getImage({ src: img, format: 'webp', quality: 90 })).src;
+
+const steps = [
+  { img: setup1, n: 1, title: 'Welcome', alt: 'Setup step 1: launcher language and where you come from',
+    text: 'Pick the launcher language and "I am new to the port". Coming from shadPS4, bbhost or another port? Pick that instead, so the setup finds your characters later.' },
+  { img: setup2, n: 2, title: 'Your game and your PC', alt: 'Setup step 2: the game folder and the checks for the game and the PC',
+    text: 'Choose the folder of your game dump: the one with eboot.bin, sce_module, sce_sys and dvdroot_ps4 directly inside. Every line should get a green tick. A red line says what is wrong and how to fix it.' },
+  { img: setup3, n: 3, title: 'Picture and controls', alt: 'Setup step 3: your goal, the resolution cards with the recommended one, controller or keyboard',
+    text: 'Choose your goal (more on that below) and take the resolution marked "Recommended". Then say whether you play with a controller or with keyboard and mouse.' },
+  { img: setup5, n: 5, title: 'The hunt begins', alt: 'Setup step 5: a summary of your setup, simple or expert view, desktop shortcut and Add to Steam',
+    text: 'Step 4 brings your characters along and signs you in for online play with Discord (both optional). Step 5 sums it all up. Keep "Simple" if you are new: you only see the pages you need. Then press PLAY.' },
+];
+for (const s of steps) s.full = await full(s.img);
+const pictureFull = await full(picture);
+const helpFull = await full(help);
+
+const goals = [
+  ['Smooth', 'As many frames as the game allows, up to 120 FPS; the picture made for your PC.', 'Strong PCs and high refresh screens.'],
+  ['Balanced', 'A steady 60 FPS with the best picture your graphics card has room for.', 'Most players. A good start if unsure.'],
+  ['Quiet', '60 FPS and a little less detail: the graphics card works less, stays cooler and quieter.', 'Laptops, small cards, hot rooms.'],
+];
+
+// Richtwerte je Grafikkarte; die Einschätzung für den eigenen PC macht der Hardware-Check im Install Guide
+const cards = [
+  ['4 GB of video memory', 'GTX 1050 Ti, GTX 1650, RX 570, RX 6500 XT', '720p or 1080p', 'FSR 3.1 Performance', '60 FPS cap', 'Off'],
+  ['6–8 GB, older cards', 'GTX 1660, RTX 2060, RX 5600 XT, RX 6600', '1080p', 'DLSS or FSR 3.1 Balanced', '60 FPS', 'Off'],
+  ['8 GB, recommended', 'RTX 3060 Ti, RTX 4060, RX 6700 XT, RX 7600', '1440p', 'DLSS or FSR 3.1 Quality', '60–90 FPS', 'Optional, from 60 base FPS'],
+  ['12–16 GB', 'RTX 4070, RTX 5070, RX 7800 XT, RX 9070', '1440p, or 4K', 'DLSS or FSR 4 Quality (4K: Balanced)', 'Unlocked', 'On if you like: DLSS on RTX 40/50, FSR 3.1 on others'],
+  ['Intel graphics', 'Arc A750, Arc B580, Arc 140V and other built-in Intel graphics', '1080p (built-in: 720p)', 'Off (no upscaler on Intel)', '30–60 FPS', 'Off'],
+];
+---
+
+<Base title="Best Settings & First Start" description={`Best settings for ${SITE.brand}, the Bloodborne PC port: the first start screen by screen, Smooth, Balanced or Quiet, settings for your graphics card, and what helps when it stutters or crashes.`}>
+  <section class="page-hero">
+    <div class="container">
+      <h1>Best settings</h1>
+      <p>New to the port? Here is the whole first start, screen by screen, and the few choices that are yours. The launcher sets everything technical for your PC.</p>
+    </div>
+  </section>
+  <div class="container">
+    <article class="prose settings">
+      <div class="settings-short">
+        <h2 id="short-version">The short version</h2>
+        <ol>
+          <li>Start <code>Bloodborne.exe</code>. The setup checks your game and your PC.</li>
+          <li>Pick a goal: <strong>Balanced</strong> if unsure. Take the resolution marked "Recommended".</li>
+          <li>Press <strong>PLAY</strong>. The first minutes can stutter while the shader cache is built. That is normal.</li>
+        </ol>
+        <p>Not smooth? Read <a href="#fixes">If it doesn't run well</a>. Want a number for your PC? Use the <a href={link('install/#hwcheck-heading')}>hardware check</a>.</p>
+      </div>
+
+      <h2 id="first-start">Your first start, screen by screen</h2>
+      <p>The first time you open the launcher, a short setup with five steps sets everything up. You can change every setting later.</p>
+      <ol class="settings-steps">
+        {steps.map((s) => (
+          <li>
+            <a class="launcher-shot" href={s.full} aria-label={`Open the picture of step ${s.n} in full size`}>
+              <Image src={s.img} alt={s.alt} widths={[640, 960, 1280]} sizes="(max-width: 780px) 100vw, 720px" loading="lazy" />
+            </a>
+            <h3>Step {s.n}: {s.title}</h3>
+            <p>{s.text}</p>
+          </li>
+        ))}
+      </ol>
+
+      <h2 id="goal">Your goal: Smooth, Balanced or Quiet</h2>
+      <p>This is the one choice that really matters. The launcher turns it into resolution, upscaler and frame rate for your graphics card. You find it on the Play page and on <strong>Picture &amp; performance</strong>.</p>
+      <table>
+        <thead><tr><th>Goal</th><th>What it does</th><th>Good for</th></tr></thead>
+        <tbody>
+          {goals.map(([name, what, who]) => <tr><th>{name}</th><td>{what}</td><td>{who}</td></tr>)}
+        </tbody>
+      </table>
+      <figure class="settings-figure">
+        <a class="launcher-shot" href={pictureFull} aria-label="Open the Picture & performance page in full size">
+          <Image src={picture} alt="Picture & performance: the settings made for your PC, your goal, Measure on this PC and Undo" widths={[640, 960, 1280]} sizes="(max-width: 780px) 100vw, 720px" loading="lazy" />
+        </a>
+        <figcaption>Picture &amp; performance: the line at the top shows what the launcher picked for your PC.</figcaption>
+      </figure>
+      <ul>
+        <li><strong>Measure on this PC</strong> finds the best settings by trying them: the game starts a few times by itself from a copy of your last save, which takes 2 to 10 minutes. Use it once you have a save.</li>
+        <li><strong>Undo</strong> puts back what you had before.</li>
+        <li>In the game, <kbd>Insert</kbd> (keyboard) or <kbd>L3</kbd> + <kbd>R3</kbd> (controller) opens the port's menu: change the upscaler, resolution and effects while you play.</li>
+      </ul>
+
+      <h2 id="by-card">Settings by graphics card</h2>
+      <p>The launcher picks these for you. Use the table if you want to set things yourself, or to check that nothing is off.</p>
+      <div class="settings-table">
+        <table>
+          <thead><tr><th>Your card</th><th>Resolution</th><th>Upscaler</th><th>Frame rate</th><th>Frame generation</th></tr></thead>
+          <tbody>
+            {cards.map(([name, examples, res, up, fps, fg]) => (
+              <tr><th>{name}<span>{examples}</span></th><td>{res}</td><td>{up}</td><td>{fps}</td><td>{fg}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <ul>
+        <li><strong>4 GB cards:</strong> also Model detail "Default" and Object motion vectors off. Keep the Windows page file on "System managed".</li>
+        <li><strong>DLSS</strong> needs a GeForce RTX card. <strong>FSR 4</strong> is best on Radeon RX 7000 and 9000; older cards use FSR 3.1.</li>
+        <li><strong>Frame generation</strong> feels best from about 60 FPS before it doubles them, and adds a little input delay.</li>
+      </ul>
+
+      <h2 id="fixes">If it doesn't run well</h2>
+      <ul>
+        <li><strong>Stutter in the first minutes</strong> after installing or updating: the shader cache is built. Play on, it gets better.</li>
+        <li><strong>Stutter later, or textures that load late:</strong> the video memory is full. Go one step down: Quality → Balanced → Performance, or a lower resolution, and a 60 FPS cap. The goal <strong>Quiet</strong> does this for you.</li>
+        <li><strong>Crashes:</strong> update the port and your graphics driver, close MSI Afterburner, RTSS and other overlays. In expert view: Advanced → Two-stage GPU pipeline → "Off (more stable)".</li>
+        <li><strong>Black screen or flicker:</strong> Help → Only a black screen → Clear the shader cache.</li>
+        <li><strong>The game closes right after PLAY (code 3):</strong> Windows gives the port too little memory. The fix is in the <a href={link('faq/#code-3')}>FAQ</a>.</li>
+      </ul>
+      <figure class="settings-figure">
+        <a class="launcher-shot" href={helpFull} aria-label="Open the Help page in full size">
+          <Image src={help} alt="The Help page: it checks this installation and lists problems with their fixes" widths={[640, 960, 1280]} sizes="(max-width: 780px) 100vw, 720px" loading="lazy" />
+        </a>
+        <figcaption>Help checks your installation and lists every known problem with its fix.</figcaption>
+      </figure>
+
+      <h2 id="still-stuck">Still stuck?</h2>
+      <p>
+        Look in the <a href={link('faq/')}>FAQ</a>{SITE.forumUrl && <> and in <a href={`${SITE.forumUrl}/t/known-fixes`}>Known Fixes</a>: solutions that worked for others</>}.
+        {SITE.forumUrl && <> Then ask in <a href={`${SITE.forumUrl}/t/help-support`}>Help &amp; Support</a> with Help → Save a report attached.</>}
+      </p>
+      <p class="settings-note">Pictures from the launcher in English; your version may look a little different.</p>
+    </article>
+  </div>
+</Base>

@@ -377,6 +377,7 @@ pinned_topic() { # pinned_topic TAG-SLUG TAG-ID TITLE CONTENT-FILE: creates the 
 }
 pinned_topic announcements "$ann" "Forum rules & how to ask for help" "$D/content/rules.md"
 pinned_topic guides "$(tag_id guides)" "Install guide & system requirements" "$D/content/install-topic.md"
+pinned_topic guides "$(tag_id guides)" "Best settings & first start, with pictures" "$D/content/best-settings-topic.md"
 pinned_topic help-support "$help" "Read first: common fixes before you post" "$D/content/help-first-topic.md"
 pinned_topic performance "$(tag_id performance)" "How to post a performance report" "$D/content/performance-topic.md"
 

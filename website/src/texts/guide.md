@@ -35,7 +35,7 @@ shadPS4/GoldHEN XML patches in the `patches` folder are optional. You don't need
 2. The first time, a short guide picks your game folder and the settings for your PC. Then press **PLAY**.
 3. The **Play** page checks the game version, your saves, the graphics card and the FSR 4 files.
 
-You can change the game folder later on **Game files** (expert view). `Play Bloodborne.exe` starts the game straight away with your saved settings, without opening the launcher.
+The setup screen by screen, and the settings for your graphics card: [best settings](../best-settings/). You can change the game folder later on **Game files** (expert view). `Play Bloodborne.exe` starts the game straight away with your saved settings, without opening the launcher.
 
 ## Updates
 

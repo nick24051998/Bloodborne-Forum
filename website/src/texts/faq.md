@@ -107,6 +107,7 @@ questions:
     a: |
       <p>In the first minutes after installing or updating, the port builds its shader cache, so stutter is normal there.</p>
       <p>Later, stutter and late textures usually mean the video memory is full. Lower the resolution, use FSR Performance and a 60 FPS cap, and close other programs that use the GPU. Frame generation works best from about 60 base FPS.</p>
+      <p>Settings for your graphics card, and the goals Smooth, Balanced and Quiet: <a href="../best-settings/">best settings</a>.</p>
   - id: ultrawide
     group: performance
     q: Does it support ultrawide?

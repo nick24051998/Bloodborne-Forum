@@ -63,6 +63,8 @@ intro: Everything you need to get Bloodborne running on Windows – from system 
 3. The Play page checks the game version, your saves and the graphics card.
 4. Press PLAY. The first minutes can stutter while the shader cache is built, which is normal.
 
+Every screen of the setup with pictures, and which settings fit your graphics card: [best settings](../best-settings/).
+
 ### After that
 
 - `Play Bloodborne.exe` starts the game straight away with your settings.

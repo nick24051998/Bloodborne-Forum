@@ -6,7 +6,7 @@ Most problems have a quick fix. Please try these before you start a new discussi
 - **Stretched polygons, flickering or a black screen:** update to the newest version, then use Advanced > Clear shader cache. On Intel graphics, turn the upscaler off.
 - **30 FPS only, patches missing or co-op broken:** the port needs the unmodified 1.09 `eboot.bin`. Pre-patched "60 fps" eboots and repacks break it.
 
-More answers: [FAQ]({{WEBSITE_URL}}/faq/) · requirements and setup: [install guide]({{WEBSITE_URL}}/install/)
+More answers: [FAQ]({{WEBSITE_URL}}/faq/) · requirements and setup: [install guide]({{WEBSITE_URL}}/install/) · settings for your graphics card: [best settings]({{WEBSITE_URL}}/best-settings/)
 
 ### How to ask for help
 

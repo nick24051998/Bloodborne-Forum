@@ -222,9 +222,27 @@ test('Alle Knöpfe folgen einer Regel', async ({ page }) => {
   expect(await fill('.hero .btn-discord')).toBe('rgb(88, 101, 242)');
 });
 
+// Für Einsteiger: der Erststart Bild für Bild, die drei Ziele und Werte je Grafikkarte; von überall verlinkt
+test('Best settings: Erststart mit Bildern, Ziele, Werte je Karte, verlinkt', async ({ page }) => {
+  await page.goto('/best-settings/');
+  await expect(page.locator('h1')).toHaveText('Best settings');
+  await expect(page.locator('.settings-steps > li')).toHaveCount(4);
+  await expect(page.locator('.settings table').first().locator('tbody tr')).toHaveCount(3);
+  await expect(page.locator('.settings-table tbody tr')).toHaveCount(5);
+  for (const img of await page.locator('.settings img').all()) {
+    await img.scrollIntoViewIfNeeded();
+    await expect.poll(() => img.evaluate((i) => (i.complete ? i.naturalWidth : 0))).toBeGreaterThan(0);
+  }
+  for (const path of ['/', '/install/', '/guide/', '/faq/']) {
+    await page.goto(path);
+    await expect(page.locator('main a[href$="best-settings/"]').first(), path).toBeAttached();
+  }
+  await expect(page.locator('footer a[href="/best-settings/"]')).toHaveCount(1);
+});
+
 // Nick will nirgends farbige Streifen am linken Rand von Kästen oder Hinweisen sehen
 test('Keine Streifen am linken Rand', async ({ page }) => {
-  for (const path of ['/', '/install/', '/guide/', '/faq/', '/changelog/', '/supermedo/']) {
+  for (const path of ['/', '/install/', '/guide/', '/faq/', '/changelog/', '/supermedo/', '/best-settings/']) {
     await page.goto(path);
     const stripes = await page.$$eval('body *', (all) => all.filter((el) => {
       const cs = getComputedStyle(el);

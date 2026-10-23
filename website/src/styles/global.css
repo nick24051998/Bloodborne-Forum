@@ -437,6 +437,23 @@ h3 { font-size: var(--step-1); }
 .faq .answer p, .faq .answer ol, .faq .answer ul { margin: 0 0 0.7rem; }
 .faq .answer > :last-child { margin-bottom: 0; }
 
+/* --- Best settings (src/pages/best-settings.astro): Kurzfassung, Erststart Bild für Bild, Tabellen ---------- */
+.settings-short { margin: 0 0 1rem; padding: 1.1rem 1.4rem 0.4rem; border: 1px solid var(--border-strong); border-radius: var(--radius);
+  background: radial-gradient(120% 90% at 50% 0%, rgba(138, 17, 24, 0.18), transparent 70%), var(--card); }
+.prose .settings-short h2 { margin-top: 0; border-bottom: 0; padding-bottom: 0; font-size: var(--step-1); }
+.settings-short ol { padding-left: 1.3rem; }
+.settings-steps { list-style: none; padding: 0; margin: 1.4rem 0 0; display: grid; gap: 2rem; }
+.prose .settings-steps h3 { margin: 0.9rem 0 0.3rem; }
+.settings-steps p { margin: 0; color: var(--text-soft); }
+.settings-figure { margin: 1.4rem 0; }
+.settings-figure figcaption { margin-top: 0.6rem; color: var(--muted); font-size: 0.9rem; }
+.settings-table th span { display: block; margin-top: 0.2rem; color: var(--muted); font-size: 0.85rem; font-weight: 400; }
+.prose .settings-table tbody th { background: none; min-width: 11rem; }
+.prose kbd { padding: 0.05em 0.4em; border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 5px;
+  background: var(--card); color: var(--text-strong); font: 600 0.85em var(--font-body); }
+.settings-note { color: var(--muted); font-size: 0.9rem; }
+.get-started-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+
 /* --- Hardware-Check im Install Guide (src/components/HardwareCheck.astro) ------------------- */
 .hwcheck { scroll-margin-top: 5rem; margin: 2.2rem 0 1rem; padding: 1.3rem 1.5rem 1.4rem; background: var(--card); border: 1px solid var(--border);
   border-radius: var(--radius); }
