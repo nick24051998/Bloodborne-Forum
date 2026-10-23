@@ -426,7 +426,7 @@ h3 { font-size: var(--step-1); }
 .faq-status { margin: 0.7rem 0 0; color: var(--muted); font-size: 0.9rem; }
 .faq-status:empty { display: none; }
 .faq-group + .faq-group { margin-top: 2.4rem; }
-.prose .faq-group h2 { margin-top: 0; }
+.prose .faq-group h2 { margin-top: 0; font-size: var(--step-1); }
 .faq-group-text { margin: -0.2rem 0 0.9rem; color: var(--muted); font-size: 0.95rem; }
 .faq-empty { margin-top: 1rem; padding: 1.1rem 1.3rem; border: 1px solid rgba(156, 132, 88, 0.45); border-radius: var(--radius);
   background: rgba(156, 132, 88, 0.07); color: var(--text-soft); }
