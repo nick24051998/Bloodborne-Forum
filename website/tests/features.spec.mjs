@@ -326,16 +326,24 @@ test.describe('Download und Releases', () => {
   });
 });
 
-test('Launcher guide: im Menü, mit den Abschnitten und dem Beta-Link', async ({ page }) => {
+test('Launcher guide: im Menü und mit den Abschnitten', async ({ page }) => {
   await page.goto('/');
   // Auf dem Handy steckt das Menü im Seitenmenü, der Link ist trotzdem da
   await expect(page.locator('header a[href$="/guide/"]').first()).toHaveCount(1);
   await page.goto('/guide/');
   await expect(page.locator('h1')).toHaveText(/Launcher guide/i);
-  for (const id of ['whats-included', 'online-play', 'saves', 'mods', 'test-build-195-beta-2']) {
+  for (const id of ['whats-included', 'online-play', 'saves', 'mods']) {
     await expect(page.locator(`h2#${id}`), id).toHaveCount(1);
   }
-  await expect(page.locator('a[href*="nick24051998/bloodborne_pc/releases/tag/v1.9.5-beta"]')).toHaveCount(1);
+});
+
+// Betas gibt es nur im Forum (Bereich Beta, für freigeschaltete Tester), nicht auf der Website
+test('Keine Beta auf der Website', async ({ page }) => {
+  for (const path of ['/', '/install/', '/guide/', '/faq/', '/best-settings/']) {
+    await page.goto(path);
+    expect(await page.locator('a[href*="nick24051998/bloodborne_pc"]').count(), path).toBe(0);
+    expect(await page.locator('main').innerText(), path).not.toMatch(/beta \d/i);
+  }
 });
 
 test('Hardware-Check bewertet Intels Arc-Grafik im Prozessor wie der Launcher', () => {

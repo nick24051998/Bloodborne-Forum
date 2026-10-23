@@ -66,12 +66,12 @@ Everyone in a session needs game version 1.09 and the same co-op pool. Please as
 
 - Your firewall or router must let the game server port **20443** through.
 - **"Seamless co-op" tool:** it overwrites a hidden server address. On 1.9.4: Online play → shadNet server → **Use my own servers** → empty the **Game server** field → switch back to The Hunter's Dream. 1.9.5 fixes this for good.
-- **Your own shadNet servers:** the public server's WebAPI is `http://srv.shadps4.net:31315`, with plain `http`. An `https://` address fails with "SSL: UNEXPECTED_EOF_WHILE_READING". From 1.9.5 beta 2 on, the server fields only count with **Use my own servers** ticked.
+- **Your own shadNet servers:** the public server's WebAPI is `http://srv.shadps4.net:31315`, with plain `http`. An `https://` address fails with "SSL: UNEXPECTED_EOF_WHILE_READING". From 1.9.5 on, the server fields only count with **Use my own servers** ticked.
 
 ## Steam
 
 - **Add to Steam** on **Launcher customization**, or add `Play Bloodborne.exe` yourself: both start the game directly.
-- **AMD driver crashes when started from Steam:** in one report, Steam's shader pre-caching logged errors right before the crash. Turn it off under Steam → Settings → Downloads → Shader Pre-Caching. From 1.9.5 beta 2 on, the port turns it off for the game by itself.
+- **AMD driver crashes when started from Steam:** in one report, Steam's shader pre-caching logged errors right before the crash. Turn it off under Steam → Settings → Downloads → Shader Pre-Caching. From 1.9.5 on, the port turns it off for the game by itself.
 - The controller does nothing from Steam: in the game's Steam properties, try Steam Input on or off.
 
 ## Saves
@@ -98,11 +98,3 @@ Everyone in a session needs game version 1.09 and the same co-op pool. Please as
 - **Overlays** like RivaTuner (RTSS) and MSI Afterburner can break the game. Close them.
 - **Intel graphics** get no upscaler. FSR 4 freezes on Intel Arc.
 
-## Test build: 1.9.5 beta 2
-
-A test build from our community, **not an official release**. For the official version, use the [official download](#latest-download).
-
-- [Download 1.9.5 beta 2 on GitHub](https://github.com/nick24051998/bloodborne_pc/releases/tag/v1.9.5-beta.2)
-- It is a full package: unpack it into a **new, empty folder**. The launcher then sets the graphics for your PC by itself.
-- If the saves or mods folder in the launcher's settings belongs to another installation, **Help** says so and offers **Use this installation's own folders**. Bring your characters over first with **Saves → From other versions**.
-- Found a bug? Tell us in the beta thread on Discord, with **Help → Save a report**.

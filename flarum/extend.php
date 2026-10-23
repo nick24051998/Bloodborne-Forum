@@ -294,6 +294,7 @@ if (! class_exists('BBForumUnansweredGambit')) {
 }
 
 require_once __DIR__.'/discord-roles.php';
+require_once __DIR__.'/betas.php';
 
 return [
     (new Extend\Routes('api'))->get('/hunters-dream', 'bbforum.huntersDream', BBForumHuntersDream::class),
@@ -303,6 +304,13 @@ return [
         ->command(BBForumDiscordRolesCommand::class)
         ->schedule(BBForumDiscordRolesCommand::class, function ($event) {
             $event->everyMinute();
+        }),
+
+    // Neue Testversionen von GitHub als Themen im Bereich Beta (flarum/betas.php), alle 10 Minuten
+    (new Extend\Console())
+        ->command(BBForumBetasCommand::class)
+        ->schedule(BBForumBetasCommand::class, function ($event) {
+            $event->everyTenMinutes();
         }),
 
     // Sperrt ein Mod jemanden im Forum, wird er auch auf dem Discord-Server gebannt

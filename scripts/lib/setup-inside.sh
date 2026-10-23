@@ -254,6 +254,7 @@ help-support|Help & Support|#9c8458|bbicon bbicon-lamppost|Something doesn'"'"'t
 bug-reports|Bug Reports|#7a2a2e|fas fa-bug|Confirmed bugs in the port and their status. Only the team starts topics here: report problems in Help & Support.
 performance|Performance Reports|#475a6b|bbicon bbicon-droplet|Your frame rates with your hardware and settings. Use the form: real numbers help everyone choose settings.
 suggestions|Suggestions|#6e6656|bbicon bbicon-candle|Ideas and feature requests for the port, the launcher, this forum or Discord.
+beta|Beta|#3b3448|fas fa-flask|Test builds before their release, for unlocked testers. Report what you find in the topic of the build.
 mods-patches|Mods & Patches|#6b3a45|bbicon bbicon-tools|Share and discuss mods, patches and tweaks. No game files.
 guides|Guides|#4c5d5a|bbicon bbicon-book|Tutorials and how-tos written by the community.
 hunters-dream|The Hunter'"'"'s Dream|#57526e|bbicon bbicon-crescent|Off-topic. Rest a while, good hunter.'
@@ -299,7 +300,7 @@ gen=$(echo "$existing" | jq -r '.data[] | select(.attributes.slug == "general" a
 [ -n "$gen" ] && api DELETE "/tags/$gen" >/dev/null && ok "empty default tag 'General' removed"
 
 # Alles, was hier fehlt, wird ein Zusatz-Tag (Flarum setzt bei der Reihenfolge die übrigen Plätze zurück)
-order=$(for s in announcements known-fixes help-support bug-reports suggestions performance mods-patches guides hunters-dream; do tag_id "$s"; done |
+order=$(for s in announcements known-fixes help-support bug-reports suggestions beta performance mods-patches guides hunters-dream; do tag_id "$s"; done |
   jq -R . | jq -s 'map({id: ., children: []})')
 api POST /tags/order "{\"order\": $order}" >/dev/null && ok "order set"
 
@@ -327,6 +328,44 @@ echo "$STATUS_TAGS" | while IFS='|' read -r slug _rest; do team_only "$slug"; do
 ok "status tags (Open, In progress, Fixed, Planned, Done, Not planned, Duplicate): only the team sets them"
 
 # --------------------------------------------------------------------------
+log "Beta: only for unlocked testers"
+# Freigeschaltet ist, wer die Discord-Rolle „Beta Hunter“ oder „Test Subject“ hat (der Rollen-Abgleich legt für jede
+# Rolle eine versteckte Gruppe an) oder im Forum in der Gruppe „Beta Testers“ ist (Admin → Nutzer → Gruppen).
+# Diese Gruppen haben im Bereich Beta die Rechte normaler Mitglieder, das Team (Mod) seine üblichen; sonst sieht ihn niemand.
+# Neue Testversionen postet flarum/betas.php (bbforum:betas, alle 10 Minuten) aus den Repos in BETA_REPOS.
+bt=$(api GET /groups | jq -r '[.data[] | select(.attributes.nameSingular == "Beta Tester") | .id][0] // empty')
+if [ -z "$bt" ]; then
+  bt=$(api POST /groups '{"data":{"type":"groups","attributes":{"nameSingular":"Beta Tester","namePlural":"Beta Testers","color":"#57526e","icon":"fas fa-flask","isHidden":true}}}' | jq -r '.data.id')
+  ok "group Beta Testers created"
+fi
+betaroles=$(printf '%s' "${DISCORD_BETA_ROLE_IDS:-1561121310837440552,1561067527507943506}" | tr -cd '0-9,')
+rolemap=$(sql "SELECT value FROM ${DB_PREFIX}settings WHERE \`key\`='bbforum.discord_role_groups'")
+[ -n "$rolemap" ] || rolemap='{}'
+rolegroups=$(printf '%s' "$rolemap" | jq -r --arg r "$betaroles" '. as $m | $r | split(",") | map($m[.] // empty | tostring) | join(",")')
+allowed=$(printf '%s,%s' "$bt" "$rolegroups" | tr -s ',' | sed 's/^,//; s/,$//')
+beta=$(tag_id beta)
+if [ -n "$beta" ] && [ -n "$bt" ]; then
+  api PATCH "/tags/$beta" "{\"data\":{\"type\":\"tags\",\"id\":\"$beta\",\"attributes\":{\"isRestricted\":true}}}" >/dev/null
+  sql "DELETE FROM ${DB_PREFIX}group_permission WHERE permission LIKE 'tag${beta}.%' AND group_id NOT IN (4, $allowed);
+       INSERT IGNORE INTO ${DB_PREFIX}group_permission (group_id, permission)
+         SELECT g.id, CONCAT('tag${beta}.', p.permission) FROM ${DB_PREFIX}group_permission p
+         JOIN ${DB_PREFIX}groups g ON g.id IN ($allowed)
+         WHERE p.group_id = 3 AND (p.permission = 'startDiscussion' OR p.permission LIKE 'discussion.%');
+       INSERT IGNORE INTO ${DB_PREFIX}group_permission (group_id, permission)
+         SELECT 4, CONCAT('tag${beta}.', permission) FROM ${DB_PREFIX}group_permission
+         WHERE group_id = 4 AND permission LIKE 'discussion.%';
+       INSERT IGNORE INTO ${DB_PREFIX}group_permission (group_id, permission)
+         SELECT id, 'tag${beta}.viewForum' FROM ${DB_PREFIX}groups WHERE id IN (4, $allowed);
+       INSERT IGNORE INTO ${DB_PREFIX}group_permission (group_id, permission) VALUES (4, 'tag${beta}.startDiscussion');"
+  repos=$(printf '%s' "${BETA_REPOS:-nick24051998/bloodborne_pc}" | tr -cd 'A-Za-z0-9_.,/-')
+  body=$(jq -n --arg r "$repos" --arg g "$allowed" '{"bbforum.beta_repos": $r, "bbforum.beta_group_ids": $g}')
+  api POST /settings "$body" >/dev/null &&
+    ok "Beta: visible to groups $allowed and the team; new test builds from $repos are posted every 10 minutes"
+else
+  warn "Beta: tag or group missing, skipped"
+fi
+
+# --------------------------------------------------------------------------
 log "Help & Support: Best Answer + template"
 if installed fof/best-answer; then
   api POST /settings "{\"fof-best-answer.enabled-tags\": \"[$help]\"}" >/dev/null && ok "Best Answer enabled for Help & Support"
@@ -337,7 +376,7 @@ if installed fof/discussion-templates; then
   # Performance Reports: Hardware, Einstellungen und FPS auf einer festen Teststrecke (Grundlage für Schätzungen)
   body=$(jq -n --rawfile t "$D/content/performance-template.md" '{data: {template: $t}}')
   api PATCH "/tags/$(tag_id performance)/template" "$body" >/dev/null && ok "post template for Performance Reports"
-  for t in known-fixes:known-fix bug-reports:bug suggestions:suggestion; do
+  for t in known-fixes:known-fix bug-reports:bug suggestions:suggestion beta:beta; do
     body=$(jq -n --rawfile t "$D/content/${t#*:}-template.md" '{data: {template: $t}}')
     api PATCH "/tags/$(tag_id "${t%%:*}")/template" "$body" >/dev/null && ok "post template for ${t%%:*}"
   done
@@ -378,6 +417,7 @@ pinned_topic() { # pinned_topic TAG-SLUG TAG-ID TITLE CONTENT-FILE: creates the 
 pinned_topic announcements "$ann" "Forum rules & how to ask for help" "$D/content/rules.md"
 pinned_topic guides "$(tag_id guides)" "Install guide & system requirements" "$D/content/install-topic.md"
 pinned_topic guides "$(tag_id guides)" "Best settings & first start, with pictures" "$D/content/best-settings-topic.md"
+[ -n "$(tag_id beta)" ] && pinned_topic beta "$(tag_id beta)" "How the beta works" "$D/content/beta-topic.md"
 pinned_topic help-support "$help" "Read first: common fixes before you post" "$D/content/help-first-topic.md"
 pinned_topic performance "$(tag_id performance)" "How to post a performance report" "$D/content/performance-topic.md"
 

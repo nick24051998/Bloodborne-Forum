@@ -74,11 +74,6 @@ questions:
     q: Can I start it from Steam?
     a: |
       <p>Yes: "Add to Steam" on the launcher's Launcher customization page, or add <code>Play Bloodborne.exe</code> yourself. Both start the game directly. If an AMD card crashes when you start from Steam, turn off Steam &gt; Settings &gt; Downloads &gt; Shader Pre-Caching.</p>
-  - id: beta
-    group: updates
-    q: Is there a beta?
-    a: |
-      <p>Yes, 1.9.5 beta 2 is a test build, not an official release: <a href="https://github.com/nick24051998/bloodborne_pc/releases/tag/v1.9.5-beta.2" rel="noopener">download it on GitHub</a> and unpack it into a new, empty folder. The <a href="../guide/#test-build-195-beta-2">launcher guide</a> explains how to bring your saves along.</p>
   - id: code-3
     group: crashes
     q: The game closes right after I press PLAY (code 3).
