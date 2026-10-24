@@ -226,18 +226,23 @@ if (! class_exists('BBForumContestFeed')) {
             return preg_match('/<img[^>]+src="([^"]+)"/', $html, $m) ? html_entity_decode($m[1]) : null;
         }
 
-        /** Die Idee aus dem Formular (oder sonst der Anfang des Texts), ohne Formular-Zeilen und Anhänge */
-        private function idea(Post $post): string
+        /** Die Idee in Worten: ohne Anhänge (Bild, Zip mit Dateiname), ohne Titel- und Formularzeilen, ohne Wiederholungen */
+        private function idea(Post $post, string $title): string
         {
             $text = (string) $post->content;
-            if (preg_match('/\*\*Idea:\*\*[ \t]*(.+)/i', $text, $m) && strpos(trim($m[1]), '(what it shows') !== 0) {
-                $text = $m[1];
-            } else {
-                $text = preg_replace('/^\*\*(Name of the logo|Idea|Preview|Source):\*\*.*$/mi', '', $text);
-            }
+            $text = preg_replace('/\[upl-file\b[^\]]*\].*?\[\/upl-file\]/is', '', $text);
             $text = preg_replace('/\[\/?[a-z0-9-]+(=[^\]]*)?[^\]]*\]/i', '', $text);
-            $text = preg_replace('/!\[[^\]]*\]\([^)]*\)|[*_`>#~|]+/', '', $text);
-            $text = trim(preg_replace('/\s+/u', ' ', $text));
+            $text = preg_replace('/!\[[^\]]*\]\([^)]*\)/', '', $text);
+            $lines = [];
+            foreach (preg_split('/\R/u', $text) as $line) {
+                $line = trim(preg_replace('/[*_`>#~|]+/', '', $line));
+                if ($line === '' || preg_match('/^((name|title)( of the logo)?|preview|source)\s*:/i', $line)
+                    || strpos($line, '(what it shows') === 0 || mb_strtolower($line) === mb_strtolower(trim($title))) {
+                    continue;
+                }
+                $lines[] = preg_replace('/^(idea|concept|description)\s*:\s*/i', '', $line);
+            }
+            $text = trim(preg_replace('/\s+/u', ' ', implode(' ', array_unique($lines))));
             return mb_strlen($text) > 300 ? rtrim(mb_substr($text, 0, 297)).'…' : $text;
         }
 
@@ -246,7 +251,7 @@ if (! class_exists('BBForumContestFeed')) {
             $urls = resolve(\Flarum\Http\UrlGenerator::class)->to('forum');
             $slug = resolve(\Flarum\Http\SlugManager::class)->forResource(Discussion::class)->toSlug($discussion);
             $user = $discussion->user;
-            $idea = $this->idea($post);
+            $idea = $this->idea($post, (string) $discussion->title);
             return [
                 'username' => 'Logo Contest',
                 'avatar_url' => rtrim((string) $this->settings->get('bbforum.website_url'), '/').'/apple-touch-icon.png',
