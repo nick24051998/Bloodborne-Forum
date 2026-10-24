@@ -331,6 +331,25 @@ return [
     (new Extend\Event())->listen('Flarum\Likes\Event\PostWasLiked', function ($event) {
         BBForumContest::keepOneVote($event->post, $event->user);
     }),
+    // Werke als Karten in den Discord-Kanal des Contests (BBForumContestFeed): neu, geändert, freigegeben, entfernt
+    (new Extend\Event())
+        ->listen(Started::class, fn ($e) => (new BBForumContestFeed())->sync($e->discussion))
+        ->listen('Flarum\Discussion\Event\Renamed', fn ($e) => (new BBForumContestFeed())->sync($e->discussion))
+        ->listen('Flarum\Discussion\Event\Hidden', fn ($e) => (new BBForumContestFeed())->sync($e->discussion))
+        ->listen('Flarum\Discussion\Event\Restored', fn ($e) => (new BBForumContestFeed())->sync($e->discussion))
+        ->listen('Flarum\Discussion\Event\Deleted', fn ($e) => (new BBForumContestFeed())->remove($e->discussion->id))
+        ->listen('Flarum\Tags\Event\DiscussionWasTagged', fn ($e) => (new BBForumContestFeed())->sync($e->discussion))
+        ->listen('Flarum\Post\Event\Revised', function ($e) {
+            if ((int) $e->post->number === 1) {
+                (new BBForumContestFeed())->sync($e->post->discussion);
+            }
+        })
+        ->listen('Flarum\Approval\Event\PostWasApproved', function ($e) {
+            if ((int) $e->post->number === 1) {
+                (new BBForumContestFeed())->sync($e->post->discussion);
+            }
+        }),
+    (new Extend\Console())->command(BBForumContestFeedCommand::class),
     // Die Seite /logo-contest auch beim direkten Aufruf (Link von bbport.de) ausliefern, nicht nur im Browser
     (new Extend\Frontend('forum'))->route('/logo-contest', 'logoContest'),
     (new Extend\ApiSerializer(Flarum\Api\Serializer\DiscussionSerializer::class))

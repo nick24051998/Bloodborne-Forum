@@ -335,6 +335,14 @@ csub=${CONTEST_SUBMIT_UNTIL:-2026-11-08T23:59:59Z}
 cvote=${CONTEST_VOTE_UNTIL:-2026-11-15T23:59:59Z}
 body=$(jq -n --arg s "$csub" --arg v "$cvote" '{"bbforum.contest_submit_until": $s, "bbforum.contest_vote_until": $v}')
 api POST /settings "$body" >/dev/null && ok "logo contest: entries until $csub, voting until $cvote"
+# Werke als Karten in einen Discord-Kanal (nur ansehen): Webhook dieses Kanals in FORUM_CONTEST_WEBHOOK
+cfeed=${FORUM_CONTEST_WEBHOOK:-}
+case "$cfeed" in
+  "" | https://discord.com/api/webhooks/* | https://discordapp.com/api/webhooks/*) ;;
+  *) warn "FORUM_CONTEST_WEBHOOK is not a Discord webhook URL, ignored"; cfeed="" ;;
+esac
+body=$(jq -n --arg w "$cfeed" '{"bbforum.contest_webhook": $w}')
+api POST /settings "$body" >/dev/null && ok "logo contest entries to Discord: $([ -n "$cfeed" ] && echo on || echo off)"
 
 # --------------------------------------------------------------------------
 log "Beta: only for unlocked testers"
