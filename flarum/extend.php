@@ -293,11 +293,33 @@ if (! class_exists('BBForumUnansweredGambit')) {
     }
 }
 
+if (! class_exists('BBForumCliLocale')) {
+    // Kommandozeile (Scheduler, bbforum:*-Befehle, Mails von dort): erst die Sprachdateien laden, wie es im Web die
+    // Middleware SetLocale tut. Sonst baut der erste Befehl nach cache:clear einen leeren Übersetzungs-Katalog, Flarum
+    // speichert ihn, und das Forum zeigt bis zum nächsten cache:clear nur noch Schlüssel wie core.forum.index.…
+    class BBForumCliLocale extends Flarum\Foundation\AbstractServiceProvider
+    {
+        public function boot()
+        {
+            if (PHP_SAPI !== 'cli') {
+                return;
+            }
+            try {
+                $this->container->make(Flarum\Locale\LocaleManager::class);
+            } catch (Throwable $e) {
+                // ohne Datenbank (z. B. beim Container-Start) gibt es nichts zu übersetzen
+            }
+        }
+    }
+}
+
 require_once __DIR__.'/discord-roles.php';
 require_once __DIR__.'/betas.php';
 require_once __DIR__.'/contest.php';
 
 return [
+    (new Extend\ServiceProvider())->register(BBForumCliLocale::class),
+
     (new Extend\Routes('api'))->get('/hunters-dream', 'bbforum.huntersDream', BBForumHuntersDream::class),
 
     // Discord-Rollen übernehmen: jede Minute frisch angemeldete Nutzer, alle 10 Minuten alle

@@ -453,5 +453,12 @@ done
 
 # Rebuild the forum JavaScript (flarum/forum.js) and stylesheets
 gosu flarum:flarum php /opt/flarum/flarum cache:clear >/dev/null && ok "forum assets rebuilt"
+# Gleich über eine Seite neu bauen lassen (Übersetzungen, JS, CSS) und prüfen, ob die Übersetzungen drin sind
+curl -fsS -o /dev/null http://127.0.0.1:8000/ || warn "forum page did not load after the rebuild"
+if [ "$(cat /data/assets/forum-*.js 2>/dev/null | wc -c)" -gt 5000 ]; then
+  ok "forum translations loaded"
+else
+  warn "forum translations are empty (texts like core.forum.…). Fix: php flarum cache:clear, then open the forum"
+fi
 
 printf '\n\033[1;32mDone.\033[0m Clear the browser cache once, then check %s\n' "$FLARUM_BASE_URL"
