@@ -8,6 +8,9 @@
  * - eine Stimme pro Mitglied: Wer ein anderes Werk wählt, dessen alte Stimme fällt weg
  * - nicht für das eigene Werk
  * - neue Beiträge im Bereich nur bis zum Einsendeschluss (das Team immer)
+ * - Plausibilitätsprüfung beim Absenden und Bearbeiten eines Werks (BBForumContestCheck): ein hochgeladenes PNG,
+ *   quadratisch, mindestens 512 × 512, durchsichtige Ecken, dazu eine Zip mit der Quelldatei. Sonst sagt das Forum,
+ *   was fehlt, und legt nichts an. Fotos und Bilder auf vollem Hintergrund fallen so heraus. Das Team ist ausgenommen.
  * Die Daten setzt scripts/lib/setup-inside.sh (CONTEST_SUBMIT_UNTIL, CONTEST_VOTE_UNTIL in .env).
  * Für die Seite liefert die API an Themen des Bereichs bbVotes, bbVoted, bbCanVote und bbFirstPostId.
  */
@@ -289,6 +292,99 @@ if (! class_exists('BBForumContestFeed')) {
             }
             $this->info(count($all).' contest topics checked');
             return 0;
+        }
+    }
+}
+
+if (! class_exists('BBForumContestCheck')) {
+    // Plausibilitätsprüfung für Werke (Ereignis Post Saving in extend.php): läuft beim Eröffnungsbeitrag eines Themas
+    // im Bereich, beim Anlegen und beim Bearbeiten. Scheitert sie, legt Flarum das neue Thema gar nicht erst an.
+    class BBForumContestCheck
+    {
+        const MIN_SIZE = 512;
+
+        public static function validate(Post $post, ?string $content, User $actor): void
+        {
+            $discussion = $post->discussion;
+            if (! $discussion || ! BBForumContest::inContest($discussion) || $discussion->is_sticky || BBForumContest::isTeam($actor)) {
+                return;
+            }
+            $first = $post->exists ? (int) $post->id === (int) $discussion->first_post_id : ! $discussion->first_post_id;
+            if (! $first) {
+                return;
+            }
+            $problems = self::problems($content ?? (string) $post->content);
+            if ($problems) {
+                throw new \Flarum\Foundation\ValidationException(['content' => implode(' ', $problems)]);
+            }
+        }
+
+        /** Was am Werk nicht passt, in Sätzen für den Einsender (leer = alles gut) */
+        public static function problems(string $content): array
+        {
+            $problems = [];
+            if (! preg_match('/\[upl-file\b[^\]]*\][^\[]*\.zip\s*\[\/upl-file\]/i', $content)) {
+                $problems[] = 'Please also attach the source file of your logo in a zip (SVG if you can).';
+            }
+            if (! preg_match('/\[upl-image-preview\b[^\]]*\burl=([^\s\]]+)/i', $content, $m)) {
+                array_unshift($problems, 'Your entry needs a picture of the logo: attach a PNG (1024 × 1024, transparent background) with the upload button.');
+                return $problems;
+            }
+            $file = self::localFile($m[1]);
+            if (! $file) {
+                array_unshift($problems, 'Please upload the picture of your logo here with the upload button.');
+                return $problems;
+            }
+            $info = @getimagesize($file);
+            if (! $info || $info['mime'] !== 'image/png') {
+                array_unshift($problems, 'The picture of your logo has to be a PNG with a transparent background.');
+                return $problems;
+            }
+            [$w, $h] = $info;
+            $picture = [];
+            if (abs($w - $h) > 0.02 * max($w, $h)) {
+                $picture[] = "The logo has to be square (same width and height); yours is $w × $h.";
+            }
+            if (min($w, $h) < self::MIN_SIZE) {
+                $picture[] = "The picture is too small ($w × $h): at least 512 × 512, best 1024 × 1024.";
+            }
+            if (! self::transparentCorners($file)) {
+                $picture[] = 'The background has to be transparent: photos or pictures on a solid background can\'t be used in the launcher.';
+            }
+            return array_merge($picture, $problems);
+        }
+
+        /** Hochgeladene Datei auf diesem Server (fof/upload legt sie unter assets/files ab), sonst null */
+        private static function localFile(string $url): ?string
+        {
+            if (! preg_match('#/assets/files/([\w./-]+\.\w+)$#', html_entity_decode($url), $m) || strpos($m[1], '..') !== false) {
+                return null;
+            }
+            $public = resolve(\Flarum\Foundation\Paths::class)->public;
+            foreach (["$public/assets/files/{$m[1]}", "/data/assets/files/{$m[1]}"] as $path) {
+                if (is_file($path)) {
+                    return $path;
+                }
+            }
+            return null;
+        }
+
+        /** Mindestens drei der vier Ecken fast durchsichtig (GD: Alpha 0 = deckend, 127 = durchsichtig) */
+        private static function transparentCorners(string $file): bool
+        {
+            if (! function_exists('imagecreatefrompng') || ! ($img = @imagecreatefrompng($file))) {
+                return true; // ohne GD nicht prüfbar: lieber durchlassen
+            }
+            $w = imagesx($img);
+            $h = imagesy($img);
+            $clear = 0;
+            foreach ([[0, 0], [$w - 1, 0], [0, $h - 1], [$w - 1, $h - 1]] as [$x, $y]) {
+                if (((imagecolorat($img, $x, $y) >> 24) & 0x7F) >= 100) {
+                    $clear++;
+                }
+            }
+            imagedestroy($img);
+            return $clear >= 3;
         }
     }
 }

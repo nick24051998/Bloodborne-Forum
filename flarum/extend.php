@@ -350,6 +350,10 @@ return [
             }
         }),
     (new Extend\Console())->command(BBForumContestFeedCommand::class),
+    // Plausibilitätsprüfung für Werke (BBForumContestCheck): PNG, quadratisch, durchsichtig, Zip dabei
+    (new Extend\Event())->listen('Flarum\Post\Event\Saving', function ($e) {
+        BBForumContestCheck::validate($e->post, $e->data['attributes']['content'] ?? null, $e->actor);
+    }),
     // Die Seite /logo-contest auch beim direkten Aufruf (Link von bbport.de) ausliefern, nicht nur im Browser
     (new Extend\Frontend('forum'))->route('/logo-contest', 'logoContest'),
     (new Extend\ApiSerializer(Flarum\Api\Serializer\DiscussionSerializer::class))

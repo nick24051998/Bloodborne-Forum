@@ -16,6 +16,8 @@ The bbport launcher gets a new logo, and you can make it. The winning design bec
 
 Up to three entries per person, one topic for each. Others can comment in your topic.
 
+The forum checks your entry when you post it: the picture has to be a **square PNG with a transparent background**, at least 512 × 512, and the **zip** has to be attached. If something is missing, it tells you what to fix.
+
 ### What the logo has to do
 
 The logo is the mark of the launcher: big on the Play page, small in the side bar, and as the Windows icon on the taskbar.
