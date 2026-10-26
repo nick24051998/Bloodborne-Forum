@@ -128,10 +128,11 @@ if (! class_exists('BBForumProfiles')) {
             if ($decoAsset === '') {
                 $data['decoration'] = null;
             } elseif (preg_match('/^[a-z0-9_]{6,80}$/i', $decoAsset)) {
-                // 96 px reichen (angezeigt höchstens ~115 px); 160 px wären als animiertes PNG oft über 1 MB
-                $file = 'deco96-'.$decoAsset.'.png';
+                // Animiert gibt Discord die Deko nur als Original-APNG (passthrough=true, size wird dann ignoriert,
+                // oft 1–2 MB; WebP wäre ein Standbild). Der Browser lädt jede Vorlage nur einmal.
+                $file = 'deco-'.$decoAsset.'.png';
                 if (! $disk->exists(self::DIR.'/'.$file)) {
-                    $response = $client->get("https://cdn.discordapp.com/avatar-decoration-presets/$decoAsset.png?size=96&passthrough=true");
+                    $response = $client->get("https://cdn.discordapp.com/avatar-decoration-presets/$decoAsset.png?size=160&passthrough=true");
                     if ($response->getStatusCode() === 200) {
                         $disk->put(self::DIR.'/'.$file, (string) $response->getBody());
                     }
