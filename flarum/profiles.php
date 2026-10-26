@@ -8,7 +8,8 @@
  *   Banner und Deko liegen als Kopie unter assets/bbprofile/ (keine Bilder von Discord-Servern im Forum, wie beim
  *   Profilbild). Stand je Nutzer in der Tabelle bb_profiles (legt sich selbst an).
  * - Verdiente Effekte (Nick: verdient, nicht frei wählbar), aus den Gruppen, die der Abgleich von Discord spiegelt:
- *   booster (Server Booster: Blutmond-Rahmen, Name glüht), lantern (Helper, Mod, Admin, Owner: Messing-Laterne),
+ *   booster (Server Booster laut premium_since des Mitglieds: Blutmond-Rahmen, Name glüht), lantern (Helper, Mod,
+ *   Admin, Owner: Messing-Laterne),
  *   insight1–4 (Insight-Stufen: Augen um den Avatar), beta (Beta Hunter, Test Subject, Beta Testers: Phiole),
  *   winner (bbforum.contest_winners, Forum-IDs mit Komma: Mondlicht-Name).
  * - Hunter-Karte im Profil: Waffe (/hunter auf Discord), Insight-Stufe, Grafikkarte und VRAM (Hardware-Rollen).
@@ -46,24 +47,35 @@ if (! class_exists('BBForumProfiles')) {
         public static function ensureTable(): void
         {
             $schema = self::db()->getSchemaBuilder();
-            if ($schema->hasTable(self::TABLE)) {
-                return;
+            if (! $schema->hasTable(self::TABLE)) {
+                $schema->create(self::TABLE, function ($table) {
+                    $table->unsignedInteger('user_id')->primary();
+                    $table->string('banner', 120)->nullable();
+                    $table->string('banner_hash', 80)->nullable();
+                    $table->unsignedInteger('accent')->nullable();
+                    $table->string('decoration', 120)->nullable();
+                    $table->unsignedInteger('synced_at')->default(0);
+                });
             }
-            $schema->create(self::TABLE, function ($table) {
-                $table->unsignedInteger('user_id')->primary();
-                $table->string('banner', 120)->nullable();
-                $table->string('banner_hash', 80)->nullable();
-                $table->unsignedInteger('accent')->nullable();
-                $table->string('decoration', 120)->nullable();
-                $table->unsignedInteger('synced_at')->default(0);
-            });
+            if (! $schema->hasColumn(self::TABLE, 'booster')) {
+                $schema->table(self::TABLE, function ($table) {
+                    $table->boolean('booster')->default(false);
+                });
+            }
         }
 
-        /** Aus dem Rollen-Abgleich: Banner, Farbe und Deko übernehmen, wenn der letzte Stand älter als ein Tag ist */
+        /**
+         * Aus dem Rollen-Abgleich: Booster (premium_since im Mitglieds-Objekt, die Rolle verwaltet Discord selbst und
+         * kommt nicht als Gruppe) bei jedem Lauf; Banner, Farbe und Deko, wenn der letzte Stand älter als ein Tag ist.
+         */
         public static function sync(User $user, array $member, \GuzzleHttp\Client $client, callable $get, string $guild): void
         {
             self::ensureTable();
             $row = (array) self::db()->table(self::TABLE)->where('user_id', $user->id)->first();
+            $booster = ! empty($member['premium_since']);
+            if ($row && (bool) $row['booster'] !== $booster) {
+                self::db()->table(self::TABLE)->where('user_id', $user->id)->update(['booster' => $booster]);
+            }
             if ($row && time() - (int) $row['synced_at'] < self::REFRESH) {
                 return;
             }
@@ -88,6 +100,7 @@ if (! class_exists('BBForumProfiles')) {
 
             $data = [
                 'accent' => isset($u['accent_color']) && $u['accent_color'] !== null ? (int) $u['accent_color'] : null,
+                'booster' => $booster,
                 'synced_at' => time(),
             ];
             $disk = self::disk();
@@ -167,7 +180,7 @@ if (! class_exists('BBForumProfiles')) {
                 return false;
             };
             $perks = [];
-            if ($has(['Server Booster'])) {
+            if (! empty(self::row($user)['booster']) || $has(['Server Booster'])) {
                 $perks[] = 'booster';
             }
             if ($has(['· Helper', '· Mod', '· Admin', '· Owner']) || $user->groups->contains('id', 4)) {
