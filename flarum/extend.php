@@ -380,6 +380,13 @@ return [
         ->attributes(function ($serializer, $user) {
             return BBForumProfiles::full($user, $serializer->getActor());
         }),
+    // Was Nitro kann, für alle: eigene Profilfarben speichern, animierte Profil- und Titelbilder behalten
+    (new Extend\Event())
+        ->listen(Flarum\User\Event\Saving::class, function ($event) {
+            BBForumProfiles::saving($event);
+        }),
+    (new Extend\ServiceProvider())
+        ->register(BBForumProfilesProvider::class),
 
     // Logo-Contest (flarum/contest.php): Stimme = „Gefällt mir“ auf einem Werk, eine pro Mitglied, nur in der Abstimmung
     (new Extend\Policy())

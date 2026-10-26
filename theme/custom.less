@@ -2218,6 +2218,169 @@ body::after {
   }
 }
 
+// Eigene Profilfarben (Profile look): Verlauf auf der Karte, leicht abgedunkelt, damit helle Farben lesbar bleiben;
+// mit Banner oder Titelbild tönen sie nur die Abdunklung nach unten
+.UserCard.bb-themed:not(.bb-hasBanner):not(.bb-hasCover) {
+  background: linear-gradient(rgba(8, 9, 10, 0.3), rgba(8, 9, 10, 0.3)), linear-gradient(160deg, var(--bb-theme1), var(--bb-theme2));
+}
+
+.UserCard.bb-themed.bb-hasBanner .darkenBackground,
+.UserCard.bb-themed.bb-hasCover .darkenBackground {
+  background: linear-gradient(180deg, rgba(8, 9, 10, 0.25), color-mix(in srgb, var(--bb-theme2) 55%, rgba(8, 9, 10, 0.9)));
+}
+
+// Hochgeladene GIFs sind nicht zugeschnitten (die Animation bliebe sonst nicht erhalten): quadratisch anzeigen
+img.Avatar {
+  object-fit: cover;
+}
+
+.UserCard-info .item-bbCustomize {
+  display: block;
+  margin-top: 10px;
+}
+
+.bb-customizeLink {
+  color: @bb-gold-light;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+// Einstellungen: Profile look (Steuerung links, Vorschau rechts; schmal untereinander)
+.bb-look-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 24px;
+  margin-top: 12px;
+}
+
+@media (max-width: 991.98px) {
+  .bb-look-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.bb-look-row {
+  padding: 12px 0;
+  border-top: 1px solid @bb-border;
+
+  &:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .helpText {
+    margin: 6px 0 0;
+    font-size: 12px;
+  }
+}
+
+.bb-look-label {
+  margin-bottom: 8px;
+  color: @bb-muted;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.bb-look-avatar .Avatar {
+  --size: 72px;
+  width: 72px;
+  height: 72px;
+}
+
+.bb-look-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  label.Button {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+}
+
+.bb-look-file {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.bb-look-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bb-look-swatch {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 2px solid @bb-border-strong;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: border-color 220ms, transform 220ms;
+
+  &:hover,
+  &:focus-visible {
+    border-color: fade(@bb-gold, 80%);
+    transform: scale(1.08);
+  }
+
+  &.is-active {
+    border-color: @bb-gold-light;
+    box-shadow: 0 0 0 2px fade(@bb-gold-light, 35%);
+  }
+}
+
+.bb-look-pickers {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  color: @bb-text-soft;
+  font-size: 13px;
+
+  input[type="color"] {
+    width: 40px;
+    height: 28px;
+    margin-left: 4px;
+    padding: 0;
+    border: 1px solid @bb-border-strong;
+    border-radius: 6px;
+    background: none;
+    vertical-align: middle;
+    cursor: pointer;
+  }
+}
+
+.bb-look-preview .bb-look-card {
+  overflow: hidden;
+  border: 1px solid @bb-border-strong;
+  border-radius: 12px;
+
+  .container {
+    width: auto;
+    padding: 0 20px;
+  }
+
+  .UserCard-profile {
+    padding-left: 0;
+  }
+
+  .UserCard-avatar {
+    float: none;
+    margin: 0 0 10px;
+  }
+}
+
 // Hunter-Karte im Profil: Waffe, Insight, Grafikkarte, VRAM
 .UserCard-info .item-bbHunter {
   display: block;

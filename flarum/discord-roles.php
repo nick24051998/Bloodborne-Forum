@@ -20,6 +20,7 @@
  * Profilbilder: das Server-Profilbild, sonst das Discord-Bild, als Kopie im Forum (Besucher laden nichts von
  * Discord). Ändert es sich auf Discord, zieht der Abgleich nach. Hat jemand im Forum selbst ein anderes Bild
  * hochgeladen, bleibt das (bbforum.discord_avatars merkt sich, welches Bild der Abgleich zuletzt gesetzt hat).
+ * Animierte Discord-Bilder (Nitro) kommen als GIF und bleiben animiert.
  *
  * Bann und Sperre: Wer auf dem Server gebannt ist, wird im Forum gesperrt; hebt Discord den Bann auf,
  * hebt der Abgleich seine Sperre wieder auf. Sperrt ein Mod jemanden im Forum (Ereignis Suspended von
@@ -282,30 +283,38 @@ if (! class_exists('BBForumDiscordRoles')) {
             $discordId = (string) ($member['user']['id'] ?? '');
             if (! empty($member['avatar'])) {
                 $hash = (string) $member['avatar'];
-                $url = 'https://cdn.discordapp.com/guilds/'.$this->guild().'/users/'.$discordId.'/avatars/'.$hash.'.png?size=256';
+                $url = 'https://cdn.discordapp.com/guilds/'.$this->guild().'/users/'.$discordId.'/avatars/'.$hash;
             } elseif (! empty($member['user']['avatar'])) {
                 $hash = (string) $member['user']['avatar'];
-                $url = 'https://cdn.discordapp.com/avatars/'.$discordId.'/'.$hash.'.png?size=256';
+                $url = 'https://cdn.discordapp.com/avatars/'.$discordId.'/'.$hash;
             } else {
                 return false; // Kein eigenes Bild auf Discord: das Forum zeigt seinen Buchstaben
             }
+            // Animierte Bilder (Nitro, Hash mit a_) als GIF, damit sie im Forum animiert bleiben (flarum/profiles.php)
+            $animated = strpos($hash, 'a_') === 0;
+            $url .= $animated ? '.gif?size=128' : '.png?size=256';
             $state = $this->json(self::AVATARS, []);
             $last = $state[$user->id] ?? null;
             $current = $user->getRawOriginal('avatar_url');
             if ($last && $current && $current !== ($last['path'] ?? null)) {
                 return false; // selbst hochgeladen
             }
-            if ($last && $current && ($last['hash'] ?? null) === $hash) {
-                return false; // unverändert
+            if ($last && $current && ($last['hash'] ?? null) === $hash && (! $animated || ! empty($last['gif']))) {
+                return false; // unverändert (animierte, die noch als Standbild kamen, einmal neu)
             }
             $response = $this->client->get($url);
             if ($response->getStatusCode() !== 200) {
                 throw new RuntimeException('CDN answered HTTP '.$response->getStatusCode());
             }
-            $image = resolve(\Intervention\Image\ImageManager::class)->make((string) $response->getBody());
-            resolve(\Flarum\User\AvatarUploader::class)->upload($user, $image);
+            $bytes = (string) $response->getBody();
+            $uploader = resolve(\Flarum\User\AvatarUploader::class);
+            if ($animated && method_exists($uploader, 'storeGif') && class_exists('BBForumProfiles') && BBForumProfiles::isAnimatedGif($bytes)) {
+                $uploader->storeGif($user, $bytes);
+            } else {
+                $uploader->upload($user, resolve(\Intervention\Image\ImageManager::class)->make($bytes));
+            }
             $user->save();
-            $state[$user->id] = ['hash' => $hash, 'path' => $user->getRawOriginal('avatar_url')];
+            $state[$user->id] = ['hash' => $hash, 'path' => $user->getRawOriginal('avatar_url'), 'gif' => $animated];
             $this->settings->set(self::AVATARS, json_encode($state, JSON_FORCE_OBJECT));
             return true;
         }

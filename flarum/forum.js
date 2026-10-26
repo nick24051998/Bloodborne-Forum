@@ -6,7 +6,7 @@
 // - Discord-only-Registrierung: Das Registrieren-Fenster zeigt nur den Discord-Button
 // - Live-Zahlen von The Hunter's Dream (aus /api/hunters-dream, siehe extend.php): als Kasten
 //   in der Seitenleiste, auf schmalen Bildschirmen als Zeile unter dem Willkommens-Banner
-// - Abzeichen: nur die sichtbaren Team-Rollen von Discord (siehe flarum/discord-roles.php)
+// - Keine Gruppen-Abzeichen: Rollen-Schilder am Namen, verdiente Zeichen dahinter (flarum/profiles.php)
 // - Übersicht unter dem Banner der Startseite: vier Blöcke (neue Hilfe-Fragen, Top-Vorschläge, neue Known Fixes, News)
 //   mit je fünf Themen; lässt sich ausblenden (merkt sich der Browser). Seitenleiste: „Start here“ mit den Anleitungen,
 //   nur die Bereiche (Themen-Tags wie Crash gibt es als Reiter und im Known-Fixes-Index), Hunter's Dream einklappbar
@@ -15,8 +15,9 @@
 //   Help & Support (Open/Solved/Closed) und Bug Reports; Etiketten Solved, Waiting for an answer, Closed, New
 // - Known Fixes: statt der Liste ein Nachschlagewerk nach Thema, mit Suche und „Worked for me“
 // - Profile (flarum/profiles.php): Banner, Profilfarbe und Avatar-Deko von Discord; verdiente Effekte (Blutmond-Rahmen
-//   und glühender Name für Booster, Messing-Laterne fürs Team, Augen je Insight-Stufe, Phiole für Beta-Tester,
-//   Mondlicht-Name für Contest-Sieger); Hunter-Karte (Waffe, Insight, Grafikkarte, VRAM) im Profil
+//   und glühender Name für Booster, Messing-Laterne fürs Team, Mondlicht-Name für Contest-Sieger); Hunter-Karte
+//   (Waffe, Grafikkarte, VRAM) im Profil. „Profile look“ in den Einstellungen: was Nitro kann, für alle (animiertes
+//   Profil- und Titelbild, zwei Profilfarben), mit Vorschau; „Customize profile“ auf dem eigenen Profil
 // - Team (wer in Known Fixes Themen starten darf, also Mods und Admins): Block „Team“ in der Seitenleiste mit
 //   Arbeitslisten (ohne Antwort, ungelöst, offene Bugs, Vorschläge) und an Hilfe-Themen „Save as Known Fix“
 // - Logo-Contest: Seite /logo-contest mit allen Werken (erstes Bild im Eröffnungsbeitrag eines Themas im Bereich
@@ -51,6 +52,9 @@
   var CommentPost = compat['forum/components/CommentPost'];
   var DiscussionPage = compat['forum/components/DiscussionPage'];
   var UserCard = compat['forum/components/UserCard'];
+  var SettingsPage = compat['forum/components/SettingsPage'];
+  var FieldSet = compat['common/components/FieldSet'];
+  var AvatarEditor = compat['forum/components/AvatarEditor'];
 
   var HD_URL = 'https://thehuntersdream.com';
 
@@ -862,6 +866,151 @@
     return m('span.bb-rig', { title: 'Graphics card and video memory, from their Discord roles' }, [icon('fas fa-desktop'), ' ', rig]);
   }
 
+  // --- Profile look: was Discord Nitro am Profil kann, für alle (Nick, 26.10.2026) -----------------------------------
+  // Profilfarben wie Nitros „Profile themes“: [Name, oben, unten]
+  var THEMES = [
+    ['Blood moon', '#8a1118', '#1a0507'],
+    ["Hunter's Dream", '#b89a64', '#2b2a35'],
+    ['Moonlight', '#9fb3c8', '#121820'],
+    ['Cainhurst', '#6b7f9e', '#1b1f2b'],
+    ['Nightmare', '#4a2d5c', '#0d0812'],
+    ['Old Yharnam', '#9a5a2a', '#1a0f08'],
+    ['Byrgenwerth', '#3f6b4a', '#0c140f'],
+    ['Fishing Hamlet', '#2f5e6b', '#081215'],
+  ];
+  // theme: Entwurf (nur Vorschau, bis „Save colours“)
+  var look = { theme: null, busy: false, coverBusy: false };
+
+  function themeOf(user) {
+    if (look.theme && app.session.user && app.session.user === user) return look.theme;
+    return user.attribute('bbTheme');
+  }
+
+  function saveTheme(user, theme) {
+    look.busy = true;
+    user.save({ bbTheme: theme })
+      .then(function () { look.theme = null; })
+      .catch(function () {})
+      .then(function () {
+        look.busy = false;
+        m.redraw();
+      });
+  }
+
+  // Titelbild über die Schnittstelle des Titelbild-Plugins (sycho/flarum-profile-cover)
+  function coverRequest(user, method, file) {
+    var body;
+    if (file) {
+      body = new FormData();
+      body.append('cover', file);
+    }
+    look.coverBusy = true;
+    app.request({
+      method: method,
+      url: app.forum.attribute('apiUrl') + '/users/' + user.id() + '/cover',
+      serialize: function (raw) { return raw; },
+      body: body,
+    })
+      .then(function (payload) { if (payload) app.store.pushPayload(payload); })
+      .catch(function () {})
+      .then(function () {
+        look.coverBusy = false;
+        m.redraw();
+      });
+  }
+
+  function lookRow(label, content) {
+    return m('div.bb-look-row', [m('div.bb-look-label', label), m('div.bb-look-field', content)]);
+  }
+
+  function profileLook(user) {
+    var theme = themeOf(user);
+    var saved = user.attribute('bbTheme');
+    var draft = !!look.theme;
+    var hasCover = !!user.attribute('cover');
+    var maxCover = Math.round((parseFloat(app.forum.attribute('sycho-profile-cover.max_size')) || 2048) / 1024);
+    return m('div.bb-look', [
+      m('p.helpText', 'Everything Discord Nitro lets you change on your profile, free for every hunter here. Until you pick '
+        + 'something yourself, the forum uses your Discord picture, banner and colour.'),
+      m('div.bb-look-grid', [
+        m('div.bb-look-controls', [
+          lookRow('Avatar', [
+            AvatarEditor.component({ user: user, className: 'bb-look-avatar' }),
+            m('p.helpText', 'Click it to change it. JPG, PNG or GIF: animated GIFs stay animated (up to 2 MB).'),
+          ]),
+          lookRow('Banner', [
+            m('div.bb-look-buttons', [
+              m('label.Button' + (look.coverBusy ? '.disabled' : ''), [
+                icon('fas fa-image'), ' ', hasCover ? 'Change banner' : 'Upload banner',
+                m('input[type=file][accept=image/*].bb-look-file', {
+                  disabled: look.coverBusy,
+                  onchange: function (e) {
+                    var file = e.target.files && e.target.files[0];
+                    if (file) coverRequest(user, 'POST', file);
+                    e.target.value = '';
+                  },
+                }),
+              ]),
+              hasCover ? Button.component({
+                className: 'Button Button--link',
+                disabled: look.coverBusy,
+                onclick: function () { coverRequest(user, 'DELETE'); },
+              }, user.attribute('bbBanner') ? 'Use my Discord banner' : 'Remove') : null,
+            ]),
+            m('p.helpText', 'A wide picture, about 3:1. Animated GIFs stay animated (up to ' + maxCover + ' MB).'),
+          ]),
+          lookRow('Profile colours', [
+            m('div.bb-look-swatches', THEMES.map(function (t) {
+              var active = theme && theme[0] === t[1] && theme[1] === t[2];
+              return m('button.bb-look-swatch' + (active ? '.is-active' : ''), {
+                type: 'button',
+                title: t[0],
+                'aria-label': t[0],
+                style: { background: 'linear-gradient(160deg, ' + t[1] + ', ' + t[2] + ')' },
+                onclick: function () { look.theme = [t[1], t[2]]; },
+              });
+            })),
+            m('div.bb-look-pickers', [
+              m('label', ['Top ', m('input[type=color]', {
+                value: (theme || ['#8a1118'])[0],
+                oninput: function (e) { look.theme = [e.target.value, (theme || [null, '#1a0507'])[1]]; },
+              })]),
+              m('label', ['Bottom ', m('input[type=color]', {
+                value: (theme || [null, '#1a0507'])[1],
+                oninput: function (e) { look.theme = [(theme || ['#8a1118'])[0], e.target.value]; },
+              })]),
+            ]),
+            m('div.bb-look-buttons', [
+              Button.component({
+                className: 'Button Button--primary',
+                disabled: !draft || look.busy,
+                onclick: function () { saveTheme(user, look.theme); },
+              }, 'Save colours'),
+              draft ? Button.component({
+                className: 'Button Button--link',
+                onclick: function () { look.theme = null; },
+              }, 'Cancel') : null,
+              !draft && saved ? Button.component({
+                className: 'Button Button--link',
+                disabled: look.busy,
+                onclick: function () { saveTheme(user, null); },
+              }, 'Use my Discord colour') : null,
+            ]),
+          ]),
+          lookRow('About me', m('p.helpText', [
+            'Write a few lines on ',
+            m(Link, { href: app.route.user(user) }, 'your profile'),
+            ' (click the empty "Write something about yourself" box).',
+          ])),
+        ]),
+        m('div.bb-look-preview', [
+          m('div.bb-look-label', 'Preview'),
+          UserCard.component({ user: user, className: 'bb-look-card', controlsButtonClassName: 'Button Button--icon Button--flat' }),
+        ]),
+      ]),
+    ]);
+  }
+
   function hunterCard(user) {
     var hunter = user.attribute('bbHunter');
     if (!hunter) return null;
@@ -1017,13 +1166,20 @@
       var banner = user.attribute('bbBanner');
       var accent = user.attribute('bbAccent');
       var deco = user.attribute('bbDecoration');
-      if (!user.attribute('cover')) {
-        if (banner) {
-          style['--background-image'] = 'url("' + banner + '")';
-          classes += ' bb-hasBanner';
-        } else if (accent) {
-          style['--usercard-bg'] = accent;
-        }
+      var theme = themeOf(user);
+      if (user.attribute('cover')) {
+        classes += ' bb-hasCover';
+      } else if (banner) {
+        style['--background-image'] = 'url("' + banner + '")';
+        classes += ' bb-hasBanner';
+      } else if (accent && !theme) {
+        style['--usercard-bg'] = accent;
+      }
+      // Eigene Profilfarben: Verlauf auf der Karte, mit Bild darauf tönen sie die Abdunklung unten
+      if (theme) {
+        style['--bb-theme1'] = theme[0];
+        style['--bb-theme2'] = theme[1];
+        classes += ' bb-themed';
       }
       if (deco) style['--bb-deco'] = 'url("' + deco + '")';
       vdom.attrs.style = style;
@@ -1046,6 +1202,18 @@
           icon('fab fa-discord'), ' Open on Discord',
         ]), -30);
       }
+      // Auf dem eigenen Profil der Weg zu „Profile look“ (nicht in dessen Vorschau)
+      if (app.session.user === user && (this.attrs.className || '').indexOf('bb-look-card') === -1) {
+        items.add('bbCustomize', m(Link, { className: 'bb-customizeLink', href: app.route('settings') }, [
+          icon('fas fa-paint-brush'), ' Customize profile',
+        ]), -40);
+      }
+    });
+
+    // Einstellungen: „Profile look“ als erster Abschnitt
+    extend(SettingsPage.prototype, 'settingsItems', function (items) {
+      if (!app.session.user) return;
+      items.add('bbLook', FieldSet.component({ label: 'Profile look', className: 'Settings-bbLook' }, profileLook(app.session.user)), 110);
     });
 
     // Seitenleiste: „Start here“ und nur die Bereiche; Themen-Tags (Crash, Graphics …) und „More…“ nicht

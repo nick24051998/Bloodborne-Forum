@@ -15,8 +15,11 @@
  * - Hunter-Karte im Profil: Waffe (/hunter auf Discord), Insight-Stufe, Grafikkarte und VRAM (Hardware-Rollen);
  *   Grafikkarte und VRAM stehen außerdem an Beiträgen in Hilfe- und Bug-Themen.
  *
+ * - Was Nitro kann, für alle (Nick, 26.10.2026): eigene Profilfarben (bbTheme, zwei Farben als Verlauf, geht vor der
+ *   Discord-Farbe), animierte Profil- und Titelbilder (BBForumAvatarUploader, BBForumCoverUploader unten).
+ *
  * API: an jedem Nutzer (auch an Beiträgen) bbPerks, bbDecoration, bbRole, bbRig; im Profil dazu bbBanner, bbAccent,
- * bbHunter, bbRoles und fürs Team bbDiscordUrl.
+ * bbTheme, bbHunter, bbRoles und fürs Team bbDiscordUrl.
  */
 
 use Flarum\User\User;
@@ -64,6 +67,49 @@ if (! class_exists('BBForumProfiles')) {
                     $table->boolean('booster')->default(false);
                 });
             }
+            if (! $schema->hasColumn(self::TABLE, 'theme1')) {
+                $schema->table(self::TABLE, function ($table) {
+                    $table->string('theme1', 7)->nullable();
+                    $table->string('theme2', 7)->nullable();
+                });
+            }
+        }
+
+        /** GIF mit mehr als einem Bild (die übliche Prüfung auf mehrere Graphic Control Extensions) */
+        public static function isAnimatedGif(string $bytes): bool
+        {
+            return strncmp($bytes, 'GIF8', 4) === 0
+                && preg_match_all('#\x00\x21\xF9\x04.{4}\x00[\x2C\x21]#s', $bytes) > 1;
+        }
+
+        /**
+         * Profilfarben (wie Nitros „Profile themes“, Nick 26.10.2026: was Nitro kann, für alle): PATCH /users/{id} mit
+         * bbTheme = ['#rrggbb', '#rrggbb'] oder null (zurück zur Farbe von Discord). Nur man selbst oder wer den
+         * Nutzer bearbeiten darf.
+         */
+        public static function saving(\Flarum\User\Event\Saving $event): void
+        {
+            $attributes = $event->data['attributes'] ?? [];
+            if (! array_key_exists('bbTheme', $attributes)) {
+                return;
+            }
+            $user = $event->user;
+            if ($event->actor->id !== $user->id) {
+                $event->actor->assertCan('edit', $user);
+            }
+            $theme = $attributes['bbTheme'];
+            if ($theme !== null && ! (is_array($theme) && count($theme) === 2
+                && preg_match('/^#[0-9a-f]{6}$/i', (string) $theme[0]) && preg_match('/^#[0-9a-f]{6}$/i', (string) $theme[1]))) {
+                throw new \Flarum\Foundation\ValidationException(['bbTheme' => 'Pick two colours.']);
+            }
+            $user->afterSave(function ($user) use ($theme) {
+                self::ensureTable();
+                self::db()->table(self::TABLE)->updateOrInsert(['user_id' => $user->id], [
+                    'theme1' => $theme ? strtolower($theme[0]) : null,
+                    'theme2' => $theme ? strtolower($theme[1]) : null,
+                ]);
+                unset(self::$rows[$user->id]);
+            });
         }
 
         /**
@@ -306,7 +352,80 @@ if (! class_exists('BBForumProfiles')) {
                 'bbHunter' => $hunter ?: null,
                 'bbRoles' => self::roles($user),
                 'bbDiscordUrl' => $team && $discord ? 'https://discord.com/users/'.$discord : null,
+                'bbTheme' => ! empty($row['theme1']) && ! empty($row['theme2']) ? [$row['theme1'], $row['theme2']] : null,
             ];
+        }
+    }
+}
+
+/*
+ * Animierte Bilder für alle (Nick, 26.10.2026: was Nitro kann, für alle). Flarum macht aus jedem Profilbild ein
+ * 100×100-PNG und das Titelbild-Plugin aus jedem Titelbild ein JPG; im Container gibt es nur GD, das beim Verkleinern
+ * die Animation verliert. Darum bleibt ein animiertes GIF unverändert (Größe prüfen die Validatoren der beiden,
+ * zugeschnitten wird per CSS). Alles andere geht den normalen Weg. Eingehängt über BBForumProfilesProvider.
+ */
+if (! class_exists('BBForumAvatarUploader')) {
+    class BBForumAvatarUploader extends \Flarum\User\AvatarUploader
+    {
+        public function upload(User $user, \Intervention\Image\Image $image)
+        {
+            $path = $image->basePath();
+            $bytes = $path && is_readable($path) ? (string) file_get_contents($path) : '';
+            if ($bytes !== '' && BBForumProfiles::isAnimatedGif($bytes)) {
+                $this->storeGif($user, $bytes);
+                return;
+            }
+            parent::upload($user, $image);
+        }
+
+        /** Auch für animierte Discord-Bilder (flarum/discord-roles.php) */
+        public function storeGif(User $user, string $bytes): void
+        {
+            $avatarPath = \Illuminate\Support\Str::random().'.gif';
+            $this->removeFileAfterSave($user);
+            $user->changeAvatarPath($avatarPath);
+            $this->uploadDir->put($avatarPath, $bytes);
+        }
+    }
+}
+
+if (class_exists('SychO\ProfileCover\CoverUploader') && ! class_exists('BBForumCoverUploader')) {
+    class BBForumCoverUploader extends \SychO\ProfileCover\CoverUploader
+    {
+        public function upload(User $user, \Intervention\Image\Image $image)
+        {
+            $path = $image->basePath();
+            $bytes = $path && is_readable($path) ? (string) file_get_contents($path) : '';
+            if ($bytes === '' || ! BBForumProfiles::isAnimatedGif($bytes)) {
+                parent::upload($user, $image);
+                return;
+            }
+            $coverPath = \Illuminate\Support\Str::random().'.gif';
+            $this->remove($user);
+            $user->cover = $coverPath;
+            if ($this->config->get('sycho-profile-cover.thumbnails', 0) == 1) {
+                // Vorschaubild aus dem ersten Bild, wie beim Plugin
+                $thumbnail = clone $image;
+                $thumbnail->resize(500, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                });
+                $thumbnail->crop(500, 144);
+                $this->coversDir->put('thumbnails/'.$coverPath, $thumbnail->encode('jpg'));
+            }
+            $this->coversDir->put($coverPath, $bytes);
+        }
+    }
+}
+
+if (! class_exists('BBForumProfilesProvider')) {
+    class BBForumProfilesProvider extends \Flarum\Foundation\AbstractServiceProvider
+    {
+        public function register()
+        {
+            $this->container->bind(\Flarum\User\AvatarUploader::class, BBForumAvatarUploader::class);
+            if (class_exists('BBForumCoverUploader')) {
+                $this->container->bind(\SychO\ProfileCover\CoverUploader::class, BBForumCoverUploader::class);
+            }
         }
     }
 }
