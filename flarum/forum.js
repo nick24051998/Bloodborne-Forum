@@ -313,10 +313,17 @@
     ],
   };
 
+  // Die Seite bringt nur Bereiche und die meistgenutzten Zusatz-Tags mit, die Status-Tags nicht: einmal alle laden
+  var statusTagsLoading = false;
+
   function statusOptions(discussion) {
     var slugs = tagSlugs(discussion);
     var area = Object.keys(STATUSES).filter(function (s) { return slugs.indexOf(s) !== -1; })[0];
     if (!area || !discussion.canTag || !discussion.canTag()) return null;
+    if (!tagBySlug(STATUSES[area][0][0]) && !statusTagsLoading) {
+      statusTagsLoading = true;
+      (app.tagList ? app.tagList.load(['parent']) : app.store.find('tags')).then(function () { m.redraw(); });
+    }
     return STATUSES[area].filter(function (s) {
       var tag = tagBySlug(s[0]);
       return tag && (!tag.canAddToDiscussion || tag.canAddToDiscussion());
