@@ -341,6 +341,34 @@ ok "Known Fixes, Bug Reports: everyone can read and reply, only the team starts 
 echo "$STATUS_TAGS" | while IFS='|' read -r slug _rest; do team_only "$slug"; done
 ok "status tags (Open, In progress, Fixed, Planned, Done, Not planned, Duplicate): only the team sets them"
 
+# Helfer (Discord „Messenger · Helper“; die Gruppe legt der Rollen-Abgleich an, bbforum.discord_role_groups) arbeiten
+# wie das Team: Beiträge bearbeiten, Titel und Tags ändern, Themen schließen und öffnen, beste Antwort setzen, Status
+# von Vorschlägen und Bugs, Known Fixes und Bugs anlegen (Nick, 26.10.2026). Ausblenden, Löschen und Anpinnen bleiben
+# bei den Mods. Mods und Helfer dürfen über die Grenze von 3 Zusatz-Tags (der Status zählt mit), Mods setzen jetzt
+# auch die beste Antwort. In Bereichen mit eingeschränkten Tags gelten nur Rechte pro Tag, darum auch die. Nur hinzufügen.
+HELPER_ROLE=1559561716642222122
+helper=$(sql "SELECT JSON_UNQUOTE(JSON_EXTRACT(value, '\$.\"$HELPER_ROLE\"')) FROM ${DB_PREFIX}settings WHERE \`key\` = 'bbforum.discord_role_groups';" 2>/dev/null)
+case "$helper" in ''|NULL|*[!0-9]*) helper= ;; esac
+for g in 4 $helper; do
+  sql "INSERT IGNORE INTO ${DB_PREFIX}group_permission (group_id, permission)
+         VALUES ($g, 'discussion.selectBestAnswerNotOwnDiscussion'), ($g, 'bypassTagCounts');"
+done
+if [ -n "$helper" ]; then
+  for p in editPosts rename tag lock; do
+    sql "INSERT IGNORE INTO ${DB_PREFIX}group_permission (group_id, permission) VALUES ($helper, 'discussion.$p');"
+  done
+  for slug in known-fixes bug-reports $(echo "$STATUS_TAGS" | cut -d'|' -f1); do
+    _id=$(tag_id "$slug")
+    [ -n "$_id" ] || continue
+    for p in discussion.editPosts discussion.rename discussion.tag discussion.lock startDiscussion; do
+      sql "INSERT IGNORE INTO ${DB_PREFIX}group_permission (group_id, permission) VALUES ($helper, 'tag${_id}.$p');"
+    done
+  done
+  ok "helpers: edit posts, titles, tags, lock/unlock, best answer, status, Known Fixes and bugs"
+else
+  warn "helper group not mirrored yet (Discord role sync), helper permissions skipped"
+fi
+
 # --------------------------------------------------------------------------
 log "Logo contest"
 # Daten der Seite /logo-contest und der Regeln in flarum/contest.php (Einsendeschluss, Ende der Abstimmung, UTC)
