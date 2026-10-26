@@ -37,6 +37,9 @@
  * Discord-Rollen als Forum-Gruppen, Namen vom Server und Bann/Sperre in beide Richtungen:
  * flarum/discord-roles.php (Befehl bbforum:discord-roles jede Minute, dazu das Ereignis Suspended).
  *
+ * Übersicht (flarum/overview.php): Stimmen (👍 auf dem Eröffnungsbeitrag) als Sortierung "-bbVotes", Filter "bbview"
+ * für die Reiter über den Listen, Befehl bbforum:close-stale (Hilfe-Themen nach 7 Tagen ohne Beitrag schließen).
+ *
  * Arbeitslisten fürs Team (Team-Block in flarum/forum.js): Suche und Filter "is:unanswered" = Themen ohne Antwort.
  * Wer ein Thema startet oder antwortet, folgt ihm (Voreinstellung, jeder kann es in den Einstellungen abschalten):
  * so meldet das Forum Antworten auf die eigene Hilfe-Frage.
@@ -316,6 +319,7 @@ if (! class_exists('BBForumCliLocale')) {
 require_once __DIR__.'/discord-roles.php';
 require_once __DIR__.'/betas.php';
 require_once __DIR__.'/contest.php';
+require_once __DIR__.'/overview.php';
 
 return [
     (new Extend\ServiceProvider())->register(BBForumCliLocale::class),
@@ -345,6 +349,22 @@ return [
 
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->addGambit(BBForumUnansweredGambit::class),
     (new Extend\Filter(DiscussionFilterer::class))->addFilter(BBForumUnansweredGambit::class),
+
+    // Übersicht (flarum/overview.php): nach Stimmen sortieren, Filter für die Reiter, Hilfe nach 7 Tagen schließen
+    (new Extend\ApiController(Flarum\Api\Controller\ListDiscussionsController::class))->addSortField('bbVotes'),
+    (new Extend\Filter(DiscussionFilterer::class))
+        ->addFilter(BBForumViewFilter::class)
+        ->addFilterMutator([BBForumVotes::class, 'select']),
+    (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->addSearchMutator([BBForumVotes::class, 'select']),
+    (new Extend\ApiSerializer(Flarum\Api\Serializer\DiscussionSerializer::class))
+        ->attributes(function ($serializer, $discussion) {
+            return BBForumVotes::attributes($serializer->getActor(), $discussion);
+        }),
+    (new Extend\Console())
+        ->command(BBForumCloseStaleCommand::class)
+        ->schedule(BBForumCloseStaleCommand::class, function ($event) {
+            $event->hourly();
+        }),
 
     // Logo-Contest (flarum/contest.php): Stimme = „Gefällt mir“ auf einem Werk, eine pro Mitglied, nur in der Abstimmung
     (new Extend\Policy())

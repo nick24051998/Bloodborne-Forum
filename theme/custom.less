@@ -703,63 +703,416 @@ h1, h2, h3,
   }
 }
 
-.bb-guide-cards {
+// Übersicht (vorher der Wegweiser): vier Bereiche mit je fünf Themen, rundum gerahmt
+.bb-dash-blocks {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
-.bb-guide-card {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: 10px;
-  align-content: start;
-  padding: 12px 14px;
+.bb-dash-block {
+  min-width: 0;
+  padding: 12px 14px 8px;
   border: 1px solid @bb-border;
   border-radius: 10px;
   background: @bb-card;
-  color: @bb-text-soft;
-  font-size: 13px;
-  line-height: 1.45;
-  transition: border-color 220ms, background 220ms;
+}
 
-  &:hover,
-  &:focus-visible {
-    border-color: fade(@bb-gold, 60%);
-    background: @bb-card-hover;
-    text-decoration: none;
-    color: @bb-text-soft;
-  }
+.bb-dash-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  .bb-guide-icon {
-    grid-row: span 3;
-    margin-top: 2px;
-    font-size: 18px;
-    color: var(--tag, #c2a878);
-  }
+.bb-dash-icon {
+  font-size: 16px;
+  color: var(--tag, #c2a878);
+}
 
-  .bb-guide-name {
-    color: @bb-muted;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
+.bb-dash-title {
+  flex: 1;
+  color: @bb-text-strong;
+  font-size: 14px;
+  font-weight: 700;
 
-  strong {
-    color: @bb-text-strong;
-    font-size: 14px;
+  &:hover {
+    color: #fff;
   }
 }
 
-@media (max-width: 991.98px) {
-  .bb-guide-cards {
+.bb-dash-all {
+  color: @bb-muted;
+  font-size: 12px;
+}
+
+.bb-dash-hint {
+  margin: 3px 0 6px;
+  color: @bb-muted;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.bb-dash-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    border-top: 1px solid @bb-border;
+    font-size: 13px;
+  }
+
+  a {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: @bb-text-soft;
+
+    &:hover {
+      color: @bb-text-strong;
+    }
+  }
+}
+
+.bb-dash-votes {
+  color: @bb-muted;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+@media (max-width: 1199.98px) {
+  .bb-dash-blocks {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 479.98px) {
-  .bb-guide-card .bb-guide-text {
+@media (max-width: 599.98px) {
+  .bb-dash-blocks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bb-dash-list li:nth-child(n + 4) {
     display: none;
+  }
+}
+
+// --- Stimmen, Reiter, Etiketten, Known-Fixes-Index (flarum/forum.js, flarum/overview.php) ---------------------------
+// Stimmen-Box links neben dem Avatar (Suggestions); die Zeile rückt dafür ein. Der Avatar steht mit negativem Rand im
+// linken Innenabstand, die Box davor.
+.DiscussionListItem.bb-hasVote .DiscussionListItem-content {
+  padding-left: 118px;
+}
+
+.bb-vote {
+  float: left;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 48px;
+  margin: 10px 0 0 -112px;
+  padding: 6px 0 5px;
+  border: 1px solid @bb-border-strong;
+  border-radius: 10px;
+  background: @bb-card;
+  color: @bb-text-soft;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 220ms, color 220ms, background 220ms;
+
+  .icon {
+    font-size: 13px;
+    color: @bb-muted;
+  }
+
+  &:hover,
+  &:focus-visible {
+    border-color: fade(@bb-gold, 70%);
+    color: @bb-text-strong;
+  }
+
+  &.is-voted {
+    border-color: @bb-blood;
+    background: fade(@bb-blood, 22%);
+    color: #fff;
+
+    .icon {
+      color: @bb-blood-light;
+    }
+  }
+}
+
+.bb-vote--inline {
+  float: none;
+  flex-direction: row;
+  gap: 6px;
+  width: auto;
+  margin: 0;
+  padding: 5px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+@media (max-width: 767.98px) {
+  .DiscussionListItem.bb-hasVote .DiscussionListItem-content {
+    padding-left: 110px;
+  }
+
+  .bb-vote:not(.bb-vote--inline) {
+    width: 42px;
+    margin-left: -104px;
+  }
+}
+
+// Reiter über den Listen (Top/New/Planned …, Open/Solved/Closed/All)
+.bb-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.bb-tab {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid @bb-border-strong;
+  border-radius: 10px;
+  color: @bb-text-soft;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  transition: border-color 220ms, color 220ms, background 220ms;
+
+  &:hover,
+  &:focus-visible {
+    border-color: fade(@bb-gold, 70%);
+    color: @bb-text-strong;
+    text-decoration: none;
+  }
+
+  &.is-active {
+    border-color: @bb-gold-light;
+    background: fade(@bb-gold, 18%);
+    color: @bb-text-strong;
+  }
+}
+
+// Etiketten in der Themenzeile und in der Übersicht
+.bb-chip {
+  display: inline-block;
+  padding: 1px 7px;
+  border: 1px solid;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.bb-chip--solved {
+  border-color: #3f6b4a;
+  background: fade(#3f6b4a, 28%);
+  color: #9fd2a9;
+}
+
+.bb-chip--waiting {
+  border-color: #9a6b1f;
+  background: fade(#9a6b1f, 24%);
+  color: #e8bd6a;
+}
+
+.bb-chip--closed {
+  border-color: @bb-border-strong;
+  color: @bb-muted;
+}
+
+.bb-chip--new {
+  border-color: @bb-blood-light;
+  background: fade(@bb-blood, 60%);
+  color: #fff;
+}
+
+// Neue Vorschläge der letzten 7 Tage über der Liste
+.bb-newIdeas {
+  margin: 0 0 14px;
+  padding: 12px 14px 6px;
+  border: 1px solid fade(@bb-blood, 70%);
+  border-radius: 10px;
+  background: fade(@bb-blood, 8%);
+}
+
+.bb-newIdeas-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-bottom: 6px;
+
+  strong {
+    font-family: @bb-font-head;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: @bb-gold-light;
+  }
+
+  span {
+    color: @bb-muted;
+    font-size: 13px;
+  }
+}
+
+.bb-newIdeas-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  border-top: 1px solid @bb-border;
+
+  &:first-of-type {
+    border-top: 0;
+  }
+
+  .bb-vote {
+    float: none;
+    width: 44px;
+    margin: 0;
+  }
+
+  a {
+    flex: 1;
+    min-width: 0;
+    color: @bb-text-strong;
+    font-weight: 600;
+  }
+}
+
+// Known Fixes als Nachschlagewerk
+.bb-kf-search {
+  margin-bottom: 16px;
+}
+
+.bb-kf-group {
+  margin-bottom: 20px;
+
+  h3 {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 0 0 8px;
+    font-family: @bb-font-head;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    color: @bb-gold-light;
+
+    span {
+      font-family: @bb-font-body;
+      font-size: 12px;
+      letter-spacing: 0;
+      color: @bb-muted;
+    }
+  }
+}
+
+.bb-kf-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 6px;
+  padding: 10px 14px;
+  border: 1px solid @bb-border;
+  border-radius: 10px;
+  background: @bb-card;
+  transition: border-color 220ms;
+
+  &:hover {
+    border-color: @bb-border-strong;
+  }
+}
+
+.bb-kf-text {
+  flex: 1;
+  min-width: 0;
+
+  p {
+    display: -webkit-box;
+    margin: 3px 0 0;
+    overflow: hidden;
+    color: @bb-text-soft;
+    font-size: 13px;
+    line-height: 1.45;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+}
+
+.bb-kf-title {
+  color: @bb-text-strong;
+  font-weight: 700;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+.bb-kf-side {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.bb-kf-count {
+  color: #9fd2a9;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.bb-kf-empty {
+  color: @bb-muted;
+}
+
+@media (max-width: 599.98px) {
+  .bb-kf-item {
+    flex-direction: column;
+  }
+
+  .bb-kf-side {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+// Hunter's Dream: Titel und Knopf zum Einklappen in einer Zeile
+.bb-hd-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.bb-hd-toggle {
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: @bb-muted;
+  font-size: 12px;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: @bb-text-strong;
   }
 }
 

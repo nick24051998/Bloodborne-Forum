@@ -7,8 +7,13 @@
 // - Live-Zahlen von The Hunter's Dream (aus /api/hunters-dream, siehe extend.php): als Kasten
 //   in der Seitenleiste, auf schmalen Bildschirmen als Zeile unter dem Willkommens-Banner
 // - Abzeichen: nur die sichtbaren Team-Rollen von Discord (siehe flarum/discord-roles.php)
-// - Wegweiser „Where does my post go?“ unter dem Banner der Startseite: Known Fixes, Help & Support, Suggestions,
-//   Bug Reports mit je einem Satz; lässt sich ausblenden (merkt sich der Browser)
+// - Übersicht unter dem Banner der Startseite: vier Blöcke (neue Hilfe-Fragen, Top-Vorschläge, neue Known Fixes, News)
+//   mit je fünf Themen; lässt sich ausblenden (merkt sich der Browser). Seitenleiste: „Start here“ mit den Anleitungen,
+//   nur die Bereiche (Themen-Tags wie Crash gibt es als Reiter und im Known-Fixes-Index), Hunter's Dream einklappbar
+// - Stimmen: 👍 auf dem Eröffnungsbeitrag (flarum/overview.php). Suggestions zeigen eine Stimmen-Box und sind nach
+//   Stimmen sortiert, neue der letzten 7 Tage stehen hervorgehoben darüber; Reiter (?tab=) über Suggestions,
+//   Help & Support (Open/Solved/Closed) und Bug Reports; Etiketten Solved, Waiting for an answer, Closed, New
+// - Known Fixes: statt der Liste ein Nachschlagewerk nach Thema, mit Suche und „Worked for me“
 // - Team (wer in Known Fixes Themen starten darf, also Mods und Admins): Block „Team“ in der Seitenleiste mit
 //   Arbeitslisten (ohne Antwort, ungelöst, offene Bugs, Vorschläge) und an Hilfe-Themen „Save as Known Fix“
 // - Logo-Contest: Seite /logo-contest mit allen Werken (erstes Bild im Eröffnungsbeitrag eines Themas im Bereich
@@ -35,6 +40,10 @@
   var Link = compat['common/components/Link'];
   var LoadingIndicator = compat['common/components/LoadingIndicator'];
   var User = compat['common/models/User'];
+  var DiscussionListState = compat['forum/states/DiscussionListState'];
+  var PaginatedListState = compat['common/states/PaginatedListState'];
+  var GlobalSearchState = compat['forum/states/GlobalSearchState'];
+  var DiscussionListItem = compat['forum/components/DiscussionListItem'];
 
   var HD_URL = 'https://thehuntersdream.com';
 
@@ -117,24 +126,51 @@
     ]);
   }
 
+  // Der Kasten lässt sich auf Titel und Status einklappen (merkt sich der Browser)
+  var HD_KEY = 'bbforum.hdCollapsed';
+  var hdClosed = null;
+
+  function hdIsCollapsed() {
+    if (hdClosed === null) {
+      try { hdClosed = localStorage.getItem(HD_KEY) === '1'; } catch (e) { hdClosed = false; }
+    }
+    return hdClosed;
+  }
+
+  function toggleHd() {
+    hdClosed = !hdIsCollapsed();
+    try { localStorage.setItem(HD_KEY, hdClosed ? '1' : '0'); } catch (e) {}
+  }
+
   function huntersDreamCard(d) {
     // Glocken nur, solange der Server läuft: wie viele gerade Mitspieler (Koop) oder Eindringlinge rufen
     var rows = d.serverOnline ? [['Co-op signs now', d.coopSigns], ['Sinister bells now', d.sinisterBells]] : [];
     rows.push(['Prey slaughtered (24 h)', d.bossClears24h], ['Beasts slain (24 h)', d.kills24h]);
+    var closed = hdIsCollapsed();
 
-    return m('div.bb-hd', [
-      m('a.bb-hd-title', { href: HD_URL, target: '_blank', rel: 'noopener' }, "The Hunter's Dream"),
+    return m('div.bb-hd' + (closed ? '.is-collapsed' : ''), [
+      m('div.bb-hd-head', [
+        m('a.bb-hd-title', { href: HD_URL, target: '_blank', rel: 'noopener' }, "The Hunter's Dream"),
+        m('button.bb-hd-toggle', {
+          type: 'button',
+          'aria-expanded': closed ? 'false' : 'true',
+          title: closed ? 'Show the numbers' : 'Hide the numbers',
+          onclick: toggleHd,
+        }, icon(closed ? 'fas fa-chevron-down' : 'fas fa-chevron-up')),
+      ]),
       statusLine(d),
-      m('dl.bb-hd-stats', rows.map(function (row) {
-        return m('div', [m('dt', row[0]), m('dd', countUp(row[1]), number(row[1]))]);
-      }).concat(d.deadliestFoe ? [m('div', [m('dt', 'Deadliest foe'), m('dd', d.deadliestFoe.name)])] : [])),
-      hd.fact ? m('p.bb-hd-fact', hd.fact) : null,
-      d.newestGlyph ? m('p.bb-hd-glyph', [
-        'Newest glyph ',
-        m('a', { href: HD_URL + '/chalice/' + d.newestGlyph.id, target: '_blank', rel: 'noopener' }, m('code', d.newestGlyph.glyph)),
-        d.newestGlyph.dungeon ? m('span', ' ' + d.newestGlyph.dungeon) : null,
-      ]) : null,
-      m('a.bb-hd-more', { href: HD_URL + '/leaderboards', target: '_blank', rel: 'noopener' }, 'Leaderboards →'),
+      closed ? null : [
+        m('dl.bb-hd-stats', rows.map(function (row) {
+          return m('div', [m('dt', row[0]), m('dd', countUp(row[1]), number(row[1]))]);
+        }).concat(d.deadliestFoe ? [m('div', [m('dt', 'Deadliest foe'), m('dd', d.deadliestFoe.name)])] : [])),
+        hd.fact ? m('p.bb-hd-fact', hd.fact) : null,
+        d.newestGlyph ? m('p.bb-hd-glyph', [
+          'Newest glyph ',
+          m('a', { href: HD_URL + '/chalice/' + d.newestGlyph.id, target: '_blank', rel: 'noopener' }, m('code', d.newestGlyph.glyph)),
+          d.newestGlyph.dungeon ? m('span', ' ' + d.newestGlyph.dungeon) : null,
+        ]) : null,
+        m('a.bb-hd-more', { href: HD_URL + '/leaderboards', target: '_blank', rel: 'noopener' }, 'Leaderboards →'),
+      ],
     ]);
   }
 
@@ -149,45 +185,76 @@
     ]));
   }
 
-  // Wegweiser: welcher Bereich wofür ist. Nur Bereiche, die es gibt (Setup legt sie an), in dieser Reihenfolge.
-  var GUIDE = [
-    ['known-fixes', 'Search here first', 'Solutions that worked, checked by a helper.'],
-    ['help-support', "Something doesn't work", 'Crash, error, setup or performance. One problem per topic.'],
-    ['suggestions', 'You have an idea', 'For the port, the launcher, this forum or Discord.'],
-    ['bug-reports', 'Confirmed bugs', 'With their status, from Open to Fixed. The team moves them here from Help.'],
+  // Übersicht der Startseite: vier Bereiche mit je fünf Themen und einem Satz, wofür der Bereich ist.
+  // [Bereich, Überschrift, Sortierung, Satz]; nur Bereiche, die es gibt (Setup legt sie an).
+  var DASH = [
+    ['help-support', 'New questions', '-createdAt', "Something doesn't work: one topic per problem, with your BB Report Tool zip."],
+    ['suggestions', 'Top suggestions', '-bbVotes', 'Ideas for the port, the launcher, this forum or Discord. Vote with 👍.'],
+    ['known-fixes', 'New known fixes', '-createdAt', 'Solutions that worked, checked by a helper. Search here first.'],
+    ['announcements', 'News', '-createdAt', 'Releases and news from the team.'],
   ];
   var GUIDE_KEY = 'bbforum.guideHidden';
+  var dash = { lists: {}, loadedAt: 0, loading: false };
 
   function guideHidden() {
     try { return localStorage.getItem(GUIDE_KEY) === '1'; } catch (e) { return false; }
   }
 
-  function postGuide() {
-    var tags = app.store.all('tags');
-    var cards = GUIDE.map(function (entry) {
-      var tag = tags.filter(function (t) { return t.slug() === entry[0]; })[0];
+  // Höchstens alle zwei Minuten neu laden (beim Zurückkehren auf die Startseite)
+  function loadDashboard() {
+    if (dash.loading || Date.now() - dash.loadedAt < 120000) return;
+    dash.loading = true;
+    Promise.all(DASH.map(function (block) {
+      return app.store.find('discussions', { filter: { tag: block[0] }, include: 'tags', sort: block[2], page: { limit: 5 } })
+        .then(function (list) { dash.lists[block[0]] = list; })
+        .catch(function () { dash.lists[block[0]] = []; });
+    })).then(function () {
+      dash.loading = false;
+      dash.loadedAt = Date.now();
+      m.redraw();
+    });
+  }
+
+  function dashRow(discussion, slug) {
+    var right = slug === 'suggestions'
+      ? m('span.bb-dash-votes', [icon('far fa-thumbs-up'), ' ', discussion.attribute('bbVotes') || 0])
+      : statusChip(discussion);
+    return m('li', [m(Link, { href: app.route.discussion(discussion) }, discussion.title()), right]);
+  }
+
+  function dashboard() {
+    loadDashboard();
+    var blocks = DASH.map(function (block) {
+      var tag = tagBySlug(block[0]);
       if (!tag) return null;
-      return m('a.bb-guide-card', { href: app.route('tag', { tags: tag.slug() }), style: { '--tag': tag.color() || '' } }, [
-        tag.icon() ? icon(tag.icon(), { className: 'bb-guide-icon' }) : null,
-        m('span.bb-guide-name', tag.name()),
-        m('strong', entry[1]),
-        m('span.bb-guide-text', entry[2]),
+      var list = dash.lists[block[0]];
+      var href = app.route('tag', { tags: block[0] });
+      return m('section.bb-dash-block', { style: { '--tag': tag.color() || '' } }, [
+        m('div.bb-dash-head', [
+          tag.icon() ? icon(tag.icon(), { className: 'bb-dash-icon' }) : null,
+          m(Link, { className: 'bb-dash-title', href: href }, block[1]),
+          m(Link, { className: 'bb-dash-all', href: href }, 'All'),
+        ]),
+        m('p.bb-dash-hint', block[3]),
+        !list ? m('p.bb-dash-hint', '…')
+          : list.length ? m('ul.bb-dash-list', list.map(function (d) { return dashRow(d, block[0]); }))
+            : m('p.bb-dash-hint', 'No topics yet.'),
       ]);
     }).filter(Boolean);
-    if (!cards.length) return null;
+    if (!blocks.length) return null;
     return m('div.bb-guide', m('div.container', [
       m('div.bb-guide-head', [
-        m('h2', 'Where does my post go?'),
+        m('h2', 'Overview'),
         m('button.bb-guide-hide', {
           type: 'button',
-          'aria-label': 'Hide this guide',
+          'aria-label': 'Hide the overview',
           onclick: function () {
             try { localStorage.setItem(GUIDE_KEY, '1'); } catch (e) {}
             m.redraw();
           },
         }, 'Hide'),
       ]),
-      m('div.bb-guide-cards', cards),
+      m('div.bb-dash-blocks', blocks),
     ]));
   }
 
@@ -202,9 +269,10 @@
   }
 
   // Arbeitslisten fürs Team: Suche mit Gambits (is:unanswered aus extend.php, is:solved von Best Answer)
+  // Geschlossene Hilfe-Themen (7 Tage ohne Beitrag, flarum/overview.php) zählen nicht mehr als offen
   var TEAM_LISTS = [
-    ['bbTeamUnanswered', 'Waiting for an answer', { q: 'tag:help-support is:unanswered', sort: 'oldest' }, 'fas fa-hourglass-half'],
-    ['bbTeamUnsolved', 'Help not solved yet', { q: 'tag:help-support -is:solved', sort: 'latest' }, 'fas fa-life-ring'],
+    ['bbTeamUnanswered', 'Waiting for an answer', { q: 'tag:help-support is:unanswered -is:locked', sort: 'oldest' }, 'fas fa-hourglass-half'],
+    ['bbTeamUnsolved', 'Help not solved yet', { q: 'tag:help-support -is:solved -is:locked', sort: 'latest' }, 'fas fa-life-ring'],
     ['bbTeamBugs', 'Open bugs', { q: 'tag:bug-reports tag:status-open', sort: 'latest' }, 'fas fa-bug'],
     ['bbTeamIdeas', 'New suggestions', { q: 'tag:suggestions', sort: 'newest' }, 'fas fa-lightbulb'],
   ];
@@ -289,8 +357,9 @@
       var page = this;
       return app.store.find('discussions', { filter: { tag: CONTEST_TAG }, include: 'firstPost,user,tags', page: { limit: 50 } })
         .then(function (list) {
-          page.rules = list.filter(function (d) { return d.isSticky(); })[0] || null;
-          page.entries = list.filter(function (d) { return !d.isSticky(); });
+          // Die Regeln: angepinnt oder (seit sie nicht mehr angepinnt sind, Startseite) am Titel erkannt
+          page.rules = list.filter(function (d) { return d.isSticky() || /^Logo contest: rules/i.test(d.title()); })[0] || null;
+          page.entries = list.filter(function (d) { return d !== page.rules && !d.isSticky(); });
         })
         .catch(function () { page.entries = []; })
         .then(function () { m.redraw(); });
@@ -381,8 +450,347 @@
     }
   }
 
+  // --- Übersicht: Stimmen, Reiter, Etiketten, Known-Fixes-Index, Start here (Nick, 26.10.2026) ------------------------
+  var DAY = 86400000;
+
+  // Reiter über den Listen: [Schlüssel in ?tab=, Beschriftung, {sort, view}]; der erste gilt ohne ?tab=.
+  // view geht als Filter bbview an die API (flarum/overview.php), sort ist ein Schlüssel der Sortierung (votes = 👍).
+  var TABS = {
+    suggestions: [
+      ['top', 'Top', { sort: 'votes' }],
+      ['new', 'New', { sort: 'newest' }],
+      ['planned', 'Planned', { view: 'status-planned', sort: 'votes' }],
+      ['progress', 'In progress', { view: 'status-in-progress', sort: 'votes' }],
+      ['done', 'Done', { view: 'status-done', sort: 'newest' }],
+      ['declined', 'Not planned', { view: 'status-not-planned', sort: 'newest' }],
+    ],
+    'help-support': [
+      ['open', 'Open', { view: 'open' }],
+      ['solved', 'Solved', { view: 'solved' }],
+      ['closed', 'Closed', { view: 'closed' }],
+      ['all', 'All', {}],
+    ],
+    'bug-reports': [
+      ['open', 'Open', { view: 'status-open' }],
+      ['progress', 'In progress', { view: 'status-in-progress' }],
+      ['fixed', 'Fixed', { view: 'status-fixed' }],
+      ['all', 'All', {}],
+    ],
+  };
+
+  // Der aktive Reiter (ohne ?tab= der erste); null außerhalb dieser Bereiche und bei einer Suche
+  function activeTab(params) {
+    var tabs = params && TABS[params.tags];
+    if (!tabs || params.q) return null;
+    return tabs.filter(function (t) { return t[0] === params.tab; })[0] || tabs[0];
+  }
+
+  function tabBar(params) {
+    var tab = activeTab(params);
+    if (!tab) return null;
+    return m('nav.bb-tabs', { 'aria-label': 'Show' }, TABS[params.tags].map(function (t, i) {
+      var route = { tags: params.tags };
+      if (i > 0) route.tab = t[0];
+      return m(Link, { className: 'bb-tab' + (t === tab ? ' is-active' : ''), href: app.route('tag', route) }, t[1]);
+    }));
+  }
+
+  function tagSlugs(discussion) {
+    return ((discussion.tags && discussion.tags()) || []).filter(Boolean).map(function (t) { return t.slug(); });
+  }
+
+  function isNew(discussion) {
+    return Date.now() - discussion.createdAt() < 7 * DAY;
+  }
+
+  // Etikett in der Themenzeile: Stand einer Hilfe-Frage, „New“ an Vorschlägen der letzten 7 Tage
+  function statusChip(discussion) {
+    var slugs = tagSlugs(discussion);
+    if (slugs.indexOf('help-support') !== -1 && !(discussion.isSticky && discussion.isSticky())) {
+      if (discussion.attribute('hasBestAnswer')) return m('span.bb-chip.bb-chip--solved', 'Solved');
+      if (discussion.attribute('isLocked')) return m('span.bb-chip.bb-chip--closed', 'Closed');
+      if (discussion.commentCount() <= 1) return m('span.bb-chip.bb-chip--waiting', 'Waiting for an answer');
+    }
+    if (slugs.indexOf('suggestions') !== -1 && isNew(discussion)) return m('span.bb-chip.bb-chip--new', 'New');
+    return null;
+  }
+
+  // Stimme geben oder zurücknehmen: „Gefällt mir“ auf dem Eröffnungsbeitrag. Sofort zeigen, bei einem Fehler zurück
+  // (Flarum meldet ihn selbst, z. B. fehlende Rechte).
+  function toggleVote(discussion) {
+    if (!app.session.user) return app.modal.show(LogInModal);
+    if (discussion.bbBusy) return;
+    var id = discussion.attribute('bbFirstPostId');
+    var voted = !discussion.attribute('bbVoted');
+    var shift = function (on) {
+      discussion.pushAttributes({ bbVoted: on, bbVotes: Math.max(0, (discussion.attribute('bbVotes') || 0) + (on ? 1 : -1)) });
+    };
+    discussion.bbBusy = true;
+    shift(voted);
+    app.request({
+      method: 'PATCH',
+      url: app.forum.attribute('apiUrl') + '/posts/' + id,
+      body: { data: { type: 'posts', id: String(id), attributes: { isLiked: voted } } },
+    })
+      .catch(function () { shift(!voted); })
+      .then(function () {
+        discussion.bbBusy = false;
+        m.redraw();
+      });
+  }
+
+  // label: Knopf mit Text (Known Fixes: „Worked for me“) statt der Box mit der Zahl
+  function voteBox(discussion, label) {
+    var voted = discussion.attribute('bbVoted');
+    return m('button.bb-vote' + (label ? '.bb-vote--inline' : '') + (voted ? '.is-voted' : ''), {
+      type: 'button',
+      'aria-pressed': voted ? 'true' : 'false',
+      title: voted ? 'Take back your 👍' : app.session.user ? 'Give it a 👍' : 'Log in to vote',
+      onclick: function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleVote(discussion);
+      },
+    }, [icon('far fa-thumbs-up'), m('span', label || discussion.attribute('bbVotes') || 0)]);
+  }
+
+  function hasVoteBox(discussion) {
+    return !!discussion.attribute('bbFirstPostId') && tagSlugs(discussion).indexOf('suggestions') !== -1;
+  }
+
+  // Neue Vorschläge der letzten 7 Tage über der nach Stimmen sortierten Liste, damit sie nicht untergehen
+  var newIdeas = { list: null, loadedAt: 0, loading: false };
+
+  function newIdeasStrip() {
+    if (!newIdeas.loading && Date.now() - newIdeas.loadedAt > 120000) {
+      newIdeas.loading = true;
+      app.store.find('discussions', { filter: { tag: 'suggestions' }, include: 'tags', sort: '-createdAt', page: { limit: 5 } })
+        .then(function (list) { newIdeas.list = list.filter(isNew); })
+        .catch(function () { newIdeas.list = []; })
+        .then(function () {
+          newIdeas.loading = false;
+          newIdeas.loadedAt = Date.now();
+          m.redraw();
+        });
+    }
+    if (!newIdeas.list || !newIdeas.list.length) return null;
+    return m('div.bb-newIdeas', [
+      m('div.bb-newIdeas-head', [m('strong', 'New this week'), m('span', 'Fresh ideas: have a look and give them a 👍.')]),
+      newIdeas.list.map(function (d) {
+        return m('div.bb-newIdeas-item', [
+          voteBox(d),
+          m(Link, { href: app.route.discussion(d) }, d.title()),
+          m('span.bb-chip.bb-chip--new', 'New'),
+        ]);
+      }),
+    ]);
+  }
+
+  // Known Fixes als Nachschlagewerk: nach Thema gruppiert, darin zuerst, was am häufigsten geholfen hat
+  // (👍 „Worked for me“ plus „solved N× on Discord“ aus den übernommenen Einträgen); Suche über Titel und Text.
+  var KF_GROUPS = [
+    ['crash', 'Crash'], ['graphics', 'Graphics'], ['fps', 'Performance'], ['launcher', 'Launcher'],
+    ['setup', 'Setup & install'], ['online', 'Online & co-op'], ['controls', 'Controls & input'], ['audio', 'Audio'],
+    ['saves', 'Saves'], ['', 'Other'],
+  ];
+  var kf = { list: null, loading: false, query: '' };
+
+  function loadKnownFixes() {
+    if (kf.list || kf.loading) return;
+    kf.loading = true;
+    var all = [];
+    var more = function (offset) {
+      return app.store.find('discussions', {
+        filter: { tag: 'known-fixes' }, include: 'tags,firstPost', sort: '-createdAt', page: { offset: offset, limit: 50 },
+      }).then(function (list) {
+        all = all.concat(list);
+        var next = list.payload && list.payload.links && list.payload.links.next;
+        return next && offset < 500 ? more(offset + 50) : null;
+      });
+    };
+    more(0).catch(function () {}).then(function () {
+      kf.list = all;
+      kf.loading = false;
+      m.redraw();
+    });
+  }
+
+  // Lösung aus dem Eröffnungsbeitrag (Vorlage **Problem:** / **Fix:**), sonst seine erste Zeile; einmal je Thema
+  function fixInfo(discussion) {
+    if (!discussion.bbFix) {
+      var post = discussion.firstPost && discussion.firstPost();
+      var html = ((post && post.contentHtml()) || '').replace(/<br\s*\/?>/gi, '\n').replace(/<\/(p|li|h\d)>/gi, '\n');
+      var text = new DOMParser().parseFromString(html, 'text/html').body.textContent || '';
+      var fix = /Fix:\s*(.+)/i.exec(text);
+      var solved = /solved (\d+)×/i.exec(text);
+      discussion.bbFix = {
+        fix: fix ? fix[1].trim() : text.trim().split('\n')[0],
+        search: (discussion.title() + ' ' + text).toLowerCase(),
+        discord: solved ? Number(solved[1]) : 0,
+      };
+    }
+    return discussion.bbFix;
+  }
+
+  function helped(discussion) {
+    return (discussion.attribute('bbVotes') || 0) + fixInfo(discussion).discord;
+  }
+
+  function fixRow(discussion) {
+    var n = helped(discussion);
+    return m('div.bb-kf-item', [
+      m('div.bb-kf-text', [
+        m(Link, { className: 'bb-kf-title', href: app.route.discussion(discussion) }, discussion.title()),
+        m('p', fixInfo(discussion).fix),
+      ]),
+      m('div.bb-kf-side', [
+        n ? m('span.bb-kf-count', 'Worked for ' + n) : null,
+        voteBox(discussion, 'Worked for me'),
+      ]),
+    ]);
+  }
+
+  function knownFixesIndex() {
+    loadKnownFixes();
+    if (!kf.list) return m(LoadingIndicator);
+    var words = kf.query.toLowerCase().split(/\s+/).filter(Boolean);
+    var found = kf.list.filter(function (d) {
+      var text = fixInfo(d).search;
+      return words.every(function (w) { return text.indexOf(w) !== -1; });
+    }).sort(function (a, b) { return helped(b) - helped(a) || b.createdAt() - a.createdAt(); });
+    var shown = {};
+    var groups = KF_GROUPS.map(function (group) {
+      var items = found.filter(function (d) {
+        if (shown[d.id()] || (group[0] && tagSlugs(d).indexOf(group[0]) === -1)) return false;
+        shown[d.id()] = true;
+        return true;
+      });
+      return items.length ? m('section.bb-kf-group', [m('h3', [group[1], m('span', items.length)]), items.map(fixRow)]) : null;
+    }).filter(Boolean);
+    return m('div.bb-kf', [
+      m('input.FormControl.bb-kf-search', {
+        type: 'search',
+        placeholder: 'Search a problem or a log line, e.g. code 3',
+        'aria-label': 'Search the known fixes',
+        value: kf.query,
+        oninput: function (e) { kf.query = e.target.value; },
+      }),
+      groups.length ? groups : m('p.bb-kf-empty', [
+        'Nothing found. ',
+        m(Link, { href: app.route('tag', { tags: 'help-support' }) }, 'Ask in Help & Support'),
+        ' – the helpers know more than this list.',
+      ]),
+    ]);
+  }
+
+  // „Start here“ in der Seitenleiste: die Anleitungen, die vorher oben angepinnt waren
+  var START = [
+    [3, 'Read first: common fixes', 'fas fa-first-aid'],
+    [2, 'Install guide', 'fas fa-download'],
+    [124, 'Best settings', 'fas fa-sliders-h'],
+    [1, 'Forum rules', 'fas fa-gavel'],
+    [4, 'Post a performance report', 'fas fa-tachometer-alt'],
+  ];
+
+  function startItems(items) {
+    items.add('bbStartSeparator', Separator.component(), 93);
+    items.add('bbStartTitle', m('span.bb-teamTitle', 'Start here'), 92);
+    START.forEach(function (entry, i) {
+      items.add('bbStart' + entry[0], LinkButton.component({
+        href: app.route('discussion', { id: String(entry[0]) }),
+        icon: entry[2],
+      }, entry[1]), 91 - i);
+    });
+  }
+
   app.initializers.add('bbforum', function () {
     app.routes.logoContest = { path: '/logo-contest', component: LogoContestPage };
+
+    // --- Übersicht ---
+    if (app.translator.addTranslations) {
+      app.translator.addTranslations({ 'core.forum.index_sort.votes_button': 'Most votes' });
+    }
+
+    extend(DiscussionListState.prototype, 'sortMap', function (map) {
+      map.votes = '-bbVotes';
+    });
+
+    // ?tab= kommt mit in die Parameter der Liste; ohne eigene Sortierung gilt die des Reiters (Suggestions: Stimmen)
+    extend(GlobalSearchState.prototype, 'params', function (params) {
+      var tab = m.route.param('tab');
+      if (tab) params.tab = tab;
+      var active = activeTab({ tags: m.route.param('tags'), tab: tab, q: params.q });
+      if (active && active[2].sort && !params.sort) params.sort = active[2].sort;
+    });
+
+    extend(DiscussionListState.prototype, 'requestParams', function (params) {
+      var tab = activeTab(this.params);
+      if (tab && tab[2].view) {
+        params.filter = params.filter || {};
+        params.filter.bbview = tab[2].view;
+      }
+    });
+
+    // Die vom Server vorgeladene erste Seite kennt weder Reiter noch Stimmen-Sortierung: dann selbst laden
+    override(DiscussionListState.prototype, 'loadPage', function (original, page) {
+      if (activeTab(this.params) || this.params.sort === 'votes') {
+        app.preloadedApiDocument();
+        return PaginatedListState.prototype.loadPage.call(this, page);
+      }
+      return original(page);
+    });
+
+    extend(DiscussionListItem.prototype, 'elementAttrs', function (attrs) {
+      if (hasVoteBox(this.attrs.discussion)) attrs.className = (attrs.className || '') + ' bb-hasVote';
+    });
+
+    extend(DiscussionListItem.prototype, 'contentItems', function (items) {
+      if (hasVoteBox(this.attrs.discussion)) items.add('bbVote', voteBox(this.attrs.discussion), 110);
+    });
+
+    extend(DiscussionListItem.prototype, 'infoItems', function (items) {
+      var chip = statusChip(this.attrs.discussion);
+      if (chip) items.add('bbStatus', chip, 20);
+    });
+
+    // Reiter vor der Sortierung; in Known Fixes statt der Sortierung der Wechsel zwischen Index und Liste
+    extend(IndexPage.prototype, 'viewItems', function (items) {
+      var params = app.search.params();
+      var tabs = tabBar(params);
+      if (tabs) items.add('bbTabs', tabs, 10);
+      // Suggestions: Top und New ersetzen die Sortierung („Latest“ fiele sonst wieder auf die Stimmen zurück)
+      if (tabs && params.tags === 'suggestions') items.remove('sort');
+      if (params.tags === 'known-fixes' && !params.q) {
+        var asList = params.tab === 'list';
+        items.remove('sort');
+        items.add('bbKnownFixesView', m(Link, {
+          className: 'Button',
+          href: app.route('tag', asList ? { tags: 'known-fixes' } : { tags: 'known-fixes', tab: 'list' }),
+        }, asList ? 'Show by topic' : 'Show as a list'), 10);
+      }
+    });
+
+    extend(IndexPage.prototype, 'contentItems', function (items) {
+      var params = app.search.params();
+      if (params.tags === 'known-fixes' && !params.q && params.tab !== 'list') {
+        items.remove('discussionList');
+        items.add('bbKnownFixes', knownFixesIndex(), 90);
+      }
+      var tab = activeTab(params);
+      if (params.tags === 'suggestions' && tab && tab[0] === 'top') {
+        var strip = newIdeasStrip();
+        if (strip) items.add('bbNewIdeas', strip, 95);
+      }
+    });
+
+    // Seitenleiste: „Start here“ und nur die Bereiche; Themen-Tags (Crash, Graphics …) und „More…“ nicht
+    extend(IndexPage.prototype, 'navItems', function (items) {
+      startItems(items);
+      app.store.all('tags').forEach(function (tag) {
+        if (tag.position() === null && items.has('tag' + tag.id())) items.remove('tag' + tag.id());
+      });
+      if (items.has('moreTags')) items.remove('moreTags');
+    });
 
     extend(HeaderPrimary.prototype, 'items', function (items) {
       var site = app.forum.attribute('bbforumWebsiteUrl');
@@ -450,10 +858,12 @@
       }, 'Save as Known Fix'));
     });
 
-    // Unter dem Banner: Hunter's Dream (schmale Bildschirme) und auf der Startseite (nicht in einem Bereich) der Wegweiser
+    // Unter dem Banner: Hunter's Dream (schmale Bildschirme) und auf der Startseite (nicht in einem Bereich, keine
+    // Suche) die Übersicht
     override(IndexPage.prototype, 'hero', function (original) {
       var inTag = this.currentTag && this.currentTag();
-      return [original(), hd.data ? huntersDreamStrip(hd.data) : null, inTag || guideHidden() ? null : postGuide()];
+      var home = !inTag && !app.search.params().q && !guideHidden();
+      return [original(), hd.data ? huntersDreamStrip(hd.data) : null, home ? dashboard() : null];
     });
 
     // Abzeichen: Versteckte Gruppen (Waffen-, GPU-, Setup-Rollen von Discord) nie, auch nicht für Admins und
