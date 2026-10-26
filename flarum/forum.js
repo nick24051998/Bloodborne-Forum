@@ -55,6 +55,8 @@
   var SettingsPage = compat['forum/components/SettingsPage'];
   var FieldSet = compat['common/components/FieldSet'];
   var AvatarEditor = compat['forum/components/AvatarEditor'];
+  var NotificationGrid = compat['forum/components/NotificationGrid'];
+  var Notification = compat['forum/components/Notification'];
 
   var HD_URL = 'https://thehuntersdream.com';
 
@@ -1209,6 +1211,61 @@
         ]), -40);
       }
     });
+
+    // Benachrichtigungen (flarum/discord-notify.php): Spalte „Discord“ statt „Email“ (das Forum verschickt keine
+    // Mails). Solange die Meldungen in Discord noch aus sind, sehen die Spalte nur Admins (zum Ansehen).
+    function discordNotifyVisible() {
+      return !!app.forum.attribute('bbDiscordNotify') || !!(app.session.user && app.session.user.isAdmin());
+    }
+
+    extend(NotificationGrid.prototype, 'notificationMethods', function (items) {
+      if (items.has('email')) items.remove('email');
+      if (discordNotifyVisible()) {
+        items.add('discord', { name: 'discord', icon: 'fab fa-discord', label: 'Discord' });
+      }
+    });
+
+    extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
+      items.add('statusChanged', {
+        name: 'statusChanged',
+        icon: 'fas fa-flag',
+        label: 'Someone changes the status of my suggestion or bug report',
+      });
+    });
+
+    override(NotificationGrid.prototype, 'view', function (original) {
+      var vdom = original();
+      if (!discordNotifyVisible()) return vdom;
+      var note = app.forum.attribute('bbDiscordNotify')
+        ? 'Discord: BB Helper pings you in your own private “Forum inbox” thread on our Discord server. Nobody else sees it.'
+        : 'Discord column: only admins see it until the Discord inbox is switched on.';
+      return m('div', [vdom, m('p.helpText.bb-discordNote', [icon('fab fa-discord'), ' ', note])]);
+    });
+
+    // Meldung in der Glocke: Status eines Vorschlags oder Bugs geändert
+    class StatusChangedNotification extends Notification {
+      icon() {
+        return 'fas fa-flag';
+      }
+
+      href() {
+        var discussion = this.attrs.notification.subject();
+        return discussion ? app.route.discussion(discussion) : '';
+      }
+
+      content() {
+        var user = this.attrs.notification.fromUser();
+        var status = (this.attrs.notification.content() || {}).status || '';
+        var name = (tagBySlug(status) && tagBySlug(status).name()) || status.replace(/^status-/, '').replace(/-/g, ' ');
+        return [m('strong', user ? user.displayName() : 'Someone'), ' set the status to ', m('strong', name)];
+      }
+
+      excerpt() {
+        var discussion = this.attrs.notification.subject();
+        return discussion && discussion.title ? discussion.title() : null;
+      }
+    }
+    app.notificationComponents.statusChanged = StatusChangedNotification;
 
     // Einstellungen: „Profile look“ als erster Abschnitt
     extend(SettingsPage.prototype, 'settingsItems', function (items) {

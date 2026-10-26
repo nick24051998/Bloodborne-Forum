@@ -29,6 +29,9 @@
  * speichert das Ergebnis zwischen und gibt nur Gesamtzahlen weiter, keine Spielernamen. Sind die
  * Zahlen älter als 15 Minuten, antwortet es mit 503 und die Felder bleiben ausgeblendet.
  *
+ * /api/bb-discord-notify: Warteschlange der Forum-Meldungen für BB Helper (flarum/discord-notify.php), der sie im
+ * privaten Inbox-Thread des Mitglieds auf Discord meldet; aus, bis bbforum.discord_notify_enabled = 1.
+ *
  * Neue Themen nach Discord: Ist die Einstellung "bbforum.discord_webhook" gesetzt (setup-forum.sh aus
  * FORUM_DISCORD_WEBHOOK in .env), meldet das Forum jedes neue Thema, das Gäste sehen dürfen, mit Titel,
  * Autor, Tags, Textanfang und Link in diesem Discord-Kanal. Fehler oder ein langsames Discord halten das
@@ -324,6 +327,7 @@ require_once __DIR__.'/betas.php';
 require_once __DIR__.'/contest.php';
 require_once __DIR__.'/overview.php';
 require_once __DIR__.'/profiles.php';
+require_once __DIR__.'/discord-notify.php';
 
 return [
     (new Extend\ServiceProvider())->register(BBForumCliLocale::class),
@@ -454,7 +458,27 @@ return [
         ->serializeToForum('bbforumDiscordUrl', 'bbforum.discord_url')
         ->serializeToForum('bbforumDiscordOnly', 'bbforum.oauth_only_signup', 'boolval')
         ->serializeToForum('bbContestSubmitUntil', 'bbforum.contest_submit_until')
-        ->serializeToForum('bbContestVoteUntil', 'bbforum.contest_vote_until'),
+        ->serializeToForum('bbContestVoteUntil', 'bbforum.contest_vote_until')
+        ->serializeToForum('bbDiscordNotify', 'bbforum.discord_notify_enabled', 'boolval'),
+
+    // Forum-Meldungen in Discord (flarum/discord-notify.php): Benachrichtigungsweg „discord“, neue Meldung bei
+    // Status-Änderung, Warteschlange für BB Helper; eigene Themen und Antworten folgt man jetzt standardmäßig
+    (new Extend\Notification())
+        ->driver('discord', BBForumDiscordNotifyDriver::class)
+        ->type(BBForumStatusChangedBlueprint::class, Flarum\Api\Serializer\BasicDiscussionSerializer::class, ['alert']),
+    (new Extend\Event())
+        ->listen(Flarum\Tags\Event\DiscussionWasTagged::class, function ($event) {
+            BBForumDiscordNotify::tagged($event);
+        }),
+    (new Extend\User())
+        ->registerPreference('followAfterReply', 'boolval', true),
+    (new Extend\Routes('api'))
+        ->get('/bb-discord-notify', 'bbforum.discordNotify.pending', BBForumDiscordNotifyPending::class)
+        ->post('/bb-discord-notify/ack', 'bbforum.discordNotify.ack', BBForumDiscordNotifyAck::class)
+        ->post('/bb-discord-notify/action', 'bbforum.discordNotify.action', BBForumDiscordNotifyAction::class),
+    (new Extend\Csrf())
+        ->exemptRoute('bbforum.discordNotify.ack')
+        ->exemptRoute('bbforum.discordNotify.action'),
 
     ...(is_file('/bbforum/forum.js') ? [(new Extend\Frontend('forum'))->js('/bbforum/forum.js')] : []),
     ...(is_file('/bbforum/icons.less') ? [
