@@ -2226,7 +2226,14 @@ body::after {
 
 .UserCard.bb-themed.bb-hasBanner .darkenBackground,
 .UserCard.bb-themed.bb-hasCover .darkenBackground {
-  background: linear-gradient(180deg, rgba(8, 9, 10, 0.25), color-mix(in srgb, var(--bb-theme2) 55%, rgba(8, 9, 10, 0.9)));
+  background: linear-gradient(180deg, rgba(8, 9, 10, 0.15) 0%, color-mix(in srgb, var(--bb-theme1) 40%, rgba(8, 9, 10, 0.6)) 45%,
+    color-mix(in srgb, var(--bb-theme2) 85%, rgba(8, 9, 10, 0.9)) 100%);
+}
+
+// Wie bei Nitro: die Karte beim Zeigen auf einen Namen (und die Vorschau) bekommt einen Rand in der ersten Farbe
+.UserCard--popover.bb-themed,
+.bb-look-card.bb-themed {
+  box-shadow: 0 0 0 2px var(--bb-theme1), 0 8px 28px rgba(0, 0, 0, 0.5);
 }
 
 // Hochgeladene GIFs sind nicht zugeschnitten (die Animation bliebe sonst nicht erhalten): quadratisch anzeigen

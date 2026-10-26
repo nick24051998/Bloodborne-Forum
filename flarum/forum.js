@@ -1202,8 +1202,8 @@
           icon('fab fa-discord'), ' Open on Discord',
         ]), -30);
       }
-      // Auf dem eigenen Profil der Weg zu „Profile look“ (nicht in dessen Vorschau)
-      if (app.session.user === user && (this.attrs.className || '').indexOf('bb-look-card') === -1) {
+      // Auf dem eigenen Profil der Weg zu „Profile look“ (nicht in den Einstellungen selbst)
+      if (app.session.user === user && !app.current.matches(SettingsPage)) {
         items.add('bbCustomize', m(Link, { className: 'bb-customizeLink', href: app.route('settings') }, [
           icon('fas fa-paint-brush'), ' Customize profile',
         ]), -40);
