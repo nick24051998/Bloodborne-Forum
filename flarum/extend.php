@@ -370,14 +370,15 @@ return [
             $event->hourly();
         }),
 
-    // Profile (flarum/profiles.php): verdiente Effekte und Discord-Deko an jedem Nutzer, Banner/Farbe/Hunter-Karte im Profil
+    // Profile (flarum/profiles.php): Effekte, Deko, Rollen-Schild und Rechner an jedem Nutzer; im Profil Banner, Farbe,
+    // Hunter-Karte, alle Rollen und fürs Team der Discord-Link
     (new Extend\ApiSerializer(Flarum\Api\Serializer\BasicUserSerializer::class))
         ->attributes(function ($serializer, $user) {
             return BBForumProfiles::basic($user);
         }),
     (new Extend\ApiSerializer(Flarum\Api\Serializer\UserSerializer::class))
         ->attributes(function ($serializer, $user) {
-            return BBForumProfiles::full($user);
+            return BBForumProfiles::full($user, $serializer->getActor());
         }),
 
     // Logo-Contest (flarum/contest.php): Stimme = „Gefällt mir“ auf einem Werk, eine pro Mitglied, nur in der Abstimmung

@@ -8,13 +8,15 @@
  *   Banner und Deko liegen als Kopie unter assets/bbprofile/ (keine Bilder von Discord-Servern im Forum, wie beim
  *   Profilbild). Stand je Nutzer in der Tabelle bb_profiles (legt sich selbst an).
  * - Verdiente Effekte (Nick: verdient, nicht frei wählbar), aus den Gruppen, die der Abgleich von Discord spiegelt:
- *   booster (Server Booster laut premium_since des Mitglieds: Blutmond-Rahmen, Name glüht), lantern (Helper, Mod,
- *   Admin, Owner: Messing-Laterne),
- *   insight1–4 (Insight-Stufen: Augen um den Avatar), beta (Beta Hunter, Test Subject, Beta Testers: Phiole),
- *   winner (bbforum.contest_winners, Forum-IDs mit Komma: Mondlicht-Name).
- * - Hunter-Karte im Profil: Waffe (/hunter auf Discord), Insight-Stufe, Grafikkarte und VRAM (Hardware-Rollen).
+ *   booster (Server Booster laut premium_since des Mitglieds: Blutmond-Rahmen, Name glüht, Zeichen), lantern
+ *   (Helper, Mod, Admin, Owner: Messing-Laterne), insight1–4 (Insight-Stufen: Zeichen mit Stufe), beta (Beta Hunter,
+ *   Test Subject, Beta Testers: Zeichen), winner (bbforum.contest_winners, Forum-IDs mit Komma: Mondlicht-Name).
+ * - Rollen-Schilder statt Flarums Gruppen-Abzeichen (roles()): Entwickler des Ports, dann die Team-Rollen.
+ * - Hunter-Karte im Profil: Waffe (/hunter auf Discord), Insight-Stufe, Grafikkarte und VRAM (Hardware-Rollen);
+ *   Grafikkarte und VRAM stehen außerdem an Beiträgen in Hilfe- und Bug-Themen.
  *
- * API: an jedem Nutzer bbPerks und bbDecoration (auch an Beiträgen), im Profil dazu bbBanner, bbAccent, bbHunter.
+ * API: an jedem Nutzer (auch an Beiträgen) bbPerks, bbDecoration, bbRole, bbRig; im Profil dazu bbBanner, bbAccent,
+ * bbHunter, bbRoles und fürs Team bbDiscordUrl.
  */
 
 use Flarum\User\User;
@@ -197,39 +199,104 @@ if (! class_exists('BBForumProfiles')) {
             if ($has(['Beta Hunter', 'Test Subject', 'Beta Testers'])) {
                 $perks[] = 'beta';
             }
-            $winners = array_filter(array_map('intval', explode(',', (string) resolve(\Flarum\Settings\SettingsRepositoryInterface::class)->get('bbforum.contest_winners', ''))));
+            $settings = resolve(\Flarum\Settings\SettingsRepositoryInterface::class);
+            $winners = array_filter(array_map('intval', explode(',', (string) $settings->get('bbforum.contest_winners', ''))));
             if (in_array((int) $user->id, $winners, true)) {
                 $perks[] = 'winner';
             }
             return $perks;
         }
 
+        private static $discordIds = [];
+
+        private static function discordId(User $user): ?string
+        {
+            if (! array_key_exists($user->id, self::$discordIds)) {
+                self::$discordIds[$user->id] = \Flarum\User\LoginProvider::where('provider', 'discord')
+                    ->where('user_id', $user->id)->value('identifier');
+            }
+            return self::$discordIds[$user->id];
+        }
+
+        /**
+         * Rollen fürs Schild am Namen, wichtigste zuerst: medo als Entwickler des Ports (bbforum.developer_discord_ids),
+         * dann die Team-Rollen von Discord („Great Hunter · Admin“ → Admin), zuletzt Code-Contributors. Statt
+         * Flarums Abzeichen (bei Discord-Rollen nur Farbpunkte ohne Symbol, die über dem Profilbild lagen).
+         */
+        public static function roles(User $user): array
+        {
+            $order = ['developer' => 0, 'owner' => 1, 'admin' => 2, 'mod' => 3, 'contributor' => 4, 'helper' => 5, 'code' => 6];
+            $roles = [];
+            $devs = array_filter(array_map('trim', explode(',', (string) resolve(\Flarum\Settings\SettingsRepositoryInterface::class)
+                ->get('bbforum.developer_discord_ids', '280443805415505921'))));
+            if (in_array((string) self::discordId($user), $devs, true)) {
+                $roles['developer'] = ['key' => 'developer', 'label' => 'Port developer', 'title' => 'Makes the Bloodborne PC Port'];
+            }
+            foreach ($user->groups as $group) {
+                $name = trim(preg_replace('/^[^\pL\pN]+/u', '', (string) $group->name_singular));
+                $parts = array_map('trim', explode('·', $name, 2));
+                $label = count($parts) === 2 ? $parts[1] : null;
+                $key = null;
+                if ($label !== null) {
+                    $key = ['Owner' => 'owner', 'Admin' => 'admin', 'Mod' => 'mod', 'Contributor' => 'contributor',
+                        'Helper' => 'helper', 'Code Contributor' => 'code'][$label] ?? null;
+                } elseif ((int) $group->id === 1) {
+                    [$key, $label] = ['admin', 'Admin'];
+                } elseif ((int) $group->id === 4) {
+                    [$key, $label] = ['mod', 'Mod'];
+                }
+                if ($key && ! isset($roles[$key])) {
+                    $roles[$key] = ['key' => $key, 'label' => $label, 'title' => $name];
+                }
+            }
+            uasort($roles, fn ($a, $b) => $order[$a['key']] <=> $order[$b['key']]);
+            return array_values($roles);
+        }
+
+        private static function hunter(User $user): array
+        {
+            $names = self::groupNames($user);
+            return array_filter([
+                'weapon' => current(array_intersect($names, self::WEAPONS)) ?: null,
+                'insight' => current(array_intersect(array_reverse(self::INSIGHT), $names)) ?: null,
+                'gpu' => ($gpu = current(preg_grep('/^GPU · /u', $names))) ? preg_replace('/^GPU · /u', '', $gpu) : null,
+                'vram' => ($vram = current(preg_grep('/^VRAM · /u', $names))) ? preg_replace('/^VRAM · /u', '', $vram) : null,
+            ]);
+        }
+
+        /** An jedem Nutzer (auch an Beiträgen): Effekte, Deko, das wichtigste Rollen-Schild, der Rechner für Hilfe-Themen */
         public static function basic(User $user): array
         {
             if (! $user->exists) {
                 return [];
             }
             $row = self::row($user);
-            return ['bbPerks' => self::perks($user), 'bbDecoration' => self::url($row['decoration'] ?? null)];
+            $hunter = self::hunter($user);
+            $rig = array_filter([$hunter['gpu'] ?? null, isset($hunter['vram']) ? $hunter['vram'].' VRAM' : null]);
+            return [
+                'bbPerks' => self::perks($user),
+                'bbDecoration' => self::url($row['decoration'] ?? null),
+                'bbRole' => self::roles($user)[0] ?? null,
+                'bbRig' => $rig ? implode(' · ', $rig) : null,
+            ];
         }
 
-        public static function full(User $user): array
+        /** Im Profil: Banner, Farbe, alle Rollen, Hunter-Karte; fürs Team der Link zum Discord-Konto */
+        public static function full(User $user, User $actor): array
         {
             if (! $user->exists) {
                 return [];
             }
             $row = self::row($user);
-            $names = self::groupNames($user);
-            $hunter = array_filter([
-                'weapon' => current(array_intersect($names, self::WEAPONS)) ?: null,
-                'insight' => current(array_intersect(array_reverse(self::INSIGHT), $names)) ?: null,
-                'gpu' => ($gpu = current(preg_grep('/^GPU · /u', $names))) ? preg_replace('/^GPU · /u', '', $gpu) : null,
-                'vram' => ($vram = current(preg_grep('/^VRAM · /u', $names))) ? preg_replace('/^VRAM · /u', '', $vram) : null,
-            ]);
+            $hunter = self::hunter($user);
+            $discord = self::discordId($user);
+            $team = $actor->isAdmin() || $actor->hasPermission('user.suspend');
             return [
                 'bbBanner' => self::url($row['banner'] ?? null),
                 'bbAccent' => isset($row['accent']) && $row['accent'] !== null ? sprintf('#%06x', (int) $row['accent']) : null,
                 'bbHunter' => $hunter ?: null,
+                'bbRoles' => self::roles($user),
+                'bbDiscordUrl' => $team && $discord ? 'https://discord.com/users/'.$discord : null,
             ];
         }
     }

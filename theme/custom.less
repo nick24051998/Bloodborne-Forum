@@ -1839,7 +1839,7 @@ body::after {
 
 // --- Profile: verdiente Effekte und Discord-Deko (flarum/forum.js, flarum/profiles.php) --------------------------
 // Ein Rahmen je Nutzer (Discord-Deko ersetzt ihn): Blutmond für Booster, Messing-Laterne fürs Team. Namen: Booster
-// glüht blutrot, Contest-Sieger schimmern im Mondlicht. Augen um den Avatar je Insight-Stufe, Phiole für Beta-Tester.
+// glüht blutrot, Contest-Sieger schimmern im Mondlicht. Rolle als Schild und verdiente Zeichen stehen hinter dem Namen.
 .PostUser.bb-frame--booster .PostUser-avatar,
 .UserCard.bb-frame--booster .UserCard-avatar .Avatar {
   box-shadow: 0 0 0 3px #8a1118, 0 0 0 5px rgba(194, 42, 48, 0.3), 0 0 14px 3px rgba(194, 42, 48, 0.4);
@@ -1924,19 +1924,10 @@ body::after {
     margin-top: -6px;
     pointer-events: none;
   }
-
-  .PostUser .bb-eyes {
-    position: absolute;
-    left: -85px;
-    width: 64px;
-    height: 64px;
-    pointer-events: none;
-  }
 }
 
 @media (max-width: 767.98px) {
-  .PostUser .bb-deco,
-  .PostUser .bb-eyes {
+  .PostUser .bb-deco {
     display: none;
   }
 }
@@ -1957,53 +1948,162 @@ body::after {
   }
 }
 
-.bb-eye {
-  position: absolute;
-  color: #b9a6ff;
-  font-size: 11px;
-  text-shadow: 0 0 6px rgba(140, 110, 255, 0.8);
-  animation: bb-blink 6s ease-in-out infinite;
+// Profilbild in der Profilkarte: dunkler Ring statt Flarums weißem
+.UserCard-avatar .Avatar {
+  border-color: @bb-bg-deep;
 }
 
-.bb-eye--1 {
-  top: -7px;
-  left: -7px;
+// Rollen-Schild: eine Farbe je Rolle, der volle Discord-Name beim Zeigen. Ersetzt Flarums Gruppen-Abzeichen.
+.bb-role {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border: 1px solid fade(@bb-moon, 35%);
+  border-radius: 999px;
+  background: fade(@bb-moon, 8%);
+  color: @bb-moon;
+  font-family: @bb-font-body;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 16px;
+  text-shadow: none;
+  text-transform: uppercase;
+  vertical-align: 2px;
+  white-space: nowrap;
+  cursor: help;
 }
 
-.bb-eye--2 {
-  top: -7px;
-  right: -7px;
-  animation-delay: 1.5s;
+.bb-role--developer {
+  border-color: fade(@bb-blood-light, 70%);
+  background: fade(@bb-blood, 30%);
+  color: #f2b8ba;
 }
 
-.bb-eye--3 {
-  bottom: -7px;
-  left: -7px;
-  animation-delay: 3s;
+.bb-role--owner,
+.bb-role--admin {
+  border-color: fade(@bb-gold-light, 60%);
+  background: fade(@bb-gold, 18%);
+  color: @bb-gold-light;
 }
 
-.bb-eye--4 {
-  right: -7px;
-  bottom: -7px;
-  animation-delay: 4.5s;
+.bb-role--mod {
+  border-color: fade(@bb-moon, 50%);
+  background: fade(@bb-moon, 10%);
+  color: @bb-moon;
 }
 
-@keyframes bb-blink {
-  0%,
-  92%,
-  100% {
-    transform: scaleY(1);
-  }
-
-  95% {
-    transform: scaleY(0.1);
-  }
+.bb-role--contributor {
+  border-color: fade(#8b78c4, 60%);
+  background: fade(@bb-dusk, 55%);
+  color: #cbbdf0;
 }
 
-.bb-flask {
-  margin-left: 6px;
-  color: #5dcaa5;
+.bb-role--helper {
+  border-color: fade(#5dcaa5, 50%);
+  background: fade(#5dcaa5, 10%);
+  color: #8fdcc1;
+}
+
+.bb-role--code {
+  border-color: fade(#6f93b8, 55%);
+  background: fade(#6f93b8, 12%);
+  color: #b3cbe3;
+}
+
+// Verdiente Zeichen hinter dem Namen am Beitrag; Insight mit Stufe
+.bb-marks {
+  display: inline-flex;
+  gap: 7px;
+  margin-left: 8px;
   font-size: 12px;
+  vertical-align: 1px;
+}
+
+.bb-mark {
+  position: relative;
+  cursor: help;
+
+  sup {
+    margin-left: 1px;
+    font-family: @bb-font-body;
+    font-size: 8.5px;
+    font-weight: 700;
+    vertical-align: 5px;
+  }
+}
+
+.bb-mark--booster {
+  color: #f47fff;
+}
+
+.bb-mark--insight {
+  color: #b9a6ff;
+}
+
+.bb-mark--beta {
+  color: #5dcaa5;
+}
+
+.bb-mark--winner {
+  color: @bb-moon;
+}
+
+// Rechner des Verfassers in Hilfe- und Bug-Themen, neben der Zeit
+.Post-header .item-bbRig {
+  color: @bb-muted;
+  font-size: 12px;
+}
+
+.bb-rig .icon {
+  margin-right: 2px;
+  font-size: 11px;
+}
+
+// Profilkarte: Schilder, Zeichen, Hunter-Karte und Discord-Link je in eigener Zeile
+.UserCard-info {
+  .item-bbRoles,
+  .item-bbMarks,
+  .item-bbDiscord {
+    display: block;
+    margin-top: 8px;
+  }
+}
+
+.bb-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  .bb-role {
+    margin-left: 0;
+    font-size: 11px;
+    line-height: 18px;
+  }
+}
+
+.bb-markList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.bb-markItem {
+  padding: 3px 9px;
+  border: 1px solid @bb-border-strong;
+  border-radius: 8px;
+  background: rgba(8, 9, 10, 0.5);
+  font-size: 12px;
+  cursor: help;
+}
+
+.bb-discordLink {
+  color: #9aa7f0;
+  font-size: 12px;
+
+  &:hover {
+    color: #c2cafb;
+  }
 }
 
 // Profilkarte: Discord-Banner als Titelbild (wie ein eigenes Titelbild), zum Lesen nach unten abgedunkelt
@@ -2059,8 +2159,7 @@ body::after {
   .Post-header .PostUser.bb-name--booster .username,
   .UserCard.bb-name--booster .UserCard-identity .username,
   .Post-header .PostUser.bb-name--winner .username,
-  .UserCard.bb-name--winner .UserCard-identity .username,
-  .bb-eye {
+  .UserCard.bb-name--winner .UserCard-identity .username {
     animation: none;
   }
 }

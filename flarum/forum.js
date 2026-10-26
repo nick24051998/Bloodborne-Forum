@@ -48,6 +48,7 @@
   var GlobalSearchState = compat['forum/states/GlobalSearchState'];
   var DiscussionListItem = compat['forum/components/DiscussionListItem'];
   var PostUser = compat['forum/components/PostUser'];
+  var CommentPost = compat['forum/components/CommentPost'];
   var UserCard = compat['forum/components/UserCard'];
 
   var HD_URL = 'https://thehuntersdream.com';
@@ -706,13 +707,64 @@
     return classes.join(' ');
   }
 
-  // Augen um den Avatar: eins je Insight-Stufe (1–4); nicht zusammen mit einer Discord-Deko
-  function insightEyes(user) {
-    var perk = perksOf(user).filter(function (p) { return /^insight\d$/.test(p); })[0];
-    if (!perk || user.attribute('bbDecoration')) return null;
-    var eyes = [];
-    for (var i = 1; i <= Number(perk.slice(7)); i++) eyes.push(icon('fas fa-eye', { className: 'bb-eye bb-eye--' + i }));
-    return m('span.bb-eyes', { 'aria-hidden': 'true' }, eyes);
+  // Rollen-Schild am Namen (statt Flarums Abzeichen, die bei Discord-Rollen nur Farbpunkte über dem Profilbild waren);
+  // der volle Name der Rolle („Great Hunter · Admin“) beim Zeigen
+  function rolePill(role) {
+    return m('span.bb-role.bb-role--' + role.key, { title: role.title }, role.label);
+  }
+
+  // Verdiente Zeichen: [Symbol, Name, was es bedeutet]. Insight trägt seine Stufe (1–4) mit.
+  var MARKS = {
+    booster: ['fas fa-gem', 'Server Booster', 'Boosts our Discord server and keeps the Dream alive. Thank you!'],
+    insight: ['fas fa-eye', 'Insight', 'Earned by helping other hunters. Grows with every level.'],
+    beta: ['fas fa-flask', 'Beta tester', 'Tests new builds before they are released.'],
+    winner: ['fas fa-moon', 'Contest winner', 'Won a community contest.'],
+  };
+  var INSIGHT_NAMES = ['Resonant Bell', 'Lamplighter', 'Old Hunter', 'Hunter of the Workshop'];
+
+  function marksOf(user) {
+    return perksOf(user).map(function (perk) {
+      var level = /^insight(\d)$/.exec(perk);
+      var mark = MARKS[level ? 'insight' : perk];
+      if (!mark) return null;
+      return {
+        key: level ? 'insight' : perk,
+        icon: mark[0],
+        name: level ? 'Insight · ' + INSIGHT_NAMES[Number(level[1]) - 1] : mark[1],
+        text: mark[2],
+        level: level ? Number(level[1]) : 0,
+      };
+    }).filter(Boolean);
+  }
+
+  // Am Beitrag: kleine Symbole hinter dem Namen, Erklärung beim Zeigen
+  function markIcons(user) {
+    var marks = marksOf(user);
+    return marks.length ? m('span.bb-marks', marks.map(function (mark) {
+      return m('span.bb-mark.bb-mark--' + mark.key, { title: mark.name + ': ' + mark.text }, [
+        icon(mark.icon),
+        mark.level ? m('sup', mark.level) : null,
+      ]);
+    })) : null;
+  }
+
+  // Im Profil: die Zeichen mit Namen, Erklärung beim Zeigen
+  function markList(user) {
+    var marks = marksOf(user);
+    return marks.length ? m('div.bb-markList', marks.map(function (mark) {
+      return m('span.bb-markItem.bb-mark--' + mark.key, { title: mark.text }, [icon(mark.icon), ' ', mark.name]);
+    })) : null;
+  }
+
+  // Grafikkarte und VRAM des Verfassers in Hilfe- und Bug-Themen: die Helfer sehen den Rechner, ohne zu fragen
+  function rigItem(post) {
+    var user = post.user && post.user();
+    var discussion = post.discussion && post.discussion();
+    var rig = user && user.attribute('bbRig');
+    if (!rig || !discussion) return null;
+    var slugs = tagSlugs(discussion);
+    if (slugs.indexOf('help-support') === -1 && slugs.indexOf('bug-reports') === -1) return null;
+    return m('span.bb-rig', { title: 'Graphics card and video memory, from their Discord roles' }, [icon('fas fa-desktop'), ' ', rig]);
   }
 
   function hunterCard(user) {
@@ -833,13 +885,18 @@
     });
 
     extend(PostUser.prototype, 'linkChildren', function (items, user) {
-      var deco = user && user.attribute('bbDecoration');
+      if (!user) return;
+      var deco = user.attribute('bbDecoration');
       if (deco) items.add('bbDecoration', m('img.bb-deco', { src: deco, alt: '', 'aria-hidden': 'true', loading: 'lazy' }), 1000);
-      var eyes = user && insightEyes(user);
-      if (eyes) items.add('bbEyes', eyes, 999);
-      if (perksOf(user).indexOf('beta') !== -1) {
-        items.add('bbFlask', icon('fas fa-flask', { className: 'bb-flask', title: 'Beta tester' }), -100);
-      }
+      var role = user.attribute('bbRole');
+      if (role) items.add('bbRole', rolePill(role), -100);
+      var marks = markIcons(user);
+      if (marks) items.add('bbMarks', marks, -110);
+    });
+
+    extend(CommentPost.prototype, 'headerItems', function (items) {
+      var rig = rigItem(this.attrs.post);
+      if (rig) items.add('bbRig', rig, -50);
     });
 
     // Profilkarte (Profil und Karte beim Zeigen auf einen Namen): Discord-Banner, sonst Discord-Farbe; ein eigenes
@@ -865,9 +922,22 @@
       vdom.attrs.className = (vdom.attrs.className || '') + ' ' + classes;
     });
 
+    // Profilkarte: alle Rollen-Schilder oben, darunter die Zeichen, die Hunter-Karte und fürs Team der Discord-Link
     extend(UserCard.prototype, 'infoItems', function (items) {
-      var card = this.attrs.user && hunterCard(this.attrs.user);
+      var user = this.attrs.user;
+      if (!user) return;
+      var roles = user.attribute('bbRoles') || [];
+      if (roles.length) items.add('bbRoles', m('span.bb-roles', roles.map(rolePill)), 200);
+      var marks = markList(user);
+      if (marks) items.add('bbMarks', marks, -15);
+      var card = hunterCard(user);
       if (card) items.add('bbHunter', card, -20);
+      var discord = user.attribute('bbDiscordUrl');
+      if (discord) {
+        items.add('bbDiscord', m('a.bb-discordLink', { href: discord, target: '_blank', rel: 'noopener', title: 'Only the team sees this' }, [
+          icon('fab fa-discord'), ' Open on Discord',
+        ]), -30);
+      }
     });
 
     // Seitenleiste: „Start here“ und nur die Bereiche; Themen-Tags (Crash, Graphics …) und „More…“ nicht
@@ -953,16 +1023,11 @@
       return [original(), hd.data ? huntersDreamStrip(hd.data) : null, home ? dashboard() : null];
     });
 
-    // Abzeichen: Versteckte Gruppen (Waffen-, GPU-, Setup-Rollen von Discord) nie, auch nicht für Admins und
-    // Mods, die sie sehen dürfen, sonst stapeln sich dort ein Dutzend graue Kreise. Flarums eigenes Admin- und
-    // Mod-Abzeichen nur ohne Team-Rolle von Discord, die sagt dasselbe (Gruppen ab ID 5 kommen aus Discord).
+    // Keine Gruppen-Abzeichen: als Farbpunkte lagen sie über dem Profilbild und sagten nichts (Nick, 26.10.2026).
+    // Die Rolle steht als Schild am Namen (bbRole/bbRoles), Booster und Beta als Zeichen; andere Abzeichen bleiben.
     extend(User.prototype, 'badges', function (items) {
-      var groups = (this.groups() || []).filter(Boolean);
-      var discordTeam = groups.some(function (g) { return Number(g.id()) > 4 && !g.isHidden(); });
-      groups.forEach(function (g) {
-        var key = 'group' + g.id();
-        if (!items.has(key)) return;
-        if (g.isHidden() || (discordTeam && (g.id() === '1' || g.id() === '4'))) items.remove(key);
+      (this.groups() || []).filter(Boolean).forEach(function (g) {
+        if (items.has('group' + g.id())) items.remove('group' + g.id());
       });
     });
 
