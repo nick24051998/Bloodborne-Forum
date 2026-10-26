@@ -206,9 +206,20 @@ if (! class_exists('BBForumDiscordNotify')) {
             $rows = $db->table(self::TABLE)->where('state', 'pending')
                 ->where('created_at', '<=', $now->copy()->subSeconds(self::DELAY))->orderBy('id')->get();
 
+            // Dieselbe Antwort als Erwähnung und als „neue Antwort“: nur die genauere Meldung (die Erwähnung)
+            $mentioned = [];
+            foreach ($rows as $row) {
+                if ($row->type !== 'newPost' && $row->post_number) {
+                    $mentioned[$row->user_id.'/'.$row->discussion_id.'/'.$row->post_number] = true;
+                }
+            }
             $skip = [];
             $ready = [];
             foreach ($rows as $row) {
+                if ($row->type === 'newPost' && isset($mentioned[$row->user_id.'/'.$row->discussion_id.'/'.$row->post_number])) {
+                    $skip[] = $row->id;
+                    continue;
+                }
                 // Schon im Forum gelesen?
                 if ($row->discussion_id && $row->post_number) {
                     $read = $db->table('discussion_user')->where('user_id', $row->user_id)
