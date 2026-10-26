@@ -621,10 +621,11 @@
       var post = discussion.firstPost && discussion.firstPost();
       var html = ((post && post.contentHtml()) || '').replace(/<br\s*\/?>/gi, '\n').replace(/<\/(p|li|h\d)>/gi, '\n');
       var text = new DOMParser().parseFromString(html, 'text/html').body.textContent || '';
-      var fix = /Fix:\s*(.+)/i.exec(text);
+      // Die Lösung kann mehrzeilig sein (Liste unter „Fix:“): bis zur nächsten Angabe, zu einer Zeile zusammengezogen
+      var fix = /Fix:\s*([\s\S]*?)(?:\n\s*(?:Port version:|Found in:|From:|✅)|$)/i.exec(text);
       var solved = /solved (\d+)×/i.exec(text);
       discussion.bbFix = {
-        fix: fix ? fix[1].trim() : text.trim().split('\n')[0],
+        fix: (fix ? fix[1] : text.trim().split('\n')[0]).replace(/\s+/g, ' ').trim(),
         search: (discussion.title() + ' ' + text).toLowerCase(),
         discord: solved ? Number(solved[1]) : 0,
       };
