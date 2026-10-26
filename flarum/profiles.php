@@ -128,9 +128,10 @@ if (! class_exists('BBForumProfiles')) {
             if ($decoAsset === '') {
                 $data['decoration'] = null;
             } elseif (preg_match('/^[a-z0-9_]{6,80}$/i', $decoAsset)) {
-                $file = 'deco-'.$decoAsset.'.png';
+                // 96 px reichen (angezeigt höchstens ~115 px); 160 px wären als animiertes PNG oft über 1 MB
+                $file = 'deco96-'.$decoAsset.'.png';
                 if (! $disk->exists(self::DIR.'/'.$file)) {
-                    $response = $client->get("https://cdn.discordapp.com/avatar-decoration-presets/$decoAsset.png?size=160&passthrough=true");
+                    $response = $client->get("https://cdn.discordapp.com/avatar-decoration-presets/$decoAsset.png?size=96&passthrough=true");
                     if ($response->getStatusCode() === 200) {
                         $disk->put(self::DIR.'/'.$file, (string) $response->getBody());
                     }
