@@ -241,15 +241,24 @@ if (! class_exists('BBForumProfiles')) {
                     $key = ['Owner' => 'owner', 'Admin' => 'admin', 'Mod' => 'mod', 'Contributor' => 'contributor',
                         'Helper' => 'helper', 'Code Contributor' => 'code'][$label] ?? null;
                 } elseif ((int) $group->id === 1) {
-                    [$key, $label] = ['admin', 'Admin'];
+                    [$key, $label, $name] = ['admin', 'Admin', 'Forum admin'];
                 } elseif ((int) $group->id === 4) {
-                    [$key, $label] = ['mod', 'Mod'];
+                    [$key, $label, $name] = ['mod', 'Mod', 'Forum moderator'];
                 }
-                if ($key && ! isset($roles[$key])) {
+                // Der Name der Discord-Rolle geht vor Flarums eigener Gruppe
+                if ($key && (! isset($roles[$key]) || $label !== null && strpos($name, '·') !== false)) {
                     $roles[$key] = ['key' => $key, 'label' => $label, 'title' => $name];
                 }
             }
             uasort($roles, fn ($a, $b) => $order[$a['key']] <=> $order[$b['key']]);
+            // Von Owner, Admin und Mod nur der höchste Rang (medo ist Owner, nicht zusätzlich Mod)
+            $rank = false;
+            foreach (['owner', 'admin', 'mod'] as $key) {
+                if (isset($roles[$key]) && $rank) {
+                    unset($roles[$key]);
+                }
+                $rank = $rank || isset($roles[$key]);
+            }
             return array_values($roles);
         }
 
