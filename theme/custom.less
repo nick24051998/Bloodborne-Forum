@@ -2049,10 +2049,21 @@ body::after {
   color: @bb-moon;
 }
 
-// Rechner des Verfassers in Hilfe- und Bug-Themen, neben der Zeit
+// Rechner des Verfassers in Hilfe- und Bug-Themen, neben der Zeit (auf dem Handy in eigener Zeile darunter)
 .Post-header .item-bbRig {
   color: @bb-muted;
   font-size: 12px;
+}
+
+.Post-header .item-meta {
+  white-space: nowrap;
+}
+
+@media (max-width: 767.98px) {
+  .Post-header .item-bbRig {
+    display: block;
+    margin-top: 2px;
+  }
 }
 
 .bb-rig {
@@ -2090,6 +2101,15 @@ body::after {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+// Auf dem Handy steht die Profilkarte mittig, die Zeilen auch
+@media (max-width: 767.98px) {
+  .UserCard .bb-roles,
+  .UserCard .bb-markList,
+  .UserCard .bb-hunter {
+    justify-content: center;
+  }
 }
 
 .bb-markItem {
