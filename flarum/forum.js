@@ -756,12 +756,14 @@
     })) : null;
   }
 
-  // Grafikkarte und VRAM des Verfassers in Hilfe- und Bug-Themen: die Helfer sehen den Rechner, ohne zu fragen
+  // Grafikkarte und VRAM des Verfassers in Hilfe- und Bug-Themen: die Helfer sehen den Rechner, ohne zu fragen.
+  // Beim Team nur, wenn es selbst das Thema eröffnet hat (sonst ist der Rechner des Helfers nur Rauschen).
   function rigItem(post) {
     var user = post.user && post.user();
     var discussion = post.discussion && post.discussion();
     var rig = user && user.attribute('bbRig');
     if (!rig || !discussion) return null;
+    if (user.attribute('bbRole') && discussion.user && discussion.user() !== user) return null;
     var slugs = tagSlugs(discussion);
     if (slugs.indexOf('help-support') === -1 && slugs.indexOf('bug-reports') === -1) return null;
     return m('span.bb-rig', { title: 'Graphics card and video memory, from their Discord roles' }, [icon('fas fa-desktop'), ' ', rig]);
@@ -770,7 +772,8 @@
   function hunterCard(user) {
     var hunter = user.attribute('bbHunter');
     if (!hunter) return null;
-    var rows = [['Weapon', hunter.weapon], ['Insight', hunter.insight], ['GPU', hunter.gpu], ['VRAM', hunter.vram]]
+    // Insight steht schon als Zeichen darüber
+    var rows = [['Weapon', hunter.weapon], ['GPU', hunter.gpu], ['VRAM', hunter.vram]]
       .filter(function (row) { return row[1]; });
     return rows.length ? m('div.bb-hunter', rows.map(function (row) {
       return m('span.bb-hunter-item', [m('span', row[0]), m('strong', row[1])]);
