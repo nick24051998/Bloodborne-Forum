@@ -950,6 +950,16 @@
       if (tabs) items.add('bbTabs', tabs, 10);
       // Best Answers eigener Filter („All questions“) täte dasselbe wie die Reiter
       if (tabs && items.has('solved-filter')) items.remove('solved-filter');
+      // Die ausgeblendete Übersicht wieder holen (Startseite; „Hide“ war sonst endgültig, Nick 26.10.2026)
+      if (!params.tags && !params.q && guideHidden()) {
+        items.add('bbShowGuide', Button.component({
+          className: 'Button',
+          icon: 'fas fa-th-large',
+          onclick: function () {
+            try { localStorage.removeItem(GUIDE_KEY); } catch (e) {}
+          },
+        }, 'Show overview'), 5);
+      }
       // Suggestions: Top und New ersetzen die Sortierung („Latest“ fiele sonst wieder auf die Stimmen zurück)
       if (tabs && params.tags === 'suggestions') items.remove('sort');
       if (params.tags === 'known-fixes' && !params.q) {
