@@ -152,5 +152,5 @@ questions:
     group: help
     q: I'm still stuck. Where do I get help?
     a: |
-      <p>Open Help in the launcher first: it checks your game folder and PC and lists the known problems with their fixes. Then press Help &gt; Save a report and post the zip in a new #help post on our <a href="https://discord.gg/yTMG8c4Bqm" rel="noopener">Discord</a> or in the forum's Help &amp; Support section. It shows our helpers your PC, settings and the log.</p>
+      <p>Open Help in the launcher first: it checks your game folder and PC and lists the known problems with their fixes. Then press Help &gt; Save a report and post the zip in a new topic in <a href="https://forum.bbport.de/t/help-support">Help &amp; Support</a> on our forum (log in with Discord). It shows our helpers your PC, settings and the log.</p>
 ---
