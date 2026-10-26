@@ -1237,7 +1237,7 @@
       var vdom = original();
       if (!discordNotifyVisible()) return vdom;
       var note = app.forum.attribute('bbDiscordNotify')
-        ? 'Discord: BB Helper pings you in your own private “Forum inbox” thread on our Discord server. Nobody else sees it.'
+        ? 'Discord: BB Helper pings you in your own private “Forum inbox” thread on our Discord server. Other members can’t see it.'
         : 'Discord column: only admins see it until the Discord inbox is switched on.';
       return m('div', [vdom, m('p.helpText.bb-discordNote', [icon('fab fa-discord'), ' ', note])]);
     });

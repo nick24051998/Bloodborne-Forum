@@ -215,10 +215,27 @@ if (! class_exists('BBForumDiscordNotify')) {
             }
             $skip = [];
             $ready = [];
+            $approval = $db->getSchemaBuilder()->hasColumn('posts', 'is_approved');
             foreach ($rows as $row) {
                 if ($row->type === 'newPost' && isset($mentioned[$row->user_id.'/'.$row->discussion_id.'/'.$row->post_number])) {
                     $skip[] = $row->id;
                     continue;
+                }
+                // Inzwischen ausgeblendet oder gelöscht (Spam, den ein Mod in den 2 Minuten weggeräumt hat)?
+                if ($row->discussion_id && ! $db->table('discussions')->where('id', $row->discussion_id)->whereNull('hidden_at')->exists()) {
+                    $skip[] = $row->id;
+                    continue;
+                }
+                if ($row->discussion_id && $row->post_number) {
+                    $post = $db->table('posts')->where('discussion_id', $row->discussion_id)->where('number', $row->post_number)
+                        ->whereNull('hidden_at');
+                    if ($approval) {
+                        $post->where('is_approved', true);
+                    }
+                    if (! $post->exists()) {
+                        $skip[] = $row->id;
+                        continue;
+                    }
                 }
                 // Schon im Forum gelesen?
                 if ($row->discussion_id && $row->post_number) {
