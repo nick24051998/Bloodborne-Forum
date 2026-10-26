@@ -1836,3 +1836,231 @@ body::after {
 @media (min-width: 2400px) {
   .bb-scale(1680px; 16px; 18px; 20px; 16px; 44px);
 }
+
+// --- Profile: verdiente Effekte und Discord-Deko (flarum/forum.js, flarum/profiles.php) --------------------------
+// Ein Rahmen je Nutzer (Discord-Deko ersetzt ihn): Blutmond für Booster, Messing-Laterne fürs Team. Namen: Booster
+// glüht blutrot, Contest-Sieger schimmern im Mondlicht. Augen um den Avatar je Insight-Stufe, Phiole für Beta-Tester.
+.PostUser.bb-frame--booster .PostUser-avatar,
+.UserCard.bb-frame--booster .UserCard-avatar .Avatar {
+  box-shadow: 0 0 0 3px #8a1118, 0 0 0 5px rgba(194, 42, 48, 0.3), 0 0 14px 3px rgba(194, 42, 48, 0.4);
+  animation: bb-bloodmoon 3.2s ease-in-out infinite;
+}
+
+@keyframes bb-bloodmoon {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px #8a1118, 0 0 0 5px rgba(194, 42, 48, 0.25), 0 0 10px 2px rgba(194, 42, 48, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 0 3px #a3161e, 0 0 0 6px rgba(194, 42, 48, 0.45), 0 0 24px 6px rgba(194, 42, 48, 0.55);
+  }
+}
+
+.PostUser.bb-frame--lantern .PostUser-avatar,
+.UserCard.bb-frame--lantern .UserCard-avatar .Avatar {
+  box-shadow: 0 0 0 3px #9c8458, 0 0 12px 2px rgba(224, 198, 148, 0.3);
+  animation: bb-lantern 4.5s ease-in-out infinite;
+}
+
+@keyframes bb-lantern {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px #9c8458, 0 0 10px 2px rgba(224, 198, 148, 0.25);
+  }
+
+  40% {
+    box-shadow: 0 0 0 3px #c2a878, 0 0 18px 4px rgba(224, 198, 148, 0.45);
+  }
+
+  55% {
+    box-shadow: 0 0 0 3px #b39a6b, 0 0 13px 3px rgba(224, 198, 148, 0.32);
+  }
+}
+
+.Post-header .PostUser.bb-name--booster .username,
+.UserCard.bb-name--booster .UserCard-identity .username {
+  color: #e2474d;
+  text-shadow: 0 0 8px rgba(194, 42, 48, 0.55);
+  animation: bb-name-glow 3.2s ease-in-out infinite;
+}
+
+@keyframes bb-name-glow {
+  0%,
+  100% {
+    text-shadow: 0 0 6px rgba(194, 42, 48, 0.35);
+  }
+
+  50% {
+    text-shadow: 0 0 12px rgba(226, 71, 77, 0.75);
+  }
+}
+
+.Post-header .PostUser.bb-name--winner .username,
+.UserCard.bb-name--winner .UserCard-identity .username {
+  background: linear-gradient(90deg, #9fb3c8, #ffffff, #c9cdd2, #9fb3c8);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  animation: bb-moonlight 5s linear infinite;
+}
+
+@keyframes bb-moonlight {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+// Discord-Avatar-Deko: am Beitrag als Bild über dem Avatar (64 px, Deko 20 % größer), im Profil per Variable
+@media (min-width: 768px) {
+  .PostUser .bb-deco {
+    position: absolute;
+    z-index: 2;
+    left: -91px;
+    width: 77px;
+    height: 77px;
+    margin-top: -6px;
+    pointer-events: none;
+  }
+
+  .PostUser .bb-eyes {
+    position: absolute;
+    left: -85px;
+    width: 64px;
+    height: 64px;
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .PostUser .bb-deco,
+  .PostUser .bb-eyes {
+    display: none;
+  }
+}
+
+.UserCard.bb-hasDeco .UserCard-avatar {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    transform: translate(-50%, -50%);
+    background: var(--bb-deco) center / contain no-repeat;
+    pointer-events: none;
+  }
+}
+
+.bb-eye {
+  position: absolute;
+  color: #b9a6ff;
+  font-size: 11px;
+  text-shadow: 0 0 6px rgba(140, 110, 255, 0.8);
+  animation: bb-blink 6s ease-in-out infinite;
+}
+
+.bb-eye--1 {
+  top: -7px;
+  left: -7px;
+}
+
+.bb-eye--2 {
+  top: -7px;
+  right: -7px;
+  animation-delay: 1.5s;
+}
+
+.bb-eye--3 {
+  bottom: -7px;
+  left: -7px;
+  animation-delay: 3s;
+}
+
+.bb-eye--4 {
+  right: -7px;
+  bottom: -7px;
+  animation-delay: 4.5s;
+}
+
+@keyframes bb-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+
+.bb-flask {
+  margin-left: 6px;
+  color: #5dcaa5;
+  font-size: 12px;
+}
+
+// Profilkarte: Discord-Banner als Titelbild (wie ein eigenes Titelbild), zum Lesen nach unten abgedunkelt
+.UserCard.bb-hasBanner {
+  background-image: var(--background-image);
+  background-position: center;
+  background-size: cover;
+
+  .darkenBackground {
+    background: linear-gradient(180deg, rgba(8, 9, 10, 0.3), rgba(8, 9, 10, 0.85));
+  }
+}
+
+// Hunter-Karte im Profil: Waffe, Insight, Grafikkarte, VRAM
+.UserCard-info .item-bbHunter {
+  display: block;
+  margin-top: 8px;
+}
+
+.bb-hunter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.bb-hunter-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 9px;
+  border: 1px solid fade(@bb-gold, 45%);
+  border-radius: 8px;
+  background: rgba(8, 9, 10, 0.5);
+  font-size: 12px;
+
+  span {
+    color: @bb-muted;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  strong {
+    color: @bb-text-strong;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .PostUser.bb-frame--booster .PostUser-avatar,
+  .UserCard.bb-frame--booster .UserCard-avatar .Avatar,
+  .PostUser.bb-frame--lantern .PostUser-avatar,
+  .UserCard.bb-frame--lantern .UserCard-avatar .Avatar,
+  .Post-header .PostUser.bb-name--booster .username,
+  .UserCard.bb-name--booster .UserCard-identity .username,
+  .Post-header .PostUser.bb-name--winner .username,
+  .UserCard.bb-name--winner .UserCard-identity .username,
+  .bb-eye {
+    animation: none;
+  }
+}

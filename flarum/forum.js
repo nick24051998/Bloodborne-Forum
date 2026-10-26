@@ -14,6 +14,9 @@
 //   Stimmen sortiert, neue der letzten 7 Tage stehen hervorgehoben darüber; Reiter (?tab=) über Suggestions,
 //   Help & Support (Open/Solved/Closed) und Bug Reports; Etiketten Solved, Waiting for an answer, Closed, New
 // - Known Fixes: statt der Liste ein Nachschlagewerk nach Thema, mit Suche und „Worked for me“
+// - Profile (flarum/profiles.php): Banner, Profilfarbe und Avatar-Deko von Discord; verdiente Effekte (Blutmond-Rahmen
+//   und glühender Name für Booster, Messing-Laterne fürs Team, Augen je Insight-Stufe, Phiole für Beta-Tester,
+//   Mondlicht-Name für Contest-Sieger); Hunter-Karte (Waffe, Insight, Grafikkarte, VRAM) im Profil
 // - Team (wer in Known Fixes Themen starten darf, also Mods und Admins): Block „Team“ in der Seitenleiste mit
 //   Arbeitslisten (ohne Antwort, ungelöst, offene Bugs, Vorschläge) und an Hilfe-Themen „Save as Known Fix“
 // - Logo-Contest: Seite /logo-contest mit allen Werken (erstes Bild im Eröffnungsbeitrag eines Themas im Bereich
@@ -44,6 +47,8 @@
   var PaginatedListState = compat['common/states/PaginatedListState'];
   var GlobalSearchState = compat['forum/states/GlobalSearchState'];
   var DiscussionListItem = compat['forum/components/DiscussionListItem'];
+  var PostUser = compat['forum/components/PostUser'];
+  var UserCard = compat['forum/components/UserCard'];
 
   var HD_URL = 'https://thehuntersdream.com';
 
@@ -684,6 +689,42 @@
     ]);
   }
 
+  // --- Profile: verdiente Effekte und Discord-Deko (Nick, 26.10.2026: Effekte nur verdient) --------------------------
+  function perksOf(user) {
+    return (user && user.attribute && user.attribute('bbPerks')) || [];
+  }
+
+  // Ein Rahmen (die Discord-Deko ersetzt ihn, sonst Booster vor Laterne) und ein Namens-Effekt (Sieger vor Booster)
+  function perkClasses(user) {
+    var perks = perksOf(user);
+    var classes = [];
+    if (user && user.attribute && user.attribute('bbDecoration')) classes.push('bb-hasDeco');
+    else if (perks.indexOf('booster') !== -1) classes.push('bb-frame--booster');
+    else if (perks.indexOf('lantern') !== -1) classes.push('bb-frame--lantern');
+    if (perks.indexOf('winner') !== -1) classes.push('bb-name--winner');
+    else if (perks.indexOf('booster') !== -1) classes.push('bb-name--booster');
+    return classes.join(' ');
+  }
+
+  // Augen um den Avatar: eins je Insight-Stufe (1–4); nicht zusammen mit einer Discord-Deko
+  function insightEyes(user) {
+    var perk = perksOf(user).filter(function (p) { return /^insight\d$/.test(p); })[0];
+    if (!perk || user.attribute('bbDecoration')) return null;
+    var eyes = [];
+    for (var i = 1; i <= Number(perk.slice(7)); i++) eyes.push(icon('fas fa-eye', { className: 'bb-eye bb-eye--' + i }));
+    return m('span.bb-eyes', { 'aria-hidden': 'true' }, eyes);
+  }
+
+  function hunterCard(user) {
+    var hunter = user.attribute('bbHunter');
+    if (!hunter) return null;
+    var rows = [['Weapon', hunter.weapon], ['Insight', hunter.insight], ['GPU', hunter.gpu], ['VRAM', hunter.vram]]
+      .filter(function (row) { return row[1]; });
+    return rows.length ? m('div.bb-hunter', rows.map(function (row) {
+      return m('span.bb-hunter-item', [m('span', row[0]), m('strong', row[1])]);
+    })) : null;
+  }
+
   // „Start here“ in der Seitenleiste: die Anleitungen, die vorher oben angepinnt waren
   var START = [
     [3, 'Read first: common fixes', 'fas fa-first-aid'],
@@ -782,6 +823,51 @@
         var strip = newIdeasStrip();
         if (strip) items.add('bbNewIdeas', strip, 95);
       }
+    });
+
+    // --- Profile ---
+    // Am Beitrag: Rahmen und Namens-Effekt als Klassen, Discord-Deko und Augen liegen über dem Avatar, Phiole am Namen
+    extend(PostUser.prototype, 'view', function (vdom) {
+      var cls = perkClasses(this.attrs.post && this.attrs.post.user());
+      if (cls) vdom.attrs.className = (vdom.attrs.className || '') + ' ' + cls;
+    });
+
+    extend(PostUser.prototype, 'linkChildren', function (items, user) {
+      var deco = user && user.attribute('bbDecoration');
+      if (deco) items.add('bbDecoration', m('img.bb-deco', { src: deco, alt: '', 'aria-hidden': 'true', loading: 'lazy' }), 1000);
+      var eyes = user && insightEyes(user);
+      if (eyes) items.add('bbEyes', eyes, 999);
+      if (perksOf(user).indexOf('beta') !== -1) {
+        items.add('bbFlask', icon('fas fa-flask', { className: 'bb-flask', title: 'Beta tester' }), -100);
+      }
+    });
+
+    // Profilkarte (Profil und Karte beim Zeigen auf einen Namen): Discord-Banner, sonst Discord-Farbe; ein eigenes
+    // Titelbild (sycho/flarum-profile-cover, Attribut cover) geht vor. Die Deko liegt per CSS über dem Avatar.
+    extend(UserCard.prototype, 'view', function (vdom) {
+      var user = this.attrs.user;
+      if (!user) return;
+      var style = Object.assign({}, vdom.attrs.style || {});
+      var classes = perkClasses(user);
+      var banner = user.attribute('bbBanner');
+      var accent = user.attribute('bbAccent');
+      var deco = user.attribute('bbDecoration');
+      if (!user.attribute('cover')) {
+        if (banner) {
+          style['--background-image'] = 'url("' + banner + '")';
+          classes += ' bb-hasBanner';
+        } else if (accent) {
+          style['--usercard-bg'] = accent;
+        }
+      }
+      if (deco) style['--bb-deco'] = 'url("' + deco + '")';
+      vdom.attrs.style = style;
+      vdom.attrs.className = (vdom.attrs.className || '') + ' ' + classes;
+    });
+
+    extend(UserCard.prototype, 'infoItems', function (items) {
+      var card = this.attrs.user && hunterCard(this.attrs.user);
+      if (card) items.add('bbHunter', card, -20);
     });
 
     // Seitenleiste: „Start here“ und nur die Bereiche; Themen-Tags (Crash, Graphics …) und „More…“ nicht

@@ -40,6 +40,9 @@
  * Übersicht (flarum/overview.php): Stimmen (👍 auf dem Eröffnungsbeitrag) als Sortierung "-bbVotes", Filter "bbview"
  * für die Reiter über den Listen, Befehl bbforum:close-stale (Hilfe-Themen nach 7 Tagen ohne Beitrag schließen).
  *
+ * Profile (flarum/profiles.php): Banner, Profilfarbe und Avatar-Deko von Discord (über den Rollen-Abgleich), verdiente
+ * Effekte aus den Discord-Rollen, Hunter-Karte. „About me“ (fof/user-bio) und eigenes Titelbild (sycho/flarum-profile-cover).
+ *
  * Arbeitslisten fürs Team (Team-Block in flarum/forum.js): Suche und Filter "is:unanswered" = Themen ohne Antwort.
  * Wer ein Thema startet oder antwortet, folgt ihm (Voreinstellung, jeder kann es in den Einstellungen abschalten):
  * so meldet das Forum Antworten auf die eigene Hilfe-Frage.
@@ -320,6 +323,7 @@ require_once __DIR__.'/discord-roles.php';
 require_once __DIR__.'/betas.php';
 require_once __DIR__.'/contest.php';
 require_once __DIR__.'/overview.php';
+require_once __DIR__.'/profiles.php';
 
 return [
     (new Extend\ServiceProvider())->register(BBForumCliLocale::class),
@@ -364,6 +368,16 @@ return [
         ->command(BBForumCloseStaleCommand::class)
         ->schedule(BBForumCloseStaleCommand::class, function ($event) {
             $event->hourly();
+        }),
+
+    // Profile (flarum/profiles.php): verdiente Effekte und Discord-Deko an jedem Nutzer, Banner/Farbe/Hunter-Karte im Profil
+    (new Extend\ApiSerializer(Flarum\Api\Serializer\BasicUserSerializer::class))
+        ->attributes(function ($serializer, $user) {
+            return BBForumProfiles::basic($user);
+        }),
+    (new Extend\ApiSerializer(Flarum\Api\Serializer\UserSerializer::class))
+        ->attributes(function ($serializer, $user) {
+            return BBForumProfiles::full($user);
         }),
 
     // Logo-Contest (flarum/contest.php): Stimme = „Gefällt mir“ auf einem Werk, eine pro Mitglied, nur in der Abstimmung

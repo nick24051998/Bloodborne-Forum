@@ -10,3 +10,6 @@ fof/sitemap:*
 # lehnt dann JEDES Ein-/Ausschalten von Erweiterungen ab ("circular_dependencies").
 # SEO 2.x hat diesen Kreis nicht (und ist die Version, für die FoF Sitemap gebaut wurde).
 v17development/flarum-seo:^2.0
+# Profile: „About me“ und eigenes Titelbild (die 2.x-Versionen brauchen Flarum 2)
+fof/user-bio:^1.4
+sycho/flarum-profile-cover:^1.3

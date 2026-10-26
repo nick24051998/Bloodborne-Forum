@@ -256,6 +256,13 @@ if (! class_exists('BBForumDiscordRoles')) {
                 $this->log->warning("Discord avatar for user {$user->id}: ".$e->getMessage());
                 $pictured = false;
             }
+            if ($status === 200 && class_exists('BBForumProfiles')) {
+                try { // Banner, Profilfarbe und Avatar-Deko für das Profil (flarum/profiles.php), höchstens täglich
+                    BBForumProfiles::sync($user, $member, $this->client, fn ($path) => $this->get($path), $this->guild());
+                } catch (Throwable $e) {
+                    $this->log->warning("Discord profile for user {$user->id}: ".$e->getMessage());
+                }
+            }
             if ($this->syncBan($user, $discordId, $status === 404)) {
                 return 'banned';
             }

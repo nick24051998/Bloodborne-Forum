@@ -142,9 +142,9 @@ for e in flarum/lang-english flarum/markdown flarum/bbcode flarum/emoji flarum/m
          flarum/likes flarum/tags flarum/sticky flarum/lock flarum/subscriptions flarum/flags \
          flarum/approval flarum/suspend flarum/statistics flarum/gdpr flarum/nicknames \
          fof/oauth fof/upload fof/best-answer fof/discussion-templates fof/sitemap \
-         v17development/flarum-seo fof/user-directory; do
+         v17development/flarum-seo fof/user-directory fof/user-bio sycho/flarum-profile-cover; do
   case "$e" in
-    fof/user-directory) installed "$e" && enable_ext "$e" ;;  # optional
+    fof/user-directory|fof/user-bio|sycho/flarum-profile-cover) installed "$e" && enable_ext "$e" ;;  # optional
     *) enable_ext "$e" ;;
   esac
 done
@@ -243,6 +243,17 @@ if installed fof/upload; then
   api POST /permission '{"permission": "fof-upload.upload", "groupIds": [3]}' >/dev/null
   # Report zips can contain system details: only logged-in members may download
   api POST /permission '{"permission": "fof-upload.download", "groupIds": [3]}' >/dev/null && ok "upload + download: members only"
+fi
+
+# Profile: „About me“ sehen alle, eigenes schreiben Mitglieder, fremde korrigieren Mods; eigenes Titelbild für Mitglieder
+if installed fof/user-bio; then
+  api POST /settings '{"fof-user-bio.maxLength": "300"}' >/dev/null
+  api POST /permission '{"permission": "fof-user-bio.view", "groupIds": [2]}' >/dev/null
+  api POST /permission '{"permission": "fof-user-bio.editOwn", "groupIds": [3]}' >/dev/null
+  api POST /permission '{"permission": "fof-user-bio.editAny", "groupIds": [4]}' >/dev/null && ok "About me: everyone reads, members write their own"
+fi
+if installed sycho/flarum-profile-cover; then
+  api POST /permission '{"permission": "setProfileCover", "groupIds": [3]}' >/dev/null && ok "profile cover: members"
 fi
 
 # --------------------------------------------------------------------------
