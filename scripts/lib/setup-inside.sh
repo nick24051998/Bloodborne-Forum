@@ -254,6 +254,8 @@ if installed fof/user-bio; then
 fi
 if installed sycho/flarum-profile-cover; then
   api POST /permission '{"permission": "setProfileCover", "groupIds": [3]}' >/dev/null && ok "profile cover: members"
+  # 8 MB, damit animierte Banner passen (flarum/profiles.php lässt GIFs animiert; der Webserver nimmt bis UPLOAD_MAX_SIZE)
+  api POST /settings '{"sycho-profile-cover.max_size": "8192"}' >/dev/null && ok "profile cover: up to 8 MB"
 fi
 
 # --------------------------------------------------------------------------
