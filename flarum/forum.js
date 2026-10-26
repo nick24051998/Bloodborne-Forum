@@ -49,6 +49,7 @@
   var DiscussionListItem = compat['forum/components/DiscussionListItem'];
   var PostUser = compat['forum/components/PostUser'];
   var CommentPost = compat['forum/components/CommentPost'];
+  var DiscussionPage = compat['forum/components/DiscussionPage'];
   var UserCard = compat['forum/components/UserCard'];
 
   var HD_URL = 'https://thehuntersdream.com';
@@ -192,10 +193,10 @@
   }
 
   // Übersicht der Startseite: vier Bereiche mit je fünf Themen und einem Satz, wofür der Bereich ist.
-  // [Bereich, Überschrift, Sortierung, Satz]; nur Bereiche, die es gibt (Setup legt sie an).
+  // [Bereich, Überschrift, Sortierung, Satz, bbview]; nur Bereiche, die es gibt (Setup legt sie an).
   var DASH = [
     ['help-support', 'New questions', '-createdAt', "Something doesn't work: one topic per problem, with your BB Report Tool zip."],
-    ['suggestions', 'Top suggestions', '-bbVotes', 'Ideas for the port, the launcher, this forum or Discord. Vote with 👍.'],
+    ['suggestions', 'Top suggestions', '-bbVotes', 'Ideas for the port, the launcher, this forum or Discord. Vote with 👍.', 'active'],
     ['known-fixes', 'New known fixes', '-createdAt', 'Solutions that worked, checked by a helper. Search here first.'],
     ['announcements', 'News', '-createdAt', 'Releases and news from the team.'],
   ];
@@ -211,7 +212,9 @@
     if (dash.loading || Date.now() - dash.loadedAt < 120000) return;
     dash.loading = true;
     Promise.all(DASH.map(function (block) {
-      return app.store.find('discussions', { filter: { tag: block[0] }, include: 'tags', sort: block[2], page: { limit: 5 } })
+      var filter = { tag: block[0] };
+      if (block[4]) filter.bbview = block[4];
+      return app.store.find('discussions', { filter: filter, include: 'tags', sort: block[2], page: { limit: 5 } })
         .then(function (list) { dash.lists[block[0]] = list; })
         .catch(function () { dash.lists[block[0]] = []; });
     })).then(function () {
@@ -224,7 +227,7 @@
   function dashRow(discussion, slug) {
     var right = slug === 'suggestions'
       ? m('span.bb-dash-votes', [icon('far fa-thumbs-up'), ' ', discussion.attribute('bbVotes') || 0])
-      : statusChip(discussion);
+      : statusChip(discussion, true);
     return m('li', [m(Link, { href: app.route.discussion(discussion) }, discussion.title()), right]);
   }
 
@@ -289,6 +292,86 @@
     TEAM_LISTS.forEach(function (list, i) {
       items.add(list[0], LinkButton.component({ href: app.route('index', list[2]), icon: list[3] }, list[1]), -42 - i);
     });
+  }
+
+  // Status eines Vorschlags oder Bugs = ein Status-Tag (setup-inside.sh: nur das Team darf sie setzen). Ein Klick
+  // ersetzt den bisherigen Status, ein Klick auf den aktuellen nimmt ihn weg. Done, Not planned, Duplicate und Fixed
+  // fallen aus „Top“, „New“ und der Übersicht (bbview active) und stehen nur noch in ihrem Reiter (Nick, 26.10.2026).
+  var STATUSES = {
+    suggestions: [
+      ['status-planned', 'Planned', 'fas fa-map-signs'],
+      ['status-in-progress', 'In progress', 'fas fa-hammer'],
+      ['status-done', 'Done', 'fas fa-check'],
+      ['status-not-planned', 'Not planned', 'fas fa-ban'],
+      ['status-duplicate', 'Duplicate', 'far fa-clone'],
+    ],
+    'bug-reports': [
+      ['status-open', 'Open', 'fas fa-bug'],
+      ['status-in-progress', 'In progress', 'fas fa-hammer'],
+      ['status-fixed', 'Fixed', 'fas fa-check'],
+      ['status-duplicate', 'Duplicate', 'far fa-clone'],
+    ],
+  };
+
+  function statusOptions(discussion) {
+    var slugs = tagSlugs(discussion);
+    var area = Object.keys(STATUSES).filter(function (s) { return slugs.indexOf(s) !== -1; })[0];
+    if (!area || !discussion.canTag || !discussion.canTag()) return null;
+    return STATUSES[area].filter(function (s) {
+      var tag = tagBySlug(s[0]);
+      return tag && (!tag.canAddToDiscussion || tag.canAddToDiscussion());
+    });
+  }
+
+  function setStatus(discussion, slug) {
+    if (discussion.bbBusy) return;
+    var tags = (discussion.tags() || []).filter(function (t) { return t && t.slug().indexOf('status-') !== 0; });
+    if (tagSlugs(discussion).indexOf(slug) === -1) tags.push(tagBySlug(slug));
+    discussion.bbBusy = true;
+    discussion.save({ relationships: { tags: tags } })
+      .then(function () {
+        // Flarum schreibt die Änderung als Ereignis ins Thema; Listen der Startseite beim nächsten Besuch neu
+        var stream = app.current.get('stream');
+        if (stream) stream.update();
+        dash.loadedAt = 0;
+        newIdeas.loadedAt = 0;
+      })
+      .catch(function () {}) // den Fehler zeigt Flarum selbst an
+      .then(function () {
+        discussion.bbBusy = false;
+        m.redraw();
+      });
+  }
+
+  // Im Menü des Themas (Handy: ⋮ oben rechts, Desktop: Pfeil neben „Reply“)
+  function statusButtons(discussion, options) {
+    var current = tagSlugs(discussion);
+    return options.map(function (s) {
+      var active = current.indexOf(s[0]) !== -1;
+      return Button.component({
+        icon: active ? 'fas fa-times' : s[2],
+        onclick: function () { setStatus(discussion, s[0]); },
+      }, active ? 'Remove status “' + s[1] + '”' : 'Mark as ' + s[1].toLowerCase());
+    });
+  }
+
+  // Seitenleiste des Themas (Desktop): alle Stände auf einen Blick, der aktuelle hervorgehoben
+  function statusPanel(discussion, options) {
+    var current = tagSlugs(discussion);
+    return m('div.bb-statusPanel', [
+      m('div.bb-statusPanel-title', 'Status'),
+      m('div.bb-statusPanel-options', options.map(function (s) {
+        var active = current.indexOf(s[0]) !== -1;
+        return m('button.bb-statusOpt' + (active ? '.is-active' : ''), {
+          type: 'button',
+          disabled: !!discussion.bbBusy,
+          'aria-pressed': active ? 'true' : 'false',
+          title: active ? 'Click again to remove this status' : 'Set the status to ' + s[1],
+          onclick: function () { setStatus(discussion, s[0]); },
+        }, [icon(s[2]), ' ', s[1]]);
+      })),
+      m('p.bb-statusPanel-hint', 'Team only. Done, Fixed, Not planned and Duplicate take it out of the open lists.'),
+    ]);
   }
 
   // Aus einem Hilfe-Thema einen Known Fix machen: Composer in Known Fixes, Titel und Link vorausgefüllt
@@ -463,8 +546,8 @@
   // view geht als Filter bbview an die API (flarum/overview.php), sort ist ein Schlüssel der Sortierung (votes = 👍).
   var TABS = {
     suggestions: [
-      ['top', 'Top', { sort: 'votes' }],
-      ['new', 'New', { sort: 'newest' }],
+      ['top', 'Top', { view: 'active', sort: 'votes' }],
+      ['new', 'New', { view: 'active', sort: 'newest' }],
       ['planned', 'Planned', { view: 'status-planned', sort: 'votes' }],
       ['progress', 'In progress', { view: 'status-in-progress', sort: 'votes' }],
       ['done', 'Done', { view: 'status-done', sort: 'newest' }],
@@ -509,13 +592,16 @@
     return Date.now() - discussion.createdAt() < 7 * DAY;
   }
 
-  // Etikett in der Themenzeile: Stand einer Hilfe-Frage, „New“ an Vorschlägen der letzten 7 Tage
-  function statusChip(discussion) {
+  // Etikett in der Themenzeile: Stand einer Hilfe-Frage, „New“ an Vorschlägen der letzten 7 Tage.
+  // short: knapp für die schmalen Spalten der Übersicht, damit der Titel lesbar bleibt
+  function statusChip(discussion, short) {
     var slugs = tagSlugs(discussion);
     if (slugs.indexOf('help-support') !== -1 && !(discussion.isSticky && discussion.isSticky())) {
       if (discussion.attribute('hasBestAnswer')) return m('span.bb-chip.bb-chip--solved', 'Solved');
       if (discussion.attribute('isLocked')) return m('span.bb-chip.bb-chip--closed', 'Closed');
-      if (discussion.commentCount() <= 1) return m('span.bb-chip.bb-chip--waiting', 'Waiting for an answer');
+      if (discussion.commentCount() <= 1) {
+        return m('span.bb-chip.bb-chip--waiting', { title: 'Waiting for an answer' }, short ? 'No answer' : 'Waiting for an answer');
+      }
     }
     if (slugs.indexOf('suggestions') !== -1 && isNew(discussion)) return m('span.bb-chip.bb-chip--new', 'New');
     return null;
@@ -570,7 +656,7 @@
   function newIdeasStrip() {
     if (!newIdeas.loading && Date.now() - newIdeas.loadedAt > 120000) {
       newIdeas.loading = true;
-      app.store.find('discussions', { filter: { tag: 'suggestions' }, include: 'tags', sort: '-createdAt', page: { limit: 5 } })
+      app.store.find('discussions', { filter: { tag: 'suggestions', bbview: 'active' }, include: 'tags', sort: '-createdAt', page: { limit: 5 } })
         .then(function (list) { newIdeas.list = list.filter(isNew); })
         .catch(function () { newIdeas.list = []; })
         .then(function () {
@@ -855,6 +941,8 @@
       var params = app.search.params();
       var tabs = tabBar(params);
       if (tabs) items.add('bbTabs', tabs, 10);
+      // Best Answers eigener Filter („All questions“) täte dasselbe wie die Reiter
+      if (tabs && items.has('solved-filter')) items.remove('solved-filter');
       // Suggestions: Top und New ersetzen die Sortierung („Latest“ fiele sonst wieder auf die Stimmen zurück)
       if (tabs && params.tags === 'suggestions') items.remove('sort');
       if (params.tags === 'known-fixes' && !params.q) {
@@ -1016,6 +1104,19 @@
         icon: 'bbicon bbicon-key',
         onclick: function () { saveAsKnownFix(discussion); },
       }, 'Save as Known Fix'));
+    });
+
+    // Status setzen: im Menü des Themas und auf dem Desktop als Block in der Seitenleiste
+    extend(DiscussionControls, 'moderationControls', function (items, discussion) {
+      var options = statusOptions(discussion);
+      if (!options || !options.length) return;
+      statusButtons(discussion, options).forEach(function (button, i) { items.add('bbStatus' + i, button, 50 - i); });
+    });
+
+    extend(DiscussionPage.prototype, 'sidebarItems', function (items) {
+      var discussion = this.discussion;
+      var options = discussion && statusOptions(discussion);
+      if (options && options.length) items.add('bbStatus', statusPanel(discussion, options), -10);
     });
 
     // Unter dem Banner: Hunter's Dream (schmale Bildschirme) und auf der Startseite (nicht in einem Bereich, keine

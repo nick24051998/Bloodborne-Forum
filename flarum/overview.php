@@ -7,9 +7,10 @@
  *   der Abfrage selbst (keine eigene Spalte in der Datenbank, also immer aktuell, auch für die vom Discord übernommenen
  *   Daumen). Nur bei dieser Sortierung, denn auf "Alle Themen" hängt Flarum für angepinnte Themen eine zweite Abfrage
  *   an (UNION), die dieselben Spalten haben muss.
- * - Filter "bbview" für die Reiter über den Listen: open, solved, closed (Help & Support) oder ein Status-Tag
- *   (status-planned, status-open …), zusätzlich zum Bereich. Als Filter statt als Suche, damit oben im Suchfeld nichts
- *   wie "-is:solved" steht.
+ * - Filter "bbview" für die Reiter über den Listen: open, solved, closed (Help & Support), active (ohne Done, Not
+ *   planned, Duplicate, Fixed: Suggestions „Top“ und „New“, Nick: Erledigtes taucht dort nicht mehr auf) oder ein
+ *   Status-Tag (status-planned, status-open …), zusätzlich zum Bereich. Als Filter statt als Suche, damit oben im
+ *   Suchfeld nichts wie "-is:solved" steht.
  * - Befehl bbforum:close-stale (stündlich): Hilfe-Themen ohne beste Antwort, die 7 Tage keinen neuen Beitrag hatten,
  *   werden gesperrt (geschlossen). Angepinnte Themen nie. Ohne Ereignisse, also ohne Benachrichtigung und ohne dass
  *   das Thema in "Latest" nach oben springt; mit --dry-run nur zählen.
@@ -75,6 +76,13 @@ if (! class_exists('BBForumViewFilter')) {
                 $query->whereNotNull('discussions.best_answer_post_id');
             } elseif ($value === 'closed') {
                 $query->whereNull('discussions.best_answer_post_id')->where('discussions.is_locked', true);
+            } elseif ($value === 'active') {
+                $query->whereNotExists(function ($q) {
+                    $q->selectRaw('1')->from('discussion_tag')
+                        ->join('tags', 'tags.id', '=', 'discussion_tag.tag_id')
+                        ->whereColumn('discussion_tag.discussion_id', 'discussions.id')
+                        ->whereIn('tags.slug', ['status-done', 'status-not-planned', 'status-duplicate', 'status-fixed']);
+                });
             } elseif (preg_match('/^status-[a-z-]+$/', $value)) {
                 $query->whereExists(function ($q) use ($value) {
                     $q->selectRaw('1')->from('discussion_tag')

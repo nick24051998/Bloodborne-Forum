@@ -872,6 +872,83 @@ h1, h2, h3,
   }
 }
 
+// Die Leiste umschließt auch die Knöpfe rechts (Neu laden, Gelesen): bei umbrechenden Reitern lagen sie sonst halb
+// über dem ersten Thema
+.IndexPage-toolbar {
+  display: flow-root;
+}
+
+// Status eines Vorschlags oder Bugs in der Seitenleiste des Themas (nur Team)
+.bb-statusPanel {
+  margin-top: 18px;
+  padding: 12px;
+  border: 1px solid @bb-border-strong;
+  border-radius: 10px;
+  background: @bb-card;
+}
+
+.bb-statusPanel-title {
+  margin-bottom: 8px;
+  color: @bb-muted;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.bb-statusPanel-options {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.bb-statusOpt {
+  padding: 6px 10px;
+  border: 1px solid @bb-border-strong;
+  border-radius: 8px;
+  background: transparent;
+  color: @bb-text-soft;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 220ms, color 220ms, background 220ms;
+
+  .icon {
+    width: 16px;
+    color: @bb-muted;
+    text-align: center;
+  }
+
+  &:hover:not([disabled]),
+  &:focus-visible {
+    border-color: fade(@bb-gold, 70%);
+    color: @bb-text-strong;
+  }
+
+  &.is-active {
+    border-color: @bb-gold-light;
+    background: fade(@bb-gold, 18%);
+    color: @bb-text-strong;
+
+    .icon {
+      color: @bb-gold-light;
+    }
+  }
+
+  &[disabled] {
+    opacity: 0.6;
+    cursor: wait;
+  }
+}
+
+.bb-statusPanel-hint {
+  margin: 8px 0 0;
+  color: @bb-muted;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
 // Reiter über den Listen (Top/New/Planned …, Open/Solved/Closed/All)
 .bb-tabs {
   display: flex;
