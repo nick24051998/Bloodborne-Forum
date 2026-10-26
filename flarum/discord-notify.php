@@ -102,7 +102,10 @@ if (! class_exists('BBForumDiscordNotify')) {
                 return null;
             }
             try {
-                $text = strip_tags(str_replace(['</p>', '<br>', '<br/>'], ' ', $post->formatContent()));
+                $html = str_replace(['</p>', '<br>', '<br/>'], ' ', $post->formatContent());
+                // Erwähnungen als „@Name“ (im HTML steht nur der Name im Link)
+                $html = preg_replace('#<a [^>]*class="(?:PostMention|UserMention)[^"]*"[^>]*>(.*?)</a>#s', '@$1', $html);
+                $text = strip_tags($html);
             } catch (\Throwable $e) {
                 $text = (string) $post->content;
             }
