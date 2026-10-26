@@ -1439,6 +1439,53 @@ h1, h2, h3,
   box-shadow: 0 0 0 1px fade(@bb-gold, 30%), 0 0 24px fade(@bb-gold, 12%);
 }
 
+// Die Lösung unter dem Eröffnungsbeitrag: Die Erweiterung legt eine grüne Fläche um eine ganze Beitragskarte (mit
+// leerer Avatar-Spalte, das Bild blendet sie aus). Hier ein ruhiger, rundum grün gerahmter Kasten ohne Lücke links.
+.Post-footer .item-bestAnswerPost {
+  margin-top: 18px;
+  padding: 0;
+  background: none;
+  user-select: auto;
+
+  .CommentPost {
+    margin: 0;
+    padding: 12px 16px 10px;
+    border: 1px solid #3f6b4a;
+    border-radius: 10px;
+    background: fade(#3f6b4a, 12%);
+  }
+
+  .Post-header {
+    margin-bottom: 6px;
+  }
+
+  .Post-header > ul {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+  }
+}
+
+// Das Abzeichen „Best Answer“ im Grün des Forums statt im grellen Grün der Erweiterung
+.Post--BestAnswer {
+  padding: 1px 8px;
+  border: 1px solid #3f6b4a;
+  border-radius: 6px;
+  background: fade(#3f6b4a, 30%);
+  font-size: 12px;
+  font-weight: 700;
+
+  &,
+  a {
+    color: #9fd2a9;
+  }
+}
+
+.Badge--bestAnswer {
+  background-color: #3f6b4a;
+}
+
 // --- Composer, Dropdowns, Modals --------------------------------------------------------
 .Composer {
   background: @bb-card;
