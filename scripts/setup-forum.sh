@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# Richtet das Forum nach dem ersten Start ein (beliebig oft wiederholbar):
-#   - ersetzt den Standard-Admin flarum/flarum durch den Admin aus .env
-#   - aktiviert die gebündelten + installierten Erweiterungen
-#   - Theme (theme/custom.less), Farben, Dark Mode, Welcome-Banner, Logo/Favicon
-#   - Tags, Reihenfolge, Rechte (Announcements nur Staff), Best Answer,
-#     Help-&-Support-Vorlage, Upload-Regeln, Discord-Login (Client ID)
-#   - angepinntes Regel-Thema
+# Sets up the forum after the first start (can be repeated any number of times):
+#   - replaces the default admin flarum/flarum with the admin from .env
+#   - activates the bundled + installed extensions
+#   - theme (theme/custom.less), colors, dark mode, welcome banner, logo/favicon
+#   - tags, ordering, permissions (Announcements staff only), Best Answer,
+#     Help-&-Support template, upload rules, Discord login (Client ID)
+#   - pinned rules topic
 #
 #   scripts/setup-forum.sh
 #
-# Die API-Aufrufe laufen im Flarum-Container (curl/jq sind dort vorhanden),
-# auf dem Host werden nur bash und docker compose gebraucht.
+# The API calls run inside the Flarum container (curl/jq are available there),
+# the host only needs bash and docker compose.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 [[ -f .env ]] || { echo ".env fehlt: cp .env.example .env und Werte eintragen" >&2; exit 1; }
 
-# .env einlesen (ohne sie als Shell-Code auszuführen; Werte dürfen Leerzeichen enthalten)
+# Read .env (without executing it as shell code; values may contain spaces)
 while IFS= read -r line || [[ -n $line ]]; do
   [[ $line =~ ^[[:space:]]*(#|$) ]] && continue
   key=${line%%=*}
@@ -40,7 +40,7 @@ if ! docker compose ps --status running --services 2>/dev/null | grep -qx flarum
   exit 1
 fi
 
-# Repo-Dateien in den Container kopieren
+# Copy repo files into the container
 tar -cf - theme content media/textures media/images scripts/lib |
   docker compose exec -T flarum sh -c 'rm -rf /tmp/bbsetup && mkdir -p /tmp/bbsetup && tar -xf - -C /tmp/bbsetup'
 

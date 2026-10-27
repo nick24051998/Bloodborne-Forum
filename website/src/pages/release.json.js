@@ -1,4 +1,4 @@
-// /release.json: neueste Version auf der Website. Der Workflow vergleicht sie mit GitHub (neue Version → bauen, melden).
+// /release.json: latest version on the website. The workflow compares it with GitHub (new version → build, report).
 import { latest } from '../lib/releases.js';
 
 export function GET() {

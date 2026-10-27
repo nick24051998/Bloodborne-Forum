@@ -1,19 +1,19 @@
 <?php
 /*
- * Übersicht im Forum (Nick, 26.10.2026; geladen von flarum/extend.php, die Oberfläche steht in flarum/forum.js).
+ * Overview in the forum (Nick, 26.10.2026; loaded by flarum/extend.php, the UI lives in flarum/forum.js).
  *
- * - Stimmen: ein 👍 (Gefällt mir) auf dem Eröffnungsbeitrag. Die API liefert an Themen in Suggestions, Known Fixes und
- *   Bug Reports bbVotes, bbVoted und bbFirstPostId. Sortierung "-bbVotes": die Zahl kommt dann als Spalte bb_votes aus
- *   der Abfrage selbst (keine eigene Spalte in der Datenbank, also immer aktuell, auch für die vom Discord übernommenen
- *   Daumen). Nur bei dieser Sortierung, denn auf "Alle Themen" hängt Flarum für angepinnte Themen eine zweite Abfrage
- *   an (UNION), die dieselben Spalten haben muss.
- * - Filter "bbview" für die Reiter über den Listen: open, solved, closed (Help & Support), active (ohne Done, Not
- *   planned, Duplicate, Fixed: Suggestions „Top“ und „New“, Nick: Erledigtes taucht dort nicht mehr auf) oder ein
- *   Status-Tag (status-planned, status-open …), zusätzlich zum Bereich. Als Filter statt als Suche, damit oben im
- *   Suchfeld nichts wie "-is:solved" steht.
- * - Befehl bbforum:close-stale (stündlich): Hilfe-Themen ohne beste Antwort, die 7 Tage keinen neuen Beitrag hatten,
- *   werden gesperrt (geschlossen). Angepinnte Themen nie. Ohne Ereignisse, also ohne Benachrichtigung und ohne dass
- *   das Thema in "Latest" nach oben springt; mit --dry-run nur zählen.
+ * - Votes: one 👍 (like) on the opening post. For discussions in Suggestions, Known Fixes and Bug Reports the API
+ *   returns bbVotes, bbVoted and bbFirstPostId. Sorting "-bbVotes": the count then comes as column bb_votes from
+ *   the query itself (no separate column in the database, so it is always current, including the thumbs taken over
+ *   from Discord). Only for this sort, because on "All Discussions" Flarum appends a second query (UNION) for pinned
+ *   discussions, which must have the same columns.
+ * - Filter "bbview" for the tabs above the lists: open, solved, closed (Help & Support), active (without Done, Not
+ *   planned, Duplicate, Fixed: Suggestions "Top" and "New", Nick's wish: finished items no longer show up there) or
+ *   a status tag (status-planned, status-open …), in addition to the section. As a filter rather than a search, so
+ *   the search box at the top does not show anything like "-is:solved".
+ * - Command bbforum:close-stale (hourly): help discussions without a best answer that had no new post for 7 days
+ *   get locked (closed). Pinned discussions never. Without events, i.e. no notification and the discussion does not
+ *   jump to the top of "Latest"; with --dry-run it only counts.
  */
 
 use Carbon\Carbon;
@@ -29,7 +29,7 @@ if (! class_exists('BBForumVotes')) {
     {
         const TAGS = ['suggestions', 'known-fixes', 'bug-reports'];
 
-        /** Filter- und Such-Mutator: bei Sortierung nach Stimmen die Zahl als Spalte bb_votes, Gleichstand: neuere zuerst */
+        /** Filter and search mutator: when sorting by votes, the count as column bb_votes; ties: newer first */
         public static function select($state, $criteria): void
         {
             if (! array_key_exists('bbVotes', (array) $criteria->sort)) {

@@ -1,54 +1,55 @@
 <?php
 
 /*
- * Wird per docker-compose nach /opt/flarum/extend.php gemountet.
+ * Mounted to /opt/flarum/extend.php via docker-compose.
  *
- * Discord-only Sign-up: Ist die Einstellung "bbforum.oauth_only_signup" = 1,
- * können neue Accounts nur über einen OAuth-Login (fof/oauth → Discord)
- * angelegt werden. Normale E-Mail/Passwort-Registrierung wird abgelehnt.
- * Admins können weiterhin Accounts anlegen. Bestehende Accounts können sich
- * weiterhin mit Passwort einloggen.
+ * Discord-only sign-up: if the setting "bbforum.oauth_only_signup" = 1,
+ * new accounts can only be created through an OAuth login (fof/oauth → Discord).
+ * Normal email/password registration is rejected.
+ * Admins can still create accounts. Existing accounts can still
+ * log in with a password.
  *
- * Hintergrund: Flarums eigener Schalter "Allow sign up" (allow_sign_up) sperrt
- * auch die Registrierung über Discord – er muss daher AN bleiben.
- * Umschalten: DISCORD_ONLY_SIGNUP in .env ändern und scripts/setup-forum.sh
- * erneut ausführen.
+ * Background: Flarum's own switch "Allow sign up" (allow_sign_up) also blocks
+ * registration via Discord, so it has to stay ON.
+ * To toggle: change DISCORD_ONLY_SIGNUP in .env and run scripts/setup-forum.sh
+ * again.
  *
- * Außerdem: Sicherheits-Header für alle Forum-, Admin- und API-Antworten
- * (unabhängig davon, ob Caddy oder Cloudflare Tunnel davor sitzt).
+ * Also: security headers for all forum, admin and API responses
+ * (regardless of whether Caddy or a Cloudflare Tunnel sits in front).
  *
- * flarum/forum.js (per docker-compose unter /bbforum): Website- und Discord-Links in der
- * Kopfzeile, Registrieren-Fenster nur mit Discord-Button. Die Adressen kommen aus den
- * Einstellungen "bbforum.website_url" und "bbforum.discord_url" (setzt setup-forum.sh).
+ * flarum/forum.js (mounted at /bbforum via docker-compose): website and Discord links in the
+ * header, sign-up dialog with only the Discord button. The URLs come from the settings
+ * "bbforum.website_url" and "bbforum.discord_url" (set by setup-forum.sh).
  *
- * flarum/icons.less: eigene Icons (bbicon-*, CC0) für Kategorien, in Forum und Admin.
+ * flarum/icons.less: custom icons (bbicon-*, CC0) for categories, in forum and admin.
  *
- * /api/hunters-dream: Live-Zahlen vom Online-Server The Hunter's Dream (thehuntersdream.com)
- * für das Feld im Forum (flarum/forum.js), eingeschaltet auch für die Website-Startseite. Das Forum holt
- * deren /api/stats höchstens einmal pro Minute (nach einem Fehler erst nach 5 Minuten wieder),
- * speichert das Ergebnis zwischen und gibt nur Gesamtzahlen weiter, keine Spielernamen. Sind die
- * Zahlen älter als 15 Minuten, antwortet es mit 503 und die Felder bleiben ausgeblendet.
+ * /api/hunters-dream: live numbers from the online server The Hunter's Dream (thehuntersdream.com)
+ * for the widget in the forum (flarum/forum.js), also enabled for the website home page. The forum fetches
+ * its /api/stats at most once per minute (after an error, not again for 5 minutes),
+ * caches the result and passes on only totals, no player names. If the
+ * numbers are older than 15 minutes, it answers with 503 and the fields stay hidden.
  *
- * /api/bb-discord-notify: Warteschlange der Forum-Meldungen für BB Helper (flarum/discord-notify.php), der sie im
- * privaten Inbox-Thread des Mitglieds auf Discord meldet; aus, bis bbforum.discord_notify_enabled = 1.
+ * /api/bb-discord-notify: queue of forum notifications for BB Helper (flarum/discord-notify.php), which delivers
+ * them in the member's private inbox thread on Discord; off until bbforum.discord_notify_enabled = 1.
  *
- * Neue Themen nach Discord: Ist die Einstellung "bbforum.discord_webhook" gesetzt (setup-forum.sh aus
- * FORUM_DISCORD_WEBHOOK in .env), meldet das Forum jedes neue Thema, das Gäste sehen dürfen, mit Titel,
- * Autor, Tags, Textanfang und Link in diesem Discord-Kanal. Fehler oder ein langsames Discord halten das
- * Forum höchstens 3 Sekunden auf und gehen nur ins Log.
+ * New discussions to Discord: if the setting "bbforum.discord_webhook" is set (setup-forum.sh from
+ * FORUM_DISCORD_WEBHOOK in .env), the forum reports every new discussion that guests may see, with title,
+ * author, tags, the start of the text and a link, in that Discord channel. Errors or a slow Discord hold up the
+ * forum for 3 seconds at most and only go to the log.
  *
- * Discord-Rollen als Forum-Gruppen, Namen vom Server und Bann/Sperre in beide Richtungen:
- * flarum/discord-roles.php (Befehl bbforum:discord-roles jede Minute, dazu das Ereignis Suspended).
+ * Discord roles as forum groups, names from the server and ban/suspension in both directions:
+ * flarum/discord-roles.php (command bbforum:discord-roles every minute, plus the Suspended event).
  *
- * Übersicht (flarum/overview.php): Stimmen (👍 auf dem Eröffnungsbeitrag) als Sortierung "-bbVotes", Filter "bbview"
- * für die Reiter über den Listen, Befehl bbforum:close-stale (Hilfe-Themen nach 7 Tagen ohne Beitrag schließen).
+ * Overview (flarum/overview.php): votes (👍 on the opening post) as the sort order "-bbVotes", filter "bbview"
+ * for the tabs above the lists, command bbforum:close-stale (close help discussions after 7 days without a post).
  *
- * Profile (flarum/profiles.php): Banner, Profilfarbe und Avatar-Deko von Discord (über den Rollen-Abgleich), verdiente
- * Effekte aus den Discord-Rollen, Hunter-Karte. „About me“ (fof/user-bio) und eigenes Titelbild (sycho/flarum-profile-cover).
+ * Profiles (flarum/profiles.php): banner, profile color and avatar decoration from Discord (via the role sync),
+ * earned effects from the Discord roles, hunter card. "About me" (fof/user-bio) and own cover image
+ * (sycho/flarum-profile-cover).
  *
- * Arbeitslisten fürs Team (Team-Block in flarum/forum.js): Suche und Filter "is:unanswered" = Themen ohne Antwort.
- * Wer ein Thema startet oder antwortet, folgt ihm (Voreinstellung, jeder kann es in den Einstellungen abschalten):
- * so meldet das Forum Antworten auf die eigene Hilfe-Frage.
+ * Work lists for the team (team block in flarum/forum.js): search and filter "is:unanswered" = discussions without a
+ * reply. Whoever starts a discussion or replies to it follows it (default; anyone can turn it off in their settings):
+ * this way the forum notifies about replies to one's own help question.
  */
 
 use Flarum\Discussion\Discussion;
@@ -85,7 +86,7 @@ if (! class_exists('BBForumSecurityHeaders')) {
                 ->withHeader('X-Frame-Options', 'SAMEORIGIN')
                 ->withHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
 
-            // HSTS nur, wenn das Forum per HTTPS betrieben wird (FORUM_URL)
+            // HSTS only if the forum is served over HTTPS (FORUM_URL)
             if (resolve(Config::class)->url()->getScheme() === 'https') {
                 $response = $response->withHeader('Strict-Transport-Security', 'max-age=15552000');
             }
@@ -106,7 +107,7 @@ if (! class_exists('BBForumHuntersDream')) {
         {
             $cache = resolve(Cache::class);
 
-            // Nur eine Anfrage pro Minute geht an The Hunter's Dream, alle anderen bekommen den Zwischenstand
+            // Only one request per minute goes to The Hunter's Dream, all others get the cached result
             if ($cache->add(self::LOCK_KEY, 1, 60)) {
                 $fresh = $this->fetch();
                 if ($fresh) {
@@ -116,7 +117,7 @@ if (! class_exists('BBForumHuntersDream')) {
                 }
             }
 
-            // Älter als 15 Minuten (The Hunter's Dream länger nicht erreichbar): lieber nichts zeigen
+            // Older than 15 minutes (The Hunter's Dream unreachable for a while): better to show nothing
             $data = $cache->get(self::DATA_KEY);
             if ($data && $data['updatedAt'] < time() - 900) {
                 $data = null;
@@ -149,7 +150,7 @@ if (! class_exists('BBForumHuntersDream')) {
             $stats = $raw['stats'];
             $sessions = $raw['active_sessions'];
 
-            // Erster Eintrag einer [[Name, Anzahl], …]-Liste; Sammelposten wie "Hunter (NPC or player)" überspringen
+            // First entry of a [[name, count], …] list; skip catch-all entries such as "Hunter (NPC or player)"
             $top = function ($list) {
                 foreach ((array) $list as $entry) {
                     if (is_array($entry) && isset($entry[0], $entry[1]) && strpos((string) $entry[0], '(') === false) {
@@ -160,13 +161,13 @@ if (! class_exists('BBForumHuntersDream')) {
                 return null;
             };
 
-            // Häufigstes Blutlevel-Band, z. B. "BL 10-19"
+            // Most common blood level band, e.g. "BL 10-19"
             $levels = (array) ($stats['activity']['level_distribution'] ?? []);
             usort($levels, function ($a, $b) {
                 return ((int) ($b[1] ?? 0)) <=> ((int) ($a[1] ?? 0));
             });
 
-            // Gebiete mit Beschwörungszeichen gerade jetzt (höchstens zwei Namen)
+            // Areas with summon signs right now (two names at most)
             $bellAreas = [];
             foreach (array_slice((array) ($stats['activity']['summon_by_area'] ?? []), 0, 2) as $area) {
                 if (is_array($area) && isset($area[0])) {
@@ -174,7 +175,7 @@ if (! class_exists('BBForumHuntersDream')) {
                 }
             }
 
-            // Neueste geteilte Kelch-Glyphe, ohne den Namen des Erstellers
+            // Newest shared chalice glyph, without the creator's name
             $dungeon = $stats['chalice']['dungeons'][0] ?? null;
             $glyph = is_array($dungeon) && preg_match('/^[a-z0-9]{6,12}$/i', (string) ($dungeon['glyph'] ?? ''))
                 ? ['glyph' => (string) $dungeon['glyph'], 'dungeon' => (string) ($dungeon['dungeon_name'] ?? ''), 'id' => (int) ($dungeon['channel_id'] ?? 0)]
@@ -220,7 +221,7 @@ if (! class_exists('BBForumDiscordFeed')) {
                 return;
             }
 
-            // Nur Themen, die auch Gäste sehen (nicht private, nicht noch ungeprüfte)
+            // Only discussions that guests can see as well (not private, not still unapproved)
             $discussion = $event->discussion;
             if (! Discussion::whereVisibleTo(new Guest())->where('discussions.id', $discussion->id)->exists()) {
                 return;
@@ -252,12 +253,12 @@ if (! class_exists('BBForumDiscordFeed')) {
                     'embeds' => [$embed],
                 ])]);
             } catch (\Throwable $e) {
-                // Ohne die Webhook-Adresse: sie enthält den geheimen Schlüssel
+                // Without the webhook URL: it contains the secret token
                 resolve(LoggerInterface::class)->warning('Discord feed: '.str_replace($webhook, '[webhook]', $e->getMessage()));
             }
         }
 
-        // Textanfang ohne Markdown, Bilder und BBCode, höchstens 280 Zeichen
+        // Start of the text without Markdown, images and BBCode, 280 characters at most
         private function excerpt(string $text): string
         {
             $text = preg_replace('/!\[[^\]]*\]\([^)]*\)/', '', $text);
@@ -272,7 +273,7 @@ if (! class_exists('BBForumDiscordFeed')) {
 }
 
 if (! class_exists('BBForumUnansweredGambit')) {
-    // "is:unanswered": nur der Eröffnungsbeitrag, noch keine Antwort ("-is:unanswered": mit Antwort)
+    // "is:unanswered": only the opening post, no reply yet ("-is:unanswered": has a reply)
     class BBForumUnansweredGambit extends AbstractRegexGambit implements FilterInterface
     {
         protected function getGambitPattern()
@@ -303,9 +304,9 @@ if (! class_exists('BBForumUnansweredGambit')) {
 }
 
 if (! class_exists('BBForumCliLocale')) {
-    // Kommandozeile (Scheduler, bbforum:*-Befehle, Mails von dort): erst die Sprachdateien laden, wie es im Web die
-    // Middleware SetLocale tut. Sonst baut der erste Befehl nach cache:clear einen leeren Übersetzungs-Katalog, Flarum
-    // speichert ihn, und das Forum zeigt bis zum nächsten cache:clear nur noch Schlüssel wie core.forum.index.…
+    // Command line (scheduler, bbforum:* commands, mails sent from there): load the language files first, as the
+    // SetLocale middleware does on the web. Otherwise the first command after cache:clear builds an empty translation
+    // catalog, Flarum caches it, and until the next cache:clear the forum shows only keys like core.forum.index.…
     class BBForumCliLocale extends Flarum\Foundation\AbstractServiceProvider
     {
         public function boot()
@@ -316,7 +317,7 @@ if (! class_exists('BBForumCliLocale')) {
             try {
                 $this->container->make(Flarum\Locale\LocaleManager::class);
             } catch (Throwable $e) {
-                // ohne Datenbank (z. B. beim Container-Start) gibt es nichts zu übersetzen
+                // without a database (e.g. at container start) there is nothing to translate
             }
         }
     }
@@ -334,21 +335,21 @@ return [
 
     (new Extend\Routes('api'))->get('/hunters-dream', 'bbforum.huntersDream', BBForumHuntersDream::class),
 
-    // Discord-Rollen übernehmen: jede Minute frisch angemeldete Nutzer, alle 10 Minuten alle
+    // Take over Discord roles: freshly logged-in users every minute, all users every 10 minutes
     (new Extend\Console())
         ->command(BBForumDiscordRolesCommand::class)
         ->schedule(BBForumDiscordRolesCommand::class, function ($event) {
             $event->everyMinute();
         }),
 
-    // Neue Testversionen von GitHub als Themen im Bereich Beta (flarum/betas.php), alle 10 Minuten
+    // New test versions from GitHub as discussions in the Beta category (flarum/betas.php), every 10 minutes
     (new Extend\Console())
         ->command(BBForumBetasCommand::class)
         ->schedule(BBForumBetasCommand::class, function ($event) {
             $event->everyTenMinutes();
         }),
 
-    // Sperrt ein Mod jemanden im Forum, wird er auch auf dem Discord-Server gebannt
+    // If a mod suspends someone in the forum, they are also banned on the Discord server
     (new Extend\Event())->listen('Flarum\Suspend\Event\Suspended', BBForumDiscordBanOnSuspend::class),
 
     (new Extend\Event())->listen(Started::class, function (Started $event) {
@@ -358,7 +359,7 @@ return [
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->addGambit(BBForumUnansweredGambit::class),
     (new Extend\Filter(DiscussionFilterer::class))->addFilter(BBForumUnansweredGambit::class),
 
-    // Übersicht (flarum/overview.php): nach Stimmen sortieren, Filter für die Reiter, Hilfe nach 7 Tagen schließen
+    // Overview (flarum/overview.php): sort by votes, filter for the tabs, close help discussions after 7 days
     (new Extend\ApiController(Flarum\Api\Controller\ListDiscussionsController::class))->addSortField('bbVotes'),
     (new Extend\Filter(DiscussionFilterer::class))
         ->addFilter(BBForumViewFilter::class)
@@ -374,8 +375,8 @@ return [
             $event->hourly();
         }),
 
-    // Profile (flarum/profiles.php): Effekte, Deko, Rollen-Schild und Rechner an jedem Nutzer; im Profil Banner, Farbe,
-    // Hunter-Karte, alle Rollen und fürs Team der Discord-Link
+    // Profiles (flarum/profiles.php): effects, decoration, role shield and PC (rig) on every user; in the profile
+    // banner, color, hunter card, all roles and, for the team, the Discord link
     (new Extend\ApiSerializer(Flarum\Api\Serializer\BasicUserSerializer::class))
         ->attributes(function ($serializer, $user) {
             return BBForumProfiles::basic($user);
@@ -384,7 +385,7 @@ return [
         ->attributes(function ($serializer, $user) {
             return BBForumProfiles::full($user, $serializer->getActor());
         }),
-    // Was Nitro kann, für alle: eigene Profilfarben speichern, animierte Profil- und Titelbilder behalten
+    // What Nitro can do, for everyone: save custom profile colors, keep animated profile and cover images
     (new Extend\Event())
         ->listen(Flarum\User\Event\Saving::class, function ($event) {
             BBForumProfiles::saving($event);
@@ -392,14 +393,14 @@ return [
     (new Extend\ServiceProvider())
         ->register(BBForumProfilesProvider::class),
 
-    // Logo-Contest (flarum/contest.php): Stimme = „Gefällt mir“ auf einem Werk, eine pro Mitglied, nur in der Abstimmung
+    // Logo contest (flarum/contest.php): vote = a "Like" on an entry, one per member, only during the voting phase
     (new Extend\Policy())
         ->modelPolicy(Flarum\Post\Post::class, BBForumContestLikePolicy::class)
         ->modelPolicy(Flarum\Tags\Tag::class, BBForumContestTagPolicy::class),
     (new Extend\Event())->listen('Flarum\Likes\Event\PostWasLiked', function ($event) {
         BBForumContest::keepOneVote($event->post, $event->user);
     }),
-    // Werke als Karten in den Discord-Kanal des Contests (BBForumContestFeed): neu, geändert, freigegeben, entfernt
+    // Entries as cards in the contest's Discord channel (BBForumContestFeed): new, changed, approved, removed
     (new Extend\Event())
         ->listen(Started::class, fn ($e) => (new BBForumContestFeed())->sync($e->discussion))
         ->listen('Flarum\Discussion\Event\Renamed', fn ($e) => (new BBForumContestFeed())->sync($e->discussion))
@@ -418,18 +419,18 @@ return [
             }
         }),
     (new Extend\Console())->command(BBForumContestFeedCommand::class),
-    // Plausibilitätsprüfung für Werke (BBForumContestCheck): PNG, quadratisch, durchsichtig, Zip dabei
+    // Plausibility check for entries (BBForumContestCheck): PNG, square, transparent, zip attached
     (new Extend\Event())->listen('Flarum\Post\Event\Saving', function ($e) {
         BBForumContestCheck::validate($e->post, $e->data['attributes']['content'] ?? null, $e->actor);
     }),
-    // Die Seite /logo-contest auch beim direkten Aufruf (Link von bbport.de) ausliefern, nicht nur im Browser
+    // Serve the /logo-contest page on direct requests too (link from bbport.de), not only on in-browser navigation
     (new Extend\Frontend('forum'))->route('/logo-contest', 'logoContest'),
     (new Extend\ApiSerializer(Flarum\Api\Serializer\DiscussionSerializer::class))
         ->attributes(function ($serializer, $discussion) {
             return BBForumContest::attributes($serializer->getActor(), $discussion);
         }),
 
-    // Eigenen Themen folgen (statt Flarums "aus"): Antworten erscheinen in den Benachrichtigungen
+    // Follow own discussions (instead of Flarum's "off"): replies show up in the notifications
     (new Extend\User())->registerPreference('followAfterReply', 'boolval', true),
 
     (new Extend\Middleware('forum'))->add(BBForumSecurityHeaders::class),
@@ -445,7 +446,7 @@ return [
             return;
         }
 
-        // OAuth-Registrierungen bringen ein (vom Core bereits geprüftes) Token mit.
+        // OAuth registrations come with a token (already verified by the core).
         if (! Arr::has($event->data, 'attributes.token')) {
             throw new ValidationException([
                 'username' => 'New accounts can only be created with "Log in with Discord".',
@@ -461,8 +462,8 @@ return [
         ->serializeToForum('bbContestVoteUntil', 'bbforum.contest_vote_until')
         ->serializeToForum('bbDiscordNotify', 'bbforum.discord_notify_enabled', 'boolval'),
 
-    // Forum-Meldungen in Discord (flarum/discord-notify.php): Benachrichtigungsweg „discord“, neue Meldung bei
-    // Status-Änderung, Warteschlange für BB Helper; eigene Themen und Antworten folgt man jetzt standardmäßig
+    // Forum notifications in Discord (flarum/discord-notify.php): notification channel "discord", new notification on
+    // status change, queue for BB Helper; own discussions and replies are now followed by default
     (new Extend\Notification())
         ->driver('discord', BBForumDiscordNotifyDriver::class)
         ->type(BBForumStatusChangedBlueprint::class, Flarum\Api\Serializer\BasicDiscussionSerializer::class, ['alert']),

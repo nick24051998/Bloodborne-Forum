@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Richtet das nächtliche Backup ein: ein systemd-Timer startet jede Nacht um 3:30 Uhr
-# scripts/nightly-backup.sh (Backup, Prüfung, alte Backups löschen). Einmal als root:
+# Sets up the nightly backup: a systemd timer runs scripts/nightly-backup.sh every night at 3:30 am
+# (backup, verification, deleting old backups). Run once as root:
 #
 #   scripts/install-backup.sh
 #
-# Log ansehen:   journalctl -u bbforum-backup -n 50
-# Sofort laufen: systemctl start bbforum-backup
-# Abschalten:    systemctl disable --now bbforum-backup.timer
+# View log:      journalctl -u bbforum-backup -n 50
+# Run now:       systemctl start bbforum-backup
+# Turn off:      systemctl disable --now bbforum-backup.timer
 set -euo pipefail
 cd "$(dirname "$0")/.."
 dir=$(pwd)

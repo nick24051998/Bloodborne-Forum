@@ -1,52 +1,51 @@
 <?php
 
 /*
- * Discord-Rollen als Forum-Gruppen (geladen von flarum/extend.php).
+ * Discord roles as forum groups (loaded by flarum/extend.php).
  *
- * Wer sich im Forum mit Discord anmeldet, bekommt dieselben Rollen wie auf dem Discord-Server, als
- * Gruppen mit gleichem Namen und gleicher Farbe. Discord ist die Quelle: kommt eine Rolle dazu oder
- * fällt weg, passiert das auch im Forum. Owner, Admin und Mod (bbforum.discord_mod_role_ids) kommen
- * zusätzlich in Flarums Gruppe „Mod“ und dürfen moderieren; die Admin-Gruppe des Forums fasst der
- * Abgleich nie an.
+ * Whoever logs in to the forum with Discord gets the same roles as on the Discord server, as groups with the
+ * same name and color. Discord is the source: when a role is added or removed there, the same happens in the
+ * forum. Owner, Admin and Mod (bbforum.discord_mod_role_ids) additionally join Flarum's "Mod" group and may
+ * moderate; the sync never touches the forum's Admin group.
  *
- * Als Abzeichen an Beiträgen sichtbar sind nur die Team-Rollen (bbforum.discord_shown_role_ids). Alle
- * anderen Gruppen sind versteckt: Waffen-, GPU- oder Setup-Rollen sieht in Discord nur der Server, im
- * Forum wären sie für alle sichtbar. Für Rechte (etwa eine Kategorie nur für eine Rolle) taugen sie trotzdem.
+ * Only the team roles (bbforum.discord_shown_role_ids) are visible as badges on posts. All other groups are
+ * hidden: weapon, GPU or setup roles are only visible on the Discord server itself, in the forum they would be
+ * visible to everyone. They are still useful for permissions (e.g. a category for one role only).
  *
- * Namen: Mit dem Display-Name-Treiber „nickname“ (flarum/nicknames, setzt setup-forum.sh) zeigt das Forum
- * den Namen auf dem Discord-Server, sonst den Discord-Anzeigenamen. Der Benutzername bleibt für Anmeldung,
- * Profil-Adresse und @-Erwähnungen.
+ * Names: with the "nickname" display name driver (flarum/nicknames, set up by setup-forum.sh) the forum shows
+ * the name from the Discord server, otherwise the Discord display name. The username stays for login,
+ * profile URL and @-mentions.
  *
- * Profilbilder: das Server-Profilbild, sonst das Discord-Bild, als Kopie im Forum (Besucher laden nichts von
- * Discord). Ändert es sich auf Discord, zieht der Abgleich nach. Hat jemand im Forum selbst ein anderes Bild
- * hochgeladen, bleibt das (bbforum.discord_avatars merkt sich, welches Bild der Abgleich zuletzt gesetzt hat).
- * Animierte Discord-Bilder (Nitro) kommen als GIF und bleiben animiert.
+ * Profile pictures: the server profile picture, otherwise the Discord picture, as a copy in the forum (visitors
+ * load nothing from Discord). If it changes on Discord, the sync follows. If someone has uploaded a different
+ * picture in the forum themselves, that one stays (bbforum.discord_avatars remembers which picture the sync
+ * set last). Animated Discord pictures (Nitro) arrive as GIF and stay animated.
  *
- * Bann und Sperre: Wer auf dem Server gebannt ist, wird im Forum gesperrt; hebt Discord den Bann auf,
- * hebt der Abgleich seine Sperre wieder auf. Sperrt ein Mod jemanden im Forum (Ereignis Suspended von
- * flarum/suspend), bannt der Bot ihn auf dem Server; endet die Sperre, hebt er den Bann wieder auf. Beides
- * gilt nur für Sperren und Banns, die der Abgleich selbst gesetzt hat, und nie für Admins. Dafür braucht der
- * Bot das Recht „Mitglieder bannen“, und seine Rolle muss auf dem Server über den Rollen der Mitglieder
- * stehen (Team-Rollen bleiben darüber, die kann er nicht bannen).
+ * Ban and suspension: whoever is banned on the server is suspended in the forum; when Discord lifts the ban,
+ * the sync lifts their suspension again. If a mod suspends someone in the forum (Suspended event from
+ * flarum/suspend), the bot bans them on the server; when the suspension ends, it lifts the ban again. Both
+ * apply only to suspensions and bans that the sync set itself, and never to admins. For this the bot needs the
+ * "Ban Members" permission, and its role must be above the members' roles on the server (team roles stay
+ * above it, it cannot ban those).
  *
- * Gelesen wird mit dem Bot der Forum-App „Bloodborne PC Port Forum“ (nur REST, keine privilegierten
- * Intents): GET /guilds/{id}/roles, /guilds/{id}/members/{user} und /guilds/{id}/bans/{user}.
- * Einstellungen (setzt scripts/setup-forum.sh aus .env): bbforum.discord_bot_token,
+ * Reading is done with the bot of the forum app "Bloodborne PC Port Forum" (REST only, no privileged
+ * intents): GET /guilds/{id}/roles, /guilds/{id}/members/{user} and /guilds/{id}/bans/{user}.
+ * Settings (set by scripts/setup-forum.sh from .env): bbforum.discord_bot_token,
  * bbforum.discord_guild_id, bbforum.discord_mod_role_ids, bbforum.discord_shown_role_ids.
- * Ohne Token passiert nichts.
+ * Without a token nothing happens.
  *
- * Ablauf: Der Befehl „php flarum bbforum:discord-roles“ läuft jede Minute (Flarum-Scheduler). Er gleicht
- * Nutzer ab, die sich in den letzten Minuten mit Discord angemeldet oder verknüpft haben, und alle
- * 10 Minuten alle verknüpften Nutzer. Mit --all sofort alle.
+ * Flow: the command "php flarum bbforum:discord-roles" runs every minute (Flarum scheduler). It syncs
+ * users who logged in or linked with Discord in the last few minutes, and every 10 minutes all linked
+ * users. With --all, all of them immediately.
  *
- * Gemerkt wird in den Einstellungen:
- * - bbforum.discord_role_groups: Discord-Rolle → Forum-Gruppe; nur diese Gruppen verwaltet der Abgleich
- * - bbforum.discord_mod_grants: Nutzer, die „Mod“ über Discord bekommen haben (nur ihnen wird es
- *   wieder entzogen; von Hand ernannte Mods bleiben)
- * - bbforum.discord_roles_full_at: Zeitpunkt des letzten vollständigen Abgleichs
- * - bbforum.discord_ban_suspensions: Nutzer, die wegen eines Discord-Banns gesperrt sind
- * - bbforum.forum_suspension_bans: Nutzer → Discord-ID, die wegen einer Forensperre gebannt sind
- * - bbforum.discord_avatars: Nutzer → zuletzt übernommenes Discord-Bild (Hash) und seine Datei im Forum
+ * Remembered in the settings:
+ * - bbforum.discord_role_groups: Discord role → forum group; only these groups are managed by the sync
+ * - bbforum.discord_mod_grants: users who got "Mod" via Discord (only from them is it taken
+ *   away again; mods appointed by hand stay)
+ * - bbforum.discord_roles_full_at: time of the last full sync
+ * - bbforum.discord_ban_suspensions: users who are suspended because of a Discord ban
+ * - bbforum.forum_suspension_bans: user → Discord ID, banned because of a forum suspension
+ * - bbforum.discord_avatars: user → most recently adopted Discord picture (hash) and its file in the forum
  */
 
 use Flarum\Console\AbstractCommand;
@@ -67,11 +66,11 @@ if (! class_exists('BBForumDiscordRoles')) {
         const BAN_SUSPENSIONS = 'bbforum.discord_ban_suspensions';
         const FORUM_BANS = 'bbforum.forum_suspension_bans';
         const AVATARS = 'bbforum.discord_avatars';
-        // Sperre wegen eines Discord-Banns: gilt, bis Discord den Bann aufhebt (Flarums „unbefristet“ ist auch ein Datum)
+        // Suspension due to a Discord ban: lasts until Discord lifts the ban (Flarum's "indefinite" is also a date)
         const BAN_UNTIL = '2038-01-01 00:00:00';
-        // Owner, Admin, Mod auf dem Discord-Server (Standard, falls nichts eingestellt ist)
+        // Owner, Admin, Mod on the Discord server (default if nothing is configured)
         const DEFAULT_MOD_ROLES = '1557459945291513996,1557459946994401412,1557459950312103976';
-        // Team-Rollen, die als Abzeichen sichtbar bleiben: Owner, Admin, Contributor, Mod, Support, Helper
+        // Team roles that stay visible as badges: Owner, Admin, Contributor, Mod, Support, Helper
         const DEFAULT_SHOWN_ROLES = '1557459945291513996,1557459946994401412,1559601172107493427,'
             .'1557459950312103976,1557459952396673196,1559561716642222122';
 
@@ -123,7 +122,7 @@ if (! class_exists('BBForumDiscordRoles')) {
             return is_array($value) ? $value : $default;
         }
 
-        /** GET an die Discord-API; [Status, JSON]. Bei 429 einmal kurz warten und wiederholen. */
+        /** GET to the Discord API; [status, JSON]. On 429, wait briefly once and retry. */
         private function get(string $path): array
         {
             for ($try = 0; $try < 2; $try++) {
@@ -142,7 +141,7 @@ if (! class_exists('BBForumDiscordRoles')) {
             return [429, null];
         }
 
-        /** PUT/DELETE an die Discord-API, mit Begründung fürs Audit-Log des Servers; gibt den Status zurück. */
+        /** PUT/DELETE to the Discord API, with a reason for the server's audit log; returns the status. */
         private function send(string $method, string $path, string $reason): int
         {
             $options = ['headers' => [
@@ -156,14 +155,14 @@ if (! class_exists('BBForumDiscordRoles')) {
             return $this->client->request($method, self::API.$path, $options)->getStatusCode();
         }
 
-        /** Gruppen an die Rollen des Servers angleichen; gibt Rolle → Gruppen-ID zurück. */
+        /** Align the groups with the server's roles; returns role → group ID. */
         public function syncGroups(): array
         {
             [$status, $roles] = $this->get('/guilds/'.$this->guild().'/roles');
             if ($status !== 200 || ! is_array($roles)) {
                 throw new RuntimeException("Discord roles: HTTP $status");
             }
-            // @everyone (ID = Server-ID) und Rollen von Integrationen (Bots) bleiben draußen
+            // @everyone (ID = server ID) and roles of integrations (bots) are left out
             $roles = array_filter($roles, fn ($r) => (string) $r['id'] !== $this->guild() && empty($r['managed']));
             usort($roles, fn ($a, $b) => ($b['position'] ?? 0) <=> ($a['position'] ?? 0));
 
@@ -189,7 +188,7 @@ if (! class_exists('BBForumDiscordRoles')) {
                 }
                 $next[$id] = $group->id;
             }
-            // Rollen, die es auf Discord nicht mehr gibt: deren Gruppe fällt weg
+            // Roles that no longer exist on Discord: their group is removed
             foreach (array_diff_key($map, $next) as $groupId) {
                 $old = Group::find($groupId);
                 if ($old && ! in_array((int) $old->id, [Group::ADMINISTRATOR_ID, Group::GUEST_ID, Group::MEMBER_ID, Group::MODERATOR_ID], true)) {
@@ -200,7 +199,10 @@ if (! class_exists('BBForumDiscordRoles')) {
             return $next;
         }
 
-        /** Rollen, Namen und Bann eines Nutzers übernehmen; 'changed', 'same', 'left' (nicht mehr auf dem Server), 'banned' oder 'error'. */
+        /**
+         * Take over a user's roles, name and ban; returns 'changed', 'same', 'left' (no longer on the server),
+         * 'banned' or 'error'.
+         */
         public function syncUser(User $user, string $discordId, array $map): string
         {
             [$status, $member] = $this->get('/guilds/'.$this->guild().'/members/'.rawurlencode($discordId));
@@ -221,7 +223,7 @@ if (! class_exists('BBForumDiscordRoles')) {
             }
             $have = $user->groups()->pluck('id')->map(fn ($id) => (int) $id)->all();
 
-            // Mod-Rechte für Owner, Admin und Mod; entzogen wird nur, was der Abgleich vergeben hat
+            // Mod rights for Owner, Admin and Mod; only what the sync granted is taken away again
             $grants = array_map('intval', $this->json(self::MOD_GRANTS, []));
             $isTeam = (bool) array_intersect($roles, $this->modRoles());
             $isAdmin = in_array(Group::ADMINISTRATOR_ID, $have, true);
@@ -253,12 +255,12 @@ if (! class_exists('BBForumDiscordRoles')) {
             try {
                 $pictured = $status === 200 && $this->syncAvatar($user, $member);
             } catch (Throwable $e) {
-                // Ein kaputtes Bild oder ein langsames Discord-CDN darf den Abgleich nicht aufhalten
+                // A broken image or a slow Discord CDN must not hold up the sync
                 $this->log->warning("Discord avatar for user {$user->id}: ".$e->getMessage());
                 $pictured = false;
             }
             if ($status === 200 && class_exists('BBForumProfiles')) {
-                try { // Banner, Profilfarbe und Avatar-Deko für das Profil (flarum/profiles.php), höchstens täglich
+                try { // Banner, profile color and avatar decoration for the profile (flarum/profiles.php), at most daily
                     BBForumProfiles::sync($user, $member, $this->client, fn ($path) => $this->get($path), $this->guild());
                 } catch (Throwable $e) {
                     $this->log->warning("Discord profile for user {$user->id}: ".$e->getMessage());
@@ -274,9 +276,10 @@ if (! class_exists('BBForumDiscordRoles')) {
         }
 
         /**
-         * Profilbild = Server-Profilbild, sonst Discord-Bild, als Kopie im Forum. Ohne Eintrag in AVATARS (neues
-         * Konto, Bild von der Registrierung oder keins) übernimmt der Abgleich das Bild; danach nur, solange das
-         * Forum noch das zuletzt übernommene Bild zeigt (oder keins mehr). Ein selbst hochgeladenes Bild bleibt.
+         * Profile picture = server profile picture, otherwise Discord picture, as a copy in the forum. Without an
+         * entry in AVATARS (new account, picture from sign-up, or none) the sync adopts the picture; afterwards only
+         * as long as the forum still shows the most recently adopted picture (or none any more). A picture the user
+         * uploaded themselves stays.
          */
         private function syncAvatar(User $user, array $member): bool
         {
@@ -288,19 +291,20 @@ if (! class_exists('BBForumDiscordRoles')) {
                 $hash = (string) $member['user']['avatar'];
                 $url = 'https://cdn.discordapp.com/avatars/'.$discordId.'/'.$hash;
             } else {
-                return false; // Kein eigenes Bild auf Discord: das Forum zeigt seinen Buchstaben
+                return false; // No picture of their own on Discord: the forum shows the initial letter
             }
-            // Animierte Bilder (Nitro, Hash mit a_) als GIF, damit sie im Forum animiert bleiben (flarum/profiles.php)
+            // Animated pictures (Nitro, hash starting with a_) as GIF so they stay animated in the forum
+            // (flarum/profiles.php)
             $animated = strpos($hash, 'a_') === 0;
             $url .= $animated ? '.gif?size=128' : '.png?size=256';
             $state = $this->json(self::AVATARS, []);
             $last = $state[$user->id] ?? null;
             $current = $user->getRawOriginal('avatar_url');
             if ($last && $current && $current !== ($last['path'] ?? null)) {
-                return false; // selbst hochgeladen
+                return false; // uploaded by the user themselves
             }
             if ($last && $current && ($last['hash'] ?? null) === $hash && (! $animated || ! empty($last['gif']))) {
-                return false; // unverändert (animierte, die noch als Standbild kamen, einmal neu)
+                return false; // unchanged (animated ones that still arrived as a still image are fetched once more)
             }
             $response = $this->client->get($url);
             if ($response->getStatusCode() !== 200) {
@@ -319,7 +323,7 @@ if (! class_exists('BBForumDiscordRoles')) {
             return true;
         }
 
-        /** Anzeigename = Name auf dem Server, sonst Discord-Anzeigename; nur mit Display-Name-Treiber „nickname“. */
+        /** Display name = server name, otherwise Discord display name; only with the "nickname" display name driver. */
         private function syncName(User $user, array $member): bool
         {
             if ($this->settings->get('display_name_driver') !== 'nickname') {
@@ -336,8 +340,9 @@ if (! class_exists('BBForumDiscordRoles')) {
         }
 
         /**
-         * Discord-Bann → Forensperre, aufgehobener Bann → Sperre weg. Fasst nur Sperren an, die der Abgleich selbst
-         * gesetzt hat; Banns, die eine Forensperre ausgelöst hat (FORUM_BANS), regelt die Forensperre. True = gebannt.
+         * Discord ban → forum suspension, lifted ban → suspension removed. Only touches suspensions that the sync
+         * itself set; bans that a forum suspension triggered (FORUM_BANS) are handled by the forum suspension.
+         * True = banned.
          */
         private function syncBan(User $user, string $discordId, bool $gone): bool
         {
@@ -348,8 +353,8 @@ if (! class_exists('BBForumDiscordRoles')) {
             $ours = in_array($user->id, $suspended, true);
             $banned = false;
             if ($gone) {
-                // Nur wer nicht mehr auf dem Server ist, kann gebannt sein; ohne Recht „Mitglieder bannen“ (403)
-                // oder bei Störungen ändert sich nichts
+                // Only someone who is no longer on the server can be banned; without the "Ban Members" permission (403)
+                // or during outages nothing changes
                 [$status] = $this->get('/guilds/'.$this->guild().'/bans/'.rawurlencode($discordId));
                 if ($status !== 200 && $status !== 404) {
                     return $ours;
@@ -375,7 +380,7 @@ if (! class_exists('BBForumDiscordRoles')) {
             return $banned;
         }
 
-        /** Forensperre durch einen Mod → Bann auf dem Discord-Server (Ereignis Suspended von flarum/suspend). */
+        /** Forum suspension by a mod → ban on the Discord server (Suspended event from flarum/suspend). */
         public function banForSuspension(User $user, User $actor): void
         {
             if (! $this->enabled() || $user->isAdmin()) {
@@ -396,7 +401,7 @@ if (! class_exists('BBForumDiscordRoles')) {
             $this->settings->set(self::FORUM_BANS, json_encode($bans, JSON_FORCE_OBJECT));
         }
 
-        /** Endet eine Forensperre (aufgehoben oder abgelaufen), wird der Discord-Bann wieder aufgehoben. */
+        /** When a forum suspension ends (lifted or expired), the Discord ban is lifted again. */
         public function releaseForumBans(): int
         {
             $bans = $this->json(self::FORUM_BANS, []);
@@ -418,7 +423,7 @@ if (! class_exists('BBForumDiscordRoles')) {
             return $released;
         }
 
-        /** Abgleich: alle verknüpften Nutzer ($all) oder nur die seit $since angemeldeten. */
+        /** Sync: all linked users ($all) or only those who logged in since $since. */
         public function run(bool $all, int $sinceMinutes = 3): array
         {
             $map = $this->syncGroups();
@@ -453,7 +458,7 @@ if (! class_exists('BBForumDiscordRoles')) {
 }
 
 if (! class_exists('BBForumDiscordBanOnSuspend')) {
-    /** Forensperre → Bann auf Discord (flarum/extend.php hängt das an das Ereignis Suspended von flarum/suspend). */
+    /** Forum suspension → ban on Discord (flarum/extend.php hooks this to the Suspended event from flarum/suspend). */
     class BBForumDiscordBanOnSuspend
     {
         public function handle($event): void
@@ -461,7 +466,7 @@ if (! class_exists('BBForumDiscordBanOnSuspend')) {
             try {
                 resolve(BBForumDiscordRoles::class)->banForSuspension($event->user, $event->actor);
             } catch (Throwable $e) {
-                // Ein Fehler bei Discord darf die Sperre im Forum nicht verhindern
+                // An error on the Discord side must not prevent the suspension in the forum
                 resolve(LoggerInterface::class)->warning('Discord ban for a forum suspension: '.$e->getMessage());
             }
         }
@@ -474,8 +479,8 @@ if (! class_exists('BBForumDiscordRolesCommand')) {
         protected function configure()
         {
             $this->setName('bbforum:discord-roles')
-                ->setDescription('Discord-Rollen als Forum-Gruppen übernehmen')
-                ->addOption('all', null, InputOption::VALUE_NONE, 'Sofort alle verknüpften Nutzer abgleichen');
+                ->setDescription('Mirror Discord roles as forum groups')
+                ->addOption('all', null, InputOption::VALUE_NONE, 'Sync all linked users right away');
         }
 
         protected function fire()
@@ -485,7 +490,7 @@ if (! class_exists('BBForumDiscordRolesCommand')) {
                 $this->info('Discord role sync is off (no bot token set).');
                 return 0;
             }
-            // Läuft noch ein Abgleich (viele Nutzer), startet kein zweiter; nach 5 Minuten gilt die Sperre als verwaist
+            // If a sync is still running (many users), no second one starts; after 5 minutes the lock counts as orphaned
             $settings = resolve(SettingsRepositoryInterface::class);
             if (time() - (int) $settings->get('bbforum.discord_roles_lock', 0) < 300) {
                 $this->info('Discord role sync is already running.');

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Erneuert das Passwort des Forum-Admins (Benutzer 1) und trägt es in .env ein, damit
-# scripts/setup-forum.sh und die automatischen Updates sich weiter anmelden können.
-# Meldet den Admin überall ab. Zeigt das neue Passwort einmal an: sofort im Passwort-Manager speichern.
+# Renews the forum admin's password (user 1) and writes it to .env, so that
+# scripts/setup-forum.sh and the automatic updates can keep logging in.
+# Logs the admin out everywhere. Shows the new password once: save it in the password manager right away.
 #
 #   scripts/rotate-admin-password.sh
 #
-# Über das Forum selbst lässt sich das Passwort nicht ändern, ohne dass .env veraltet; Flarum würde
-# dafür außerdem eine E-Mail schicken.
+# The password cannot be changed through the forum itself without leaving .env outdated; Flarum would
+# also send an email for that.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -19,7 +19,7 @@ docker compose ps --status running --services 2>/dev/null | grep -qx flarum || {
 
 new=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24 || true)
 
-# Im Container: Passwort-Hash wie Flarum (bcrypt), in die Datenbank schreiben, Anmeldungen löschen
+# In the container: password hash like Flarum (bcrypt), write it to the database, delete logins
 docker compose exec -T -e NEW_PASS="$new" flarum sh -s <<'INNER'
 set -e
 prefix=$(php -r '$c = include "/opt/flarum/config.php"; echo $c["database"]["prefix"];')

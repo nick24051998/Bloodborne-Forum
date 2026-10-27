@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Richtet die automatische Aktualisierung ein: ein systemd-Timer startet alle 5 Minuten
-# scripts/auto-update.sh (holt neue Commits und spielt sie ins Forum ein). Einmal als root:
+# Sets up automatic updates: a systemd timer runs scripts/auto-update.sh every 5 minutes
+# (fetches new commits and applies them to the forum). Run once as root:
 #
 #   scripts/install-auto-update.sh
 #
-# Log ansehen:   journalctl -u bbforum-auto-update -n 100
-# Sofort laufen: systemctl start bbforum-auto-update
-# Abschalten:    systemctl disable --now bbforum-auto-update.timer
+# View log:      journalctl -u bbforum-auto-update -n 100
+# Run now:       systemctl start bbforum-auto-update
+# Turn off:      systemctl disable --now bbforum-auto-update.timer
 set -euo pipefail
 cd "$(dirname "$0")/.."
 dir=$(pwd)

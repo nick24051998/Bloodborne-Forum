@@ -1,6 +1,6 @@
 <!doctype html>
-<!-- Logo für Forum-Kopfzeile und Website (theme/logo.png, website/public/logo.png).
-     Neu erzeugen: node media/render-logo.cjs (nach python3 media/brand.py). Siehe media/BRAND.md. -->
+<!-- Logo for the forum header and website (theme/logo.png, website/public/logo.png).
+     Regenerate: node media/render-logo.cjs (after python3 media/brand.py). See media/BRAND.md. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -8,12 +8,12 @@
   @font-face { font-family: Cinzel; font-weight: 700; src: url("../website/public/fonts/cinzel-latin-700-normal.woff2"); }
   @font-face { font-family: Cinzel; font-weight: 600; src: url("../website/public/fonts/cinzel-latin-600-normal.woff2"); }
   html, body { margin: 0; background: transparent; }
-  /* 3-fache Größe: wird im Forum mit 40 px Höhe angezeigt */
+  /* 3x size: shown at 40 px height in the forum */
   .logo { display: inline-flex; align-items: center; gap: 22px; height: 120px; padding: 0 6px 0 0; }
   .logo img { height: 116px; width: auto; }
   .text { display: flex; flex-direction: column; align-items: flex-start; }
   .name { font: 700 46px/1 Cinzel, serif; letter-spacing: 0.06em; color: #ece7dd; }
-  /* Untertitel groß genug, dass er bei 40 px Logohöhe lesbar bleibt (rund 9 px Schrifthöhe) */
+  /* Subtitle large enough to stay legible at 40 px logo height (about 9 px text height) */
   .sub { margin-top: 8px; font: 700 27px/1 Cinzel, serif; letter-spacing: 0.14em; color: #c2a878; }
 </style>
 </head>

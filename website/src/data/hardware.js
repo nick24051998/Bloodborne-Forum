@@ -1,15 +1,15 @@
-// Hardware-Check im Install Guide (src/components/HardwareCheck.astro): Listen und Regeln.
+// Hardware check in the Install Guide (src/components/HardwareCheck.astro): lists and rules.
 //
-// Grundlage sind nur veröffentlichte Angaben, keine eigenen Messungen:
-// - Systemanforderungen und harte Grenzen aus src/texts/install.md
+// The basis is published information only, no measurements of our own:
+// - System requirements and hard limits from src/texts/install.md
 //   (Minimum: i3-10100 / Ryzen 3 3100, GTX 1050 Ti / GTX 1650 / RX 570 / RX 6500 XT, 16 GB → 720p–1080p, ~30 FPS;
-//    Empfohlen: Ryzen 7 5700X / i7-12700, RTX 3060 Ti / RTX 4060 / RX 6700 XT / RX 7600, 32 GB → 1440p, 60–120 FPS;
-//    4K und Frame Generation: 12–16 GB Grafikspeicher, RTX 4070 / RTX 5070 / RX 7800 XT / RX 9070)
-// - Messwerte aus der README des Ports (RX 7800 XT): ~150 FPS in 1440p mit FSR 4 Quality, ~90 FPS in 4K mit FSR 4 Balanced
-// Die Leistungswerte (score) sind grobe Verhältnisse aus öffentlichen Benchmark-Übersichten und dienen nur der
-// Einstufung in diese Stufen. Neue Modelle: einfach eine Zeile ergänzen (ähnliche Karte als Maßstab nehmen).
+//    Recommended: Ryzen 7 5700X / i7-12700, RTX 3060 Ti / RTX 4060 / RX 6700 XT / RX 7600, 32 GB → 1440p, 60–120 FPS;
+//    4K and frame generation: 12–16 GB video memory, RTX 4070 / RTX 5070 / RX 7800 XT / RX 9070)
+// - Measured values from the port's README (RX 7800 XT): ~150 FPS at 1440p with FSR 4 Quality, ~90 FPS at 4K with FSR 4 Balanced
+// The performance values (score) are rough ratios from public benchmark overviews and only serve to
+// sort cards into these tiers. New models: just add a row (use a similar card as the yardstick).
 
-// --- Grafikkarten: Leistung relativ zur RTX 3060 (= 100), Grafikspeicher in GB ---------------------------------
+// --- Graphics cards: performance relative to the RTX 3060 (= 100), video memory in GB -----------------------------
 const nvidia = (group, rows) =>
   rows.map(([name, vram, score, extra = {}]) => {
     const series = Number((name.match(/RTX (\d)0/) || [])[1] || 0) * 10;
@@ -23,9 +23,9 @@ const nvidia = (group, rows) =>
 const amd = (group, rows) =>
   rows.map(([name, vram, score, extra = {}]) => ({
     group, vendor: 'amd', name, vram, score,
-    // FSR 4 nur ab RX 7000/9000 sinnvoll (darunter langsam, siehe Driver notes)
+    // FSR 4 only makes sense from RX 7000/9000 (slow below that, see Driver notes)
     fsr4: /^RX [79]\d{3}/.test(name),
-    // Hinweis zum Treiber 26.8.1 betrifft RX 6000 und RX 9000
+    // The note about driver 26.8.1 applies to RX 6000 and RX 9000
     amdDriverNote: /^RX [69]\d{3}/.test(name),
     ...extra,
   }));
@@ -88,7 +88,7 @@ export const gpus = [
     ['Arc A770M (laptop)', 16, 95, { laptop: true }], ['Arc A730M (laptop)', 12, 80, { laptop: true }],
     ['Arc A370M (laptop)', 4, 40, { laptop: true }],
   ]),
-  // Grafik im Prozessor: nutzt den Arbeitsspeicher als Grafikspeicher (vram 0 = geteilt)
+  // Graphics inside the processor: uses system RAM as video memory (vram 0 = shared)
   ...amd('Integrated graphics (AMD)', [
     ['Radeon 890M (Ryzen AI 300)', 0, 60, igpu], ['Radeon 880M (Ryzen AI 300)', 0, 52, igpu],
     ['Radeon 780M (Ryzen 7040, 8040, 8000G)', 0, 50, igpu], ['Radeon 760M', 0, 42, igpu],
@@ -97,16 +97,16 @@ export const gpus = [
     ['Radeon Graphics 2 CU (Ryzen 7000/9000 desktop)', 0, 7, igpu],
   ]).map((g) => ({ ...g, fsr4: false, amdDriverNote: false })),
   ...intel('Integrated graphics (Intel)', [
-    // Wie im Launcher (launcher/bbport_hardware.py, PR #122): Ein Tester mit Core Ultra 5 125H hat 40–55 FPS bei
-    // 1080p nativ gemessen; der Arc der 200V ist schneller
+    // As in the launcher (launcher/bbport_hardware.py, PR #122): a tester with a Core Ultra 5 125H measured 40–55 FPS
+    // at native 1080p; the Arc in the 200V is faster
     ['Arc 140V / 130V (Core Ultra 200V)', 0, 85, igpu], ['Arc graphics (Core Ultra 100H)', 0, 70, igpu],
     ['Iris Xe (11th–13th gen laptops)', 0, 20, igpu], ['UHD 770 / 730 (12th gen+ desktop)', 0, 10, igpu],
     ['UHD 620 / 630', 0, 6, igpu],
   ]),
 ].map((g) => ({ vulkan13: true, ...g, id: `${g.vendor}-${g.name}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '') }));
 
-// --- Prozessoren: Serie und Generation; Leistung relativ zum i3-10100 (= 100) ---------------------------------
-// support: ok | compat (läuft im Kompatibilitätsmodus, Fehler zu erwarten) | none (fehlende Befehlssätze)
+// --- Processors: series and generation; performance relative to the i3-10100 (= 100) -----------------------------
+// support: ok | compat (runs in compatibility mode, expect bugs) | none (missing instruction sets)
 const intelGens = {
   14: [142, 192, 222, 235], 13: [138, 188, 215, 230], 12: [132, 168, 195, 205], 11: [105, 135, 145, 148],
   10: [100, 120, 132, 140], 9: [95, 112, 122, 130], 8: [92, 108, 118, null], 7: [78, 92, 105, 120],
@@ -173,10 +173,10 @@ export const cpuLines = [
 
 export const ramOptions = [8, 12, 16, 24, 32];
 
-// --- Bewertung ------------------------------------------------------------------------------------------
-// Stufen der erwarteten Bildrate; die Texte stehen hier, damit Liste und Regeln zusammenbleiben
+// --- Rating ---------------------------------------------------------------------------------------------
+// Tiers of the expected frame rate; the texts live here so the list and the rules stay together
 export const LEVELS = [
-  { id: 0, label: 'Not recommended' }, // ganz ohne Chance ("Not supported") gibt es keine Tabelle
+  { id: 0, label: 'Not recommended' }, // with no chance at all ("Not supported") there is no table
   { id: 1, label: 'Under 30 FPS' },
   { id: 2, label: 'About 30 FPS' },
   { id: 3, label: '30–60 FPS' },
@@ -194,19 +194,19 @@ function gpuTier(g) {
   return 5;
 }
 
-// Erwartete Stufe je Auflösung aus der Grafikkarte (ohne Prozessor)
+// Expected tier per resolution from the graphics card (without the processor)
 function gpuLevels(g, tier) {
   const table = {
     0: [0, 0, 0], 1: [1, 1, 0], 2: [2, 1, 0], 3: [3, 2, 1], 4: [4, 4, 3], 5: [5, 5, 4],
   }[tier];
   let [p1080, p1440, p4k] = table;
   if (tier === 4 && g.score >= 170) [p1080, p1440] = [5, 5];
-  // Grafikspeicher: 4 GB nur bis 1080p, 6 GB kein 4K, 8–10 GB knapp für 4K
+  // Video memory: 4 GB only up to 1080p, 6 GB no 4K, 8–10 GB tight for 4K
   if (g.igpu) { p1440 = Math.min(p1440, 2); p4k = 0; }
   else if (g.vram <= 4) { p1440 = Math.min(p1440, 1); p4k = 0; }
   else if (g.vram <= 6) p4k = Math.min(p4k, 1);
   else if (g.vram < 12) p4k = Math.min(p4k, 2);
-  // Intel ohne Upscaler (bekanntes Problem): höhere Auflösungen eine Stufe niedriger
+  // Intel without an upscaler (known issue): higher resolutions one tier lower
   if (g.vendor === 'intel') { p1440 = Math.max(Math.min(p1440, 1), p1440 - 1); p4k = Math.max(Math.min(p4k, 1), p4k - 1); }
   return [p1080, p1440, p4k];
 }
@@ -218,11 +218,11 @@ function cpuTier(gen) {
   if (gen.score < 160) return 3;
   return 4;
 }
-// Höchste Stufe, die der Prozessor zulässt (unabhängig von der Auflösung)
+// Highest tier the processor allows (independent of the resolution)
 const CPU_CAP = [0, 1, 3, 4, 5];
 
-// Arbeitsspeicher entscheidet über Abstürze (code 3), nicht über die Bildrate: unter 16 GB stuft er herab,
-// ab 16 GB begrenzt er nichts (Hinweis auf 32 GB steht bei den Prüfungen)
+// RAM decides about crashes (code 3), not about the frame rate: below 16 GB it downgrades the rating,
+// from 16 GB it limits nothing (the hint about 32 GB is in the checks)
 function ramTier(gb) {
   if (gb < 12) return 0;
   if (gb < 16) return 1;
@@ -230,7 +230,7 @@ function ramTier(gb) {
 }
 
 function upscaler(g) {
-  if (g.vendor === 'intel') return null; // bekanntes Problem: verzerrte Polygone mit Upscaler
+  if (g.vendor === 'intel') return null; // known issue: distorted polygons with an upscaler
   if (g.dlss) return 'DLSS';
   if (g.fsr4) return 'FSR 4';
   return 'FSR 3.1';
@@ -246,7 +246,7 @@ function settingsFor(g, level, res) {
 
 export function evaluate(gpu, line, gen, ram) {
   const tiers = { gpu: gpuTier(gpu), cpu: cpuTier(gen), ram: ramTier(ram) };
-  // Gesamtstufe = schwächstes Teil; ein empfohlener Prozessor (4) begrenzt nicht unter "4K-ready"
+  // Overall tier = weakest part; a recommended processor (4) does not limit below "4K-ready"
   const effective = { gpu: tiers.gpu, cpu: tiers.cpu === 4 ? 5 : tiers.cpu, ram: tiers.ram };
   const tier = Math.min(effective.gpu, effective.cpu, effective.ram);
   const limit = tier === 5 ? null : Object.keys(effective).find((k) => effective[k] === tier);
@@ -259,14 +259,14 @@ export function evaluate(gpu, line, gen, ram) {
 
   const checks = [];
   const notes = [];
-  // Prozessor
+  // Processor
   if (gen.support === 'none') checks.push(['bad', 'Processor', 'Not supported: the port needs AVX, BMI1, MOVBE and LZCNT (Intel 4th gen or newer, or any Ryzen).']);
   else if (gen.support === 'compat') checks.push(['warn', 'Processor', 'Intel 2nd/3rd gen runs in compatibility mode, so expect bugs. It is also below the minimum (Core i3-10100).']);
   else checks.push([['bad', 'warn', 'ok', 'ok', 'ok'][tiers.cpu], 'Processor', [
     '', 'Below the minimum (Core i3-10100 / Ryzen 3 3100): expect low frame rates and stutter.',
     'Meets the minimum (Core i3-10100 / Ryzen 3 3100).', 'Above the minimum.',
     'Meets the recommendation (Ryzen 7 5700X / Core i7-12700).'][tiers.cpu]]);
-  // Grafikkarte
+  // Graphics card
   if (!gpu.vulkan13) checks.push(['bad', 'Graphics card', 'Not supported: no Vulkan 1.3 driver for this card.']);
   else if (!gpu.igpu && gpu.vram < 4) checks.push(['bad', 'Graphics card', `Not supported: ${gpu.vram} GB of video memory, the port needs at least 4 GB.`]);
   else checks.push([['bad', 'warn', 'ok', 'ok', 'ok', 'ok'][tiers.gpu], 'Graphics card', [
@@ -275,7 +275,7 @@ export function evaluate(gpu, line, gen, ram) {
     'Meets the recommendation (RTX 3060 Ti / RTX 4060 / RX 6700 XT / RX 7600).',
     'Enough for 4K (RTX 4070 / RTX 5070 / RX 7800 XT / RX 9070 class).'][tiers.gpu]
     + (gpu.igpu ? ' Integrated graphics use your RAM as video memory.' : '')]);
-  // Arbeitsspeicher
+  // Memory
   if (ram < 12) checks.push(['bad', 'Memory', `${ram} GB is not enough: the game will likely close right after PLAY (code 3).`]);
   else if (ram < 16) checks.push(['warn', 'Memory', `${ram} GB is below the minimum of 16 GB: the game may close right after PLAY (code 3).`]);
   else if (ram < 32) checks.push(['ok', 'Memory', `${ram} GB meets the minimum (32 GB recommended). Keep the page file on "System managed".`]);
@@ -284,7 +284,7 @@ export function evaluate(gpu, line, gen, ram) {
   if (tier > 0) {
     if (!gpu.igpu && gpu.vram === 4) notes.push('Use the settings for 4 GB cards above: 720p/1080p, FSR 3.1 Performance, Model detail Default, Object motion vectors off, frame generation off, a 60 FPS cap.');
     if (gpu.vendor === 'intel') notes.push('Intel graphics get no upscaler, and FSR 4 freezes on Intel Arc.');
-    // Die höhere Bewertung steht erst in 1.9.5 beta 2 (Supermedo/bloodborne_pc#122); bis dahin zeigt der Launcher weniger
+    // The higher rating only ships in 1.9.5 beta 2 (Supermedo/bloodborne_pc#122); until then the launcher shows less
     if (gpu.igpu && /^Arc /.test(gpu.name)) notes.push('The launcher in 1.9.4 may still show an older, lower rating for this chip. This rating follows newer measurements: 40–55 FPS at 1080p on a Core Ultra 5 125H.');
     if (gpu.amdDriverNote) notes.push('AMD driver 26.8.1: if the game crashes or shows broken graphics, clear the shader cache (Advanced) or try another driver.');
     const fps1440 = rows[1].level;
@@ -297,12 +297,12 @@ export function evaluate(gpu, line, gen, ram) {
   return { tier, tierLabel: TIERS[tier], limit, tiers, rows, checks, notes };
 }
 
-// Grafikkarte aus dem Namen erkennen, den der Browser meldet (z. B. "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Ti ...)")
-// Kleinbuchstaben, nur Wörter und Zahlen, ohne Füllwörter; mit Leerzeichen an den Rändern zum Wortvergleich
+// Recognize the graphics card from the name the browser reports (e.g. "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Ti ...)")
+// Lowercase, only words and numbers, without filler words; with spaces at the edges for whole-word comparison
 const words = (text) => ` ${text.toLowerCase().replace(/\((r|tm)\)/g, ' ').replace(/[^a-z0-9]+/g, ' ')} `
   .replace(/ (graphics|gpu|laptop)(?= )/g, ' ').replace(/ +/g, ' ');
 
-// Vergleichsnamen einer Karte: ohne Speicherangabe und Klammerzusatz; "UHD 620 / 630" ergibt "uhd 620" und "uhd 630"
+// Comparison names of a card: without the memory size and parenthetical; "UHD 620 / 630" yields "uhd 620" and "uhd 630"
 function gpuKeys(g) {
   const parts = g.name.replace(/\(.*?\)/g, '').replace(/\b\d+ GB\b/g, '').split('/').map((p) => words(p).trim());
   const prefix = parts[0].split(' ').slice(0, -1).join(' ');

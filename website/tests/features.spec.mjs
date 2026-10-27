@@ -1,17 +1,17 @@
-// Interaktive Teile: Hardware-Check, Galerie-Großansicht, Animationen bei „Bewegung reduzieren“, Links ins Forum,
-// Download und Release-Texte.
+// Interactive parts: hardware check, gallery lightbox, animations under "reduce motion", links to the forum,
+// download and release texts.
 import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
 import { SITE } from '../site.config.mjs';
 import { TIERS, gpus, cpuLines, evaluate } from '../src/data/hardware.js';
 import { cleanNotes } from '../scripts/release-notes.mjs';
 
-// Dieselben Daten, aus denen die Seite gebaut wurde (im Workflow frisch von GitHub)
+// The same data the site was built from (fetched fresh from GitHub in the workflow)
 const { releases } = JSON.parse(readFileSync(new URL('../src/data/releases.json', import.meta.url), 'utf8'));
 const latest = releases.find((r) => !r.prerelease);
 const zipUrl = latest?.download ?? SITE.downloadUrl;
 
-test.describe('Hardware-Check (Install Guide)', () => {
+test.describe('Hardware check (Install Guide)', () => {
   const pick = async (page, { gpu, cpu, gen, ram }) => {
     await page.selectOption('#hw-gpu', { label: gpu });
     await page.selectOption('#hw-cpu', { label: cpu });
@@ -20,9 +20,9 @@ test.describe('Hardware-Check (Install Guide)', () => {
     await page.selectOption('#hw-ram', ram);
   };
 
-  test('Empfohlener PC ergibt eine Einschätzung mit Tabelle und Teilen-Link', async ({ page }) => {
+  test('A recommended PC gives a verdict with a table and a share link', async ({ page }) => {
     await page.goto('/install/');
-    // Das # dahinter ist der Link zu dieser Stelle (Sprungmarken in Base.astro)
+    // The # after it is the link to this spot (anchors in Base.astro)
     await expect(page.locator('#hwcheck-heading')).toHaveText(/^Will it run on my PC\?/);
     await pick(page, { gpu: 'RTX 3060 Ti', cpu: 'Core i7', gen: '12th gen (i7-12xxx)', ram: '32' });
 
@@ -33,7 +33,7 @@ test.describe('Hardware-Check (Install Guide)', () => {
     await expect(page.locator('.hw-result table.hw-table')).toBeVisible();
     await expect(page.locator('.hw-result .hw-copy')).toBeVisible();
 
-    // Die Auswahl steht in der Adresse; ein geteilter Link stellt dasselbe Ergebnis wieder her
+    // The selection is in the address; a shared link restores the same result
     const shared = page.url();
     expect(new URL(shared).searchParams.get('gpu')).toBeTruthy();
     const label = await tier.textContent();
@@ -42,7 +42,7 @@ test.describe('Hardware-Check (Install Guide)', () => {
     await expect(page.locator('#hw-ram')).toHaveValue('32');
   });
 
-  test('Prozessor ohne nötige Befehlssätze wird als nicht unterstützt erkannt', async ({ page }) => {
+  test('A processor without the required instruction sets is recognized as unsupported', async ({ page }) => {
     await page.goto('/install/');
     await page.selectOption('#hw-gpu', { label: 'RTX 3060 Ti' });
     await page.selectOption('#hw-cpu', { label: 'FX / A-series / Phenom' });
@@ -54,8 +54,8 @@ test.describe('Hardware-Check (Install Guide)', () => {
   });
 });
 
-test.describe('Galerie auf der Startseite', () => {
-  test('Kacheln und Großansicht', async ({ page }) => {
+test.describe('Gallery on the home page', () => {
+  test('Tiles and lightbox', async ({ page }) => {
     await page.goto('/');
     const tiles = page.locator('.showcase-grid .tile');
     expect(await tiles.count()).toBeGreaterThanOrEqual(1);
@@ -63,13 +63,13 @@ test.describe('Galerie auf der Startseite', () => {
     const withImage = page.locator('.tile-open');
     test.skip((await withImage.count()) === 0, 'Noch keine Bilder in der Galerie');
 
-    // Jede Kachel mit Bild hat ein geladenes Vorschaubild
+    // Every tile with an image has a loaded preview image
     for (const img of await page.locator('.tile-open img').all()) {
       await img.scrollIntoViewIfNeeded();
       await expect.poll(() => img.evaluate((i) => i.complete && i.naturalWidth)).toBeGreaterThan(0);
     }
 
-    // Großansicht: öffnet, zeigt das Bild in voller Größe samt Titel, schließt mit Esc
+    // Lightbox: opens, shows the image at full size with its title, closes with Esc
     await withImage.first().scrollIntoViewIfNeeded();
     await withImage.first().click();
     const dialog = page.locator('dialog.lightbox');
@@ -78,7 +78,7 @@ test.describe('Galerie auf der Startseite', () => {
     const big = dialog.locator('.lightbox-img');
     await expect.poll(() => big.evaluate((i) => i.complete && i.naturalWidth)).toBeGreaterThanOrEqual(1200);
 
-    // Zoom: Klick vergrößert, 0 setzt zurück, + und Mausrad zoomen, Ziehen verschiebt
+    // Zoom: click zooms in, 0 resets, + and the mouse wheel zoom, dragging pans
     const stage = dialog.locator('.lightbox-stage');
     const scaleOf = () => big.evaluate((i) => {
       const t = getComputedStyle(i).transform;
@@ -99,7 +99,7 @@ test.describe('Galerie auf der Startseite', () => {
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
       await page.mouse.wheel(0, -200);
       await expect(stage).toHaveClass(/is-zoomed/);
-      // Ziehen verschiebt den Ausschnitt
+      // Dragging moves the visible area
       await expect.poll(scaleOf).toBeGreaterThan(1.2);
       const before = await big.evaluate((i) => getComputedStyle(i).transform);
       await page.mouse.down();
@@ -113,7 +113,7 @@ test.describe('Galerie auf der Startseite', () => {
   });
 });
 
-test('„Bewegung reduzieren“ schaltet die Animationen ab', async ({ browser }) => {
+test('"Reduce motion" turns off the animations', async ({ browser }) => {
   const context = await browser.newContext({ reducedMotion: 'reduce' });
   const page = await context.newPage();
   await page.goto('/');
@@ -122,7 +122,7 @@ test('„Bewegung reduzieren“ schaltet die Animationen ab', async ({ browser }
   await context.close();
 });
 
-test('Sprungmarken: FAQ-Fragen öffnen per Link, Überschriften haben #-Links', async ({ page }) => {
+test('Anchors: FAQ questions open via link, headings have # links', async ({ page }) => {
   await page.goto('/faq/#code-3');
   const question = page.locator('details#code-3');
   await expect(question).toHaveAttribute('open', '');
@@ -138,8 +138,8 @@ test('Sprungmarken: FAQ-Fragen öffnen per Link, Überschriften haben #-Links', 
   await expect(page).toHaveURL(/\/guide\/#online-play$/);
 });
 
-// FAQ übersichtlich: Fragen nach Themen, oben Themenleiste und Suche; ohne Treffer der Weg zu Known Fixes im Forum
-test('FAQ: Themen, Themenleiste und Suche', async ({ page }) => {
+// A clear FAQ: questions by topic, topic bar and search at the top; without hits, the way to Known Fixes in the forum
+test('FAQ: topics, topic bar and search', async ({ page }) => {
   await page.goto('/faq/');
   const topics = page.locator('.faq-topics a');
   expect(await topics.count()).toBeGreaterThanOrEqual(6);
@@ -161,7 +161,7 @@ test('FAQ: Themen, Themenleiste und Suche', async ({ page }) => {
   await expect(page.locator('[data-faq-forum]')).toHaveAttribute('href', /\?q=xyzzy%20nothing$/);
 });
 
-test('Suchname „bbport“ in Titeln und Seitendaten für Google', async ({ page }) => {
+test('Search name "bbport" in titles and page data for Google', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveTitle(/^bbport – /);
   const ld = JSON.parse(await page.locator('script[type="application/ld+json"]').first().textContent());
@@ -175,7 +175,7 @@ test('Suchname „bbport“ in Titeln und Seitendaten für Google', async ({ pag
   }
 });
 
-test('Startseite zeigt den echten Launcher (Play-Seite)', async ({ page }) => {
+test('Home page shows the real launcher (Play page)', async ({ page }) => {
   await page.goto('/');
   const section = page.locator('#launcher');
   await expect(section.locator('h2')).toHaveText('The official launcher');
@@ -187,9 +187,9 @@ test('Startseite zeigt den echten Launcher (Play-Seite)', async ({ page }) => {
   expect((await page.request.get(full)).ok(), 'Bild in voller Größe').toBe(true);
 });
 
-// Ein Menü für Website und Forum (das Forum baut es in flarum/forum.js und theme/custom.less nach):
-// dieselben Links direkt neben dem Logo, Discord als Knopf ganz rechts
-test('Menü: Links neben dem Logo, Discord ganz rechts', async ({ page, isMobile }) => {
+// One menu for website and forum (the forum recreates it in flarum/forum.js and theme/custom.less):
+// the same links right next to the logo, Discord as a button at the far right
+test('Menu: links next to the logo, Discord at the far right', async ({ page, isMobile }) => {
   test.skip(isMobile, 'auf dem Handy steckt das Menü hinter dem Menü-Knopf');
   await page.goto('/');
   expect(await page.$$eval('.nav a', (all) => all.map((a) => a.textContent.trim())))
@@ -199,13 +199,13 @@ test('Menü: Links neben dem Logo, Discord ganz rechts', async ({ page, isMobile
   const discord = await page.locator('.nav .nav-discord').boundingBox();
   const column = await page.locator('.site-header .container').boundingBox();
   expect(first.x - (logo.x + logo.width), 'erster Link direkt neben dem Logo').toBeLessThan(60);
-  // rechts in der Inhaltsspalte (die ist auf breiten Bildschirmen mittig), nicht am Fensterrand
+  // at the right of the content column (which is centered on wide screens), not at the window edge
   expect(column.x + column.width - (discord.x + discord.width), 'Discord ganz rechts').toBeLessThan(40);
 });
 
-// Eine Regel für alle Knöpfe (global.css „Knöpfe: eine Regel für alle“): gleiche Rundung, Messing-Haarlinie,
-// Blut steigt beim Zeigen auf; nur die Füllung unterscheidet Hauptaktion, Rest und Discord
-test('Alle Knöpfe folgen einer Regel', async ({ page }) => {
+// One rule for all buttons (global.css, the "one rule for all buttons" section): same rounding, brass hairline,
+// blood rises on hover; only the fill sets the main action, the rest and Discord apart
+test('All buttons follow one rule', async ({ page }) => {
   for (const path of ['/', '/changelog/', '/install/', '/supermedo/']) {
     await page.goto(path);
     const buttons = await page.$$eval('.btn, .hw-detect, .lightbox button', (all) => all.map((b) => {
@@ -222,8 +222,8 @@ test('Alle Knöpfe folgen einer Regel', async ({ page }) => {
   expect(await fill('.hero .btn-discord')).toBe('rgb(88, 101, 242)');
 });
 
-// Für Einsteiger: der Erststart Bild für Bild, die drei Ziele und Werte je Grafikkarte; von überall verlinkt
-test('Best settings: Erststart mit Bildern, Ziele, Werte je Karte, verlinkt', async ({ page }) => {
+// For beginners: the first start screen by screen, the three goals and values per graphics card; linked from everywhere
+test('Best settings: first start with pictures, goals, values per card, linked', async ({ page }) => {
   await page.goto('/best-settings/');
   await expect(page.locator('h1')).toHaveText('Best settings');
   await expect(page.locator('.nav a[aria-current="page"]')).toHaveText('Best settings');
@@ -241,8 +241,8 @@ test('Best settings: Erststart mit Bildern, Ziele, Werte je Karte, verlinkt', as
   await expect(page.locator('footer a[href="/best-settings/"]')).toHaveCount(1);
 });
 
-// Nick will nirgends farbige Streifen am linken Rand von Kästen oder Hinweisen sehen
-test('Keine Streifen am linken Rand', async ({ page }) => {
+// (Nick's wish) no colored stripes on the left edge of boxes or notices anywhere
+test('No stripes on the left edge', async ({ page }) => {
   for (const path of ['/', '/install/', '/guide/', '/faq/', '/changelog/', '/supermedo/', '/best-settings/']) {
     await page.goto(path);
     const stripes = await page.$$eval('body *', (all) => all.filter((el) => {
@@ -254,7 +254,7 @@ test('Keine Streifen am linken Rand', async ({ page }) => {
   }
 });
 
-test('Startseite sagt, dass die Seite noch im Aufbau ist', async ({ page }) => {
+test('Home page says the site is still under construction', async ({ page }) => {
   await page.goto('/');
   const note = page.locator('.wip-bar');
   await expect(note).toBeVisible();
@@ -262,7 +262,7 @@ test('Startseite sagt, dass die Seite noch im Aufbau ist', async ({ page }) => {
   await expect(note).toContainText('Bug hunters may keep every bug they find');
 });
 
-test('Startseite nennt den Port von Supermedo mit Link zu GitHub', async ({ page }) => {
+test('Home page names the port by Supermedo with a link to GitHub', async ({ page }) => {
   await page.goto('/');
   const line = page.locator('.hero-port');
   await expect(line).toContainText(SITE.portName);
@@ -271,30 +271,30 @@ test('Startseite nennt den Port von Supermedo mit Link zu GitHub', async ({ page
   await expect(page.locator(`footer a[href="${SITE.portRepoUrl}"]`)).toHaveCount(1);
 });
 
-test('Supermedo-Seite zeigt seine Projekte und verlinkt NativeRetro', async ({ page }) => {
+test('Supermedo page shows his projects and links to NativeRetro', async ({ page }) => {
   await page.goto('/supermedo/');
   await expect(page.locator('h1')).toHaveText(`${SITE.portAuthor}'s ports`);
   await expect(page.locator('.nr-hero a.btn-primary')).toHaveAttribute('href', 'https://nativeretro.com/');
-  // bbport ist als „hier“ markiert, die anderen Ports führen zu NativeRetro und GitHub
+  // bbport is marked as "here", the other ports lead to NativeRetro and GitHub
   await expect(page.locator('.nr-card.is-here h3')).toHaveText('Bloodborne for Windows');
   await expect(page.locator('.nr-card a[href^="https://nativeretro.com/game/"]').first()).toBeVisible();
   await expect(page.locator('.nr-dir a[href^="https://nativeretro.com/game/"]')).not.toHaveCount(0);
-  // Die Terminalschrift liegt auf dieser Seite, nichts wird von NativeRetro geladen
+  // The terminal font is hosted on this site, nothing is loaded from NativeRetro
   const external = [];
   page.on('request', (req) => { if (/^https?:/.test(req.url()) && !req.url().startsWith('http://127.0.0.1')) external.push(req.url()); });
   await page.reload({ waitUntil: 'networkidle' });
   expect(external).toEqual([]);
   expect(await page.evaluate(async () => (await document.fonts.load('20px VT323')).length)).toBeGreaterThan(0);
 
-  // Menü, Startseite und Fußzeile führen hierher
+  // The menu, home page and footer lead here
   await expect(page.locator('.nav a[aria-current="page"]')).toHaveText('Supermedo');
   await page.goto('/');
   await expect(page.locator('.nr-teaser a[href="/supermedo/"]')).toBeVisible();
   await expect(page.locator('footer a[href="/supermedo/"]')).toHaveCount(1);
 });
 
-test.describe('Download und Releases', () => {
-  test('Startseite lädt die ZIP direkt, ohne Umweg über GitHub', async ({ page }) => {
+test.describe('Download and releases', () => {
+  test('Home page downloads the ZIP directly, without a detour via GitHub', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.hero .actions a', { hasText: /^Download/ })).toHaveAttribute('href', zipUrl);
     if (latest?.download) {
@@ -303,7 +303,7 @@ test.describe('Download und Releases', () => {
     }
   });
 
-  test('Install Guide und FAQ verlinken die ZIP direkt', async ({ page }) => {
+  test('Install Guide and FAQ link the ZIP directly', async ({ page }) => {
     for (const path of ['/install/', '/faq/', '/guide/']) {
       await page.goto(path);
       await expect(page.locator('a[href="#latest-download"]'), path).toHaveCount(0);
@@ -311,7 +311,7 @@ test.describe('Download und Releases', () => {
     }
   });
 
-  test('Changelog zeigt Download, Prüfsumme und Release-Texte', async ({ page }) => {
+  test('Changelog shows the download, checksum and release texts', async ({ page }) => {
     test.skip(!latest, 'keine Releases in src/data/releases.json');
     await page.goto('/changelog/');
     const box = page.locator('.release-latest');
@@ -326,9 +326,9 @@ test.describe('Download und Releases', () => {
   });
 });
 
-test('Launcher guide: im Menü und mit den Abschnitten', async ({ page }) => {
+test('Launcher guide: in the menu and with its sections', async ({ page }) => {
   await page.goto('/');
-  // Auf dem Handy steckt das Menü im Seitenmenü, der Link ist trotzdem da
+  // On phones the menu sits inside the side menu, the link is still there
   await expect(page.locator('header a[href$="/guide/"]').first()).toHaveCount(1);
   await page.goto('/guide/');
   await expect(page.locator('h1')).toHaveText(/Launcher guide/i);
@@ -337,8 +337,8 @@ test('Launcher guide: im Menü und mit den Abschnitten', async ({ page }) => {
   }
 });
 
-// Logo-Contest: große Ankündigung auf der Startseite, führt auf die Contest-Seite im Forum; die Vorlage liegt auf der Website
-test('Startseite kündigt den Logo-Contest an und führt ins Forum', async ({ page }) => {
+// Logo contest: big announcement on the home page, leads to the contest page in the forum; the template is on the website
+test('Home page announces the logo contest and leads to the forum', async ({ page }) => {
   await page.goto('/');
   const banner = page.locator('.contest-banner');
   await expect(banner.locator('h2')).toHaveText('Design the new launcher logo');
@@ -349,8 +349,8 @@ test('Startseite kündigt den Logo-Contest an und führt ins Forum', async ({ pa
   expect(await res.text()).toContain('viewBox="0 0 1024 1024"');
 });
 
-// Betas gibt es nur im Forum (Bereich Beta, für freigeschaltete Tester), nicht auf der Website
-test('Keine Beta auf der Website', async ({ page }) => {
+// Betas exist only in the forum (Beta section, for unlocked testers), not on the website
+test('No beta on the website', async ({ page }) => {
   for (const path of ['/', '/install/', '/guide/', '/faq/', '/best-settings/']) {
     await page.goto(path);
     expect(await page.locator('a[href*="nick24051998/bloodborne_pc"]').count(), path).toBe(0);
@@ -358,7 +358,7 @@ test('Keine Beta auf der Website', async ({ page }) => {
   }
 });
 
-test('Hardware-Check bewertet Intels Arc-Grafik im Prozessor wie der Launcher', () => {
+test('Hardware check rates Intel Arc graphics inside the processor like the launcher', () => {
   const ultra = cpuLines.find((l) => l.id === 'intel-core-ultra');
   const gen = ultra.gens.find((g) => g.id === 'u1-5');
   for (const name of ['Arc graphics (Core Ultra 100H)', 'Arc 140V / 130V (Core Ultra 200V)']) {
@@ -372,13 +372,13 @@ test('Hardware-Check bewertet Intels Arc-Grafik im Prozessor wie der Launcher', 
   expect(v.score).toBeGreaterThan(h.score);
 });
 
-test('Release-Daten: neueste Version mit Download der Port-ZIP', () => {
-  // Fiel der Abruf beim Bauen aus, stammen sie aus dem Repo: auch dann kein veraltetes Release ohne Download
+test('Release data: latest version with a download of the port ZIP', () => {
+  // If the fetch failed during the build, the data comes from the repo: even then no outdated release without a download
   expect(releases.length).toBeGreaterThan(0);
   expect(latest?.download, 'Download der neuesten Version').toMatch(/\/Bloodborne[^/]*\.zip$/);
 });
 
-test('Release-Texte behalten nur einfache Auszeichnung', () => {
+test('Release texts keep only simple markup', () => {
   const html = cleanNotes(
     '<h2 id="x" onclick="alert(1)">New</h2><p>a <script>alert(1)</script><img src=x onerror=alert(1)>' +
     '<a href="javascript:alert(1)">x</a> <a class="u" href="https://github.com/a?b=1&amp;c=2" data-x="1">@a</a></p>' +
@@ -388,7 +388,7 @@ test('Release-Texte behalten nur einfache Auszeichnung', () => {
   expect(cleanNotes('')).toBeNull();
 });
 
-test('Links zu Forum und Discord zeigen auf die aktuellen Adressen', async ({ page }) => {
+test('Links to the forum and Discord point to the current addresses', async ({ page }) => {
   await page.goto('/');
   const hrefs = await page.$$eval('a[href]', (as) => as.map((a) => a.href));
   if (SITE.forumUrl) expect(hrefs.some((h) => h.startsWith(SITE.forumUrl)), `Link auf ${SITE.forumUrl}`).toBe(true);

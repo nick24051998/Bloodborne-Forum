@@ -70,7 +70,7 @@ Everything else in the admin panel, such as users, mail and extension settings, 
     height.
   - Blood red marks the main action, stone is used for everything else, and Discord blue only for Discord links.
 - **No colored stripe on the left edge** of boxes or notices. Frame them all round instead. A test checks this.
-- **Visitors only see English.** Code comments in this repo are mostly German, and English comments are fine too.
+- **Everything is in English:** visitor text, code comments and docs.
 - **Forum LESS:** in custom properties, write values out. Don't use LESS variables or `fade()` there.
 - **Commit messages** are short English sentences that say what changed, for example
   `Website: server status box on the start page`.

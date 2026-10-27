@@ -1,7 +1,7 @@
-// Prüfungen der fertigen Website im echten Browser (Chromium, Desktop und Handy).
-// Laufen bei GitHub vor jedem Deploy (.github/workflows/website.yml); schlägt eine fehl, geht nichts live.
+// Checks of the finished website in a real browser (Chromium, desktop and phone).
+// They run on GitHub before every deploy (.github/workflows/website.yml); if one fails, nothing goes live.
 //
-// Lokal (Node.js ab 22.22):
+// Locally (Node.js 22.22 or newer):
 //   npm run build
 //   npm install --no-save @playwright/test@1.56.1 && npx playwright install chromium
 //   npm test
@@ -15,14 +15,14 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
-  // Bei GitHub erscheinen Fehler als Anmerkungen am Workflow-Lauf
+  // On GitHub, failures show up as annotations on the workflow run
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
   use: {
     baseURL: `http://127.0.0.1:${PORT}`,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
-  // Die gebaute Seite aus dist/ (vorher npm run build)
+  // The built site from dist/ (run npm run build first)
   webServer: {
     command: `npx astro preview --host 127.0.0.1 --port ${PORT}`,
     url: `http://127.0.0.1:${PORT}/`,

@@ -1,8 +1,8 @@
 ---
-// Changelog-Seite (Markierungen in src/texts/changelog.md): "latest" = Kasten mit der neuesten Version oben,
-// "list" = alle Releases unten. Kommen automatisch von GitHub; die Kurzfassungen im Text schreiben wir selbst.
-// Download und Release-Texte stehen direkt hier: Der Knopf lädt die ZIP aus Supermedos GitHub-Release, die Texte
-// sind GitHubs eigene Fassung (bereinigt, siehe scripts/release-notes.mjs).
+// Changelog page (markers in src/texts/changelog.md): "latest" = box with the newest version at the top,
+// "list" = all releases below. They come automatically from GitHub; we write the short summaries in the text ourselves.
+// Download and release texts are right here: the button downloads the ZIP from Supermedo's GitHub release, the texts
+// are GitHub's own version (sanitized, see scripts/release-notes.mjs).
 import { releases, releasesSource, latest, downloadUrl, releaseAnchor, formatDate } from '../lib/releases.js';
 import changelog from '../texts/changelog.md?raw';
 
@@ -11,7 +11,7 @@ interface Props {
 }
 const { show } = Astro.props;
 
-// Hat die neueste Version schon eine Kurzfassung ("## 1.9.2 – …")? Kommentare (die Vorlage) zählen nicht.
+// Does the newest version already have a short summary ("## 1.9.2 – …")? Comments (the template) don't count.
 const escaped = latest?.version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const text = changelog.replace(/<!--[\s\S]*?-->/g, '');
 const summarized = latest ? new RegExp(`^## ${escaped}\\b`, 'm').test(text) : true;

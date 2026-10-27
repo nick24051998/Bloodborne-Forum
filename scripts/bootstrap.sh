@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Komplett-Installation in einem Rutsch (auf dem Docker-Host ausführen):
+# Complete installation in one go (run on the Docker host):
 #
 #   git clone https://github.com/nick24051998/Bloodborne-Forum && cd Bloodborne-Forum
 #   scripts/bootstrap.sh
 #
-# Fragt Domain, Admin-Name/-Mail, Discord-Link und die HTTPS-Variante ab,
-# erzeugt alle Passwörter, schreibt .env, startet die Container, installiert und
-# konfiguriert die Erweiterungen, Tags, Rechte und das Theme. Erneut ausführbar:
-# Ist .env schon da, wird sie weiterverwendet.
+# Asks for the domain, admin name/email, Discord link and the HTTPS variant,
+# generates all passwords, writes .env, starts the containers, installs and
+# configures the extensions, tags, permissions and the theme. Can be run again:
+# if .env already exists, it is reused.
 #
-# Ohne Rückfragen (alle Werte vorgeben):
+# Without prompts (provide all values up front):
 #   BB_DOMAIN=forum.example.com BB_ADMIN_USER=admin BB_ADMIN_MAIL=a@example.com \
 #   BB_DISCORD_INVITE=https://discord.gg/xyz BB_HTTPS_MODE=tunnel BB_TUNNEL_TOKEN=... \
 #   scripts/bootstrap.sh
@@ -20,7 +20,7 @@ red()   { printf '\033[1;31m%s\033[0m\n' "$*"; }
 green() { printf '\033[1;32m%s\033[0m\n' "$*"; }
 step()  { printf '\n\033[1;31m▸ %s\033[0m\n' "$*"; }
 
-ask() { # ask VAR "Frage" [Default]
+ask() { # ask VAR "question" [default]
   local var=$1 prompt=$2 def=${3:-} val
   if [[ -n ${!var:-} ]]; then return; fi
   if [[ ! -t 0 ]]; then
@@ -33,7 +33,7 @@ ask() { # ask VAR "Frage" [Default]
 
 randpw() { tr -dc 'A-Za-z0-9' </dev/urandom | head -c "${1:-32}"; }
 
-# --- Voraussetzungen -----------------------------------------------------------
+# --- Prerequisites -------------------------------------------------------------
 step "Voraussetzungen prüfen"
 for cmd in docker git curl; do
   command -v "$cmd" >/dev/null || { red "$cmd fehlt – bitte installieren"; exit 1; }
@@ -116,7 +116,7 @@ env_get() { grep -E "^$1=" .env | tail -1 | cut -d= -f2-; }
 FORUM_URL=$(env_get FORUM_URL)
 PORT=$(env_get FLARUM_PORT); PORT=${PORT:-8888}
 
-# --- Start (ohne Tunnel, bis der Standard-Admin ersetzt ist) ------------------------
+# --- Start (without tunnel, until the default admin is replaced) ---------------------
 step "Container starten (erster Start dauert ca. 1 Minute)"
 docker compose pull -q db flarum ||
   echo "  Hinweis: Image-Update fehlgeschlagen (z. B. Docker-Hub-Limit) – nutze vorhandene Images"
@@ -139,7 +139,7 @@ fi
 step "Forum einrichten (Admin, Tags, Rechte, Theme, Regeln)"
 scripts/setup-forum.sh
 
-# --- Öffentlich machen -----------------------------------------------------------------
+# --- Make public -----------------------------------------------------------------------
 if grep -q '^COMPOSE_PROFILES=.*tunnel' .env; then
   step "Cloudflare Tunnel"
   if [[ -n $(env_get CF_TUNNEL_TOKEN) ]]; then
@@ -162,7 +162,7 @@ else
 EOF
 fi
 
-# --- Backup-Cronjob -------------------------------------------------------------------
+# --- Backup cron job ------------------------------------------------------------------
 if [[ -t 0 ]] && ! crontab -l 2>/dev/null | grep -q "scripts/backup.sh"; then
   read -r -p $'\nNächtliches Backup (03:30, 14 Tage aufbewahren) per Cron einrichten? [J/n]: ' yn
   if [[ ! $yn =~ ^[nN] ]]; then
@@ -172,7 +172,7 @@ if [[ -t 0 ]] && ! crontab -l 2>/dev/null | grep -q "scripts/backup.sh"; then
   fi
 fi
 
-# --- Zusammenfassung --------------------------------------------------------------------
+# --- Summary ----------------------------------------------------------------------------
 green $'\n✔ Fertig.'
 cat <<EOF
 

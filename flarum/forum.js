@@ -1,28 +1,29 @@
-// Wird über flarum/extend.php ins Forum eingebunden (kein Build-Schritt nötig).
-// - Kopfzeile wie auf der Website (ein Menü für beide): links neben dem Logo Install, Guide, Best settings, FAQ,
-//   Changelog, Supermedo, Forum (aktiv) in derselben Schrift, ohne Symbole; rechts die Aktionen, hier Suche, Anmelden und als letzter
-//   Knopf Discord wie auf der Website. Website-Links im selben Tab, Discord in einem neuen
-//   (auf dem Handy im Seitenmenü, dort zusätzlich "Website")
-// - Discord-only-Registrierung: Das Registrieren-Fenster zeigt nur den Discord-Button
-// - Live-Zahlen von The Hunter's Dream (aus /api/hunters-dream, siehe extend.php): als Kasten
-//   in der Seitenleiste, auf schmalen Bildschirmen als Zeile unter dem Willkommens-Banner
-// - Keine Gruppen-Abzeichen: Rollen-Schilder am Namen, verdiente Zeichen dahinter (flarum/profiles.php)
-// - Übersicht unter dem Banner der Startseite: vier Blöcke (neue Hilfe-Fragen, Top-Vorschläge, neue Known Fixes, News)
-//   mit je fünf Themen; lässt sich ausblenden (merkt sich der Browser). Seitenleiste: „Start here“ mit den Anleitungen,
-//   nur die Bereiche (Themen-Tags wie Crash gibt es als Reiter und im Known-Fixes-Index), Hunter's Dream einklappbar
-// - Stimmen: 👍 auf dem Eröffnungsbeitrag (flarum/overview.php). Suggestions zeigen eine Stimmen-Box und sind nach
-//   Stimmen sortiert, neue der letzten 7 Tage stehen hervorgehoben darüber; Reiter (?tab=) über Suggestions,
-//   Help & Support (Open/Solved/Closed) und Bug Reports; Etiketten Solved, Waiting for an answer, Closed, New
-// - Known Fixes: statt der Liste ein Nachschlagewerk nach Thema, mit Suche und „Worked for me“
-// - Profile (flarum/profiles.php): Banner, Profilfarbe und Avatar-Deko von Discord; verdiente Effekte (Blutmond-Rahmen
-//   und glühender Name für Booster, Messing-Laterne fürs Team, Mondlicht-Name für Contest-Sieger); Hunter-Karte
-//   (Waffe, Grafikkarte, VRAM) im Profil. „Profile look“ in den Einstellungen: was Nitro kann, für alle (animiertes
-//   Profil- und Titelbild, zwei Profilfarben), mit Vorschau; „Customize profile“ auf dem eigenen Profil
-// - Team (wer in Known Fixes Themen starten darf, also Mods und Admins): Block „Team“ in der Seitenleiste mit
-//   Arbeitslisten (ohne Antwort, ungelöst, offene Bugs, Vorschläge) und an Hilfe-Themen „Save as Known Fix“
-// - Logo-Contest: Seite /logo-contest mit allen Werken (erstes Bild im Eröffnungsbeitrag eines Themas im Bereich
-//   Logo Contest), Einreichen und Abstimmen; Regeln und Daten in flarum/contest.php, Link in der Seitenleiste
-// Die Adressen setzt scripts/setup-forum.sh (WEBSITE_URL, DISCORD_INVITE_URL aus .env).
+// Included in the forum via flarum/extend.php (no build step needed).
+// - Header like on the website (one menu for both): to the left of the logo Install, Guide, Best settings, FAQ,
+//   Changelog, Supermedo, Forum (active) in the same font, without icons; on the right the actions, here Search,
+//   Log in and, as the last button, Discord like on the website. Website links open in the same tab, Discord in a new
+//   one (on phones in the side menu, where "Website" is added as well)
+// - Discord-only sign-up: the sign-up window shows only the Discord button
+// - Live numbers from The Hunter's Dream (from /api/hunters-dream, see extend.php): as a box
+//   in the sidebar, on narrow screens as a line below the welcome banner
+// - No group badges: role shields at the name, earned marks after it (flarum/profiles.php)
+// - Overview below the banner of the home page: four blocks (new help questions, top suggestions, new Known Fixes,
+//   News) with five topics each; can be hidden (the browser remembers it). Sidebar: "Start here" with the guides,
+//   only the sections (topic tags such as Crash are available as tabs and in the Known Fixes index), Hunter's Dream
+//   collapsible
+// - Votes: 👍 on the opening post (flarum/overview.php). Suggestions show a votes box and are sorted by
+//   votes, new ones from the last 7 days are highlighted above them; tabs (?tab=) above Suggestions,
+//   Help & Support (Open/Solved/Closed) and Bug Reports; labels Solved, Waiting for an answer, Closed, New
+// - Known Fixes: instead of the list a reference sorted by topic, with search and "Worked for me"
+// - Profiles (flarum/profiles.php): banner, profile colour and avatar decoration from Discord; earned effects (blood
+//   moon frame and glowing name for Boosters, brass lantern for the team, moonlight name for contest winners); Hunter
+//   card (weapon, graphics card, VRAM) in the profile. "Profile look" in the settings: what Nitro can do, for everyone
+//   (animated profile and cover image, two profile colours), with preview; "Customize profile" on your own profile
+// - Team (who may start topics in Known Fixes, i.e. mods and admins): "Team" block in the sidebar with
+//   work lists (unanswered, unsolved, open bugs, suggestions) and "Save as Known Fix" on help topics
+// - Logo contest: page /logo-contest with all entries (first image in the opening post of a topic in the section
+//   Logo Contest), submitting and voting; rules and data in flarum/contest.php, link in the sidebar
+// The addresses are set by scripts/setup-forum.sh (WEBSITE_URL, DISCORD_INVITE_URL from .env).
 (function () {
   var compat = flarum.core.compat;
   var app = compat['forum/app'];
@@ -60,13 +61,13 @@
 
   var HD_URL = 'https://thehuntersdream.com';
 
-  // Website-Links öffnen im selben Tab (Website und Forum sollen wie eine Seite wirken),
-  // fremde Dienste wie Discord in einem neuen
+  // Website links open in the same tab (website and forum should feel like one site),
+  // third-party services such as Discord in a new one
   function externalLink(href, label) {
     return m('a.Button.Button--link.bb-navLink', { href: href }, m('span.Button-label', label));
   }
 
-  // Discord als Knopf ganz rechts, wie auf der Website (Knopf-Regel: Discord-Blau, siehe theme/custom.less)
+  // Discord as a button on the far right, like on the website (button rule: Discord blue, see theme/custom.less)
   function discordButton(href) {
     return m('a.Button.bb-discordButton', { href: href, target: '_blank', rel: 'noopener' }, [
       icon('fab fa-discord', { className: 'Button-icon' }),
@@ -74,7 +75,7 @@
     ]);
   }
 
-  // Zahlen höchstens einmal pro Minute neu laden; ohne Daten (Server weg, Fehler) bleibt alles ausgeblendet
+  // Reload the numbers at most once a minute; without data (server gone, error) everything stays hidden
   var hd = { data: null, fact: null, loadedAt: 0, loading: false };
   var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -85,7 +86,7 @@
       .then(function (response) { return response.ok ? response.json() : null; })
       .then(function (data) {
         hd.data = data;
-        // Der Jagd-Fakt wechselt bei jedem Laden der Seite, nicht bei jeder Aktualisierung
+        // The hunting fact changes on every page load, not on every refresh
         if (data && !hd.fact) hd.fact = pickFact(data);
       })
       .catch(function () {})
@@ -111,13 +112,13 @@
     return facts.length ? facts[Math.floor(Math.random() * facts.length)] : null;
   }
 
-  // Zahl beim ersten Erscheinen von 0 hochzählen (900 ms, langes Auslaufen); danach steht sie einfach da
+  // Count the number up from 0 when it first appears (900 ms, long ease-out); after that it simply stays put
   function countUp(value) {
     return {
       oncreate: function (vnode) {
         if (reducedMotion || !value) return;
-        // Den vorhandenen Textknoten ändern statt textContent zu ersetzen, damit Mithril später
-        // neue Zahlen (Aktualisierung jede Minute) weiter in denselben Knoten schreibt
+        // Change the existing text node instead of replacing textContent, so that Mithril keeps writing
+        // later new numbers (refresh every minute) into the same node
         var node = vnode.dom.firstChild;
         if (!node || node.nodeType !== 3) return;
         var start = performance.now();
@@ -139,7 +140,7 @@
     ]);
   }
 
-  // Der Kasten lässt sich auf Titel und Status einklappen (merkt sich der Browser)
+  // The box can be collapsed to title and status (the browser remembers it)
   var HD_KEY = 'bbforum.hdCollapsed';
   var hdClosed = null;
 
@@ -156,7 +157,7 @@
   }
 
   function huntersDreamCard(d) {
-    // Glocken nur, solange der Server läuft: wie viele gerade Mitspieler (Koop) oder Eindringlinge rufen
+    // Bells only while the server is running: how many are currently calling for fellow players (co-op) or invaders
     var rows = d.serverOnline ? [['Co-op signs now', d.coopSigns], ['Sinister bells now', d.sinisterBells]] : [];
     rows.push(['Prey slaughtered (24 h)', d.bossClears24h], ['Beasts slain (24 h)', d.kills24h]);
     var closed = hdIsCollapsed();
@@ -198,8 +199,8 @@
     ]));
   }
 
-  // Übersicht der Startseite: vier Bereiche mit je fünf Themen und einem Satz, wofür der Bereich ist.
-  // [Bereich, Überschrift, Sortierung, Satz, bbview]; nur Bereiche, die es gibt (Setup legt sie an).
+  // Overview of the home page: four sections with five topics each and a sentence on what the section is for.
+  // [section, heading, sort, sentence, bbview]; only sections that exist (setup creates them).
   var DASH = [
     ['help-support', 'New questions', '-createdAt', "Something doesn't work: one topic per problem, with your BB Report Tool zip."],
     ['suggestions', 'Top suggestions', '-bbVotes', 'Ideas for the port, the launcher, this forum or Discord. Vote with 👍.', 'active'],
@@ -213,7 +214,7 @@
     try { return localStorage.getItem(GUIDE_KEY) === '1'; } catch (e) { return false; }
   }
 
-  // Höchstens alle zwei Minuten neu laden (beim Zurückkehren auf die Startseite)
+  // Reload at most every two minutes (when returning to the home page)
   function loadDashboard() {
     if (dash.loading || Date.now() - dash.loadedAt < 120000) return;
     dash.loading = true;
@@ -277,14 +278,14 @@
     return app.store.all('tags').filter(function (t) { return t.slug() === slug; })[0];
   }
 
-  // Zum Team gehört, wer in Known Fixes Themen starten darf (setup-inside.sh: nur Mods, Admins immer)
+  // The team is whoever may start topics in Known Fixes (setup-inside.sh: mods only, admins always)
   function isTeam() {
     var fixes = tagBySlug('known-fixes');
     return !!(app.session.user && fixes && fixes.canStartDiscussion());
   }
 
-  // Arbeitslisten fürs Team: Suche mit Gambits (is:unanswered aus extend.php, is:solved von Best Answer)
-  // Geschlossene Hilfe-Themen (7 Tage ohne Beitrag, flarum/overview.php) zählen nicht mehr als offen
+  // Work lists for the team: search with gambits (is:unanswered from extend.php, is:solved from Best Answer)
+  // Closed help topics (7 days without a post, flarum/overview.php) no longer count as open
   var TEAM_LISTS = [
     ['bbTeamUnanswered', 'Waiting for an answer', { q: 'tag:help-support is:unanswered -is:locked', sort: 'oldest' }, 'fas fa-hourglass-half'],
     ['bbTeamUnsolved', 'Help not solved yet', { q: 'tag:help-support -is:solved -is:locked', sort: 'latest' }, 'fas fa-life-ring'],
@@ -300,9 +301,9 @@
     });
   }
 
-  // Status eines Vorschlags oder Bugs = ein Status-Tag (setup-inside.sh: nur das Team darf sie setzen). Ein Klick
-  // ersetzt den bisherigen Status, ein Klick auf den aktuellen nimmt ihn weg. Done, Not planned, Duplicate und Fixed
-  // fallen aus „Top“, „New“ und der Übersicht (bbview active) und stehen nur noch in ihrem Reiter (Nick, 26.10.2026).
+  // Status of a suggestion or bug = a status tag (setup-inside.sh: only the team may set them). One click
+  // replaces the previous status, a click on the current one removes it. Done, Not planned, Duplicate and Fixed
+  // drop out of "Top", "New" and the overview (bbview active) and only appear in their own tab (Nick, 26.10.2026).
   var STATUSES = {
     suggestions: [
       ['status-planned', 'Planned', 'fas fa-map-signs'],
@@ -319,7 +320,7 @@
     ],
   };
 
-  // Die Seite bringt nur Bereiche und die meistgenutzten Zusatz-Tags mit, die Status-Tags nicht: einmal alle laden
+  // The page ships only sections and the most-used extra tags, not the status tags: load all of them once
   var statusTagsLoading = false;
 
   function statusOptions(discussion) {
@@ -343,20 +344,20 @@
     discussion.bbBusy = true;
     discussion.save({ relationships: { tags: tags } })
       .then(function () {
-        // Flarum schreibt die Änderung als Ereignis ins Thema; Listen der Startseite beim nächsten Besuch neu
+        // Flarum writes the change into the topic as an event; reload the home page lists on the next visit
         var stream = app.current.get('stream');
         if (stream) stream.update();
         dash.loadedAt = 0;
         newIdeas.loadedAt = 0;
       })
-      .catch(function () {}) // den Fehler zeigt Flarum selbst an
+      .catch(function () {}) // Flarum shows the error itself
       .then(function () {
         discussion.bbBusy = false;
         m.redraw();
       });
   }
 
-  // Im Menü des Themas (Handy: ⋮ oben rechts, Desktop: Pfeil neben „Reply“)
+  // In the topic's menu (phone: ⋮ at the top right, desktop: arrow next to "Reply")
   function statusButtons(discussion, options) {
     var current = tagSlugs(discussion);
     return options.map(function (s) {
@@ -368,7 +369,7 @@
     });
   }
 
-  // Seitenleiste des Themas (Desktop): alle Stände auf einen Blick, der aktuelle hervorgehoben
+  // Sidebar of the topic (desktop): all states at a glance, the current one highlighted
   function statusPanel(discussion, options) {
     var current = tagSlugs(discussion);
     return m('div.bb-statusPanel', [
@@ -387,7 +388,7 @@
     ]);
   }
 
-  // Aus einem Hilfe-Thema einen Known Fix machen: Composer in Known Fixes, Titel und Link vorausgefüllt
+  // Turn a help topic into a Known Fix: composer in Known Fixes, title and link pre-filled
   function saveAsKnownFix(discussion) {
     var fixes = tagBySlug('known-fixes');
     var link = app.forum.attribute('baseUrl') + app.route.discussion(discussion);
@@ -395,13 +396,13 @@
       user: app.session.user,
       originalContent: '**Problem:** \n**Fix:** \n**Port version:** \n**Found in:** ' + link + '\n',
     });
-    // Wie Flarum selbst beim Start aus einem Bereich: Tags und Titel als Felder des Composers
+    // Like Flarum itself when starting from a section: tags and title as fields of the composer
     app.composer.fields.tags = [fixes];
     app.composer.fields.title = Stream(discussion.title());
     app.composer.show();
   }
 
-  // --- Logo-Contest ---------------------------------------------------------------------------------------
+  // --- Logo contest ---------------------------------------------------------------------------------------
   var CONTEST_TAG = 'logo-contest';
   var ENTRY_TEMPLATE = '**Name of the logo:** \n**Idea:** (what it shows, in one or two sentences)\n\n'
     + '**Preview:** attach a PNG, 1024 × 1024, transparent background (the first picture is shown in the gallery)\n'
@@ -412,7 +413,7 @@
     return value ? new Date(value) : null;
   }
 
-  // submit = Einsendungen offen, vote = Abstimmung, closed = vorbei (oder keine Daten gesetzt)
+  // submit = submissions open, vote = voting, closed = over (or no dates set)
   function contestPhase() {
     var submit = contestDate('bbContestSubmitUntil');
     var vote = contestDate('bbContestVoteUntil');
@@ -425,7 +426,7 @@
     return date ? date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', timeZone: 'UTC' }) : '';
   }
 
-  // Das Werk = das erste Bild im Eröffnungsbeitrag
+  // The entry = the first image in the opening post
   function entryImage(discussion) {
     var post = discussion.firstPost && discussion.firstPost();
     var match = post && /<img[^>]+src="([^"]+)"/.exec(post.contentHtml() || '');
@@ -459,7 +460,7 @@
       var page = this;
       return app.store.find('discussions', { filter: { tag: CONTEST_TAG }, include: 'firstPost,user,tags', page: { limit: 50 } })
         .then(function (list) {
-          // Die Regeln: angepinnt oder (seit sie nicht mehr angepinnt sind, Startseite) am Titel erkannt
+          // The rules: pinned or (since they are no longer pinned, home page) recognised by their title
           page.rules = list.filter(function (d) { return d.isSticky() || /^Logo contest: rules/i.test(d.title()); })[0] || null;
           page.entries = list.filter(function (d) { return d !== page.rules && !d.isSticky(); });
         })
@@ -467,8 +468,8 @@
         .then(function () { m.redraw(); });
     }
 
-    // Stimme geben oder zurücknehmen (= „Gefällt mir“ auf dem Eröffnungsbeitrag); danach neu laden, weil eine neue
-    // Stimme die alte für ein anderes Werk entfernt
+    // Give or take back a vote (= "like" on the opening post); then reload, because a new
+    // vote removes the old one for another entry
     vote(discussion) {
       var page = this;
       if (!app.session.user) return app.modal.show(LogInModal);
@@ -552,11 +553,11 @@
     }
   }
 
-  // --- Übersicht: Stimmen, Reiter, Etiketten, Known-Fixes-Index, Start here (Nick, 26.10.2026) ------------------------
+  // --- Overview: votes, tabs, labels, Known Fixes index, Start here (Nick, 26.10.2026) -----------------------------
   var DAY = 86400000;
 
-  // Reiter über den Listen: [Schlüssel in ?tab=, Beschriftung, {sort, view}]; der erste gilt ohne ?tab=.
-  // view geht als Filter bbview an die API (flarum/overview.php), sort ist ein Schlüssel der Sortierung (votes = 👍).
+  // Tabs above the lists: [key in ?tab=, label, {sort, view}]; the first one applies without ?tab=.
+  // view goes to the API as filter bbview (flarum/overview.php), sort is a key of the sort order (votes = 👍).
   var TABS = {
     suggestions: [
       ['top', 'Top', { view: 'active', sort: 'votes' }],
@@ -580,7 +581,7 @@
     ],
   };
 
-  // Der aktive Reiter (ohne ?tab= der erste); null außerhalb dieser Bereiche und bei einer Suche
+  // The active tab (the first one without ?tab=); null outside these sections and during a search
   function activeTab(params) {
     var tabs = params && TABS[params.tags];
     if (!tabs || params.q) return null;
@@ -605,8 +606,8 @@
     return Date.now() - discussion.createdAt() < 7 * DAY;
   }
 
-  // Etikett in der Themenzeile: Stand einer Hilfe-Frage, „New“ an Vorschlägen der letzten 7 Tage.
-  // short: knapp für die schmalen Spalten der Übersicht, damit der Titel lesbar bleibt
+  // Label in the topic row: state of a help question, "New" on suggestions from the last 7 days.
+  // short: compact for the narrow columns of the overview, so the title stays readable
   function statusChip(discussion, short) {
     var slugs = tagSlugs(discussion);
     if (slugs.indexOf('help-support') !== -1 && !(discussion.isSticky && discussion.isSticky())) {
@@ -620,8 +621,8 @@
     return null;
   }
 
-  // Stimme geben oder zurücknehmen: „Gefällt mir“ auf dem Eröffnungsbeitrag. Sofort zeigen, bei einem Fehler zurück
-  // (Flarum meldet ihn selbst, z. B. fehlende Rechte).
+  // Give or take back a vote: "like" on the opening post. Show it immediately, revert on an error
+  // (Flarum reports it itself, e.g. missing permissions).
   function toggleVote(discussion) {
     if (!app.session.user) return app.modal.show(LogInModal);
     if (discussion.bbBusy) return;
@@ -644,7 +645,7 @@
       });
   }
 
-  // label: Knopf mit Text (Known Fixes: „Worked for me“) statt der Box mit der Zahl
+  // label: button with text (Known Fixes: "Worked for me") instead of the box with the number
   function voteBox(discussion, label) {
     var voted = discussion.attribute('bbVoted');
     return m('button.bb-vote' + (label ? '.bb-vote--inline' : '') + (voted ? '.is-voted' : ''), {
@@ -663,7 +664,7 @@
     return !!discussion.attribute('bbFirstPostId') && tagSlugs(discussion).indexOf('suggestions') !== -1;
   }
 
-  // Neue Vorschläge der letzten 7 Tage über der nach Stimmen sortierten Liste, damit sie nicht untergehen
+  // New suggestions from the last 7 days above the list sorted by votes, so they don't get buried
   var newIdeas = { list: null, loadedAt: 0, loading: false };
 
   function newIdeasStrip() {
@@ -691,8 +692,8 @@
     ]);
   }
 
-  // Known Fixes als Nachschlagewerk: nach Thema gruppiert, darin zuerst, was am häufigsten geholfen hat
-  // (👍 „Worked for me“ plus „solved N× on Discord“ aus den übernommenen Einträgen); Suche über Titel und Text.
+  // Known Fixes as a reference: grouped by topic, within each group first what helped most often
+  // (👍 "Worked for me" plus "solved N× on Discord" from the imported entries); search over title and text.
   var KF_GROUPS = [
     ['crash', 'Crash'], ['graphics', 'Graphics'], ['fps', 'Performance'], ['launcher', 'Launcher'],
     ['setup', 'Setup & install'], ['online', 'Online & co-op'], ['controls', 'Controls & input'], ['audio', 'Audio'],
@@ -720,13 +721,13 @@
     });
   }
 
-  // Lösung aus dem Eröffnungsbeitrag (Vorlage **Problem:** / **Fix:**), sonst seine erste Zeile; einmal je Thema
+  // Fix taken from the opening post (template **Problem:** / **Fix:**), otherwise its first line; once per topic
   function fixInfo(discussion) {
     if (!discussion.bbFix) {
       var post = discussion.firstPost && discussion.firstPost();
       var html = ((post && post.contentHtml()) || '').replace(/<br\s*\/?>/gi, '\n').replace(/<\/(p|li|h\d)>/gi, '\n');
       var text = new DOMParser().parseFromString(html, 'text/html').body.textContent || '';
-      // Die Lösung kann mehrzeilig sein (Liste unter „Fix:“): bis zur nächsten Angabe, zu einer Zeile zusammengezogen
+      // The fix can span several lines (list under "Fix:"): up to the next field, collapsed into one line
       var fix = /Fix:\s*([\s\S]*?)(?:\n\s*(?:Port version:|Found in:|From:|✅)|$)/i.exec(text);
       var solved = /solved (\d+)×/i.exec(text);
       discussion.bbFix = {
@@ -789,12 +790,13 @@
     ]);
   }
 
-  // --- Profile: verdiente Effekte und Discord-Deko (Nick, 26.10.2026: Effekte nur verdient) --------------------------
+  // --- Profiles: earned effects and Discord decoration (Nick, 26.10.2026: effects only when earned) ----------------
   function perksOf(user) {
     return (user && user.attribute && user.attribute('bbPerks')) || [];
   }
 
-  // Ein Rahmen (die Discord-Deko ersetzt ihn, sonst Booster vor Laterne) und ein Namens-Effekt (Sieger vor Booster)
+  // One frame (the Discord decoration replaces it, otherwise Booster before lantern) and one name effect
+  // (winner before Booster)
   function perkClasses(user) {
     var perks = perksOf(user);
     var classes = [];
@@ -806,13 +808,13 @@
     return classes.join(' ');
   }
 
-  // Rollen-Schild am Namen (statt Flarums Abzeichen, die bei Discord-Rollen nur Farbpunkte über dem Profilbild waren);
-  // der volle Name der Rolle („Great Hunter · Admin“) beim Zeigen
+  // Role shield at the name (instead of Flarum's badges, which for Discord roles were only colour dots above the
+  // profile picture); the full name of the role ("Great Hunter · Admin") on hover
   function rolePill(role) {
     return m('span.bb-role.bb-role--' + role.key, { title: role.title }, role.label);
   }
 
-  // Verdiente Zeichen: [Symbol, Name, was es bedeutet]. Insight trägt seine Stufe (1–4) mit.
+  // Earned marks: [icon, name, what it means]. Insight carries its level (1–4) along.
   var MARKS = {
     booster: ['fas fa-gem', 'Server Booster', 'Boosts our Discord server and keeps the Dream alive. Thank you!'],
     insight: ['fas fa-eye', 'Insight', 'Earned by helping other hunters. Grows with every level.'],
@@ -836,7 +838,7 @@
     }).filter(Boolean);
   }
 
-  // Am Beitrag: kleine Symbole hinter dem Namen, Erklärung beim Zeigen
+  // On a post: small icons after the name, explanation on hover
   function markIcons(user) {
     var marks = marksOf(user);
     return marks.length ? m('span.bb-marks', marks.map(function (mark) {
@@ -847,7 +849,7 @@
     })) : null;
   }
 
-  // Im Profil: die Zeichen mit Namen, Erklärung beim Zeigen
+  // In the profile: the marks with names, explanation on hover
   function markList(user) {
     var marks = marksOf(user);
     return marks.length ? m('div.bb-markList', marks.map(function (mark) {
@@ -855,8 +857,8 @@
     })) : null;
   }
 
-  // Grafikkarte und VRAM des Verfassers in Hilfe- und Bug-Themen: die Helfer sehen den Rechner, ohne zu fragen.
-  // Beim Team nur, wenn es selbst das Thema eröffnet hat (sonst ist der Rechner des Helfers nur Rauschen).
+  // Graphics card and VRAM of the author in help and bug topics: the helpers see the machine without having to ask.
+  // For the team only if they opened the topic themselves (otherwise the helper's machine is just noise).
   function rigItem(post) {
     var user = post.user && post.user();
     var discussion = post.discussion && post.discussion();
@@ -868,8 +870,8 @@
     return m('span.bb-rig', { title: 'Graphics card and video memory, from their Discord roles' }, [icon('fas fa-desktop'), ' ', rig]);
   }
 
-  // --- Profile look: was Discord Nitro am Profil kann, für alle (Nick, 26.10.2026) -----------------------------------
-  // Profilfarben wie Nitros „Profile themes“: [Name, oben, unten]
+  // --- Profile look: what Discord Nitro can do for a profile, for everyone (Nick, 26.10.2026) -----------------------
+  // Profile colours like Nitro's "Profile themes": [name, top, bottom]
   var THEMES = [
     ['Blood moon', '#8a1118', '#1a0507'],
     ["Hunter's Dream", '#b89a64', '#2b2a35'],
@@ -880,7 +882,7 @@
     ['Byrgenwerth', '#3f6b4a', '#0c140f'],
     ['Fishing Hamlet', '#2f5e6b', '#081215'],
   ];
-  // theme: Entwurf (nur Vorschau, bis „Save colours“)
+  // theme: draft (preview only, until "Save colours")
   var look = { theme: null, busy: false, coverBusy: false };
 
   function themeOf(user) {
@@ -899,7 +901,7 @@
       });
   }
 
-  // Titelbild über die Schnittstelle des Titelbild-Plugins (sycho/flarum-profile-cover)
+  // Cover image via the interface of the cover image plugin (sycho/flarum-profile-cover)
   function coverRequest(user, method, file) {
     var body;
     if (file) {
@@ -1016,7 +1018,7 @@
   function hunterCard(user) {
     var hunter = user.attribute('bbHunter');
     if (!hunter) return null;
-    // Insight steht schon als Zeichen darüber
+    // Insight is already shown above as a mark
     var rows = [['Weapon', hunter.weapon], ['GPU', hunter.gpu], ['VRAM', hunter.vram]]
       .filter(function (row) { return row[1]; });
     return rows.length ? m('div.bb-hunter', rows.map(function (row) {
@@ -1024,7 +1026,7 @@
     })) : null;
   }
 
-  // „Start here“ in der Seitenleiste: die Anleitungen, die vorher oben angepinnt waren
+  // "Start here" in the sidebar: the guides that used to be pinned at the top
   var START = [
     [3, 'Read first: common fixes', 'fas fa-first-aid'],
     [2, 'Install guide', 'fas fa-download'],
@@ -1047,7 +1049,7 @@
   app.initializers.add('bbforum', function () {
     app.routes.logoContest = { path: '/logo-contest', component: LogoContestPage };
 
-    // --- Übersicht ---
+    // --- Overview ---
     if (app.translator.addTranslations) {
       app.translator.addTranslations({ 'core.forum.index_sort.votes_button': 'Most votes' });
     }
@@ -1056,7 +1058,7 @@
       map.votes = '-bbVotes';
     });
 
-    // ?tab= kommt mit in die Parameter der Liste; ohne eigene Sortierung gilt die des Reiters (Suggestions: Stimmen)
+    // ?tab= is added to the list's parameters; without a sort of its own, the tab's sort applies (Suggestions: votes)
     extend(GlobalSearchState.prototype, 'params', function (params) {
       var tab = m.route.param('tab');
       if (tab) params.tab = tab;
@@ -1072,7 +1074,7 @@
       }
     });
 
-    // Die vom Server vorgeladene erste Seite kennt weder Reiter noch Stimmen-Sortierung: dann selbst laden
+    // The first page preloaded by the server knows neither tabs nor the votes sort: so load it ourselves
     override(DiscussionListState.prototype, 'loadPage', function (original, page) {
       if (activeTab(this.params) || this.params.sort === 'votes') {
         app.preloadedApiDocument();
@@ -1094,14 +1096,14 @@
       if (chip) items.add('bbStatus', chip, 20);
     });
 
-    // Reiter vor der Sortierung; in Known Fixes statt der Sortierung der Wechsel zwischen Index und Liste
+    // Tabs before the sort; in Known Fixes the switch between index and list instead of the sort
     extend(IndexPage.prototype, 'viewItems', function (items) {
       var params = app.search.params();
       var tabs = tabBar(params);
       if (tabs) items.add('bbTabs', tabs, 10);
-      // Best Answers eigener Filter („All questions“) täte dasselbe wie die Reiter
+      // Best Answer's own filter ("All questions") would do the same as the tabs
       if (tabs && items.has('solved-filter')) items.remove('solved-filter');
-      // Die ausgeblendete Übersicht wieder holen (Startseite; „Hide“ war sonst endgültig, Nick 26.10.2026)
+      // Bring back the hidden overview (home page; "Hide" would otherwise be permanent, Nick 26.10.2026)
       if (!params.tags && !params.q && guideHidden()) {
         items.add('bbShowGuide', Button.component({
           className: 'Button',
@@ -1111,7 +1113,7 @@
           },
         }, 'Show overview'), 5);
       }
-      // Suggestions: Top und New ersetzen die Sortierung („Latest“ fiele sonst wieder auf die Stimmen zurück)
+      // Suggestions: Top and New replace the sort ("Latest" would otherwise fall back to sorting by votes)
       if (tabs && params.tags === 'suggestions') items.remove('sort');
       if (params.tags === 'known-fixes' && !params.q) {
         var asList = params.tab === 'list';
@@ -1137,7 +1139,8 @@
     });
 
     // --- Profile ---
-    // Am Beitrag: Rahmen und Namens-Effekt als Klassen, Discord-Deko und Augen liegen über dem Avatar, Phiole am Namen
+    // On a post: frame and name effect as classes, Discord decoration and eyes sit above the avatar,
+    // vial at the name
     extend(PostUser.prototype, 'view', function (vdom) {
       var cls = perkClasses(this.attrs.post && this.attrs.post.user());
       if (cls) vdom.attrs.className = (vdom.attrs.className || '') + ' ' + cls;
@@ -1158,8 +1161,9 @@
       if (rig) items.add('bbRig', rig, -50);
     });
 
-    // Profilkarte (Profil und Karte beim Zeigen auf einen Namen): Discord-Banner, sonst Discord-Farbe; ein eigenes
-    // Titelbild (sycho/flarum-profile-cover, Attribut cover) geht vor. Die Deko liegt per CSS über dem Avatar.
+    // Profile card (profile, and the card when hovering over a name): Discord banner, otherwise Discord colour; a
+    // custom cover image (sycho/flarum-profile-cover, attribute cover) takes precedence. The decoration sits above
+    // the avatar via CSS.
     extend(UserCard.prototype, 'view', function (vdom) {
       var user = this.attrs.user;
       if (!user) return;
@@ -1177,7 +1181,7 @@
       } else if (accent && !theme) {
         style['--usercard-bg'] = accent;
       }
-      // Eigene Profilfarben: Verlauf auf der Karte, mit Bild darauf tönen sie die Abdunklung unten
+      // Custom profile colours: gradient on the card; with an image on it they tint the darkening at the bottom
       if (theme) {
         style['--bb-theme1'] = theme[0];
         style['--bb-theme2'] = theme[1];
@@ -1188,7 +1192,8 @@
       vdom.attrs.className = (vdom.attrs.className || '') + ' ' + classes;
     });
 
-    // Profilkarte: alle Rollen-Schilder oben, darunter die Zeichen, die Hunter-Karte und fürs Team der Discord-Link
+    // Profile card: all role shields at the top, below them the marks, the Hunter card and, for the team,
+    // the Discord link
     extend(UserCard.prototype, 'infoItems', function (items) {
       var user = this.attrs.user;
       if (!user) return;
@@ -1204,7 +1209,7 @@
           icon('fab fa-discord'), ' Open on Discord',
         ]), -30);
       }
-      // Auf dem eigenen Profil der Weg zu „Profile look“ (nicht in den Einstellungen selbst)
+      // On your own profile, the way to "Profile look" (not in the settings themselves)
       if (app.session.user === user && !app.current.matches(SettingsPage)) {
         items.add('bbCustomize', m(Link, { className: 'bb-customizeLink', href: app.route('settings') }, [
           icon('fas fa-paint-brush'), ' Customize profile',
@@ -1212,8 +1217,8 @@
       }
     });
 
-    // Benachrichtigungen (flarum/discord-notify.php): Spalte „Discord“ statt „Email“ (das Forum verschickt keine
-    // Mails). Solange die Meldungen in Discord noch aus sind, sehen die Spalte nur Admins (zum Ansehen).
+    // Notifications (flarum/discord-notify.php): column "Discord" instead of "Email" (the forum sends no
+    // emails). As long as the messages in Discord are still off, only admins see the column (to preview it).
     function discordNotifyVisible() {
       return !!app.forum.attribute('bbDiscordNotify') || !!(app.session.user && app.session.user.isAdmin());
     }
@@ -1242,7 +1247,7 @@
       return m('div', [vdom, m('p.helpText.bb-discordNote', [icon('fab fa-discord'), ' ', note])]);
     });
 
-    // Meldung in der Glocke: Status eines Vorschlags oder Bugs geändert
+    // Notification in the bell: status of a suggestion or bug changed
     class StatusChangedNotification extends Notification {
       icon() {
         return 'fas fa-flag';
@@ -1267,13 +1272,13 @@
     }
     app.notificationComponents.statusChanged = StatusChangedNotification;
 
-    // Einstellungen: „Profile look“ als erster Abschnitt
+    // Settings: "Profile look" as the first section
     extend(SettingsPage.prototype, 'settingsItems', function (items) {
       if (!app.session.user) return;
       items.add('bbLook', FieldSet.component({ label: 'Profile look', className: 'Settings-bbLook' }, profileLook(app.session.user)), 110);
     });
 
-    // Seitenleiste: „Start here“ und nur die Bereiche; Themen-Tags (Crash, Graphics …) und „More…“ nicht
+    // Sidebar: "Start here" and only the sections; no topic tags (Crash, Graphics …) and no "More…"
     extend(IndexPage.prototype, 'navItems', function (items) {
       startItems(items);
       app.store.all('tags').forEach(function (tag) {
@@ -1286,8 +1291,8 @@
       var site = app.forum.attribute('bbforumWebsiteUrl');
       var discord = app.forum.attribute('bbforumDiscordUrl');
 
-      // Dieselben Menüpunkte wie auf der Website, "Forum" als aktiver Punkt. "Website" gibt es nur
-      // auf dem Handy (im Seitenmenü fehlt das Logo), sonst führt das Logo zur Website.
+      // The same menu items as on the website, "Forum" as the active item. "Website" exists only
+      // on phones (the side menu has no logo), otherwise the logo leads to the website.
       if (site) {
         items.add('bb-home', externalLink(site + '/', 'Website'), 60);
         items.add('bb-install', externalLink(site + '/install/', 'Install'), 50);
@@ -1303,16 +1308,16 @@
       }
     });
 
-    // Rechts, nach Suche und Anmelden: Discord als letzter Knopf, wie auf der Website
+    // On the right, after Search and Log in: Discord as the last button, like on the website
     extend(HeaderSecondary.prototype, 'items', function (items) {
       var discord = app.forum.attribute('bbforumDiscordUrl');
       if (discord) items.add('bb-discord', discordButton(discord), -100);
     });
 
-    // Logo oben links: zur Website wie auf der Website selbst. Erst nach dem Start (app.forum gibt es
-    // im Initializer noch nicht), daher beim ersten Zeichnen der Kopfzeile. Flarum fängt Klicks aufs
-    // Logo ab und springt zur Forum-Startseite; der Listener in der Capture-Phase kommt vorher und
-    // lässt den Browser dem Link normal folgen.
+    // Logo at the top left: leads to the website, like on the website itself. Only after startup (app.forum does
+    // not exist yet in the initializer), hence on the first render of the header. Flarum intercepts clicks on the
+    // logo and jumps to the forum home page; the listener in the capture phase runs first and
+    // lets the browser follow the link normally.
     extend(HeaderPrimary.prototype, 'oncreate', function () {
       var homeLink = document.getElementById('home-link');
       var site = app.forum.attribute('bbforumWebsiteUrl');
@@ -1323,13 +1328,13 @@
       }, true);
     });
 
-    // Hunter's Dream: Kasten in der Seitenleiste (breite Bildschirme), Zeile unter dem Banner (schmale)
+    // Hunter's Dream: box in the sidebar (wide screens), line below the banner (narrow ones)
     extend(IndexPage.prototype, 'sidebarItems', function (items) {
       loadHuntersDream();
       if (hd.data) items.add('bbHuntersDream', huntersDreamCard(hd.data), -100);
     });
 
-    // Team-Block in der Seitenleiste (Startseite und Bereiche); für alle der Link zum Logo-Contest, solange er läuft
+    // Team block in the sidebar (home page and sections); for everyone the link to the logo contest while it runs
     extend(IndexPage.prototype, 'navItems', function (items) {
       if (contestPhase() !== 'closed') {
         items.add('bbLogoContest', LinkButton.component({ href: app.route('logoContest'), icon: 'fas fa-trophy' }, 'Logo contest'), 95);
@@ -1337,7 +1342,7 @@
       if (isTeam()) teamNavItems(items);
     });
 
-    // Gelöstes oder beantwortetes Hilfe-Thema als Known Fix sichern (wie „Save the fix“ im Discord)
+    // Save a solved or answered help topic as a Known Fix (like "Save the fix" on Discord)
     extend(DiscussionControls, 'moderationControls', function (items, discussion) {
       var tags = discussion.tags ? discussion.tags() || [] : [];
       var isHelp = tags.some(function (t) { return t && t.slug() === 'help-support'; });
@@ -1348,7 +1353,7 @@
       }, 'Save as Known Fix'));
     });
 
-    // Status setzen: im Menü des Themas und auf dem Desktop als Block in der Seitenleiste
+    // Set the status: in the topic's menu and, on desktop, as a block in the sidebar
     extend(DiscussionControls, 'moderationControls', function (items, discussion) {
       var options = statusOptions(discussion);
       if (!options || !options.length) return;
@@ -1361,28 +1366,28 @@
       if (options && options.length) items.add('bbStatus', statusPanel(discussion, options), -10);
     });
 
-    // Unter dem Banner: Hunter's Dream (schmale Bildschirme) und auf der Startseite (nicht in einem Bereich, keine
-    // Suche) die Übersicht
+    // Below the banner: Hunter's Dream (narrow screens) and, on the home page (not inside a section, no
+    // search), the overview
     override(IndexPage.prototype, 'hero', function (original) {
       var inTag = this.currentTag && this.currentTag();
       var home = !inTag && !app.search.params().q && !guideHidden();
       return [original(), hd.data ? huntersDreamStrip(hd.data) : null, home ? dashboard() : null];
     });
 
-    // Keine Gruppen-Abzeichen: als Farbpunkte lagen sie über dem Profilbild und sagten nichts (Nick, 26.10.2026).
-    // Die Rolle steht als Schild am Namen (bbRole/bbRoles), Booster und Beta als Zeichen; andere Abzeichen bleiben.
+    // No group badges: as colour dots they sat above the profile picture and said nothing (Nick, 26.10.2026).
+    // The role appears as a shield at the name (bbRole/bbRoles), Booster and Beta as marks; other badges stay.
     extend(User.prototype, 'badges', function (items) {
       (this.groups() || []).filter(Boolean).forEach(function (g) {
         if (items.has('group' + g.id())) items.remove('group' + g.id());
       });
     });
 
-    // Das E-Mail-Formular blendet custom.less aus, sobald ein Login-Button (Discord) da ist
+    // custom.less hides the email form as soon as a login button (Discord) is present
     override(SignUpModal.prototype, 'className', function (original) {
       return original() + (app.forum.attribute('bbforumDiscordOnly') ? ' SignUpModal--discordOnly' : '');
     });
   });
 })();
 
-// Flarum erwartet von jedem eingebundenen Skript ein Modul-Objekt (sonst bricht der Start ab)
+// Flarum expects a module object from every included script (otherwise startup aborts)
 module.exports = {};

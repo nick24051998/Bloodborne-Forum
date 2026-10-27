@@ -1,11 +1,11 @@
 # Bloodborne PC Port Community Forum
 # Flarum 1.8 (crazymax/flarum) + MariaDB 10.11
 #
-#   cp .env.example .env   # Werte eintragen
+#   cp .env.example .env   # fill in the values
 #   docker compose up -d
 #
-# Flarum lauscht nur auf 127.0.0.1:${FLARUM_PORT} – HTTPS macht der Reverse Proxy
-# (Caddy) oder Cloudflare Tunnel (siehe README).
+# Flarum only listens on 127.0.0.1:${FLARUM_PORT} – HTTPS is handled by the reverse proxy
+# (Caddy) or Cloudflare Tunnel (see README).
 
 name: bloodborne-forum
 
@@ -20,13 +20,13 @@ x-flarum-env: &flarum-env
   DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD fehlt in .env}
   MEMORY_LIMIT: ${PHP_MEMORY_LIMIT:-256M}
   UPLOAD_MAX_SIZE: ${UPLOAD_MAX_SIZE:-32M}
-  # Echte Besucher-IP hinter Caddy/cloudflared (Cloudflare setzt CF-Connecting-IP).
-  # Vertraut wird dem Header nur aus dem eigenen Forum-Netz (siehe networks unten).
+  # Real visitor IP behind Caddy/cloudflared (Cloudflare sets CF-Connecting-IP).
+  # The header is only trusted from the forum's own network (see networks below).
   REAL_IP_FROM: ${FORUM_SUBNET:-10.88.0.0/24}
   REAL_IP_HEADER: ${REAL_IP_HEADER:-CF-Connecting-IP}
   LISTEN_IPV6: "false"
 
-# Härtung für alle Container: keine Rechteausweitung, Log-Rotation
+# Hardening for all containers: no privilege escalation, log rotation
 x-hardening: &hardening
   security_opt:
     - no-new-privileges:true
@@ -41,7 +41,7 @@ services:
     <<: *hardening
     image: mariadb:10.11
     restart: unless-stopped
-    # Bei RAM-Knappheit zuerst andere Prozesse beenden lassen (FORUM_OOM_SCORE_ADJ in .env)
+    # When RAM runs low, let other processes be killed first (FORUM_OOM_SCORE_ADJ in .env)
     oom_score_adj: ${FORUM_OOM_SCORE_ADJ:-0}
     command:
       - --character-set-server=utf8mb4
@@ -75,19 +75,19 @@ services:
     environment: *flarum-env
     volumes:
       - flarum-data:/data
-      # Discord-only-Registrierung, Sicherheits-Header, Live-Zahlen (flarum/extend.php; der Lader
-      # liest sie über /bbforum, damit Änderungen nach git pull ohne Neustart ankommen)
+      # Discord-only sign-up, security headers, live numbers (flarum/extend.php; the loader
+      # reads it via /bbforum so changes take effect after git pull without a restart)
       - ./flarum/extend-loader.php:/opt/flarum/extend.php:ro
-      # Erweiterungsliste aus dem Repo, vor jedem Start wiederhergestellt
+      # Extension list from the repo, restored before every start
       - ./flarum:/bbforum:ro
       - ./flarum/restore-extensions.sh:/etc/cont-init.d/02-zz-bbforum-extensions.sh
-      # Flarum-Scheduler (jede Minute) im selben Container, wo die Erweiterungen installiert sind
+      # Flarum scheduler (every minute) in the same container where the extensions are installed
       - ./flarum/scheduler.sh:/etc/cont-init.d/05-zz-bbforum-scheduler.sh
 
-  # Variante (b): Cloudflare Tunnel statt Caddy. Startet nur mit dem Profil
-  # "tunnel" (COMPOSE_PROFILES=tunnel in .env, setzt scripts/bootstrap.sh).
-  # Erst aktivieren, wenn scripts/setup-forum.sh gelaufen ist. Im Cloudflare-
-  # Dashboard als Service http://flarum:8000 eintragen.
+  # Option (b): Cloudflare Tunnel instead of Caddy. Only starts with the profile
+  # "tunnel" (COMPOSE_PROFILES=tunnel in .env, set by scripts/bootstrap.sh).
+  # Only enable it after scripts/setup-forum.sh has run. In the Cloudflare
+  # dashboard, enter http://flarum:8000 as the service.
   cloudflared:
     <<: *hardening
     image: cloudflare/cloudflared:latest
@@ -99,8 +99,8 @@ services:
     depends_on:
       - flarum
 
-# Festes eigenes Netz: Anfragen vom Host-Proxy (über das Gateway) und von
-# cloudflared kommen aus diesem Bereich, nur ihnen wird CF-Connecting-IP geglaubt.
+# Fixed network of our own: requests from the host proxy (via the gateway) and from
+# cloudflared come from this range; only they are trusted for CF-Connecting-IP.
 networks:
   default:
     ipam:

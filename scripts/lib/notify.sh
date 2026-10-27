@@ -1,6 +1,6 @@
-# Meldung auf der Konsole und, wenn AUTO_UPDATE_DISCORD_WEBHOOK in .env gesetzt ist, in Discord
-# (Admin-Kanal). Wird von auto-update.sh und nightly-backup.sh eingebunden; Arbeitsverzeichnis ist
-# das Repo (dort liegt .env).
+# Message on the console and, if AUTO_UPDATE_DISCORD_WEBHOOK is set in .env, in Discord
+# (admin channel). Sourced by auto-update.sh and nightly-backup.sh; the working directory is
+# the repo (where .env lives).
 
 webhook=$(grep -E '^AUTO_UPDATE_DISCORD_WEBHOOK=' .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d "\"'" || true)
 

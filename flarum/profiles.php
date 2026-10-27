@@ -1,25 +1,26 @@
 <?php
 /*
- * Profile wie auf Discord (Nick, 26.10.2026; geladen von flarum/extend.php, Oberfläche in flarum/forum.js).
+ * Profiles like on Discord (Nick, 26.10.2026; loaded by flarum/extend.php, UI in flarum/forum.js).
  *
- * - Von Discord: Banner, Profilfarbe und Avatar-Deko. Der Rollen-Abgleich (flarum/discord-roles.php) ruft
- *   BBForumProfiles::sync() mit dem Mitglieds-Objekt auf; höchstens einmal am Tag je Nutzer und höchstens
- *   SYNC_PER_RUN Nutzer pro Lauf fragt es dazu GET /users/{id} (dort stehen Banner und Farbe sicher drin).
- *   Banner und Deko liegen als Kopie unter assets/bbprofile/ (keine Bilder von Discord-Servern im Forum, wie beim
- *   Profilbild). Stand je Nutzer in der Tabelle bb_profiles (legt sich selbst an).
- * - Verdiente Effekte (Nick: verdient, nicht frei wählbar), aus den Gruppen, die der Abgleich von Discord spiegelt:
- *   booster (Server Booster laut premium_since des Mitglieds: Blutmond-Rahmen, Name glüht, Zeichen), lantern
- *   (Helper, Mod, Admin, Owner: Messing-Laterne), insight1–4 (Insight-Stufen: Zeichen mit Stufe), beta (Beta Hunter,
- *   Test Subject, Beta Testers: Zeichen), winner (bbforum.contest_winners, Forum-IDs mit Komma: Mondlicht-Name).
- * - Rollen-Schilder statt Flarums Gruppen-Abzeichen (roles()): Entwickler des Ports, dann die Team-Rollen.
- * - Hunter-Karte im Profil: Waffe (/hunter auf Discord), Insight-Stufe, Grafikkarte und VRAM (Hardware-Rollen);
- *   Grafikkarte und VRAM stehen außerdem an Beiträgen in Hilfe- und Bug-Themen.
+ * - From Discord: banner, profile color and avatar decoration. The role sync (flarum/discord-roles.php) calls
+ *   BBForumProfiles::sync() with the member object; at most once a day per user and at most
+ *   SYNC_PER_RUN users per run it asks GET /users/{id} for this (banner and color are reliably in there).
+ *   Banner and decoration are kept as a copy under assets/bbprofile/ (no images from Discord servers in the forum,
+ *   as with the profile picture). State per user in the table bb_profiles (creates itself).
+ * - Earned effects (Nick's wish: earned, not freely selectable), from the groups that the sync mirrors from Discord:
+ *   booster (Server Booster according to the member's premium_since: blood moon frame, glowing name, mark), lantern
+ *   (Helper, Mod, Admin, Owner: brass lantern), insight1–4 (Insight levels: mark with level), beta (Beta Hunter,
+ *   Test Subject, Beta Testers: mark), winner (bbforum.contest_winners, forum IDs separated by commas: moonlight name).
+ * - Role shields instead of Flarum's group badges (roles()): developer of the Port, then the team roles.
+ * - Hunter card in the profile: weapon (/hunter on Discord), Insight level, graphics card and VRAM (hardware roles);
+ *   graphics card and VRAM also appear on posts in help and bug discussions.
  *
- * - Was Nitro kann, für alle (Nick, 26.10.2026): eigene Profilfarben (bbTheme, zwei Farben als Verlauf, geht vor der
- *   Discord-Farbe), animierte Profil- und Titelbilder (BBForumAvatarUploader, BBForumCoverUploader unten).
+ * - What Nitro can do, for everyone (Nick, 26.10.2026): custom profile colors (bbTheme, two colors as a gradient,
+ *   takes precedence over the Discord color), animated profile and cover images (BBForumAvatarUploader,
+ *   BBForumCoverUploader below).
  *
- * API: an jedem Nutzer (auch an Beiträgen) bbPerks, bbDecoration, bbRole, bbRig; im Profil dazu bbBanner, bbAccent,
- * bbTheme, bbHunter, bbRoles und fürs Team bbDiscordUrl.
+ * API: on every user (also on posts) bbPerks, bbDecoration, bbRole, bbRig; in the profile additionally bbBanner,
+ * bbAccent, bbTheme, bbHunter, bbRoles and, for the team, bbDiscordUrl.
  */
 
 use Flarum\User\User;
@@ -75,7 +76,7 @@ if (! class_exists('BBForumProfiles')) {
             }
         }
 
-        /** GIF mit mehr als einem Bild (die übliche Prüfung auf mehrere Graphic Control Extensions) */
+        /** GIF with more than one frame (the usual check for multiple Graphic Control Extensions) */
         public static function isAnimatedGif(string $bytes): bool
         {
             return strncmp($bytes, 'GIF8', 4) === 0
@@ -83,9 +84,9 @@ if (! class_exists('BBForumProfiles')) {
         }
 
         /**
-         * Profilfarben (wie Nitros „Profile themes“, Nick 26.10.2026: was Nitro kann, für alle): PATCH /users/{id} mit
-         * bbTheme = ['#rrggbb', '#rrggbb'] oder null (zurück zur Farbe von Discord). Nur man selbst oder wer den
-         * Nutzer bearbeiten darf.
+         * Profile colors (like Nitro's "Profile themes", Nick 26.10.2026: what Nitro can do, for everyone): PATCH
+         * /users/{id} with bbTheme = ['#rrggbb', '#rrggbb'] or null (back to the Discord color). Only oneself or
+         * whoever may edit the user.
          */
         public static function saving(\Flarum\User\Event\Saving $event): void
         {
@@ -113,8 +114,8 @@ if (! class_exists('BBForumProfiles')) {
         }
 
         /**
-         * Aus dem Rollen-Abgleich: Booster (premium_since im Mitglieds-Objekt, die Rolle verwaltet Discord selbst und
-         * kommt nicht als Gruppe) bei jedem Lauf; Banner, Farbe und Deko, wenn der letzte Stand älter als ein Tag ist.
+         * From the role sync: booster (premium_since in the member object; Discord manages the role itself and it
+         * does not come as a group) on every run; banner, color and decoration when the last state is older than a day.
          */
         public static function sync(User $user, array $member, \GuzzleHttp\Client $client, callable $get, string $guild): void
         {
@@ -128,14 +129,14 @@ if (! class_exists('BBForumProfiles')) {
                 return;
             }
             if (self::$synced >= self::SYNC_PER_RUN) {
-                return; // der Rest kommt in den nächsten Läufen
+                return; // the rest follows in the next runs
             }
             self::$synced++;
             $discordId = (string) ($member['user']['id'] ?? '');
             [$status, $full] = $get('/users/'.rawurlencode($discordId));
             $u = $status === 200 && is_array($full) ? $full : (array) ($member['user'] ?? []);
 
-            // Server-Profil vor Discord-Profil (wie beim Bild)
+            // Server profile before Discord profile (as with the picture)
             $bannerHash = (string) ($member['banner'] ?? '') ?: (string) ($u['banner'] ?? '');
             $bannerUrl = null;
             if ($bannerHash !== '') {
@@ -172,12 +173,12 @@ if (! class_exists('BBForumProfiles')) {
                 }
             }
 
-            // Deko-Vorlagen teilen sich viele: je Vorlage eine Datei (animiertes PNG)
+            // Many users share the same decoration presets: one file per preset (animated PNG)
             if ($decoAsset === '') {
                 $data['decoration'] = null;
             } elseif (preg_match('/^[a-z0-9_]{6,80}$/i', $decoAsset)) {
-                // Animiert gibt Discord die Deko nur als Original-APNG (passthrough=true, size wird dann ignoriert,
-                // oft 1–2 MB; WebP wäre ein Standbild). Der Browser lädt jede Vorlage nur einmal.
+                // For animation Discord serves the decoration only as the original APNG (passthrough=true, size is then
+                // ignored, often 1–2 MB; WebP would be a still image). The browser loads each preset only once.
                 $file = 'deco-'.$decoAsset.'.png';
                 if (! $disk->exists(self::DIR.'/'.$file)) {
                     $response = $client->get("https://cdn.discordapp.com/avatar-decoration-presets/$decoAsset.png?size=160&passthrough=true");
@@ -197,7 +198,7 @@ if (! class_exists('BBForumProfiles')) {
                 try {
                     self::$rows[$user->id] = (array) (self::db()->table(self::TABLE)->where('user_id', $user->id)->first() ?: []);
                 } catch (\Throwable $e) {
-                    self::$rows[$user->id] = []; // Tabelle noch nicht angelegt
+                    self::$rows[$user->id] = []; // table not created yet
                 }
             }
             return self::$rows[$user->id];
@@ -208,7 +209,7 @@ if (! class_exists('BBForumProfiles')) {
             return $file ? self::disk()->url(self::DIR.'/'.$file) : null;
         }
 
-        /** Namen der Gruppen (= Discord-Rollen, ohne Emoji vorne) */
+        /** Names of the groups (= Discord roles, without the leading emoji) */
         private static function groupNames(User $user): array
         {
             return $user->groups->map(function ($group) {
@@ -265,9 +266,10 @@ if (! class_exists('BBForumProfiles')) {
         }
 
         /**
-         * Rollen fürs Schild am Namen, wichtigste zuerst: medo als Entwickler des Ports (bbforum.developer_discord_ids),
-         * dann die Team-Rollen von Discord („Great Hunter · Admin“ → Admin), zuletzt Code-Contributors. Statt
-         * Flarums Abzeichen (bei Discord-Rollen nur Farbpunkte ohne Symbol, die über dem Profilbild lagen).
+         * Roles for the shield next to the name, most important first: medo as developer of the Port
+         * (bbforum.developer_discord_ids), then the team roles from Discord ("Great Hunter · Admin" → Admin), finally
+         * code contributors. Instead of Flarum's badges (for Discord roles just colored dots without an icon, which
+         * sat over the profile picture).
          */
         public static function roles(User $user): array
         {
@@ -291,13 +293,13 @@ if (! class_exists('BBForumProfiles')) {
                 } elseif ((int) $group->id === 4) {
                     [$key, $label, $name] = ['mod', 'Mod', 'Forum moderator'];
                 }
-                // Der Name der Discord-Rolle geht vor Flarums eigener Gruppe
+                // The name of the Discord role takes precedence over Flarum's own group
                 if ($key && (! isset($roles[$key]) || $label !== null && strpos($name, '·') !== false)) {
                     $roles[$key] = ['key' => $key, 'label' => $label, 'title' => $name];
                 }
             }
             uasort($roles, fn ($a, $b) => $order[$a['key']] <=> $order[$b['key']]);
-            // Von Owner, Admin und Mod nur der höchste Rang (medo ist Owner, nicht zusätzlich Mod)
+            // Of Owner, Admin and Mod only the highest rank (medo is Owner, not additionally Mod)
             $rank = false;
             foreach (['owner', 'admin', 'mod'] as $key) {
                 if (isset($roles[$key]) && $rank) {
@@ -319,7 +321,10 @@ if (! class_exists('BBForumProfiles')) {
             ]);
         }
 
-        /** An jedem Nutzer (auch an Beiträgen): Effekte, Deko, das wichtigste Rollen-Schild, der Rechner für Hilfe-Themen */
+        /**
+         * On every user (also on posts): effects, decoration, the most important role shield, the PC (rig) for help
+         * discussions
+         */
         public static function basic(User $user): array
         {
             if (! $user->exists) {
@@ -336,7 +341,7 @@ if (! class_exists('BBForumProfiles')) {
             ];
         }
 
-        /** Im Profil: Banner, Farbe, alle Rollen, Hunter-Karte; fürs Team der Link zum Discord-Konto */
+        /** In the profile: banner, color, all roles, hunter card; for the team the link to the Discord account */
         public static function full(User $user, User $actor): array
         {
             if (! $user->exists) {
@@ -359,10 +364,11 @@ if (! class_exists('BBForumProfiles')) {
 }
 
 /*
- * Animierte Bilder für alle (Nick, 26.10.2026: was Nitro kann, für alle). Flarum macht aus jedem Profilbild ein
- * 100×100-PNG und das Titelbild-Plugin aus jedem Titelbild ein JPG; im Container gibt es nur GD, das beim Verkleinern
- * die Animation verliert. Darum bleibt ein animiertes GIF unverändert (Größe prüfen die Validatoren der beiden,
- * zugeschnitten wird per CSS). Alles andere geht den normalen Weg. Eingehängt über BBForumProfilesProvider.
+ * Animated images for everyone (Nick, 26.10.2026: what Nitro can do, for everyone). Flarum turns every profile
+ * picture into a 100×100 PNG and the cover plugin turns every cover image into a JPG; the container only has GD,
+ * which loses the animation when resizing. That is why an animated GIF is left unchanged (the validators of the
+ * two check the size, cropping is done via CSS). Everything else goes the normal way. Hooked in via
+ * BBForumProfilesProvider.
  */
 if (! class_exists('BBForumAvatarUploader')) {
     class BBForumAvatarUploader extends \Flarum\User\AvatarUploader
@@ -378,7 +384,7 @@ if (! class_exists('BBForumAvatarUploader')) {
             parent::upload($user, $image);
         }
 
-        /** Auch für animierte Discord-Bilder (flarum/discord-roles.php) */
+        /** Also used for animated Discord pictures (flarum/discord-roles.php) */
         public function storeGif(User $user, string $bytes): void
         {
             $avatarPath = \Illuminate\Support\Str::random().'.gif';
@@ -404,7 +410,7 @@ if (class_exists('SychO\ProfileCover\CoverUploader') && ! class_exists('BBForumC
             $this->remove($user);
             $user->cover = $coverPath;
             if ($this->config->get('sycho-profile-cover.thumbnails', 0) == 1) {
-                // Vorschaubild aus dem ersten Bild, wie beim Plugin
+                // Thumbnail from the first frame, as in the plugin
                 $thumbnail = clone $image;
                 $thumbnail->resize(500, null, function ($constraint) {
                     $constraint->aspectRatio();

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Backup: Datenbank-Dump + Flarum-Datenvolume (Uploads, Assets, Extension-Liste).
-#   scripts/backup.sh [ZIELORDNER]   (Standard: ./backups)
-# Alte Backups räumst du selbst auf, z. B. per Cron:
+# Backup: database dump + Flarum data volume (uploads, assets, extension list).
+#   scripts/backup.sh [TARGET_DIR]   (default: ./backups)
+# Clean up old backups yourself, e.g. via cron:
 #   find /pfad/backups -name '*.gz' -mtime +14 -delete
 set -euo pipefail
 cd "$(dirname "$0")/.."

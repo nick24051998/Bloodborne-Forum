@@ -1,4 +1,4 @@
-/* Bloodborne PC Port – Website. Gleiche Palette und Schriften wie das Forum. */
+/* Bloodborne PC Port – Website. Same palette and fonts as the forum. */
 
 @font-face { font-family: "Cinzel"; font-weight: 600; font-display: swap; src: url("/fonts/cinzel-latin-600-normal.woff2") format("woff2"); }
 @font-face { font-family: "Cinzel"; font-weight: 700; font-display: swap; src: url("/fonts/cinzel-latin-700-normal.woff2") format("woff2"); }
@@ -6,11 +6,11 @@
 @font-face { font-family: "Inter"; font-weight: 500; font-display: swap; src: url("/fonts/inter-latin-500-normal.woff2") format("woff2"); }
 @font-face { font-family: "Inter"; font-weight: 600; font-display: swap; src: url("/fonts/inter-latin-600-normal.woff2") format("woff2"); }
 @font-face { font-family: "Inter"; font-weight: 700; font-display: swap; src: url("/fonts/inter-latin-700-normal.woff2") format("woff2"); }
-/* Terminalschrift von NativeRetro, nur auf der Supermedo-Seite und im Hinweis auf der Startseite */
+/* Terminal font from NativeRetro, only on the Supermedo page and in the notice on the home page */
 @font-face { font-family: "VT323"; font-weight: 400; font-display: swap; src: url("/fonts/vt323-latin-400-normal.woff2") format("woff2"); }
 
 :root {
-  /* Wie das Forum: kühles Anthrazit, Pergament-Text, Messing-Akzente, Blutrot sparsam */
+  /* Like the forum: cool anthracite, parchment text, brass accents, blood red used sparingly */
   --bg: #0d0e10;
   --bg-deep: #08090a;
   --surface: #121316;
@@ -30,11 +30,11 @@
   --moon: 201, 205, 210;
   --dusk: 59, 52, 72;
   --radius: 12px;
-  /* Bewegung (Regeln in media/BRAND.md): schwere Kurve, schneller Start, langes Auslaufen */
+  /* Motion (rules in media/BRAND.md): heavy curve, fast start, long ease-out */
   --ease-heavy: cubic-bezier(0.2, 0.7, 0.1, 1);
   --font-head: "Cinzel", "Cormorant Garamond", Georgia, serif;
   --font-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-  /* Fließtext wächst sanft mit dem Viewport: 16 px (Handy) bis 18 px (große Monitore) */
+  /* Body text grows gently with the viewport: 16 px (phone) to 18 px (large monitors) */
   --step-0: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
   --step-1: clamp(1.15rem, 1.05rem + 0.5vw, 1.4rem);
   --step-2: clamp(1.4rem, 1.2rem + 1vw, 2rem);
@@ -63,12 +63,12 @@ body {
 
 img, svg { max-width: 100%; height: auto; }
 
-/* Icons aus media/icons (CC0) */
+/* Icons from media/icons (CC0) */
 .bbicon { display: inline-block; width: 1em; height: 1em; vertical-align: -0.125em; }
 .bbicon svg { display: block; width: 100%; height: 100%; fill: currentColor; }
 .btn .bbicon, .nav-discord .bbicon { margin-right: 0.5em; font-size: 1.15em; }
 
-/* Feines Filmkorn über der Seite (selbst erzeugt), Klicks gehen hindurch */
+/* Fine film grain over the page (self-generated), clicks pass through */
 body::after {
   content: ""; position: fixed; inset: 0; z-index: 100; pointer-events: none;
   background: url("../assets/grain.svg"); opacity: 0.05;
@@ -108,7 +108,7 @@ h3 { font-size: var(--step-1); }
 .site-header .container { display: flex; align-items: center; gap: 1.5rem; min-height: 64px; }
 .brand { display: flex; align-items: center; flex-shrink: 0; }
 .brand img { height: 40px; width: auto; }
-/* Ein Menü für Website und Forum (theme/custom.less): Links neben dem Logo, rechts die Aktionen (hier Discord) */
+/* One menu for website and forum (theme/custom.less): links next to the logo, actions on the right (here Discord) */
 .nav { flex: 1; }
 .nav ul { list-style: none; display: flex; align-items: center; gap: 0.25rem; margin: 0; padding: 0; }
 .nav a {
@@ -116,7 +116,7 @@ h3 { font-size: var(--step-1); }
   color: var(--text); text-decoration: none; font-weight: 500; font-size: 0.95rem;
 }
 .nav a:hover, .nav a[aria-current="page"] { background: var(--card-hover); color: var(--text-strong); }
-/* Messinglinie zeichnet sich von links nach rechts (nicht bei der aktiven Seite und beim Discord-Knopf) */
+/* Brass line draws itself from left to right (not on the active page or the Discord button) */
 .nav a:not(.nav-discord):not([aria-current="page"]) {
   background-image: linear-gradient(var(--gold-light), var(--gold-light));
   background-position: 0.8rem calc(100% - 0.35rem); background-size: 0 1px; background-repeat: no-repeat;
@@ -126,11 +126,11 @@ h3 { font-size: var(--step-1); }
 .nav a:not(.nav-discord):not([aria-current="page"]):focus-visible { background-size: calc(100% - 1.6rem) 1px; }
 .nav a[aria-current="page"] { box-shadow: inset 0 -2px 0 var(--blood); }
 .nav .nav-action { margin-left: auto; }
-/* Mobiles Menü ohne JavaScript (Checkbox + Label) */
+/* Mobile menu without JavaScript (checkbox + label) */
 .menu-input { position: absolute; opacity: 0; pointer-events: none; }
 .menu-button { display: none; }
 
-/* Menü-Knopf statt Leiste bis 1000 px: Darunter passen die sieben Links neben Logo und Discord nicht in eine Zeile */
+/* Menu button instead of the bar up to 1000 px: below that, the seven links plus logo and Discord don't fit on one line */
 @media (max-width: 1000px) {
   .site-header .container { flex-wrap: wrap; min-height: 56px; gap: 0; }
   .brand img { height: 34px; }
@@ -146,12 +146,12 @@ h3 { font-size: var(--step-1); }
   .nav .nav-discord:active { transform: none; }
 }
 
-/* --- Knöpfe: eine Regel für alle -------------------------------------------------------------
-   Jeder Knopf ist eine dunkle Platte mit Messing-Haarlinie: gleiche Rundung, Schrift und Mindesthöhe.
-   Die Füllung sagt die Rolle: Blut = die Hauptaktion eines Bereichs, Stein = alles andere, Discord-Blau nur für Discord.
-   Beim Zeigen steigt von unten Blut auf wie in einer Phiole (bei Discord dessen dunkleres Blau), die Haarlinie glüht;
-   Drücken lässt ihn einsinken; mit der Tastatur zeigt ein Messingring, wo man ist. „Bewegung reduzieren“: nur Farbe.
-   Gilt für .btn, Hardware-Check, Großansicht der Galerie, Menü-Knopf, Discord im Menü und das Forum (theme/custom.less). */
+/* --- Buttons: one rule for all ---------------------------------------------------------------
+   Every button is a dark plate with a thin brass line: same rounding, type and minimum height.
+   The fill signals the role: blood = the main action of a section, stone = everything else, Discord blue only for Discord.
+   On hover, blood rises from below like in a phial (for Discord its darker blue) and the thin line glows;
+   pressing makes it sink in; with the keyboard a brass ring shows where you are. "Reduce motion": colour only.
+   Applies to .btn, hardware check, gallery lightbox, menu button, Discord in the menu and the forum (theme/custom.less). */
 :root {
   --btn-radius: 10px;
   --btn-line: rgba(194, 168, 120, 0.4);
@@ -184,10 +184,10 @@ h3 { font-size: var(--step-1); }
 :is(.btn, .hw-detect, .hw-copy, .lightbox button):disabled { opacity: 0.4; cursor: default; transform: none;
   border-color: var(--btn-line); box-shadow: none; }
 :is(.btn, .hw-detect, .hw-copy, .lightbox button):disabled::before { transform: translateY(101%); }
-/* Rollen: nur die Füllung ändert sich (gleich gewichtet wie die Regel oben, damit sie greifen) */
+/* Roles: only the fill changes (same specificity as the rule above so that they take effect) */
 .btn.btn-primary { --btn-fill: var(--blood); --btn-rise: var(--blood-hover); color: #fff; }
 :is(.btn.btn-discord, .nav .nav-discord) { --btn-fill: #5865f2; --btn-rise: #3a44a8; --btn-glow: rgba(88, 101, 242, 0.4); color: #fff; }
-/* Größen */
+/* Sizes */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.9rem; padding: 0.75rem 1.4rem; }
 :is(.hw-detect, .hw-copy, .menu-button, .nav .nav-discord) { min-height: 2.4rem; padding: 0.45rem 0.9rem; font-size: 0.9rem; }
 
@@ -198,8 +198,8 @@ h3 { font-size: var(--step-1); }
   border-bottom: 1px solid var(--border);
   padding: clamp(3rem, 6vw, 6.5rem) 0;
 }
-/* Skyline (media/images/website-hero.webp, KI-generiert, siehe media/CREDITS.md); links abgedunkelt
-   für den Text, unten Übergang in die Seite. Eigene Ebene, damit sie beim Scrollen langsamer wandert. */
+/* Skyline (media/images/website-hero.webp, AI-generated, see media/CREDITS.md); darkened on the left
+   for the text, fading into the page at the bottom. Own layer so it moves more slowly when scrolling. */
 .hero::before {
   content: ""; position: absolute; inset: 0; z-index: -2;
   background:
@@ -207,7 +207,7 @@ h3 { font-size: var(--step-1); }
     linear-gradient(180deg, transparent 70%, var(--bg) 100%),
     url("../assets/website-hero.webp") center bottom / cover no-repeat;
 }
-/* Ziehender Nebel (media/textures/fog.svg, nahtlos 600 px breit) über Startseite und Unterseiten */
+/* Drifting fog (media/textures/fog.svg, seamless, 600 px wide) over the home page and subpages */
 .hero::after, .page-hero::after {
   content: ""; position: absolute; inset: 0 auto 0 0; z-index: -1; width: calc(100% + 600px);
   background: url("../assets/fog.svg") 0 0 / 600px 100% repeat-x; opacity: 0.28; pointer-events: none;
@@ -222,33 +222,33 @@ h3 { font-size: var(--step-1); }
 .hero h1 { text-shadow: 0 4px 24px rgba(0, 0, 0, 0.8); letter-spacing: 0.05em; margin-bottom: 0.3em; }
 .hero .lead { font-size: var(--step-1); color: var(--text-soft); max-width: 38ch; margin: 0 0 1.8rem; }
 .hero .actions { display: flex; flex-wrap: wrap; gap: 0.8rem; }
-/* Startseite: Leiste unter dem Menü, dass die Seite noch im Aufbau ist (über die ganze Breite, mittig) */
+/* Home page: bar below the menu saying the site is still under construction (full width, centred) */
 .wip-bar { background: linear-gradient(90deg, transparent, rgba(156, 132, 88, 0.12) 20%, rgba(156, 132, 88, 0.12) 80%, transparent),
   var(--bg-deep); border-bottom: 1px solid rgba(156, 132, 88, 0.35); }
 .wip-bar p { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.35rem 0.8rem; margin: 0 auto;
   padding-block: 0.6rem; color: var(--text-soft); font-size: 0.88rem; line-height: 1.5; text-align: center; }
 .wip-tag { padding: 0.1rem 0.6rem; border: 1px solid rgba(156, 132, 88, 0.7); border-radius: 999px; color: var(--gold-light);
   font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
-/* Unter den Knöpfen: was der Download-Knopf lädt; darunter welcher Port (Supermedos, mit Link zu GitHub) */
+/* Below the buttons: what the download button fetches; below that, which port it is (Supermedo's, linking to GitHub) */
 .hero-download { margin: 1rem 0 0; color: var(--muted); font-size: 0.88rem; }
 .hero-port { margin: 1.4rem 0 0; color: var(--muted); font-size: 0.92rem; }
 .hero-download + .hero-port { margin-top: 0.35rem; }
 .hero-port strong { color: var(--text-soft); font-weight: 600; }
 .hero .emblem { position: relative; isolation: isolate; justify-self: center; width: min(330px, 75%); }
-/* Siegel in zwei Ebenen (media/brand.py): Blut unten, Knochen darüber; zusammen das ganze Siegel */
+/* Seal in two layers (media/brand.py): blood below, bone on top; together they form the whole seal */
 .hero .emblem-art { position: relative; z-index: 0; filter: drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7));
   animation: emblem-rise 2600ms cubic-bezier(0.4, 0, 0.3, 1) 300ms both; }
 @media (prefers-reduced-motion: no-preference) {
-  /* Herzschlag nach dem Füllen; "forwards", damit er vorher nicht die Unschärfe vom Auftauchen überschreibt */
+  /* Heartbeat after the fill; "forwards" so that it doesn't override the blur of the fade-in beforehand */
   .hero .emblem-art { animation: emblem-rise 2600ms cubic-bezier(0.4, 0, 0.3, 1) 300ms both, emblem-beat 1100ms ease-out 4250ms forwards; }
 }
 .hero .emblem-art img { display: block; width: 100%; height: auto; }
 .hero .emblem-blood { position: absolute; inset: 0; }
 .hero .emblem-bone { position: relative; }
-/* Das Siegel taucht aus dem Nebel auf (knapp 4 Sekunden): Zwei dichte Nebelbänke liegen über dem Siegel,
-   dahinter wird es sichtbar und aus der Unschärfe scharf, dann ziehen die Bänke nach links und rechts
-   auseinander und verwehen. Ausnahme von der Hauskurve: gleichmäßig statt schnellem Start, sonst wäre
-   alles nach einer Sekunde vorbei; Unschärfe nur auf dem kleinen Siegel, nicht auf großen Flächen. */
+/* The seal emerges from the fog (just under 4 seconds): two dense fog banks lie over the seal,
+   behind them it becomes visible and sharpens out of the blur, then the banks drift apart to the left
+   and right and disperse. Exception to the house curve: even pacing instead of a fast start, otherwise
+   everything would be over after one second; blur only on the small seal, not on large areas. */
 @keyframes emblem-rise {
   from { opacity: 0; transform: scale(0.94); filter: blur(12px) drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7)); }
   to { opacity: 1; transform: none; filter: blur(0) drop-shadow(0 12px 40px rgba(0, 0, 0, 0.7)); }
@@ -272,11 +272,11 @@ h3 { font-size: var(--step-1); }
   15% { opacity: 1; transform: translateX(4%); animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
   100% { opacity: 0; transform: translateX(45%); }
 }
-/* Danach füllt sich der Kelch: Das Siegel erscheint leer, das Blut steigt mit schwappender Oberfläche
-   (Maske mit Wellenkante, die hochwandert und seitlich zieht), dann schlägt das Siegel zweimal wie ein Herz:
-   Es pocht kurz größer, rot glühend, das Blut leuchtet auf.
-   Mit "Bewegung reduzieren" gibt es keine Maske, das Blut steht gleich da. Die Höhen passen zum Siegel:
-   Blut von 29 % bis 55 % der Bildhöhe; Maske 3 × so hoch wie das Bild, daher -28,5 % = Wellenkante bei 57 %. */
+/* Then the chalice fills: the seal appears empty, the blood rises with a sloshing surface
+   (mask with a wave edge that moves upward and drifts sideways), then the seal beats twice like a heart:
+   it briefly pulses larger, glowing red, and the blood lights up.
+   With "reduce motion" there is no mask, the blood is simply there. The heights match the seal:
+   blood from 29 % to 55 % of the image height; mask 3 × as tall as the image, so -28.5 % = wave edge at 57 %. */
 @media (prefers-reduced-motion: no-preference) {
   .hero .emblem-blood {
     -webkit-mask: url("../assets/blood-wave.svg") 0 -28.5% / 50% 300% repeat-x;
@@ -311,7 +311,7 @@ h3 { font-size: var(--step-1); }
   .hero .emblem { order: -1; width: 130px; }
 }
 
-/* --- Live-Zahlen von The Hunter's Dream (Startseite, Daten über das Forum) ------------------- */
+/* --- Live figures from The Hunter's Dream (home page, data via the forum) ------------------- */
 .live { background: var(--bg-deep); border-bottom: 1px solid var(--border); padding: 1.4rem 0 1.2rem; }
 .live[hidden] { display: none; }
 .live-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.4rem 1.5rem; }
@@ -319,7 +319,7 @@ h3 { font-size: var(--step-1); }
 .live-status { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--muted); font-size: 0.9rem; }
 .live-lamp { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
 .live.is-online .live-status { color: var(--text-strong); }
-.live.is-online .live-lamp { background: #bc9570; animation: lamp-flicker 4.2s steps(1, end) infinite; } /* Laternenlicht */
+.live.is-online .live-lamp { background: #bc9570; animation: lamp-flicker 4.2s steps(1, end) infinite; } /* lantern light */
 @keyframes lamp-flicker {
   0% { opacity: 1; box-shadow: 0 0 6px 1px rgba(188, 149, 112, 0.45); }
   14% { opacity: 0.86; box-shadow: 0 0 4px 0 rgba(188, 149, 112, 0.3); }
@@ -337,7 +337,7 @@ h3 { font-size: var(--step-1); }
   .live-stats { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* --- Sektionen & Karten ----------------------------------------------------------------- */
+/* --- Sections & cards ----------------------------------------------------------------- */
 .section { padding: clamp(2.5rem, 5vw, 4.5rem) 0; }
 .section-alt { background: var(--bg-deep); border-block: 1px solid var(--border); }
 .grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
@@ -352,7 +352,7 @@ h3 { font-size: var(--step-1); }
 .card h3 { margin-bottom: 0.4em; }
 .card p { margin: 0; color: var(--text-soft); }
 .about { max-width: 75ch; margin: 0 0 2rem; color: var(--text-soft); }
-/* Startseite: So sieht der echte Launcher aus (ein Bild der Play-Seite, Klick öffnet die volle Größe) */
+/* Home page: what the real launcher looks like (an image of the Play page, click opens it at full size) */
 .launcher-shot { display: block; max-width: 1100px; border: 1px solid var(--border-strong); border-radius: var(--radius);
   overflow: hidden; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55); }
 .launcher-shot img { display: block; width: 100%; height: auto; }
@@ -368,8 +368,8 @@ h3 { font-size: var(--step-1); }
 
 .todo { background: rgba(163, 22, 30, 0.18); border: 1px dashed var(--blood-light); border-radius: 6px; padding: 0 0.35em; color: #ffd6d2; }
 
-/* --- Inhaltsseiten (Markdown) ------------------------------------------------------------ */
-/* Unterseiten: Kathedralen-Innenraum, 404: Friedhof unter dem Blutmond (beide KI-generiert) */
+/* --- Content pages (Markdown) ------------------------------------------------------------ */
+/* Subpages: cathedral interior, 404: graveyard under the blood moon (both AI-generated) */
 .page-hero { position: relative; overflow: hidden; isolation: isolate;
   padding: clamp(2.2rem, 5vw, 4rem) 0 1.5rem; border-bottom: 1px solid var(--border);
   background: linear-gradient(90deg, rgba(8, 9, 10, 0.85) 0%, rgba(8, 9, 10, 0.45) 45%, transparent 75%),
@@ -378,7 +378,7 @@ h3 { font-size: var(--step-1); }
   background: linear-gradient(90deg, rgba(8, 9, 10, 0.85) 0%, rgba(8, 9, 10, 0.35) 45%, transparent 70%),
     url("../assets/not-found.webp") right center / cover no-repeat, var(--bg-deep); }
 @media (max-width: 860px) {
-  /* Schmal liegt der Text über dem Bild: gleichmäßig abdunkeln */
+  /* On narrow screens the text sits over the image: darken evenly */
   .page-hero { background: linear-gradient(rgba(8, 9, 10, 0.72), rgba(8, 9, 10, 0.72)),
     url("../assets/page-header.webp") 75% center / cover no-repeat, var(--bg-deep); }
   .page-hero.not-found { background: linear-gradient(rgba(8, 9, 10, 0.6), rgba(8, 9, 10, 0.6)),
@@ -399,7 +399,7 @@ h3 { font-size: var(--step-1); }
 .faq summary { cursor: pointer; padding: 1rem 1.25rem; font-weight: 600; color: var(--text-strong); list-style: none; }
 .faq summary::-webkit-details-marker { display: none; }
 .faq summary::after { content: "+"; float: right; color: var(--gold-light); font-weight: 700; }
-/* Sprungmarken (Skript in Base.astro): # neben Überschriften und FAQ-Fragen kopiert den Link zu dieser Stelle */
+/* Anchor links (script in Base.astro): the # next to headings and FAQ questions copies the link to that spot */
 .anchor-link { position: relative; margin-left: 0.45em; color: var(--gold); font-family: var(--font-body); font-weight: 400;
   text-decoration: none; opacity: 0; transition: opacity 0.15s; }
 :is(h2, h3, summary):hover > .anchor-link, .anchor-link:focus-visible, .anchor-link[data-copied] { opacity: 1; }
@@ -407,11 +407,11 @@ h3 { font-size: var(--step-1); }
 .anchor-link[data-copied]::after { content: "Link copied"; position: absolute; left: 1.3em; top: 50%; transform: translateY(-50%);
   padding: 0.15rem 0.45rem; background: var(--card); border: 1px solid var(--border-strong); border-radius: 6px;
   color: var(--text-strong); font: 600 0.75rem var(--font-body); letter-spacing: 0; text-transform: none; white-space: nowrap; }
-/* Unter der festen Kopfzeile landen, nicht dahinter */
+/* Land below the fixed header, not behind it */
 .prose :is(h2, h3)[id], .faq details[id] { scroll-margin-top: 5.5rem; }
 .faq details[open] summary::after { content: "–"; }
 .faq details[open] { border-color: var(--border-strong); }
-/* FAQ-Übersicht (faq.astro): Suche und Themenleiste oben, Fragen nach Themen; nichts mit Streifen am Rand */
+/* FAQ overview (faq.astro): search and topic bar at the top, questions grouped by topic; no stripes at the edge */
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .faq-tools { margin: 0 0 1.8rem; }
 .faq-search input { width: 100%; padding: 0.75rem 1rem 0.75rem 2.7rem; font: inherit; color: var(--text-strong);
@@ -438,7 +438,7 @@ h3 { font-size: var(--step-1); }
 .faq .answer p, .faq .answer ol, .faq .answer ul { margin: 0 0 0.7rem; }
 .faq .answer > :last-child { margin-bottom: 0; }
 
-/* --- Best settings (src/pages/best-settings.astro): Kurzfassung, Erststart Bild für Bild, Tabellen ---------- */
+/* --- Best settings (src/pages/best-settings.astro): short version, first launch picture by picture, tables ---------- */
 .settings-short { margin: 0 0 1rem; padding: 1.1rem 1.4rem 0.4rem; border: 1px solid var(--border-strong); border-radius: var(--radius);
   background: radial-gradient(120% 90% at 50% 0%, rgba(138, 17, 24, 0.18), transparent 70%), var(--card); }
 .prose .settings-short h2 { margin-top: 0; border-bottom: 0; padding-bottom: 0; font-size: var(--step-1); }
@@ -455,7 +455,7 @@ h3 { font-size: var(--step-1); }
 .settings-note { color: var(--muted); font-size: 0.9rem; }
 .get-started-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; }
 
-/* --- Logo-Contest auf der Startseite (src/data/contest.js): groß, unter dem Kopf, führt ins Forum ------------- */
+/* --- Logo contest on the home page (src/data/contest.js): large, below the header, leads to the forum ------------- */
 .contest-banner { position: relative; overflow: hidden; isolation: isolate; padding: clamp(2.5rem, 5vw, 4.5rem) 0;
   border-bottom: 1px solid var(--border);
   background: radial-gradient(60% 120% at 85% 50%, rgba(138, 17, 24, 0.32), transparent 70%),
@@ -469,7 +469,7 @@ h3 { font-size: var(--step-1); }
 .contest-specs span { padding: 0.25rem 0.75rem; border: 1px solid var(--border-strong); border-radius: 999px; background: rgba(8, 9, 10, 0.5);
   color: var(--text); font-size: 0.85rem; }
 .contest-banner .actions { display: flex; flex-wrap: wrap; gap: 0.8rem; }
-/* Ein leerer Platz für das neue Zeichen: gestrichelter Rahmen, darin das alte Siegel blass und ein großes Fragezeichen */
+/* An empty slot for the new emblem: dashed frame containing the old seal, faded, and a large question mark */
 .contest-sigil { position: relative; display: grid; place-items: center; justify-self: center; width: min(340px, 100%); aspect-ratio: 1;
   border: 2px dashed rgba(194, 168, 120, 0.55); border-radius: 24px; background: radial-gradient(closest-side, rgba(138, 17, 24, 0.18), transparent);
   text-decoration: none; transition: border-color 220ms, transform 220ms var(--ease-heavy); }
@@ -483,7 +483,7 @@ h3 { font-size: var(--step-1); }
   .contest-sigil { order: -1; width: min(220px, 70%); }
 }
 
-/* --- Hardware-Check im Install Guide (src/components/HardwareCheck.astro) ------------------- */
+/* --- Hardware check in the Install Guide (src/components/HardwareCheck.astro) ------------------- */
 .hwcheck { scroll-margin-top: 5rem; margin: 2.2rem 0 1rem; padding: 1.3rem 1.5rem 1.4rem; background: var(--card); border: 1px solid var(--border);
   border-radius: var(--radius); }
 .prose .hwcheck h2 { margin-top: 0; }
@@ -533,7 +533,7 @@ h3 { font-size: var(--step-1); }
   .hw-detect, .hw-copy { transition: none; }
 }
 
-/* --- Releases auf der Changelog-Seite (src/components/Releases.astro) ------------------------ */
+/* --- Releases on the changelog page (src/components/Releases.astro) ------------------------ */
 .release-latest { margin: 1.5rem 0 2rem; padding: 1.2rem 1.5rem 1.3rem; border: 1px solid var(--border-strong); border-radius: var(--radius);
   background: radial-gradient(120% 90% at 50% 0%, rgba(138, 17, 24, 0.22), transparent 70%), var(--card); }
 .release-latest .eyebrow { margin-bottom: 0.3rem; }
@@ -546,7 +546,7 @@ h3 { font-size: var(--step-1); }
 .release-verify summary { cursor: pointer; width: fit-content; }
 .release-verify p { margin: 0.5rem 0 0 !important; }
 .prose .release-hash { display: inline-block; word-break: break-all; }
-/* Alle Releases: aufklappbar wie die FAQ, die neueste ist offen */
+/* All releases: collapsible like the FAQ, the newest one is open */
 .release-list { margin: 1rem 0 1.2rem; }
 .release { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin: 0 0 0.6rem; }
 .release[open] { border-color: var(--border-strong); }
@@ -562,8 +562,8 @@ h3 { font-size: var(--step-1); }
 .release-links { display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; font-size: 0.92rem; margin: 0.9rem 0 0 !important; }
 .release-pre { margin-left: 0.4rem; padding: 0 0.45rem; border: 1px solid var(--border-strong); border-radius: 999px; font-size: 0.75rem !important; }
 
-/* --- Showcase: Galerie der Startseite (src/components/Showcase.astro) ------------------------ */
-/* Breit: 4 Spalten, Muster groß/klein/klein/breit/klein/breit/klein füllt 3 Reihen; schmal: 2 Spalten */
+/* --- Showcase: gallery on the home page (src/components/Showcase.astro) ------------------------ */
+/* Wide: 4 columns, pattern large/small/small/wide/small/wide/small fills 3 rows; narrow: 2 columns */
 .showcase-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem;
   grid-template-columns: repeat(4, 1fr); grid-auto-rows: clamp(150px, 14vw, 230px); grid-auto-flow: dense; }
 .tile { position: relative; overflow: hidden; isolation: isolate; border-radius: var(--radius);
@@ -575,7 +575,7 @@ h3 { font-size: var(--step-1); }
 .tile-open:focus-visible { outline: 2px solid var(--gold-light); outline-offset: -4px; }
 .tile-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 600ms var(--ease-heavy); }
 
-/* Platzhalter: Nebel über Schiefer, eine Mondsichel, Hinweis "Image coming soon" */
+/* Placeholder: fog over slate, a crescent moon, "Image coming soon" label */
 .tile-ph { position: absolute; inset: 0; z-index: -1; display: grid; place-items: center;
   background: url("../assets/fog.svg") 0 0 / 600px 100%, radial-gradient(ellipse at 70% 20%, #1e272a 0%, #0f1317 70%); }
 .tile--placeholder:nth-child(3n + 2) .tile-ph { background-position: -200px 0, 0 0; }
@@ -590,7 +590,7 @@ h3 { font-size: var(--step-1); }
 .tile-caption p { margin: 0.3rem 0 0; font-size: 0.9rem; color: var(--text-soft); line-height: 1.45; }
 .tile-caption .tile-credit { color: var(--gold-light); font-size: 0.8rem; }
 .tile--large .tile-caption h3 { font-size: var(--step-2); }
-/* Kleine Kacheln: Text erst beim Überfahren, damit das Bild Platz hat */
+/* Small tiles: text only on hover so the image has room */
 .tile--small .tile-caption p:not(.tile-credit) { max-height: 0; opacity: 0; overflow: hidden;
   transition: max-height 320ms var(--ease-heavy), opacity 220ms; }
 .tile--small:hover .tile-caption p, .tile--small:focus-within .tile-caption p { max-height: 6em; opacity: 1; }
@@ -607,7 +607,7 @@ h3 { font-size: var(--step-1); }
   .tile-chip { top: 0.6rem; left: 0.6rem; font-size: 0.62rem; letter-spacing: 0.06em; }
 }
 
-/* Großansicht */
+/* Enlarged view (lightbox) */
 .lightbox { width: min(1200px, 94vw); max-height: 92vh; padding: 0; border: 1px solid var(--border-strong); border-radius: var(--radius);
   background: var(--bg-deep); color: var(--text); overflow: hidden; }
 .lightbox::backdrop { background: rgba(8, 9, 10, 0.88); }
@@ -615,7 +615,7 @@ h3 { font-size: var(--step-1); }
 @keyframes lightbox-in { from { opacity: 0; transform: scale(0.97); } }
 .lightbox-img { display: block; width: 100%; max-height: 74vh; object-fit: contain; background: var(--bg-deep);
   transform-origin: 0 0; transition: transform 220ms var(--ease-heavy); user-select: none; -webkit-user-drag: none; }
-/* Zoom (Showcase.astro): Klick oder Mausrad vergrößert, Ziehen verschiebt, zwei Finger zoomen */
+/* Zoom (Showcase.astro): click or mouse wheel magnifies, dragging pans, two fingers pinch-zoom */
 .lightbox-stage { position: relative; overflow: hidden; cursor: zoom-in; touch-action: pan-y; }
 .lightbox-stage.is-zoomed { cursor: grab; touch-action: none; }
 .lightbox-stage.is-zoomed.is-dragging { cursor: grabbing; }
@@ -637,10 +637,10 @@ h3 { font-size: var(--step-1); }
 .lightbox-nav button { pointer-events: auto; }
 .lightbox-nav[hidden] { display: none; }
 
-/* --- Supermedo und NativeRetro (src/pages/supermedo.astro, Hinweis auf der Startseite) ------------
-   Yharnam trifft das Terminal: Rahmen, Überschriften, Knöpfe und Blut bleiben bbport. Von nativeretro.com kommen
-   Bernstein, Terminal-Grün, VT323, Pfade wie C:\PORTS> und der Röhrenmonitor. Blut glüht von oben links,
-   Bernstein von unten rechts; wo NativeRetro gemeint ist, leuchtet beim Zeigen Bernstein statt Messing. */
+/* --- Supermedo and NativeRetro (src/pages/supermedo.astro, notice on the home page) ------------
+   Yharnam meets the terminal: frames, headings, buttons and blood stay bbport. From nativeretro.com come
+   amber, terminal green, VT323, paths like C:\PORTS> and the CRT monitor. Blood glows from the top left,
+   amber from the bottom right; where NativeRetro is meant, hovering lights up amber instead of brass. */
 :root {
   --nr-amber: #ffb000;
   --nr-amber-dim: rgba(255, 176, 0, 0.6);
@@ -655,7 +655,7 @@ h3 { font-size: var(--step-1); }
 @keyframes nr-blink { 50% { opacity: 0; } }
 .nr-green { color: var(--nr-green); text-shadow: 0 0 6px rgba(93, 255, 138, 0.4); }
 .nr-actions { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1.4rem; }
-/* Kopf: die Kathedrale wie durch eine Bildröhre gesehen, rechts ein Bernstein-Schein */
+/* Header: the cathedral seen as through a CRT screen, with an amber glow on the right */
 .nr-hero::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px),
     radial-gradient(55% 90% at 88% 65%, rgba(255, 176, 0, 0.13), transparent 70%); }
@@ -664,7 +664,7 @@ h3 { font-size: var(--step-1); }
 
 .nr-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(2rem, 4vw, 3.5rem); align-items: center; }
 .nr-split h2 { margin-top: 0; }
-/* Monitor: Gehäuse wie eine bbport-Karte mit Messing-Haarlinie, Bildschirm wie bei NativeRetro */
+/* Monitor: casing like a bbport card with a thin brass line, screen as on NativeRetro */
 .nr-monitor { margin: 0; padding: 1rem 1rem 0.6rem; border: 1px solid var(--btn-line); border-radius: 22px;
   background: linear-gradient(180deg, #1b1c20, #111215);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 30px 60px -20px rgba(0, 0, 0, 0.85), 0 0 90px -30px rgba(255, 176, 0, 0.28); }
@@ -676,9 +676,9 @@ h3 { font-size: var(--step-1); }
   background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px); }
 .nr-screen p { margin: 0; }
 .nr-screen ul { list-style: none; margin: 0.35rem 0; padding: 0; display: grid; grid-template-columns: repeat(3, max-content) 1fr; column-gap: 1.5ch; }
-/* Spalten nach dem längsten Namen: In VT323 sind Ziffern schmaler als Buchstaben, ch passt deshalb nicht */
+/* Columns sized by the longest name: in VT323 digits are narrower than letters, so ch doesn't fit */
 .nr-screen li { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; padding: 0 0.35em; white-space: nowrap; }
-/* Die Auswahl wie in einem DOS-Menü, aber in Blut: hier steht bbport */
+/* The selection as in a DOS menu, but in blood: this marks where bbport is */
 .nr-screen .nr-here { background: var(--blood); color: #fff; text-shadow: 0 0 8px rgba(255, 120, 110, 0.6); }
 .nr-here-tag { padding-left: 0.5ch; }
 .nr-dim { color: var(--nr-amber-dim); }
@@ -691,7 +691,7 @@ h3 { font-size: var(--step-1); }
 .nr-steps p { margin: 0; color: var(--text-soft); }
 .nr-steps strong { color: var(--text-strong); }
 
-/* Überschriften: Pfad im Terminal (NativeRetro), Titel in Cinzel (bbport) */
+/* Headings: path in the terminal font (NativeRetro), title in Cinzel (bbport) */
 .nr-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.7rem; margin-top: 0; }
 .nr-path { font-family: var(--font-term); font-size: 0.8em; font-weight: 400; letter-spacing: 0; color: var(--nr-amber); }
 .nr-cards { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
@@ -709,7 +709,7 @@ h3 { font-size: var(--step-1); }
 .nr-badge { padding: 0.1rem 0.6rem; border: 1px solid rgba(201, 74, 68, 0.7); border-radius: 999px; background: rgba(138, 17, 24, 0.35);
   color: #ffd9d4; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
 
-/* Klassiker als Verzeichnisliste: eine Zeile pro Spiel, beim Zeigen markiert wie in einem DOS-Menü */
+/* Classics as a directory listing: one line per game, highlighted on hover like in a DOS menu */
 .nr-dir { list-style: none; margin: 1.2rem 0 0; padding: 0.5rem; border: 1px solid var(--border-strong); border-radius: var(--radius);
   background: var(--nr-screen); box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6); }
 .nr-dir li + li { border-top: 1px solid rgba(255, 255, 255, 0.04); }
@@ -723,7 +723,7 @@ h3 { font-size: var(--step-1); }
 .nr-studio { color: var(--muted); font-size: 0.9rem; }
 .nr-dir-note { margin: 0.8rem 0 0; color: var(--muted); font-size: 0.9rem; }
 
-/* Schluss und Hinweis auf der Startseite: Blut von oben links, Bernstein von unten rechts */
+/* Closing section and notice on the home page: blood from the top left, amber from the bottom right */
 .nr-next { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1.5rem 2.5rem; align-items: center;
   padding: clamp(1.3rem, 3vw, 2rem) clamp(1.2rem, 3vw, 2.2rem); border: 1px solid var(--border-strong); border-radius: var(--radius);
   background: radial-gradient(80% 140% at 0% 0%, rgba(138, 17, 24, 0.22), transparent 60%),
@@ -747,16 +747,16 @@ h3 { font-size: var(--step-1); }
   .nr-here-tag { display: none; }
 }
 
-/* --- Bewegung: Abschnitte, Seitenwechsel, "Bewegung reduzieren" ---------------------------- */
-/* Abschnitte gleiten beim Scrollen herein; nie ganz unsichtbar, ohne Unterstützung einfach still.
-   Fertig nach 300 px statt nach einem Anteil der Bildschirmhöhe: so wird auch der letzte Abschnitt auf
-   sehr hohen Bildschirmen (4K ohne Skalierung) ganz sichtbar, unten ist überall mindestens 450 px Platz. */
+/* --- Motion: sections, page transitions, "reduce motion" ---------------------------- */
+/* Sections slide in while scrolling; never fully invisible, simply static without support.
+   Done after 300 px instead of after a fraction of the screen height: this way even the last section on
+   very tall screens (4K without scaling) becomes fully visible; there is at least 450 px of room below everywhere. */
 @supports (animation-timeline: view()) {
   .section { animation: section-reveal linear both; animation-timeline: view(); animation-range: entry 0% entry 300px; }
 }
 @keyframes section-reveal { from { opacity: 0.35; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 
-/* Seitenwechsel: die alte Seite blendet ins Dunkle, die neue taucht auf (Browser ohne Unterstützung wechseln wie bisher) */
+/* Page transition: the old page fades to dark, the new one emerges (browsers without support switch as before) */
 @view-transition { navigation: auto; }
 ::view-transition { background: var(--bg-deep); }
 ::view-transition-old(root) { animation: 220ms ease-in both page-out; }
@@ -777,7 +777,7 @@ h3 { font-size: var(--step-1); }
 }
 
 /* --- Footer --------------------------------------------------------------------------- */
-/* Fußzeile auf dunklem Stein (media/textures/stone.webp, KI-generiert, nahtlos gemacht) */
+/* Footer on dark stone (media/textures/stone.webp, AI-generated, made seamless) */
 .site-footer { border-top: 1px solid var(--border); padding: 2.5rem 0; color: var(--muted); font-size: 0.9rem;
   background: linear-gradient(rgba(8, 9, 10, 0.55), rgba(8, 9, 10, 0.78)), url("../assets/stone.webp") 0 0 / 320px repeat, var(--bg-deep); }
 .site-footer .cols { display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between; }

@@ -1,18 +1,19 @@
 <?php
 /*
- * Logo-Contest im Forum (geladen von flarum/extend.php; die Seite /logo-contest baut flarum/forum.js).
+ * Logo contest in the forum (loaded by flarum/extend.php; the /logo-contest page is built by flarum/forum.js).
  *
- * Jeder Beitrag ist ein Thema im Bereich „Logo Contest“ (Tag logo-contest), das erste Bild im Eröffnungsbeitrag ist
- * das Werk. Abgestimmt wird mit „Gefällt mir“ auf dem Eröffnungsbeitrag, mit diesen Regeln:
- * - abstimmen nur angemeldet und nur in der Abstimmungsphase (nach dem Einsendeschluss bis zum Ende)
- * - eine Stimme pro Mitglied: Wer ein anderes Werk wählt, dessen alte Stimme fällt weg
- * - nicht für das eigene Werk
- * - neue Beiträge im Bereich nur bis zum Einsendeschluss (das Team immer)
- * - Plausibilitätsprüfung beim Absenden und Bearbeiten eines Werks (BBForumContestCheck): ein hochgeladenes PNG,
- *   quadratisch, mindestens 512 × 512, durchsichtige Ecken, dazu eine Zip mit der Quelldatei. Sonst sagt das Forum,
- *   was fehlt, und legt nichts an. Fotos und Bilder auf vollem Hintergrund fallen so heraus. Das Team ist ausgenommen.
- * Die Daten setzt scripts/lib/setup-inside.sh (CONTEST_SUBMIT_UNTIL, CONTEST_VOTE_UNTIL in .env).
- * Für die Seite liefert die API an Themen des Bereichs bbVotes, bbVoted, bbCanVote und bbFirstPostId.
+ * Every submission is a discussion in the "Logo Contest" category (tag logo-contest), the first image in the
+ * opening post is the entry. Voting is done with "Like" on the opening post, with these rules:
+ * - voting only when logged in and only in the voting phase (after the submission deadline until the end)
+ * - one vote per member: whoever picks a different entry loses their old vote
+ * - not for your own entry
+ * - new submissions in the category only until the submission deadline (the team always)
+ * - plausibility check when submitting and editing an entry (BBForumContestCheck): an uploaded PNG,
+ *   square, at least 512 × 512, transparent corners, plus a zip with the source file. Otherwise the forum says
+ *   what is missing and creates nothing. Photos and pictures on a solid background are filtered out this way.
+ *   The team is exempt.
+ * The dates are set by scripts/lib/setup-inside.sh (CONTEST_SUBMIT_UNTIL, CONTEST_VOTE_UNTIL in .env).
+ * For the page, the API provides bbVotes, bbVoted, bbCanVote and bbFirstPostId on discussions in the category.
  */
 
 use Flarum\Discussion\Discussion;
@@ -27,7 +28,7 @@ if (! class_exists('BBForumContest')) {
     {
         const TAG = 'logo-contest';
 
-        /** [Einsendeschluss, Ende der Abstimmung] als Unix-Zeit; 0, wenn nicht gesetzt */
+        /** [submission deadline, end of voting] as Unix time; 0 if not set */
         public static function dates(): array
         {
             $settings = resolve(SettingsRepositoryInterface::class);
@@ -58,7 +59,7 @@ if (! class_exists('BBForumContest')) {
             return $actor->isAdmin() || $actor->groups->contains('id', 4);
         }
 
-        /** Nach einer neuen Stimme: die Stimme desselben Mitglieds für andere Werke entfernen */
+        /** After a new vote: remove the same member's votes for other entries */
         public static function keepOneVote(Post $post, User $user): void
         {
             if (! self::isEntry($post)) {
@@ -73,7 +74,7 @@ if (! class_exists('BBForumContest')) {
                 ->delete();
         }
 
-        /** Zusätzliche Angaben für die Contest-Seite an Themen des Bereichs */
+        /** Additional data for the contest page on discussions in the category */
         public static function attributes(User $actor, Discussion $discussion): array
         {
             if (! $discussion->relationLoaded('tags') || ! self::inContest($discussion) || ! $discussion->first_post_id) {
@@ -90,7 +91,7 @@ if (! class_exists('BBForumContest')) {
         }
     }
 
-    // „Gefällt mir“ auf einem Werk = Stimme: nur in der Abstimmungsphase, nicht für das eigene
+    // "Like" on an entry = vote: only in the voting phase, not for your own
     class BBForumContestLikePolicy extends AbstractPolicy
     {
         public function like(User $actor, Post $post)
@@ -105,7 +106,7 @@ if (! class_exists('BBForumContest')) {
         }
     }
 
-    // Neue Werke nur bis zum Einsendeschluss (das Team kann immer, etwa um ein Werk zu verschieben)
+    // New entries only until the submission deadline (the team always can, e.g. to move an entry)
     class BBForumContestTagPolicy extends AbstractPolicy
     {
         public function startDiscussion(User $actor, Tag $tag)
@@ -126,12 +127,12 @@ if (! class_exists('BBForumContest')) {
 
 if (! class_exists('BBForumContestFeed')) {
     /*
-     * Einsendungen nach Discord: Jedes Werk erscheint als Karte in einem eigenen Kanal (Webhook bbforum.contest_webhook,
-     * aus FORUM_CONTEST_WEBHOOK in .env): Logo groß, Name (Link zum Thema), wer es gemacht hat, die Idee, Link zur
-     * Contest-Seite. Erst wenn das Werk ein Bild hat und Gäste es sehen dürfen (also freigegeben und nicht versteckt).
-     * Ändert sich Titel oder Bild, wird die Karte angepasst; verschwindet das Werk, auch die Karte.
-     * Gemerkt in bbforum.contest_feed_messages: Themen-ID → Discord-Nachricht. Abgestimmt wird nur im Forum: im Kanal
-     * sind Schreiben und Reaktionen für alle aus (Einstellung in Discord).
+     * Submissions to Discord: each entry appears as a card in its own channel (webhook bbforum.contest_webhook,
+     * from FORUM_CONTEST_WEBHOOK in .env): large logo, name (link to the discussion), who made it, the idea, link to
+     * the contest page. Only once the entry has an image and guests may see it (i.e. approved and not hidden).
+     * If the title or image changes, the card is updated; if the entry disappears, so does the card.
+     * Remembered in bbforum.contest_feed_messages: discussion ID → Discord message. Voting happens only in the forum:
+     * in the channel, writing and reactions are turned off for everyone (a setting in Discord).
      */
     class BBForumContestFeed
     {
@@ -165,14 +166,14 @@ if (! class_exists('BBForumContestFeed')) {
             return (new \GuzzleHttp\Client(['timeout' => 5, 'connect_timeout' => 3]))->request($method, $url, $options);
         }
 
-        /** Karte anlegen, anpassen oder entfernen, je nachdem, wie das Werk gerade dasteht */
+        /** Create, update or remove the card, depending on the current state of the entry */
         public function sync(?Discussion $discussion): void
         {
             $webhook = $this->webhook();
             if (! $webhook || ! $discussion) {
                 return;
             }
-            // Angepinnte Regeln oder aus dem Bereich verschoben: keine Karte (mehr)
+            // Pinned rules or moved out of the category: no card (any more)
             if ($discussion->is_sticky || ! BBForumContest::inContest($discussion)) {
                 $this->remove($discussion->id);
                 return;
@@ -222,14 +223,17 @@ if (! class_exists('BBForumContestFeed')) {
             $this->settings->set(self::MESSAGES, json_encode($messages));
         }
 
-        /** Das Werk = das erste Bild im Eröffnungsbeitrag (wie auf der Contest-Seite) */
+        /** The entry = the first image in the opening post (as on the contest page) */
         private function image(Post $post): ?string
         {
             $html = method_exists($post, 'formatContent') ? (string) $post->formatContent() : '';
             return preg_match('/<img[^>]+src="([^"]+)"/', $html, $m) ? html_entity_decode($m[1]) : null;
         }
 
-        /** Die Idee in Worten: ohne Anhänge (Bild, Zip mit Dateiname), ohne Titel- und Formularzeilen, ohne Wiederholungen */
+        /**
+         * The idea in words: without attachments (image, zip with file name), without title and form lines,
+         * without repetitions
+         */
         private function idea(Post $post, string $title): string
         {
             $text = (string) $post->content;
@@ -280,7 +284,7 @@ if (! class_exists('BBForumContestFeed')) {
     {
         protected function configure()
         {
-            $this->setName('bbforum:contest-feed')->setDescription('Alle Werke des Logo-Contests in den Discord-Kanal bringen');
+            $this->setName('bbforum:contest-feed')->setDescription('Post all logo contest entries to the Discord channel');
         }
 
         protected function fire()
@@ -297,8 +301,8 @@ if (! class_exists('BBForumContestFeed')) {
 }
 
 if (! class_exists('BBForumContestCheck')) {
-    // Plausibilitätsprüfung für Werke (Ereignis Post Saving in extend.php): läuft beim Eröffnungsbeitrag eines Themas
-    // im Bereich, beim Anlegen und beim Bearbeiten. Scheitert sie, legt Flarum das neue Thema gar nicht erst an.
+    // Plausibility check for entries (Post Saving event in extend.php): runs on the opening post of a discussion
+    // in the category, on creation and on editing. If it fails, Flarum does not create the new discussion at all.
     class BBForumContestCheck
     {
         const MIN_SIZE = 512;
@@ -319,7 +323,7 @@ if (! class_exists('BBForumContestCheck')) {
             }
         }
 
-        /** Was am Werk nicht passt, in Sätzen für den Einsender (leer = alles gut) */
+        /** What is wrong with the entry, in sentences for the submitter (empty = all good) */
         public static function problems(string $content): array
         {
             $problems = [];
@@ -354,7 +358,7 @@ if (! class_exists('BBForumContestCheck')) {
             return array_merge($picture, $problems);
         }
 
-        /** Hochgeladene Datei auf diesem Server (fof/upload legt sie unter assets/files ab), sonst null */
+        /** Uploaded file on this server (fof/upload stores it under assets/files), otherwise null */
         private static function localFile(string $url): ?string
         {
             if (! preg_match('#/assets/files/([\w./-]+\.\w+)$#', html_entity_decode($url), $m) || strpos($m[1], '..') !== false) {
@@ -369,11 +373,11 @@ if (! class_exists('BBForumContestCheck')) {
             return null;
         }
 
-        /** Mindestens drei der vier Ecken fast durchsichtig (GD: Alpha 0 = deckend, 127 = durchsichtig) */
+        /** At least three of the four corners almost transparent (GD: alpha 0 = opaque, 127 = transparent) */
         private static function transparentCorners(string $file): bool
         {
             if (! function_exists('imagecreatefrompng') || ! ($img = @imagecreatefrompng($file))) {
-                return true; // ohne GD nicht prüfbar: lieber durchlassen
+                return true; // cannot be checked without GD: better let it pass
             }
             $w = imagesx($img);
             $h = imagesy($img);

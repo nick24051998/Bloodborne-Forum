@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Prüft, ob Website und Forum antworten (für .github/workflows/uptime.yml, alle 10 Minuten).
-# Meldet in Discord nur Wechsel: einmal, wenn etwas ausfällt, und einmal, wenn wieder alles läuft.
-# Den letzten Zustand (up/down) merkt es sich in STATE_FILE, das der Workflow im Actions-Cache aufhebt.
+# Checks whether the website and forum respond (for .github/workflows/uptime.yml, every 10 minutes).
+# Reports to Discord only on changes: once when something goes down, and once when everything is up again.
+# It remembers the last state (up/down) in STATE_FILE, which the workflow keeps in the Actions cache.
 #
-#   WEBSITE_URL, FORUM_URL    zu prüfende Adressen (Forum: dessen /api muss JSON liefern)
-#   DISCORD_STATUS_WEBHOOK    Webhook-URL eines Discord-Kanals (leer: keine Meldung)
-#   STATE_FILE                Datei mit dem letzten Zustand (Standard .uptime-state)
-#   RETRY_DELAY               Sekunden zwischen den drei Versuchen (Standard 20)
+#   WEBSITE_URL, FORUM_URL    addresses to check (forum: its /api must return JSON)
+#   DISCORD_STATUS_WEBHOOK    webhook URL of a Discord channel (empty: no message)
+#   STATE_FILE                file holding the last state (default .uptime-state)
+#   RETRY_DELAY               seconds between the three attempts (default 20)
 #
-# Antwortet Cloudflare mit einer Bot-Prüfung (Header cf-mitigated), gilt das nicht als Ausfall: Der Lauf
-# zeigt dann nur eine Warnung (in Cloudflare die Prüfung für /api bzw. die Startseite ausnehmen).
+# If Cloudflare answers with a bot check (header cf-mitigated), that does not count as an outage: the run
+# then only shows a warning (exempt /api or the home page from the check in Cloudflare).
 set -uo pipefail
 
 STATE_FILE=${STATE_FILE:-.uptime-state}
@@ -17,7 +17,7 @@ UA="BBPort-Uptime/1.0 (+https://github.com/${GITHUB_REPOSITORY:-})"
 down=()
 blocked=()
 
-check() { # check NAME URL TEXT – erreichbar = HTTP 200 und TEXT kommt in der Antwort vor
+check() { # check NAME URL TEXT – reachable = HTTP 200 and TEXT appears in the response
   local name=$1 url=$2 must=$3 code body headers attempt
   body=$(mktemp)
   headers=$(mktemp)
@@ -43,7 +43,7 @@ check() { # check NAME URL TEXT – erreichbar = HTTP 200 und TEXT kommt in der 
   rm -f "$body" "$headers"
 }
 
-send() { # send TEXT – an Discord, falls ein Webhook gesetzt ist
+send() { # send TEXT – to Discord, if a webhook is set
   if [ -z "${DISCORD_STATUS_WEBHOOK:-}" ]; then
     echo "(DISCORD_STATUS_WEBHOOK nicht gesetzt, keine Meldung)"
     return 0

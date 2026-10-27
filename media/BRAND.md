@@ -1,142 +1,142 @@
-# Markenhandbuch
+# Brand guide
 
-Wie die Community nach außen aussieht: Name, Siegel, Farben, Schrift, Bilder, Ton. Neue Bilder
-mit ChatGPT: [`PROMPTS.md`](PROMPTS.md). Herkunft aller Medien: [`CREDITS.md`](CREDITS.md).
+How the community looks to the outside: name, sigil, colors, type, images, tone. New images
+with ChatGPT: [`PROMPTS.md`](PROMPTS.md). Where all media come from: [`CREDITS.md`](CREDITS.md).
 
 ## Name
 
-- Voll: **Bloodborne PC Port Community**, kurz **BBPP**.
-- „Bloodborne“ nur beschreibend nennen (wofür die Community da ist), nie als eigenes Logo oder im
-  Schriftzug des Spiels.
-- Wo es passt, der Hinweis: *Not affiliated with or endorsed by Sony Interactive Entertainment or
+- Full: **Bloodborne PC Port Community**, short **BBPP**.
+- Only use "Bloodborne" descriptively (what the community is for), never as our own logo or in the
+  game's lettering.
+- Where it fits, add the note: *Not affiliated with or endorsed by Sony Interactive Entertainment or
   FromSoftware.*
 
-## Siegel
+## Sigil
 
-Kelch und Klinge in einer Form, darin eine Mondsichel, die in Blut schwimmt. Der Kelch steht für
-die Gemeinschaft, die Klinge für die Jagd, Mond und Blut für die Nacht in der alten Stadt. Das
-Siegel ist ein eigenes Werk und kein Symbol aus dem Spiel. Seit dem 19.10.2026 gilt die gemeißelte
-Fassung: Knochen mit abgeschrägten Facetten, Schiefer in den Vertiefungen, feine Steinstruktur.
+Chalice and blade in one shape, with a crescent moon floating in blood inside. The chalice stands for
+the community, the blade for the hunt, moon and blood for the night in the old city. The
+sigil is an original work and not a symbol from the game. Since 19 October 2026 the carved
+version is the official one: bone with bevelled facets, slate in the recesses, fine stone texture.
 
-Einsatz: Discord-Server-Icon, Favicon, Forum- und Website-Logo, Link-Vorschau.
+Used as: Discord server icon, favicon, forum and website logo, link preview.
 
-Dateien: `media/brand/sigil.png` (Original, auch Stilreferenz für ChatGPT),
-`media/brand/sigil-cutout.png` (freigestellt), `media/brand/discord-icon.png` (zum Hochladen in
-Discord). Neu erzeugen nach einer Änderung am Original: `python3 media/brand.py`, dann
-`node media/render-logo.cjs` (Logo und Vorschaubild).
+Files: `media/brand/sigil.png` (original, also the style reference for ChatGPT),
+`media/brand/sigil-cutout.png` (cut out), `media/brand/discord-icon.png` (for uploading to
+Discord). To regenerate after a change to the original: `python3 media/brand.py`, then
+`node media/render-logo.cjs` (logo and preview image).
 
-- Immer auf dunklem Grund (#0f1317 oder dunkler). Auf hellen Flächen oder unruhigen Bildern nur
-  auf einer dunklen runden Platte.
-- Ringsum frei lassen: mindestens ein Viertel der Siegelbreite.
-- Kleinste Größe: 24 px hoch. Darunter (Favicon 16 px) die runde Fassung mit Platte nehmen.
-- Nicht umfärben, verzerren, drehen, beschneiden; keine Effekte (Leuchten, Schatten, Verlauf).
-  Einzige Ausnahme: der Auftritt auf der Startseite (leerer Kelch, der sich füllt, kurzes rotes Pochen;
-  siehe Bewegung). Danach steht das Siegel unverändert da.
-- Nicht mit Symbolen aus dem Spiel kombinieren (Hunter-Zeichen, Runen, Waffen).
+- Always on a dark background (#0f1317 or darker). On light areas or busy images, only
+  on a dark round plate.
+- Keep clear space around it: at least a quarter of the sigil's width.
+- Minimum size: 24 px tall. Below that (favicon 16 px), use the round version with the plate.
+- Don't recolor, distort, rotate or crop it; no effects (glow, shadow, gradient).
+  Only exception: the entrance on the home page (empty chalice that fills up, short red pulse;
+  see Motion). After that the sigil stays unchanged.
+- Don't combine it with symbols from the game (Hunter's Mark, runes, weapons).
 
-## Farben
+## Colors
 
-Oberflächen (Website und Forum; die Werte stehen in `website/src/styles/global.css` und
+Surfaces (website and forum; the values are in `website/src/styles/global.css` and
 `theme/custom.less`):
 
-| Rolle | Wert | Einsatz |
+| Role | Value | Used for |
 |---|---|---|
-| Hintergrund tief | `#08090a` | Kopf- und Fußzeile |
-| Hintergrund | `#0d0e10` | Seite |
-| Karte | `#16171a` | Kästen, Beiträge |
-| Rahmen | `#25272b` | Linien, Ränder |
-| Text | `#d9d4ca` | Fließtext |
-| Text hervorgehoben | `#ece7dd` | Überschriften |
-| Text gedämpft | `#8a8c90` | Nebeninfos |
-| Messing hell | `#c2a878` | Links, Fokus |
-| Messing | `#9c8458` | Linien, Zierrat |
-| Blut | `#8a1118` | Knöpfe, Markierungen |
-| Blut hover | `#a3161e` | Knöpfe beim Überfahren |
+| Background deep | `#08090a` | Header and footer |
+| Background | `#0d0e10` | Page |
+| Card | `#16171a` | Boxes, posts |
+| Border | `#25272b` | Lines, edges |
+| Text | `#d9d4ca` | Body text |
+| Text emphasized | `#ece7dd` | Headings |
+| Text muted | `#8a8c90` | Secondary info |
+| Brass light | `#c2a878` | Links, focus |
+| Brass | `#9c8458` | Lines, ornaments |
+| Blood | `#8a1118` | Buttons, highlights |
+| Blood hover | `#a3161e` | Buttons on hover |
 
-Blutrot ist eine Flächenfarbe, keine Textfarbe: Als Schrift auf dunklem Grund ist der Kontrast zu
-gering (2:1). Heller Text auf Blutrot ist gut lesbar (7,8:1).
+Blood red is a fill color, not a text color: as text on a dark background the contrast is too
+low (2:1). Light text on blood red reads well (7.8:1).
 
-Bilder und Zeichen (Palette aus `PROMPTS.md`):
+Images and emblems (palette from `PROMPTS.md`):
 
-| Rolle | Werte |
+| Role | Values |
 |---|---|
-| Nacht und Stein | `#0a0d12` `#0f1317` `#14191d` `#181e22` `#1e272a` `#242c2e` `#2b2e2f` `#333b3c` |
-| Nebel | `#828275` |
-| Knochen und Mondlicht | `#e4d9bd`, Licht `#f3ecd9`, Schatten `#a99d80` |
-| Blut | `#8a1118`, Licht `#c22a30`, Schatten `#5a0a10` |
-| Laternenlicht und Messing | `#bc9570` `#9c8458` `#c2a878` |
+| Night and stone | `#0a0d12` `#0f1317` `#14191d` `#181e22` `#1e272a` `#242c2e` `#2b2e2f` `#333b3c` |
+| Fog | `#828275` |
+| Bone and moonlight | `#e4d9bd`, light `#f3ecd9`, shadow `#a99d80` |
+| Blood | `#8a1118`, light `#c22a30`, shadow `#5a0a10` |
+| Lamp light and brass | `#bc9570` `#9c8458` `#c2a878` |
 
-Szenen sind zu etwa 85 % dunkel; Rot ist dort nur Akzent.
+Scenes are about 85 % dark; red is only an accent there.
 
-## Schrift
+## Type
 
-- **Cinzel** für Überschriften und Schriftzüge, gern in Versalien mit etwas Sperrung.
-- **Inter** für Fließtext und Oberflächen.
-- Beide unter der SIL Open Font License, selbst gehostet (`website/public/fonts/`).
+- **Cinzel** for headings and wordmarks, ideally in capitals with a little letter spacing.
+- **Inter** for body text and UI.
+- Both under the SIL Open Font License, self-hosted (`website/public/fonts/`).
 
-## Bilder
+## Images
 
-Illustrationen im Stil des Siegels: Formen wie aus altem Knochen und Stein gemeißelt, mit
-kalligrafischen Kurven, abgeschrägten Facetten und harter Schattierung in drei bis vier Tönen,
-Schiefer in Rillen und Vertiefungen, feine Steinstruktur ohne Schmutzeffekte. Tiefe durch
-Silhouetten-Ebenen und Nebel. Motive aus einer eigenen, namenlosen viktorianischen Stadt bei
-Nacht. Keine Fotos, kein Glanz, keine sichtbaren Pinselstriche, keine 3D-Renderoptik, keine
-Pixel-Art, kein Material aus dem Spiel. Kleine Icons und Emojis vereinfacht (zwei Facettentöne,
-keine Struktur); die Forum-Kategorie-Icons bleiben flach und einfarbig. Prompts und Endgrößen:
+Illustrations in the style of the sigil: shapes that look carved from old bone and stone, with
+calligraphic curves, bevelled facets and hard shading in three to four tones,
+slate in grooves and recesses, fine stone texture without grunge effects. Depth comes from
+silhouette layers and fog. Subjects from an original, nameless Victorian city at
+night. No photos, no shine, no visible brush strokes, no 3D render look, no
+pixel art, no material from the game. Small icons and emojis are simplified (two facet tones,
+no texture); the forum category icons stay flat and single-color. Prompts and final sizes:
 `PROMPTS.md`.
 
-## Bewegung
+## Motion
 
-Langsam und schwer wie die Welt des Spiels, wenige Effekte mit klarer Aufgabe.
+Slow and heavy like the world of the game, few effects, each with a clear purpose.
 
-- Höchstens eine Daueranimation pro Ansicht (Ausnahme: die kleine Laterne als Statusanzeige).
-- Tempo: Interaktion 150 bis 250 ms, Auftritte 600 bis 900 ms, Atmosphäre 30 bis 110 Sekunden.
-  Ausnahme: der Auftritt des Siegels auf der Startseite, gut 5 Sekunden mit gleichmäßiger Kurve, damit
-  man ihn überhaupt wahrnimmt. Zwei Nebelbänke liegen über dem Siegel; es wird dahinter sichtbar und
-  scharf, die Bänke ziehen auseinander. Dann steigt das Blut mit schwappender Oberfläche in den leeren
-  Kelch, und das Siegel schlägt zweimal wie ein Herz (kurz größer, rot glühend).
-- Eine Kurve für alles: `cubic-bezier(0.2, 0.7, 0.1, 1)`, schneller Start, langes Auslaufen. Kein Federn,
-  kein Hüpfen.
-- Nur Position und Deckkraft animieren, keine Unschärfe auf großen Flächen.
-- „Bewegung reduzieren“ im System schaltet alles ab außer der Ladeanzeige.
-- Nichts schneller als 3 Wechsel pro Sekunde; nichts aus dem Spiel nachbauen.
+- At most one looping animation per view (exception: the small lantern as a status indicator).
+- Timing: interaction 150 to 250 ms, entrances 600 to 900 ms, atmosphere 30 to 110 seconds.
+  Exception: the sigil's entrance on the home page, a good 5 seconds with an even curve, so that
+  people notice it at all. Two banks of fog lie over the sigil; it appears behind them and comes into
+  focus, and the banks drift apart. Then blood rises into the empty chalice with a sloshing surface,
+  and the sigil beats twice like a heart (briefly larger, glowing red).
+- One curve for everything: `cubic-bezier(0.2, 0.7, 0.1, 1)`, fast start, long ease-out. No springs,
+  no bouncing.
+- Only animate position and opacity, no blur on large areas.
+- The system setting "reduce motion" turns off everything except the loading indicator.
+- Nothing faster than 3 changes per second; don't recreate anything from the game.
 
-Im Einsatz:
+In use:
 
-| Bewegung | Website | Forum |
+| Motion | Website | Forum |
 |---|---|---|
-| Ziehender Nebel (`media/textures/fog.svg`) | Kopfbilder | Willkommens-Banner |
-| Tiefe beim Scrollen | Kopfbild der Startseite | – |
-| Laterne flackert | Live-Abschnitt (wenn eingeschaltet) | Hunter's-Dream-Kasten |
-| Blut füllt den Knopf | Haupt- und Rahmenknöpfe | Hauptknöpfe |
-| Messinglinie | Menü und Fußzeile | Website-Links im Kopf |
-| Karte hebt sich | Karten | Themenliste |
-| Seitenwechsel ins Dunkle | alle Seiten | – (das Forum lädt nicht neu) |
-| Siegel taucht aus dem Nebel auf, Kelch füllt sich, Herzschlag | Startseite, beim Laden | – |
-| Abschnitte erscheinen | Abschnitte der Startseite | – |
-| Zahlen zählen hoch | – | Hunter's-Dream-Kasten |
-| Blutstropfen als Ladeanzeige | – | überall |
-| Neuer Beitrag pulsiert | – | nach dem Antworten |
-| Beste Antwort glüht auf | – | markierter Beitrag |
+| Drifting fog (`media/textures/fog.svg`) | Header images | Welcome banner |
+| Depth on scroll | Home page header image | – |
+| Lantern flickers | Live section (when turned on) | Hunter's Dream box |
+| Blood fills the button | Primary and outline buttons | Primary buttons |
+| Brass line | Menu and footer | Website links in the header |
+| Card lifts | Cards | Topic list |
+| Page change fades to dark | All pages | – (the forum doesn't reload) |
+| Sigil rises from the fog, chalice fills, heartbeat | Home page, on load | – |
+| Sections appear | Home page sections | – |
+| Numbers count up | – | Hunter's Dream box |
+| Blood drop as loading indicator | – | Everywhere |
+| New post pulses | – | After replying |
+| Best answer lights up | – | Marked post |
 
-Zum Ausprobieren gibt es eine Demo-Seite (Bewegungsstudie, als Artifact geteilt).
+There is a demo page to try it out (motion study, shared as an Artifact).
 
 ## Icons
 
-Einfarbig, flach, gleiche Strichstärke in einem Set. Heute: CC0-Icons (`media/icons/`, Quellen in
-`CREDITS.md`); eigene Sets nach der Vorlage „Kategorie-Icons“ in `PROMPTS.md`.
+Single-color, flat, same stroke weight within a set. Today: CC0 icons (`media/icons/`, sources in
+`CREDITS.md`); custom sets follow the "Category icons" template in `PROMPTS.md`.
 
-## Ton
+## Tone
 
-- Öffentliche Texte auf Englisch, kurz und freundlich, ohne Fachjargon.
-- Ehrlich bei Fehlern und bekannten Problemen.
-- Keine Hilfe bei Raubkopien: Das Spiel muss man selbst besitzen.
+- Public texts in English, short and friendly, no jargon.
+- Honest about bugs and known issues.
+- No help with piracy: you have to own the game yourself.
 
-## Rechtliches
+## Legal
 
-- Nichts aus dem Spiel übernehmen: kein Logo, keine Runen, keine Item- oder Waffen-Icons, keine
-  Figuren, keine Screenshots oder Artworks ohne Erlaubnis.
-- Den Namen nur beschreibend verwenden („für Bloodborne“).
-- Runenformen und Kreuze meiden (§ 86a StGB, § 125 OWiG).
-- KI-erzeugte Bilder sind in der Regel nicht urheberrechtlich geschützt; wichtige Motive selbst
-  überarbeiten.
+- Don't take anything from the game: no logo, no runes, no item or weapon icons, no
+  characters, no screenshots or artwork without permission.
+- Only use the name descriptively ("for Bloodborne").
+- Avoid rune shapes and crosses (German law: § 86a StGB, § 125 OWiG).
+- AI-generated images are usually not protected by copyright; rework important images
+  yourself.

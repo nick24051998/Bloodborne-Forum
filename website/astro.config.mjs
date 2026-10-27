@@ -8,9 +8,9 @@ export default defineConfig({
   trailingSlash: 'always',
   build: { format: 'directory' },
   vite: {
-    // Astro baut für "esnext"; dann fasst der CSS-Minifier animation und animation-timeline zu einer
-    // Kurzschrift zusammen, die kein Browser annimmt (Tiefe im Kopfbild und auftauchende Abschnitte
-    // wären aus). Mit echten Browsern als Ziel bleibt animation-timeline eine eigene Angabe.
+    // Astro builds for "esnext"; the CSS minifier then folds animation and animation-timeline into a
+    // shorthand that no browser accepts (the depth effect in the hero image and the sections that fade in
+    // would be off). With real browsers as the target, animation-timeline stays a separate declaration.
     build: { cssTarget: ['chrome107', 'edge107', 'firefox104', 'safari16'] },
   },
   integrations: [

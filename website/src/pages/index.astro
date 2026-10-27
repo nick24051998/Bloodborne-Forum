@@ -9,7 +9,7 @@ import { link, absolute } from '../lib/url.js';
 import { latest, downloadUrl, formatDate } from '../lib/releases.js';
 import { CONTEST, contestDates, contestRunning } from '../data/contest.js';
 
-// Texte der Startseite. Icons: Namen aus media/icons (droplet, crescent, key, tools, bell, …)
+// Home page texts. Icons: names from media/icons (droplet, crescent, key, tools, bell, …)
 const features = [
   {
     icon: 'droplet',
@@ -31,7 +31,7 @@ const features = [
 
 const helpUrl = SITE.forumUrl ? `${SITE.forumUrl}/t/help-support` : SITE.discordUrl;
 
-// Live-Zahlen von The Hunter's Dream: der Browser fragt das Forum, das sie zwischenspeichert
+// Live numbers from The Hunter's Dream: the browser asks the forum, which caches them
 const liveUrl = SITE.forumUrl && SITE.huntersDreamUrl ? `${SITE.forumUrl}/api/hunters-dream` : '';
 
 const orgLd = {
@@ -45,10 +45,10 @@ const orgLd = {
   }),
 };
 
-// Bild der Play-Seite in voller Größe für den Klick auf die Vorschau ("So sieht der echte Launcher aus")
+// Full-size image of the Play page for clicking the preview ("what the real launcher looks like")
 const launcherFull = await getImage({ src: launcherPlay, format: 'webp', quality: 90 });
 
-// Der Port selbst, damit Google "bbport" mit dieser Seite, Supermedo und dem Download verbindet
+// The port itself, so Google connects "bbport" with this site, Supermedo and the download
 const appLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
@@ -168,7 +168,7 @@ const appLd = {
   )}
 
   <script>
-    // Füllt den Live-Abschnitt; ohne Daten (Forum oder Server nicht erreichbar) bleibt er ausgeblendet
+    // Fills the live section; without data (forum or server unreachable) it stays hidden
     const live = document.querySelector<HTMLElement>('.live');
     if (live) {
       const field = (name: string) => live.querySelector<HTMLElement>(`[data-field="${name}"]`)!;
@@ -187,12 +187,12 @@ const appLd = {
           field('deadliestFoe').textContent = d.deadliestFoe ? d.deadliestFoe.name : '–';
           live.hidden = false;
         } catch {
-          // Netzwerkfehler: Abschnitt bleibt, wie er ist
+          // Network error: the section stays as it is
         }
       };
 
       load();
-      // Solange die Seite sichtbar ist, jede Minute auffrischen (das Forum speichert ebenfalls eine Minute)
+      // While the page is visible, refresh every minute (the forum also caches for one minute)
       setInterval(() => {
         if (document.visibilityState === 'visible') load();
       }, 60000);

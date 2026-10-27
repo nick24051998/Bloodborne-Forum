@@ -1,13 +1,13 @@
-# Baut die Website (website/) und veröffentlicht sie auf GitHub Pages.
-# Einmalig aktivieren: Repo → Settings → Pages → Source: "GitHub Actions".
+# Builds the website (website/) and publishes it to GitHub Pages.
+# Enable once: Repo → Settings → Pages → Source: "GitHub Actions".
 #
-# Alle 2 Stunden schaut der Workflow nach einer neuen Version des Ports (GitHub-Releases, Repo aus
-# SITE.downloadUrl). Gibt es eine, baut er die Website neu (Version, Download, Changelog-Liste) und meldet
-# sie in Discord, wenn das Secret DISCORD_RELEASES_WEBHOOK gesetzt ist (Repo → Settings → Secrets and
-# variables → Actions; Webhook-URL eines Discord-Kanals, z. B. #announcements).
+# Every 2 hours the workflow checks for a new version of the port (GitHub releases, repo taken from
+# SITE.downloadUrl). If there is one, it rebuilds the website (version, download, changelog list) and announces
+# it in Discord if the secret DISCORD_RELEASES_WEBHOOK is set (Repo → Settings → Secrets and
+# variables → Actions; webhook URL of a Discord channel, e.g. #announcements).
 #
-# Vor jedem Deploy prüft Playwright die fertige Seite im Browser (website/tests). Schlägt eine Prüfung fehl,
-# bricht der Build ab und nichts geht live. Pull Requests und Branches „ci/…“ werden nur gebaut und geprüft.
+# Before every deploy, Playwright checks the finished site in the browser (website/tests). If a check fails,
+# the build aborts and nothing goes live. Pull requests and "ci/…" branches are only built and checked.
 name: Website
 
 on:
@@ -26,7 +26,7 @@ permissions:
   pages: write
   id-token: write
 
-# Nicht abbrechen: sonst ginge die Discord-Meldung eines laufenden Durchgangs verloren
+# Don't cancel: otherwise the Discord announcement of a running run would be lost
 concurrency:
   group: pages-${{ github.ref }}
   cancel-in-progress: false
@@ -52,7 +52,7 @@ jobs:
 
   build:
     needs: releases
-    # Nach Zeitplan nur bauen, wenn GitHub eine andere Version hat als die Website
+    # On the schedule, only build if GitHub has a different version than the website
     if: github.event_name != 'schedule' || needs.releases.outputs.changed == 'true'
     runs-on: ubuntu-latest
     defaults:
@@ -66,23 +66,23 @@ jobs:
           cache: npm
           cache-dependency-path: website/package-lock.json
       - run: npm ci
-      # Frische Releases; ist GitHub nicht erreichbar, baut die Website mit dem Stand aus dem Repo
+      # Fresh releases; if GitHub is unreachable, the website is built with the state from the repo
       - run: node scripts/fetch-releases.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - run: npm run build
-      # Prüfungen im echten Browser (Chromium, Desktop und Handy) gegen die gebaute Seite
-      - name: Playwright installieren
+      # Checks in a real browser (Chromium, desktop and phone) against the built site
+      - name: Install Playwright
         run: |
           npm install --no-save @playwright/test@1.56.1
           npx playwright install --with-deps chromium
-      - name: Website prüfen
+      - name: Test the website
         run: npx playwright test
-      - name: Bericht bei Fehlern sichern
+      - name: Keep the report on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-ergebnisse
+          name: playwright-results
           path: website/test-results
           retention-days: 7
       - uses: actions/upload-pages-artifact@v3
@@ -91,7 +91,7 @@ jobs:
 
   deploy:
     needs: build
-    # Live geht nur main; Pull Requests und ci/-Branches werden nur geprüft
+    # Only main goes live; pull requests and ci/ branches are only checked
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
