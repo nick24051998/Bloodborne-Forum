@@ -88,6 +88,12 @@ const appLd = {
           bbport brings the original PS4 game natively to Windows 10 and 11 – at 60 FPS or more, in up to 4K, with
           online co-op.
         </p>
+        {downloadsText && (
+          <p class="hero-stat">
+            <strong class="hero-downloads">{downloadsText}</strong>
+            <span>downloads</span>
+          </p>
+        )}
         <div class="actions">
           <a class="btn btn-primary" href={link('install/')}>Install guide</a>
           {downloadUrl && <a class="btn btn-ghost hero-download-btn" href={downloadUrl} rel="noopener">Download{latest && ` ${latest.version}`}</a>}
@@ -105,7 +111,6 @@ const appLd = {
           <p class="hero-port">
             The community for <strong>{SITE.portName}</strong> ({SITE.brand}) by{' '}
             <a href={SITE.portAuthorUrl} rel="noopener">{SITE.portAuthor}</a>
-            {downloadsText && <>, downloaded <strong class="hero-downloads">{downloadsText}</strong> times</>}
             <span aria-hidden="true"> · </span>
             <a href={SITE.portRepoUrl} rel="noopener">Source code on GitHub</a>
           </p>

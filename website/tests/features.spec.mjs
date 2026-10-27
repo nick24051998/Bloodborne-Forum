@@ -332,7 +332,7 @@ test('Home page shows how often the port was downloaded', async ({ page, request
   const total = totalDownloads(releases);
   test.skip(!total, 'no download counts in src/data/releases.json');
   await page.goto('/');
-  await expect(page.locator('.hero-port .hero-downloads')).toHaveText(downloadsLabel(total));
+  await expect(page.locator('.hero-stat .hero-downloads')).toHaveText(downloadsLabel(total));
   expect((await (await request.get('/release.json')).json()).downloads).toBe(total);
 });
 
