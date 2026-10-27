@@ -29,6 +29,7 @@
  * caches the result and passes on only totals, no player names. If the
  * numbers are older than 15 minutes, it answers with 503 and the fields stay hidden.
  *
+ * /api/bb-ai/…: open help topics for BB Helper's AI answers and its reply as BB-Helper (flarum/ai-help.php)
  * /api/bb-discord-notify: queue of forum notifications for BB Helper (flarum/discord-notify.php), which delivers
  * them in the member's private inbox thread on Discord; off until bbforum.discord_notify_enabled = 1.
  *
@@ -329,6 +330,7 @@ require_once __DIR__.'/contest.php';
 require_once __DIR__.'/overview.php';
 require_once __DIR__.'/profiles.php';
 require_once __DIR__.'/discord-notify.php';
+require_once __DIR__.'/ai-help.php';
 
 return [
     (new Extend\ServiceProvider())->register(BBForumCliLocale::class),
@@ -476,10 +478,15 @@ return [
     (new Extend\Routes('api'))
         ->get('/bb-discord-notify', 'bbforum.discordNotify.pending', BBForumDiscordNotifyPending::class)
         ->post('/bb-discord-notify/ack', 'bbforum.discordNotify.ack', BBForumDiscordNotifyAck::class)
-        ->post('/bb-discord-notify/action', 'bbforum.discordNotify.action', BBForumDiscordNotifyAction::class),
+        ->post('/bb-discord-notify/action', 'bbforum.discordNotify.action', BBForumDiscordNotifyAction::class)
+        ->get('/bb-ai/candidates', 'bbforum.ai.candidates', BBForumAiCandidates::class)
+        ->get('/bb-ai/topics/{id}', 'bbforum.ai.topic', BBForumAiTopic::class)
+        ->get('/bb-ai/files/{uuid}', 'bbforum.ai.file', BBForumAiFile::class)
+        ->post('/bb-ai/reply', 'bbforum.ai.reply', BBForumAiReply::class),
     (new Extend\Csrf())
         ->exemptRoute('bbforum.discordNotify.ack')
-        ->exemptRoute('bbforum.discordNotify.action'),
+        ->exemptRoute('bbforum.discordNotify.action')
+        ->exemptRoute('bbforum.ai.reply'),
 
     ...(is_file('/bbforum/forum.js') ? [(new Extend\Frontend('forum'))->js('/bbforum/forum.js')] : []),
     ...(is_file('/bbforum/icons.less') ? [
