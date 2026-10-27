@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 import { SITE } from '../site.config.mjs';
 import { TIERS, gpus, cpuLines, evaluate } from '../src/data/hardware.js';
 import { cleanNotes } from '../scripts/release-notes.mjs';
-import { totalDownloads, downloadsLabel } from '../src/lib/downloads.js';
+import { totalDownloads, mostDownloads, downloadsLabel } from '../src/lib/downloads.js';
 
 // The same data the site was built from (fetched fresh from GitHub in the workflow)
 const { releases } = JSON.parse(readFileSync(new URL('../src/data/releases.json', import.meta.url), 'utf8'));
@@ -327,13 +327,18 @@ test.describe('Download and releases', () => {
   });
 });
 
-// Download count from GitHub, all versions together, rounded down; release.json carries the exact number for the check
-test('Home page shows how often the port was downloaded', async ({ page, request }) => {
+// Download count from GitHub, all versions together, and players (the most downloaded version), both rounded down;
+// release.json carries the exact numbers for the check
+test('Home page shows how often the port was downloaded and by how many players', async ({ page, request }) => {
   const total = totalDownloads(releases);
+  const players = mostDownloads(releases);
   test.skip(!total, 'no download counts in src/data/releases.json');
   await page.goto('/');
   await expect(page.locator('.hero-stat .hero-downloads')).toHaveText(downloadsLabel(total));
-  expect((await (await request.get('/release.json')).json()).downloads).toBe(total);
+  await expect(page.locator('.hero-stat .hero-players')).toHaveText(downloadsLabel(players));
+  const live = await (await request.get('/release.json')).json();
+  expect(live.downloads).toBe(total);
+  expect(live.players).toBe(players);
 });
 
 test('Launcher guide: in the menu and with its sections', async ({ page }) => {
