@@ -287,10 +287,10 @@
   // Work lists for the team: search with gambits (is:unanswered from extend.php, is:solved from Best Answer)
   // Closed help topics (7 days without a post, flarum/overview.php) no longer count as open
   var TEAM_LISTS = [
-    ['bbTeamUnanswered', 'Waiting for an answer', { q: 'tag:help-support is:unanswered -is:locked', sort: 'oldest' }, 'fas fa-hourglass-half'],
-    ['bbTeamUnsolved', 'Help not solved yet', { q: 'tag:help-support -is:solved -is:locked', sort: 'latest' }, 'fas fa-life-ring'],
-    ['bbTeamBugs', 'Open bugs', { q: 'tag:bug-reports tag:status-open', sort: 'latest' }, 'fas fa-bug'],
-    ['bbTeamIdeas', 'New suggestions', { q: 'tag:suggestions', sort: 'newest' }, 'fas fa-lightbulb'],
+    ['bbTeamUnanswered', 'Waiting for an answer', { q: 'tag:help-support is:unanswered -is:locked', sort: 'oldest' }, 'bbicon bbicon-hourglass'],
+    ['bbTeamUnsolved', 'Help not solved yet', { q: 'tag:help-support -is:solved -is:locked', sort: 'latest' }, 'bbicon bbicon-lantern'],
+    ['bbTeamBugs', 'Open bugs', { q: 'tag:bug-reports tag:status-open', sort: 'latest' }, 'bbicon bbicon-spider'],
+    ['bbTeamIdeas', 'New suggestions', { q: 'tag:suggestions', sort: 'newest' }, 'bbicon bbicon-candle'],
   ];
 
   function teamNavItems(items) {
@@ -1028,11 +1028,11 @@
 
   // "Start here" in the sidebar: the guides that used to be pinned at the top
   var START = [
-    [3, 'Read first: common fixes', 'fas fa-first-aid'],
-    [2, 'Install guide', 'fas fa-download'],
-    [124, 'Best settings', 'fas fa-sliders-h'],
-    [1, 'Forum rules', 'fas fa-gavel'],
-    [4, 'Post a performance report', 'fas fa-tachometer-alt'],
+    [3, 'Read first: common fixes', 'bbicon bbicon-scroll'],
+    [2, 'Install guide', 'bbicon bbicon-download'],
+    [124, 'Best settings', 'bbicon bbicon-gears'],
+    [1, 'Forum rules', 'bbicon bbicon-gavel'],
+    [4, 'Post a performance report', 'bbicon bbicon-chart'],
   ];
 
   function startItems(items) {
@@ -1285,6 +1285,9 @@
         if (tag.position() === null && items.has('tag' + tag.id())) items.remove('tag' + tag.id());
       });
       if (items.has('moreTags')) items.remove('moreTags');
+      // "Tags" in the same icon set as the sections (flarum/tags brings a Font Awesome icon)
+      var tagsLink = items.has('tags') ? items.get('tags') : null;
+      if (tagsLink && tagsLink.attrs) tagsLink.attrs.icon = 'bbicon bbicon-tag';
     });
 
     extend(HeaderPrimary.prototype, 'items', function (items) {
@@ -1337,7 +1340,7 @@
     // Team block in the sidebar (home page and sections); for everyone the link to the logo contest while it runs
     extend(IndexPage.prototype, 'navItems', function (items) {
       if (contestPhase() !== 'closed') {
-        items.add('bbLogoContest', LinkButton.component({ href: app.route('logoContest'), icon: 'fas fa-trophy' }, 'Logo contest'), 95);
+        items.add('bbLogoContest', LinkButton.component({ href: app.route('logoContest'), icon: 'bbicon bbicon-trophy' }, 'Logo contest'), 95);
       }
       if (isTeam()) teamNavItems(items);
     });

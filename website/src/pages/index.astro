@@ -9,10 +9,10 @@ import { link, absolute } from '../lib/url.js';
 import { latest, downloadUrl, formatDate, downloads, downloadsText } from '../lib/releases.js';
 import { CONTEST, contestDates, contestRunning } from '../data/contest.js';
 
-// Home page texts. Icons: names from media/icons (droplet, crescent, key, tools, bell, …)
+// Home page texts. Icons: names from media/icons (gauge, bell, key, anvil, moon, …)
 const features = [
   {
-    icon: 'droplet',
+    icon: 'gauge',
     title: 'High frame rates, sharp image',
     text: '60, 90 or unlocked FPS, output from 720p to 4K, NVIDIA DLSS and AMD FSR 3.1/4, and frame generation that turns 60 FPS into 120 or more.',
   },
@@ -26,7 +26,7 @@ const features = [
     title: 'Everything in one launcher',
     text: 'Controller, keyboard and mouse with free key mapping, mods, game effects, field of view, cheats and one-click updates, in 13 languages.',
   },
-  { icon: 'tools', title: 'Mods & patches', text: 'Share and discuss mods, patches and tweaks with the community.' },
+  { icon: 'anvil', title: 'Mods & patches', text: 'Share and discuss mods, patches and tweaks with the community.' },
 ];
 
 const helpUrl = SITE.forumUrl ? `${SITE.forumUrl}/t/help-support` : SITE.discordUrl;
