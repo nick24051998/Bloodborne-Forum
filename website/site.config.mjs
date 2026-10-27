@@ -31,7 +31,7 @@ export const SITE = {
 
   // Contact for questions, deletion requests and privacy (footer). Also appears in
   // src/texts/contact.md, src/texts/privacy.md and content/footer.html (forum): update those too when changing it.
-  contactEmail: 'bbportpc@gmail.com',
+  contactEmail: 'bbport@supermedo.com',
 
   // Online server the community plays on. The live numbers on the home page are fetched by the
   // browser via the forum (forumUrl + '/api/hunters-dream', see flarum/extend.php).
