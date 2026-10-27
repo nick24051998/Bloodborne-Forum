@@ -193,7 +193,7 @@ test('Menü: Links neben dem Logo, Discord ganz rechts', async ({ page, isMobile
   test.skip(isMobile, 'auf dem Handy steckt das Menü hinter dem Menü-Knopf');
   await page.goto('/');
   expect(await page.$$eval('.nav a', (all) => all.map((a) => a.textContent.trim())))
-    .toEqual(['Install', 'Guide', 'Best settings', 'FAQ', 'Changelog', 'Supermedo', 'Forum', 'Discord']);
+    .toEqual(['Install', 'Guide', 'Best settings', 'FAQ', 'Changelog', 'Server', 'Supermedo', 'Forum', 'Discord']);
   const logo = await page.locator('.brand').boundingBox();
   const first = await page.locator('.nav a').first().boundingBox();
   const discord = await page.locator('.nav .nav-discord').boundingBox();
@@ -206,7 +206,7 @@ test('Menü: Links neben dem Logo, Discord ganz rechts', async ({ page, isMobile
 // Eine Regel für alle Knöpfe (global.css „Knöpfe: eine Regel für alle“): gleiche Rundung, Messing-Haarlinie,
 // Blut steigt beim Zeigen auf; nur die Füllung unterscheidet Hauptaktion, Rest und Discord
 test('Alle Knöpfe folgen einer Regel', async ({ page }) => {
-  for (const path of ['/', '/changelog/', '/install/', '/supermedo/']) {
+  for (const path of ['/', '/changelog/', '/install/', '/supermedo/', '/server/']) {
     await page.goto(path);
     const buttons = await page.$$eval('.btn, .hw-detect, .lightbox button', (all) => all.map((b) => {
       const c = getComputedStyle(b);

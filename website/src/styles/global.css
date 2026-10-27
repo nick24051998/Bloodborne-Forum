@@ -130,8 +130,8 @@ h3 { font-size: var(--step-1); }
 .menu-input { position: absolute; opacity: 0; pointer-events: none; }
 .menu-button { display: none; }
 
-/* Menü-Knopf statt Leiste bis 1000 px: Darunter passen die sieben Links neben Logo und Discord nicht in eine Zeile */
-@media (max-width: 1000px) {
+/* Menü-Knopf statt Leiste bis 1100 px: Darunter passen die acht Links neben Logo und Discord nicht in eine Zeile */
+@media (max-width: 1100px) {
   .site-header .container { flex-wrap: wrap; min-height: 56px; gap: 0; }
   .brand img { height: 34px; }
   .menu-button {
@@ -764,9 +764,72 @@ h3 { font-size: var(--step-1); }
 @keyframes page-out { to { opacity: 0; } }
 @keyframes page-in { from { opacity: 0; } }
 
+/* --- SuperMedo Server (/server/) ---------------------------------------------------------- */
+.sm-state { display: inline-flex; align-items: center; gap: 0.55rem; margin-top: 1.1rem !important; padding: 0.35rem 0.9rem;
+  border: 1px solid var(--border-strong); border-radius: 999px; background: rgba(8, 9, 10, 0.6); font-size: 0.9rem; }
+.sm-lamp { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.sm-state.is-awake { color: var(--text-strong); border-color: rgba(194, 168, 120, 0.4); }
+.sm-state.is-awake .sm-lamp { background: #bc9570; animation: lamp-flicker 4.2s steps(1, end) infinite; }
+.sm-tonight { font-family: var(--font-head); font-size: var(--step-2); color: var(--text-strong); line-height: 1.3;
+  max-width: 34ch; margin: 0 0 2rem; }
+.sm-bells { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+.sm-bell { position: relative; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 1.4rem 1.5rem 1.3rem; text-align: center; }
+.sm-bell .sm-bell-icon { font-size: 1.6rem; color: var(--gold-light); }
+.sm-bell .sm-count { margin: 0.35rem 0 0.2rem; font-family: var(--font-head); font-weight: 700; font-size: var(--step-3);
+  line-height: 1; color: var(--text-strong); font-variant-numeric: tabular-nums; }
+.sm-bell h3 { font-size: 1rem; margin: 0 0 0.35rem; color: var(--gold-light); }
+.sm-bell p:last-child { margin: 0; color: var(--muted); font-size: 0.92rem; }
+.sm-bell-red { border-color: rgba(201, 74, 68, 0.35); background: radial-gradient(120% 80% at 50% 0%, rgba(138, 17, 24, 0.18), transparent 70%), var(--card); }
+.sm-bell-red .sm-bell-icon, .sm-bell-red h3 { color: var(--blood-light); }
+.sm-answered { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.6rem 1rem; margin-top: 1.5rem;
+  color: var(--text-soft); font-size: 0.95rem; }
+.sm-answered-count { font-family: var(--font-head); font-weight: 700; color: var(--text-strong); font-variant-numeric: tabular-nums; }
+/* Messingleiste: wie viel von etwas */
+.sm-gauge { display: block; height: 6px; border-radius: 3px; background: var(--bg-deep); border: 1px solid var(--border); overflow: hidden; }
+.sm-gauge > span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  transition: width 900ms var(--ease-heavy); }
+.sm-areas { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+.sm-area { display: grid; grid-template-columns: minmax(10rem, 1.2fr) minmax(7rem, 0.8fr) minmax(6rem, 1.2fr) minmax(12rem, auto);
+  align-items: center; gap: 0.4rem 1.2rem; padding: 0.85rem 1.25rem; }
+.sm-area + .sm-area { border-top: 1px solid var(--border); }
+.sm-area-name { font-family: var(--font-head); color: var(--text-strong); }
+.sm-area-now { color: var(--muted); font-size: 0.9rem; }
+.sm-area.is-lit .sm-area-now { color: var(--gold-light); }
+.sm-area.is-lit .sm-area-now::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 0.45rem; border-radius: 50%;
+  background: #bc9570; vertical-align: 0.1em; }
+.sm-area-figures { color: var(--text-soft); font-size: 0.9rem; text-align: right; font-variant-numeric: tabular-nums; }
+.sm-empty { padding: 1rem 1.25rem; color: var(--muted); }
+.sm-split { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 3rem; align-items: start; }
+.sm-split h2 { margin-top: 0; }
+.sm-ledger { margin: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+.sm-ledger div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.8rem 1.25rem; }
+.sm-ledger div + div { border-top: 1px solid var(--border); }
+.sm-ledger dt { color: var(--text-soft); }
+.sm-ledger dd { margin: 0; font-family: var(--font-head); font-weight: 700; color: var(--text-strong); text-align: right; }
+.sm-steps { margin: 0 0 1.5rem; padding: 0; list-style: none; counter-reset: sm-step; }
+.sm-steps li { counter-increment: sm-step; position: relative; padding: 0.15rem 0 0.9rem 2.7rem; color: var(--text-soft); }
+.sm-steps li::before { content: counter(sm-step); position: absolute; left: 0; top: 0; width: 1.9rem; height: 1.9rem;
+  display: grid; place-items: center; border: 1px solid rgba(194, 168, 120, 0.4); border-radius: 50%;
+  font-family: var(--font-head); font-weight: 700; color: var(--gold-light); }
+.sm-steps strong { color: var(--text-strong); }
+.sm-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.sm-note { margin-block: 0 3rem; color: var(--muted); font-size: 0.85rem; }
+@media (max-width: 860px) {
+  .sm-bells, .sm-split { grid-template-columns: 1fr; }
+  .sm-area { grid-template-columns: 1fr auto; }
+  .sm-area .sm-gauge { grid-column: 1 / -1; }
+  .sm-area-figures { grid-column: 1 / -1; text-align: left; }
+}
+@media (max-width: 560px) {
+  .sm-answered { grid-template-columns: 1fr auto; }
+  .sm-answered .sm-gauge { grid-column: 1 / -1; grid-row: 2; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
-  .hero::before, .hero::after, .page-hero::after, .hero .emblem-art, .hero .emblem::before, .hero .emblem::after, .section, .live-lamp, .nr-caret { animation: none !important; }
+  .hero::before, .hero::after, .page-hero::after, .hero .emblem-art, .hero .emblem::before, .hero .emblem::after, .section, .live-lamp, .sm-lamp, .nr-caret { animation: none !important; }
+  .sm-gauge > span { transition: none; }
   :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord),
   :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord)::before,
   .card, .nav a, .site-footer a, .tile, .tile-img, .tile-caption p, .nr-dir a { transition: none !important; }

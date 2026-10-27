@@ -37,6 +37,12 @@ stored or sent to us. Only if you click Detect does your browser tell the page t
 pick it in the list. Your choices appear in the page address so you can share the result; like any address, it
 reaches GitHub only when you open or share that link.
 
+**Server page.** The [Server](/server/) page shows live totals from SuperMedo Server, the online server
+for the port run by Supermedo. While the page is open, your browser loads these totals from
+game.supermedo.com about once a minute. That server sees your IP address and browser like any website,
+but does not record them for these requests (Art. 6(1)(f) GDPR). The page shows only totals, nothing
+about individual players.
+
 **Links.** Links to Discord, GitHub, The Hunter's Dream and other sites take you to services with their
 own privacy policies. Nothing from them is loaded before you click.
 

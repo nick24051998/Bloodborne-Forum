@@ -37,4 +37,8 @@ export const SITE = {
   // Browser über das Forum (forumUrl + '/api/hunters-dream', siehe flarum/extend.php).
   // Vorerst nur im Forum; zum Einschalten auf der Website 'https://thehuntersdream.com' eintragen.
   huntersDreamUrl: '',
+
+  // Supermedos eigener Online-Server (SuperMedo Server). Die Seite /server/ (Menüpunkt "Server") holt seine
+  // Live-Zahlen direkt von hier (nur Summen, keine Namen); siehe src/texts/privacy.md.
+  superMedoStatsUrl: 'https://game.supermedo.com/public/stats',
 };

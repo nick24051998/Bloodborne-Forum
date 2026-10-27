@@ -1,0 +1,177 @@
+---
+// SuperMedo Server: Supermedos eigener Online-Server (Koop-Glocken, Nachrichten, Blutflecken). Die
+// Live-Zahlen holt der Browser direkt vom Server (SITE.superMedoStatsUrl, nur Summen, keine Namen).
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { SITE } from '../../site.config.mjs';
+import { link } from '../lib/url.js';
+
+// Die drei Glocken des Spiels, wie der Server sie zählt
+const bells = [
+  { field: 'helpers', name: 'Small Resonant Bells', text: 'Hunters waiting to be called into another world to help.' },
+  { field: 'hosts', name: 'Beckoning Bells', text: 'Hosts looking for help right now.' },
+  { field: 'invaders', name: 'Sinister Resonant Bells', text: 'Hunters waiting to invade someone.', red: true },
+];
+---
+
+<Base
+  title="SuperMedo Server"
+  description={`What happens tonight on SuperMedo Server, the online server for ${SITE.portName}: bells, summons and where hunters walk and fall.`}
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Our own online server</p>
+      <h1>SuperMedo Server</h1>
+      <p>
+        Co-op bells, messages and bloodstains for {SITE.portName}, run by {SITE.portAuthor}. What happens on it tonight,
+        straight from the server.
+      </p>
+      <p class="sm-state"><span class="sm-lamp" aria-hidden="true"></span><span data-field="state">Asking the server…</span></p>
+    </div>
+  </section>
+
+  <div class="sm-watch" data-src={SITE.superMedoStatsUrl}>
+    <section class="section">
+      <div class="container">
+        <p class="sm-tonight" data-field="tonight" aria-live="polite">&nbsp;</p>
+        <div class="sm-bells">
+          {bells.map((b) => (
+            <article class:list={['sm-bell', { 'sm-bell-red': b.red }]}>
+              <Icon name="bell" class="sm-bell-icon" />
+              <p class="sm-count" data-field={b.field}>–</p>
+              <h3>{b.name}</h3>
+              <p>{b.text}</p>
+            </article>
+          ))}
+        </div>
+        <div class="sm-answered">
+          <span class="sm-answered-label">Summons answered in the last 24 hours</span>
+          <span class="sm-gauge" aria-hidden="true"><span data-field="answeredBar"></span></span>
+          <span class="sm-answered-count" data-field="answered">–</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt">
+      <div class="container">
+        <h2>Across Yharnam</h2>
+        <p class="about">
+          Every place hunters on this server have walked and fallen. A footstep is about a minute a hunter spent there; a
+          bloodstain is a death. The lamp lights up where hunters are right now.
+        </p>
+        <ol class="sm-areas" data-field="areas"><li class="sm-empty">Waiting for the server…</li></ol>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container sm-split">
+        <div>
+          <h2>The ledger</h2>
+          <dl class="sm-ledger">
+            <div><dt>Hunters sworn in</dt><dd data-field="hunters">–</dd></div>
+            <div><dt>New this week</dt><dd data-field="new7d">–</dd></div>
+            <div><dt>Messages left</dt><dd data-field="messages">–</dd></div>
+            <div><dt>Awake since</dt><dd data-field="since">–</dd></div>
+            <div><dt>New hunters</dt><dd data-field="registration">–</dd></div>
+          </dl>
+        </div>
+        <div>
+          <h2>Join the hunt</h2>
+          <ol class="sm-steps">
+            <li>Get {SITE.portName} and start its launcher.</li>
+            <li>Open <strong>Online co-op</strong> and pick <strong>SuperMedo Server</strong> under <strong>Co-op pool</strong>.</li>
+            <li>Press <strong>Sign in with Discord</strong>, start the game and ring a bell.</li>
+          </ol>
+          <div class="sm-actions">
+            <a class="btn btn-primary" href={SITE.downloadUrl} rel="noopener">Download</a>
+            <a class="btn btn-ghost" href={link('install/')}>Install guide</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <p class="container sm-note">Updated every minute. Only totals leave the server: no names, no addresses.</p>
+  </div>
+
+  <script>
+    // Holt die Summen vom Server; ohne Antwort bleibt alles bei "–" und der Status sagt es
+    const watch = document.querySelector<HTMLElement>('.sm-watch');
+    if (watch) {
+      const field = (name: string) => document.querySelector<HTMLElement>(`[data-field="${name}"]`)!;
+      const number = (value: number) => Number(value ?? 0).toLocaleString('en-US');
+      const plural = (n: number, one: string, many: string) => `${number(n)} ${n === 1 ? one : many}`;
+      const state = document.querySelector<HTMLElement>('.sm-state')!;
+      const registration: Record<string, string> = {
+        open: 'Welcome',
+        discord: 'Welcome, with Discord',
+        closed: 'Not right now',
+      };
+
+      // Ein Satz über die Nacht, aus den Zahlen
+      const tonight = (d: any) => {
+        if (!d.online) return 'The night is still: no hunters are awake on the server right now.';
+        const parts = [plural(d.online, 'hunter is awake', 'hunters are awake')];
+        const ringing = d.bells.helpers + d.bells.invaders;
+        if (ringing) parts.push(plural(ringing, 'bell is ringing', 'bells are ringing'));
+        if (d.bells.hosts) parts.push(plural(d.bells.hosts, 'host is searching', 'hosts are searching'));
+        return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts.at(-1)}.` : `${parts[0]}.`;
+      };
+
+      const areaRow = (a: any, most: number) => {
+        const li = document.createElement('li');
+        li.className = a.now ? 'sm-area is-lit' : 'sm-area';
+        const name = document.createElement('span');
+        name.className = 'sm-area-name';
+        name.textContent = a.name;
+        const lamp = document.createElement('span');
+        lamp.className = 'sm-area-now';
+        lamp.textContent = a.now ? plural(a.now, 'hunter here now', 'hunters here now') : '';
+        const bar = document.createElement('span');
+        bar.className = 'sm-gauge';
+        bar.setAttribute('aria-hidden', 'true');
+        const fill = document.createElement('span');
+        fill.style.width = `${Math.max(2, Math.round((100 * a.footsteps) / most))}%`;
+        bar.append(fill);
+        const figures = document.createElement('span');
+        figures.className = 'sm-area-figures';
+        figures.textContent = `${plural(a.footsteps, 'footstep', 'footsteps')} · ${plural(a.bloodstains, 'bloodstain', 'bloodstains')}`;
+        li.append(name, lamp, bar, figures);
+        return li;
+      };
+
+      const load = async () => {
+        try {
+          const response = await fetch(watch.dataset.src!, { credentials: 'omit' });
+          if (!response.ok) throw new Error(String(response.status));
+          const d = await response.json();
+          const awake = d.status === 'online';
+          state.classList.toggle('is-awake', awake);
+          field('state').textContent = awake ? 'Awake' : 'Resting for maintenance, back soon';
+          field('tonight').textContent = tonight(d);
+          for (const name of ['helpers', 'hosts', 'invaders']) field(name).textContent = number(d.bells[name]);
+          field('answered').textContent = `${number(d.joined_24h)} of ${number(d.summons_24h)}`;
+          field('answeredBar').style.width = d.summons_24h ? `${Math.round((100 * d.joined_24h) / d.summons_24h)}%` : '0%';
+          field('hunters').textContent = number(d.hunters);
+          field('new7d').textContent = number(d.new_7d);
+          field('messages').textContent = number(d.messages);
+          field('since').textContent = new Date(d.awake_since * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+          field('registration').textContent = registration[d.registration] ?? '–';
+          const areas = (d.areas ?? []).filter((a: any) => a.now || a.footsteps || a.bloodstains);
+          const most = Math.max(1, ...areas.map((a: any) => a.footsteps));
+          const list = field('areas');
+          list.replaceChildren(...areas.map((a: any) => areaRow(a, most)));
+          if (!areas.length) list.innerHTML = '<li class="sm-empty">No hunter has set foot anywhere yet.</li>';
+        } catch {
+          state.classList.remove('is-awake');
+          field('state').textContent = "The server isn't answering right now";
+        }
+      };
+
+      load();
+      // Solange die Seite sichtbar ist, jede Minute auffrischen (der Server rechnet höchstens alle 30 s neu)
+      setInterval(() => {
+        if (document.visibilityState === 'visible') load();
+      }, 60000);
+    }
+  </script>
+</Base>
