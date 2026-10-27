@@ -95,4 +95,4 @@ supervisory authority, for example the one where you live.
 ## E-mail
 
 If you write to us, we use your message and address only to answer you. Our mailbox is provided by
-TODO-MAIL-PROVIDER (whoever hosts mail for supermedo.com), which processes the messages on our behalf.
+iFastNet, the host of supermedo.com, which processes the messages on our behalf.
