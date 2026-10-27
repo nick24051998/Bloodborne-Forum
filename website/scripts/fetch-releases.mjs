@@ -2,7 +2,8 @@
 //
 //   node scripts/fetch-releases.mjs             writes src/data/releases.json (on errors the old file stays)
 //   node scripts/fetch-releases.mjs --check     latest version on GitHub and on the website → $GITHUB_OUTPUT
-//                                               (changed: rebuild; announce: really newer, so announce it)
+//                                               (changed: new version or next download step, so rebuild;
+//                                               announce: really newer, so announce it)
 //   node scripts/fetch-releases.mjs --announce  announces the latest version on Discord (DISCORD_RELEASES_WEBHOOK)
 //
 // GITHUB_TOKEN (set automatically in Actions) raises the rate limit. For testing: RELEASES_FIXTURE=response.json
@@ -10,6 +11,7 @@
 import { readFile, writeFile, appendFile } from 'node:fs/promises';
 import { SITE } from '../site.config.mjs';
 import { cleanNotes } from './release-notes.mjs';
+import { totalDownloads, downloadsLabel } from '../src/lib/downloads.js';
 
 const repo = SITE.downloadUrl.match(/github\.com\/([^/]+\/[^/]+)/)?.[1];
 const dataFile = new URL('../src/data/releases.json', import.meta.url);
@@ -25,7 +27,14 @@ async function github(path, accept = 'application/vnd.github+json') {
 
 async function fetchReleases() {
   if (process.env.RELEASES_FIXTURE) return JSON.parse(await readFile(process.env.RELEASES_FIXTURE, 'utf8'));
-  return github('/releases?per_page=40');
+  // Every page: the download count adds up all releases, not just the newest ones
+  const all = [];
+  for (let page = 1; page <= 10; page++) {
+    const batch = await github(`/releases?per_page=100&page=${page}`);
+    all.push(...batch);
+    if (batch.length < 100) break;
+  }
+  return all;
 }
 
 // Release texts as HTML (body_html, as GitHub displays them) for the releases the changelog shows, fetched one
@@ -65,6 +74,7 @@ export function normalize(api) {
         download: zip?.browser_download_url ?? null,
         downloadName: zip?.name ?? null,
         downloadSize: zip ? Math.round(zip.size / 1048576) : null,
+        downloads: zip?.download_count ?? 0,
         // GitHub computes the checksum itself ("sha256:…"), so the ZIP can be verified after downloading
         sha256: /^sha256:[0-9a-f]{64}$/i.test(zip?.digest ?? '') ? zip.digest.slice(7) : null,
         notes: cleanNotes(r.body_html),
@@ -85,12 +95,12 @@ export function isNewer(a, b) {
   return false;
 }
 
-async function liveVersion() {
+async function liveRelease() {
   try {
     const response = await fetch(process.env.LIVE_RELEASE_URL ?? `${siteUrl}/release.json`, { signal: AbortSignal.timeout(15000) });
-    return response.ok ? ((await response.json()).version ?? '') : '';
+    return response.ok ? await response.json() : {};
   } catch {
-    return '';
+    return {};
   }
 }
 
@@ -106,16 +116,24 @@ const mode = process.argv[2] ?? '';
 if (mode === '--check') {
   // Error from GitHub: latest stays empty, so the schedule neither builds nor announces anything
   let latest = '';
+  let downloads = '';
   try {
-    latest = latestOf(normalize(await fetchReleases()))?.version ?? '';
+    const releases = normalize(await fetchReleases());
+    latest = latestOf(releases)?.version ?? '';
+    downloads = downloadsLabel(totalDownloads(releases));
   } catch (e) {
     console.log(`::warning::Releases nicht abrufbar: ${e.message}`);
   }
-  const live = await liveVersion();
+  const liveData = await liveRelease();
+  const live = liveData.version ?? '';
+  const liveDownloads = downloadsLabel(liveData.downloads ?? 0);
   await output({
     latest,
     live,
-    changed: Boolean(latest) && latest !== live,
+    downloads,
+    liveDownloads,
+    // A new version, or the download count on the home page has moved to the next step
+    changed: Boolean(latest) && (latest !== live || (Boolean(downloads) && downloads !== liveDownloads)),
     // First publication (live is empty): announce nothing, the version isn't new after all
     announce: Boolean(latest && live) && isNewer(latest, live),
   });

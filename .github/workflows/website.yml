@@ -4,7 +4,8 @@
 # Every 2 hours the workflow checks for a new version of the port (GitHub releases, repo taken from
 # SITE.downloadUrl). If there is one, it rebuilds the website (version, download, changelog list) and announces
 # it in Discord if the secret DISCORD_RELEASES_WEBHOOK is set (Repo → Settings → Secrets and
-# variables → Actions; webhook URL of a Discord channel, e.g. #announcements).
+# variables → Actions; webhook URL of a Discord channel, e.g. #announcements). It also rebuilds, without an
+# announcement, when the download count on the home page reaches its next step (560,000+ → 570,000+).
 #
 # Before every deploy, Playwright checks the finished site in the browser (website/tests). If a check fails,
 # the build aborts and nothing goes live. Pull requests and "ci/…" branches are only built and checked.
@@ -52,7 +53,7 @@ jobs:
 
   build:
     needs: releases
-    # On the schedule, only build if GitHub has a different version than the website
+    # On the schedule, only build for a new version or the next download step
     if: github.event_name != 'schedule' || needs.releases.outputs.changed == 'true'
     runs-on: ubuntu-latest
     defaults:

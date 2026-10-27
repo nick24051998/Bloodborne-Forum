@@ -6,7 +6,7 @@ import { Image, getImage } from 'astro:assets';
 import launcherPlay from '../assets/launcher/launcher-play.png';
 import { SITE } from '../../site.config.mjs';
 import { link, absolute } from '../lib/url.js';
-import { latest, downloadUrl, formatDate } from '../lib/releases.js';
+import { latest, downloadUrl, formatDate, downloads, downloadsText } from '../lib/releases.js';
 import { CONTEST, contestDates, contestRunning } from '../data/contest.js';
 
 // Home page texts. Icons: names from media/icons (droplet, crescent, key, tools, bell, …)
@@ -63,6 +63,9 @@ const appLd = {
   ...(SITE.portRepoUrl && { codeRepository: SITE.portRepoUrl }),
   isAccessibleForFree: true,
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  ...(downloads && {
+    interactionStatistic: { '@type': 'InteractionCounter', interactionType: 'https://schema.org/DownloadAction', userInteractionCount: downloads },
+  }),
 };
 ---
 
@@ -102,6 +105,7 @@ const appLd = {
           <p class="hero-port">
             The community for <strong>{SITE.portName}</strong> ({SITE.brand}) by{' '}
             <a href={SITE.portAuthorUrl} rel="noopener">{SITE.portAuthor}</a>
+            {downloadsText && <>, downloaded <strong class="hero-downloads">{downloadsText}</strong> times</>}
             <span aria-hidden="true"> · </span>
             <a href={SITE.portRepoUrl} rel="noopener">Source code on GitHub</a>
           </p>
