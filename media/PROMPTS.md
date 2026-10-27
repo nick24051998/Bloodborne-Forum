@@ -1,37 +1,37 @@
-# Bild-Prompts für ChatGPT
+# Image prompts for ChatGPT
 
-Mit diesen Prompts erzeugt ChatGPT Medien im Stil der Community: für Discord, den Launcher, die
-Website und das Forum. Führend ist der Stil des Siegels: Formen wie aus altem Knochen gemeißelt,
-mit geschwungenen, kalligrafischen Kurven, facettierter Schattierung mit harten Kanten,
-Schiefergrau in den Vertiefungen und feiner Steinstruktur, Knochenweiß und Blutrot auf dunklem
-Schiefergrau. Regeln für Farben, Schrift und das Siegel selbst stehen in [`BRAND.md`](BRAND.md).
+With these prompts, ChatGPT creates media in the community's style: for Discord, the launcher, the
+website and the forum. The sigil's style leads: shapes that look carved from old bone,
+with sweeping, calligraphic curves, faceted shading with hard edges,
+slate grey in the recesses and a fine stone texture, bone white and blood red on dark
+slate grey. Rules for colors, type and the sigil itself are in [`BRAND.md`](BRAND.md).
 
-Die Prompts sind englisch, weil ChatGPT damit verlässlicher Bilder erzeugt.
+The prompts are in English because ChatGPT makes images more reliably that way.
 
-## Einrichten (einmal)
+## Setup (once)
 
-1. In ChatGPT ein **Projekt** anlegen (z. B. „BBPP Medien“) und den Stil-Brief (Teil 1) in die
-   **Projekt-Anweisungen** kopieren. Jeder Chat in diesem Projekt hält sich dann daran.
-   Sollen auch andere (Mods, Helfer) Bilder erzeugen, statt des Projekts einen **eigenen GPT**
-   anlegen (GPTs → Erstellen): Teil 1 als Anweisungen, die Referenzbilder als Wissen, dann den Link
-   teilen.
-2. Als **Projekt-Dateien** hochladen: das Siegel (`media/brand/sigil.png`) und, sobald es sie gibt,
-   ein bis zwei fertige Bilder in diesem Stil. Je mehr gute Beispiele, desto einheitlicher wird es.
+1. In ChatGPT, create a **Project** (e.g. "BBPP Media") and copy the style brief (Part 1) into the
+   **project instructions**. Every chat in that project then follows it.
+   If others (mods, helpers) should create images too, create a **custom GPT** instead of the project
+   (GPTs → Create): Part 1 as instructions, the reference images as knowledge, then share the
+   link.
+2. Upload as **project files**: the sigil (`media/brand/sigil.png`) and, once they exist,
+   one or two finished images in this style. The more good examples, the more consistent the results.
 
-## Arbeiten
+## Working
 
-1. Pro Bild den Auftrag (Teil 2) ausfüllen oder eine Vorlage aus Teil 3 nehmen.
-2. Erst Varianten als Raster anfordern, dann den Favoriten einzeln ausarbeiten lassen.
-3. **Nur einen Teil ändern:** Bild anklicken, mit dem Auswahl-Werkzeug (Pinsel oben) den Bereich
-   markieren und die Änderung beschreiben. Ohne Auswahl zeichnet ChatGPT das ganze Bild neu und
-   verändert nebenbei anderes.
-4. Driftet ChatGPT ab (weiche Verläufe, grobe Pinseltextur, Glanz, zu bunt), antworten:
-   „Stick to the style guide: carved, faceted shapes, hard-edged shading, subtle stone grain,
-   palette.“
-5. Das fertige Bild als PNG herunterladen (nicht das Vorschaubild im Chat), auf Endgröße bringen
-   (Tabelle unten) und vor der Nutzung prüfen (Teil 4).
+1. For each image, fill in the request (Part 2) or take a template from Part 3.
+2. Ask for variants as a grid first, then have the favorite worked out on its own.
+3. **Change only one part:** click the image, mark the area with the select tool (brush at the top)
+   and describe the change. Without a selection, ChatGPT redraws the whole image and
+   changes other things along the way.
+4. If ChatGPT drifts off (soft gradients, rough brush texture, shine, too colorful), reply:
+   "Stick to the style guide: carved, faceted shapes, hard-edged shading, subtle stone grain,
+   palette."
+5. Download the finished image as PNG (not the preview in the chat), bring it to its final size
+   (table below) and check it before use (Part 4).
 
-## Teil 1: Stil-Brief
+## Part 1: Style brief
 
 ```text
 You are the art director of "BBPP", the community (Discord, forum, website) around a free,
@@ -111,7 +111,7 @@ WORKING
 - If a request breaks these rules, say so and suggest an alternative instead of ignoring a rule.
 ```
 
-## Teil 2: Auftrag
+## Part 2: Request
 
 ```text
 New image:
@@ -123,11 +123,11 @@ New image:
 - Extra: [optional, e.g. "red moon", "rain", "no moon", "include the sigil"]
 ```
 
-## Teil 3: Vorlagen
+## Part 3: Templates
 
 ### Discord
 
-**Serverbanner** (über der Kanalliste, der Servername liegt oben links darüber)
+**Server banner** (above the channel list; the server name sits on top of it at the top left)
 
 ```text
 New image:
@@ -138,7 +138,7 @@ New image:
 - Variants: 4 as a 2x2 grid
 ```
 
-**Einladungshintergrund** (hinter der Einladungskarte)
+**Invite background** (behind the invite card)
 
 ```text
 New image:
@@ -149,7 +149,7 @@ New image:
 - Format: landscape
 ```
 
-**Event-Titelbild** (z. B. Koop-Abend, Release, Stream)
+**Event cover** (e.g. co-op night, release, stream)
 
 ```text
 New image:
@@ -161,7 +161,7 @@ New image:
 - Variants: 4 as a 2x2 grid
 ```
 
-**Ankündigungsbild** (für Posts in #announcements; Text kommt in die Nachricht, nicht ins Bild)
+**Announcement image** (for posts in #announcements; text goes in the message, not in the image)
 
 ```text
 New image:
@@ -171,7 +171,7 @@ New image:
 - Format: landscape
 ```
 
-**Rollen-Icons** (als Set, damit alle zusammenpassen)
+**Role icons** (as a set, so they all match)
 
 ```text
 New image:
@@ -184,7 +184,7 @@ New image:
 - Variants: 1 set as a 3x2 grid
 ```
 
-**Emojis** (als Set)
+**Emojis** (as a set)
 
 ```text
 New image:
@@ -209,10 +209,10 @@ New image:
 
 ### Launcher
 
-Maße und die Bereiche, in denen Knöpfe und Text liegen, vom Launcher übernehmen und unter
-„Keep free“ eintragen.
+Take the dimensions and the areas where buttons and text sit from the launcher, and enter them under
+"Keep free".
 
-**Hintergrund**
+**Background**
 
 ```text
 New image:
@@ -223,7 +223,7 @@ New image:
 - Variants: 4 as a 2x2 grid
 ```
 
-**News-Bild** (Kachel für Neuigkeiten oder ein Update)
+**News image** (tile for news or an update)
 
 ```text
 New image:
@@ -235,9 +235,9 @@ New image:
 
 ### Website
 
-Die freien Bereiche passen zu den Abdunklungen in `website/src/styles/global.css`.
+The free areas match the dark overlays in `website/src/styles/global.css`.
 
-**Startseite** (`images/website-hero.webp`, Text links, Emblem rechts darüber)
+**Home page** (`images/website-hero.webp`, text on the left, emblem on top of it on the right)
 
 ```text
 New image:
@@ -248,7 +248,7 @@ New image:
 - Format: landscape
 ```
 
-**Unterseiten-Kopf** (`images/page-header.webp`, sehr breiter Ausschnitt)
+**Subpage header** (`images/page-header.webp`, very wide crop)
 
 ```text
 New image:
@@ -259,7 +259,7 @@ New image:
 - Format: landscape
 ```
 
-**404-Seite** (`images/not-found.webp`)
+**404 page** (`images/not-found.webp`)
 
 ```text
 New image:
@@ -270,7 +270,7 @@ New image:
 - Format: landscape
 ```
 
-**Link-Vorschau** (Bild, das Discord, Reddit usw. beim Teilen eines Links zeigen)
+**Link preview** (the image Discord, Reddit etc. show when someone shares a link)
 
 ```text
 New image:
@@ -284,9 +284,9 @@ New image:
 
 ### Forum
 
-Die freien Bereiche passen zu den Abdunklungen in `theme/custom.less`.
+The free areas match the dark overlays in `theme/custom.less`.
 
-**Banner** (`images/forum-banner.webp`, Titel mittig, sehr breiter Ausschnitt)
+**Banner** (`images/forum-banner.webp`, title in the center, very wide crop)
 
 ```text
 New image:
@@ -297,8 +297,8 @@ New image:
 - Format: landscape
 ```
 
-**Kategorie-Icons** (als Set; im Forum einfarbig, deshalb bewusst flach in einer Farbe, als
-Ausnahme vom gemeißelten Stil)
+**Category icons** (as a set; single-color in the forum, so deliberately flat in one color, as an
+exception to the carved style)
 
 ```text
 New image:
@@ -311,7 +311,7 @@ New image:
 - Variants: 1 set as a 3x2 grid
 ```
 
-### Texturen
+### Textures
 
 ```text
 New image:
@@ -321,45 +321,45 @@ New image:
 - Format: square
 ```
 
-## Endgrößen
+## Final sizes
 
-ChatGPT erzeugt nur 1536 × 1024, 1024 × 1024 und 1024 × 1536; das Bild wird danach zugeschnitten.
+ChatGPT only creates 1536 × 1024, 1024 × 1024 and 1024 × 1536; the image gets cropped afterwards.
 
-| Medium | Endgröße | Format bei ChatGPT |
+| Medium | Final size | Format in ChatGPT |
 |---|---|---|
-| Discord-Server-Icon | 1024 × 1024 PNG (mindestens 512) | quadratisch |
-| Discord-Serverbanner | 960 × 540 | quer |
-| Discord-Einladungshintergrund | 1920 × 1080 | quer |
-| Discord-Event-Titelbild | 800 × 320 | quer |
-| Discord-Rollen-Icon | 64 × 64 PNG, höchstens 256 KB | quadratisch (Set) |
-| Discord-Emoji | 128 × 128 PNG, höchstens 256 KB | quadratisch (Set) |
-| Discord-Sticker | 320 × 320 PNG, höchstens 512 KB | quadratisch |
-| Launcher | nach Vorgabe des Launchers | quer |
-| Website-Startseite, Forum-Banner | 1536 × 1024 WebP | quer |
-| Website-Unterseiten-Kopf, 404 | 1920 × 720 WebP | quer |
-| Link-Vorschau | 1200 × 630 JPG | quer |
-| Texturen | 640 × 640 WebP, nahtlos | quadratisch |
+| Discord server icon | 1024 × 1024 PNG (at least 512) | square |
+| Discord server banner | 960 × 540 | landscape |
+| Discord invite background | 1920 × 1080 | landscape |
+| Discord event cover | 800 × 320 | landscape |
+| Discord role icon | 64 × 64 PNG, at most 256 KB | square (set) |
+| Discord emoji | 128 × 128 PNG, at most 256 KB | square (set) |
+| Discord sticker | 320 × 320 PNG, at most 512 KB | square |
+| Launcher | as the launcher specifies | landscape |
+| Website home page, forum banner | 1536 × 1024 WebP | landscape |
+| Website subpage header, 404 | 1920 × 720 WebP | landscape |
+| Link preview | 1200 × 630 JPG | landscape |
+| Textures | 640 × 640 WebP, seamless | square |
 
-## Teil 4: Prüfen vor der Nutzung
+## Part 4: Check before use
 
-- **Spiel:** keine Ähnlichkeit mit Symbolen, Waffen, Orten oder Figuren aus Bloodborne
-  (Hunter-Zeichen, Caryll-Runen, Säge, Sense, Stockschwert, bekannte Schauplätze usw.).
-- **Runen:** einige Runenformen sind in Deutschland Kennzeichen verbotener Organisationen
+- **Game:** no resemblance to symbols, weapons, places or characters from Bloodborne
+  (Hunter's Mark, Caryll runes, saw, scythe, cane sword, well-known locations, etc.).
+- **Runes:** some rune shapes are symbols of banned organizations in Germany
   (§ 86a StGB).
-- **Rotes Kreuz:** auch ähnliche Zeichen (rotes Kreuz oder Plus auf hellem Grund) sind geschützt
+- **Red cross:** similar signs (a red cross or plus on a light background) are protected too
   (§ 125 OWiG).
-- **Text im Bild:** ChatGPT verschreibt sich gern; Text besser in die Nachricht oder in die Seite
-  setzen.
+- **Text in the image:** ChatGPT often misspells; better put text in the message or on the
+  page.
 
-Rein KI-erzeugte Bilder sind in Deutschland und den USA in der Regel nicht urheberrechtlich
-geschützt; andere dürften sie also kopieren. Wer ein Bild schützen will, überarbeitet es selbst
-sichtbar, dann ist es ein eigenes Werk. Herkunft jedes Bildes in `CREDITS.md` eintragen.
+Purely AI-generated images are usually not protected by copyright in Germany and the US;
+so others could copy them. If you want to protect an image, rework it yourself in a
+visible way; then it is your own work. Record where each image comes from in `CREDITS.md`.
 
-## Das Siegel: so ist es entstanden
+## The sigil: how it was made
 
-Dieselben Schritte taugen für weitere Zeichen.
+The same steps work for other emblems.
 
-Schritt 1, Entwürfe (Kelch, Mond und Nahkampfwaffe kombiniert):
+Step 1, drafts (chalice, moon and melee weapon combined):
 
 ```text
 New image: 4 original sigils in a 2x2 grid. Used as Discord server icon, favicon and forum logo.
@@ -389,7 +389,7 @@ Originality (strict):
 - No letters, no runes from real alphabets, no religious or political symbols, no text.
 ```
 
-Schritt 2, Farbe, Schattierung und Bewegung (im selben Chat):
+Step 2, color, shading and motion (in the same chat):
 
 ```text
 Keep this exact sigil shape, every stroke and proportion unchanged.
@@ -411,7 +411,7 @@ Rules for all:
 - Flat dark slate background #0f1317. No text, no frame.
 ```
 
-Schritt 3, Feinschliff mit dem Auswahl-Werkzeug (nur das Blut markiert):
+Step 3, fine-tuning with the select tool (only the blood selected):
 
 ```text
 In the selected area only, fix the blood physics. The blood is one connected liquid and the
@@ -421,10 +421,10 @@ side of the wave, lowest on the other side. Same three red tones, same cel shadi
 outside the selection changes.
 ```
 
-Schritt 4, gemeißelte Fassung (seit 19.10.2026 das gültige Siegel): Aus der flachen Fassung wurde
-Knochen mit abgeschrägten Facetten, Schiefer in den Vertiefungen und feiner Steinstruktur. Den
-genauen Prompt dafür haben wir nicht festgehalten. Um ein anderes Zeichen (z. B. ein Rollen-Icon)
-in dieselbe Optik zu bringen, taugt dieser Vorschlag:
+Step 4, carved version (the official sigil since 19 October 2026): the flat version became
+bone with bevelled facets, slate in the recesses and a fine stone texture. We didn't keep
+the exact prompt for it. To give another emblem (e.g. a role icon) the same look,
+this suggestion works:
 
 ```text
 Re-carve this emblem in the style of the attached sigil. Keep its shape, proportions and colors.

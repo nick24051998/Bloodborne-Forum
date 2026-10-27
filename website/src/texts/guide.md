@@ -5,8 +5,8 @@ heading: Launcher guide
 intro: How the port and its launcher work, page by page – and the answers to what people ask most on Discord.
 ---
 
-<!-- Seitennamen wie im Launcher (README-Windows.txt, Hilfe-Texte in launcher/bbport_help.py). Ändert sich ein
-Name im Launcher, hier mitziehen. Keine internen Notizen (docs/launcher-*.md) übernehmen. -->
+<!-- Page names as in the launcher (README-Windows.txt, help texts in launcher/bbport_help.py). If a
+name changes in the launcher, update it here too. Do not copy internal notes (docs/launcher-*.md). -->
 
 ## What's included
 

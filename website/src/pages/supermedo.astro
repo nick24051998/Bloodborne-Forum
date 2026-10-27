@@ -1,7 +1,7 @@
 ---
-// Supermedos Projekte und seine Seite NativeRetro. Gestaltung: Yharnam trifft das Terminal. Rahmen, Schrift der
-// Überschriften, Knöpfe und Blut bleiben bbport; Bernstein, Terminal-Grün, Röhrenmonitor und die Schrift VT323
-// kommen von nativeretro.com. Alles liegt auf dieser Seite, nichts wird von NativeRetro geladen (Datenschutz).
+// Supermedo's projects and his site NativeRetro. Design: Yharnam meets the terminal. Frame, heading font,
+// buttons and blood stay bbport; amber, terminal green, the CRT monitor and the VT323 font
+// come from nativeretro.com. Everything lives on this page, nothing is loaded from NativeRetro (privacy).
 import Base from '../layouts/Base.astro';
 import { SITE } from '../../site.config.mjs';
 import { link, absolute } from '../lib/url.js';
@@ -24,7 +24,7 @@ const profileLd = {
 };
 
 const href = (l) => (l.internal ? link(l.href) : l.href);
-// Klassiker mit eigenem Quellcode auf GitHub: ein Satz unter der Liste (eine Spalte nur dafür bliebe meist leer)
+// Classics with their own source code on GitHub: one sentence below the list (a column just for that would mostly stay empty)
 const sources = classics.filter((c) => c.source);
 ---
 

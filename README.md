@@ -1,125 +1,125 @@
-# Bloodborne PC Port – Community-Forum
+# Bloodborne PC Port – Community Forum
 
-Schlankes, sofort deploybares Forum für die Community des **Bloodborne PC Port**
-(englischsprachig, Login über Discord). Basis: **Flarum 1.8** + **MariaDB 10.11** in Docker,
-Bloodborne-Gothic-Theme im Discord-Stil.
+A lean forum for the **Bloodborne PC Port** community that you can deploy right away
+(English-language, login via Discord). Stack: **Flarum 1.8** + **MariaDB 10.11** in Docker,
+with a Bloodborne gothic theme in Discord style.
 
-> **Warum `crazymax/flarum` statt `mondedie/flarum:stable`?**
-> `mondedie/flarum:stable` wurde zuletzt 2022 gebaut (Flarum 1.3.0, PHP 8.0) und hat bekannte
-> Sicherheitslücken. `:latest` enthält zwar Flarum 1.8, läuft aber noch auf dem nicht mehr
-> gepflegten PHP 8.0 mit Alpine 3.16. [`crazymax/flarum`](https://hub.docker.com/r/crazymax/flarum)
-> wird aktiv gepflegt (Flarum 1.8.19, PHP 8.4, Alpine 3.23) und bringt den Befehl `extension require` mit.
-> Flarum 2.0 ist erst seit Oktober 2026 stabil. Die Erweiterungen ziehen gerade nach, deshalb bleibt
-> dieses Setup bewusst auf 1.8 (siehe [Update](#update)).
+> **Why `crazymax/flarum` instead of `mondedie/flarum:stable`?**
+> `mondedie/flarum:stable` was last built in 2022 (Flarum 1.3.0, PHP 8.0) and has known
+> security holes. `:latest` does contain Flarum 1.8, but still runs on PHP 8.0 with Alpine 3.16,
+> which is no longer maintained. [`crazymax/flarum`](https://hub.docker.com/r/crazymax/flarum)
+> is actively maintained (Flarum 1.8.19, PHP 8.4, Alpine 3.23) and comes with the `extension require` command.
+> Flarum 2.0 has only been stable since October 2026. The extensions are still catching up, so this
+> setup stays on 1.8 on purpose (see [Update](#update)).
 
-> **Website:** Die Projekt-Website (Startseite, Install-Guide, FAQ, Changelog) liegt in
-> [`website/`](website/README.md). Sie wird automatisch über GitHub Pages unter https://bbport.de
-> veröffentlicht, das Forum läuft unter https://forum.bbport.de.
+> **Website:** The project website (home page, install guide, FAQ, changelog) lives in
+> [`website/`](website/README.md). It is published automatically via GitHub Pages at https://bbport.de;
+> the forum runs at https://forum.bbport.de.
 
-## Inhalt
+## Contents
 
-| Pfad | Zweck |
+| Path | Purpose |
 |---|---|
-| `docker-compose.yml` | Flarum, MariaDB (benannte Volumes), cloudflared (Profil `tunnel`) |
-| `.env.example` | Alle Einstellungen mit Platzhaltern, wird nach `.env` kopiert |
-| `scripts/bootstrap.sh` | **Komplett-Installer:** fragt ein paar Werte ab, erzeugt Passwörter, startet und richtet alles ein |
-| `scripts/install-extensions.sh` | Installiert die Erweiterungen aus `flarum/extensions.txt` (fof/oauth, upload, best-answer, discussion-templates, sitemap, flarum-seo 2.x; optional fof/user-directory) |
-| `flarum/extensions.txt`, `flarum/restore-extensions.sh` | Erweiterungsliste; wird vor jedem Start des Containers wiederhergestellt |
-| `flarum/scheduler.sh` | Startet den Flarum-Scheduler (jede Minute) im Forum-Container |
-| `scripts/setup-forum.sh` | Richtet alles per Flarum-API ein: Admin, Erweiterungen, Tags, Rechte, Theme, Banner, Regeln, Logo |
-| `scripts/backup.sh` | DB-Dump + Datenvolume als `.tar.gz` |
-| `scripts/nightly-backup.sh`, `scripts/install-backup.sh` | Nächtliches Backup (3:30 Uhr, systemd-Timer) mit Prüfung und Aufräumen nach `BACKUP_KEEP_DAYS` |
-| `scripts/rotate-admin-password.sh` | Neues Admin-Passwort setzen, in `.env` eintragen und den Admin überall abmelden |
-| `scripts/auto-update.sh`, `scripts/install-auto-update.sh` | Holt neue Commits alle 5 Minuten und spielt sie ein (systemd-Timer), optional mit Meldung in Discord |
-| `scripts/uptime-check.sh`, `.github/workflows/uptime.yml` | Ausfall-Wächter: prüft Website und Forum alle 10 Minuten von GitHub aus, meldet Ausfall und Wiederkehr in Discord |
-| `.github/workflows/website.yml` | Baut die Website bei Änderungen und alle 2 Stunden, wenn der Port eine neue Version hat; meldet sie in Discord |
-| `flarum/extend.php` | Schalter „neue Accounts nur über Discord“, Sicherheits-Header, `/api/hunters-dream` (Live-Zahlen von The Hunter's Dream, eine Minute zwischengespeichert, nur Gesamtzahlen) und neue Themen nach Discord |
-| `flarum/extend-loader.php` | Wird als `/opt/flarum/extend.php` eingebunden und lädt `flarum/extend.php`, damit Änderungen nach `git pull` ohne Neustart ankommen |
-| `flarum/forum.js` | Links zur Website und zu Discord in der Forum-Kopfzeile, Registrieren-Fenster nur mit Discord-Button, Live-Zahlen von The Hunter's Dream (Seitenleiste, auf dem Handy unter dem Banner) |
-| `media/` | Icons (CC0), Banner-Bilder (`media/images/`, KI-generiert) und selbst erzeugte Texturen; Herkunft in `media/CREDITS.md`, neu erzeugen mit `python3 media/build.py`. Markenregeln in `media/BRAND.md`, ChatGPT-Prompts für neue Medien in `media/PROMPTS.md` |
-| `flarum/icons.less` | Eigene Kategorie-Icons (`bbicon bbicon-NAME`), aus `media/icons/` erzeugt |
+| `docker-compose.yml` | Flarum, MariaDB (named volumes), cloudflared (profile `tunnel`) |
+| `.env.example` | All settings with placeholders; gets copied to `.env` |
+| `scripts/bootstrap.sh` | **All-in-one installer:** asks for a few values, generates passwords, starts and sets up everything |
+| `scripts/install-extensions.sh` | Installs the extensions from `flarum/extensions.txt` (fof/oauth, upload, best-answer, discussion-templates, sitemap, flarum-seo 2.x; optionally fof/user-directory) |
+| `flarum/extensions.txt`, `flarum/restore-extensions.sh` | Extension list; restored before every container start |
+| `flarum/scheduler.sh` | Runs the Flarum scheduler (every minute) inside the forum container |
+| `scripts/setup-forum.sh` | Sets up everything via the Flarum API: admin, extensions, tags, permissions, theme, banner, rules, logo |
+| `scripts/backup.sh` | DB dump + data volume as `.tar.gz` |
+| `scripts/nightly-backup.sh`, `scripts/install-backup.sh` | Nightly backup (3:30 am, systemd timer) with a check and cleanup after `BACKUP_KEEP_DAYS` |
+| `scripts/rotate-admin-password.sh` | Sets a new admin password, writes it to `.env` and logs the admin out everywhere |
+| `scripts/auto-update.sh`, `scripts/install-auto-update.sh` | Fetches new commits every 5 minutes and applies them (systemd timer), optionally with a notification in Discord |
+| `scripts/uptime-check.sh`, `.github/workflows/uptime.yml` | Downtime watcher: checks website and forum every 10 minutes from GitHub, reports outages and recovery in Discord |
+| `.github/workflows/website.yml` | Builds the website on changes, and every 2 hours when the port has a new version; announces it in Discord |
+| `flarum/extend.php` | "New accounts only via Discord" switch, security headers, `/api/hunters-dream` (live numbers from The Hunter's Dream, cached for one minute, totals only) and new topics to Discord |
+| `flarum/extend-loader.php` | Mounted as `/opt/flarum/extend.php`; loads `flarum/extend.php` so changes take effect after `git pull` without a restart |
+| `flarum/forum.js` | Links to the website and to Discord in the forum header, sign-up dialog with only the Discord button, live numbers from The Hunter's Dream (sidebar; on phones below the banner) |
+| `media/` | Icons (CC0), banner images (`media/images/`, AI-generated) and self-made textures; sources in `media/CREDITS.md`, rebuild with `python3 media/build.py`. Brand rules in `media/BRAND.md`, ChatGPT prompts for new media in `media/PROMPTS.md` |
+| `flarum/icons.less` | Custom category icons (`bbicon bbicon-NAME`), generated from `media/icons/` |
 | `theme/custom.less` | Theme (Admin → Appearance → Custom Styles) |
-| `media/brand/`, `media/brand.py`, `media/logo.html`, `media/og.html` | Siegel der Community (`sigil.png`); daraus Discord-Icon, Logo, Favicons, Website-Emblem und Vorschaubild |
-| `theme/logo.png`, `theme/favicon.png` | Dieselben Bilder als PNG zum Hochladen (Flarum 1.x nimmt kein SVG) |
-| `theme/fonts/` | Cinzel + Inter als `.woff2`, selbst gehostet (SIL OFL) |
-| `content/` | Welcome-Banner, Fußzeile (Contact/Privacy), angepinnte Themen (Regeln, Install-Kurzfassung, „Read first“ für Help & Support, Anleitung für Performance Reports), Vorlagen für Help & Support und Performance Reports |
-| `website/` | Projekt-Website (Astro, statisch, GitHub Pages), siehe `website/README.md` |
+| `media/brand/`, `media/brand.py`, `media/logo.html`, `media/og.html` | The community sigil (`sigil.png`); the Discord icon, logo, favicons, website emblem and preview image are made from it |
+| `theme/logo.png`, `theme/favicon.png` | The same images as PNG for uploading (Flarum 1.x doesn't accept SVG) |
+| `theme/fonts/` | Cinzel + Inter as `.woff2`, self-hosted (SIL OFL) |
+| `content/` | Welcome banner, footer (Contact/Privacy), pinned topics (rules, short install guide, "Read first" for Help & Support, guide for Performance Reports), templates for Help & Support and Performance Reports |
+| `website/` | Project website (Astro, static, GitHub Pages), see `website/README.md` |
 
-## Voraussetzungen
+## Requirements
 
-- Debian-VM mit Docker Engine und dem Compose-Plugin (`docker compose version` ≥ 2.20)
-- 1 vCPU und 1 GB RAM reichen für den Start, 2 GB sind empfohlen. Gemessen im Leerlauf:
+- Debian VM with Docker Engine and the Compose plugin (`docker compose version` ≥ 2.20)
+- 1 vCPU and 1 GB RAM are enough to start; 2 GB are recommended. Measured at idle:
   Flarum ≈ 110 MB, MariaDB ≈ 110 MB.
-- Eine Domain bei Cloudflare, z. B. `forum.example.com`
-- Zugriff auf das [Discord Developer Portal](https://discord.com/developers/applications)
-- Ausgehender Internetzugang für den Container (Composer lädt die Erweiterungen)
+- A domain on Cloudflare, e.g. `forum.example.com`
+- Access to the [Discord Developer Portal](https://discord.com/developers/applications)
+- Outbound internet access for the container (Composer downloads the extensions)
 
-## Schnellstart (ein Befehl)
+## Quick start (one command)
 
-Auf dem Server (per SSH):
+On the server (via SSH):
 
 ```bash
 git clone https://github.com/nick24051998/Bloodborne-Forum && cd Bloodborne-Forum
 scripts/bootstrap.sh
 ```
 
-Der Installer fragt nach Domain, Admin-Name und -Mail, dem Discord-Link und der HTTPS-Variante.
-Erzeugt alle Passwörter selbst und schreibt `.env`. Startet die Container, installiert und
-konfiguriert alles (die Schritte 1–2 unten) und startet bei Variante (b) den Cloudflare Tunnel.
-Zum Schluss zeigt er das Admin-Passwort und die restlichen Browser-Schritte an (Discord-Portal,
-Client Secret, Cloudflare). Im Test dauerte das von null bis zum fertigen Forum unter einer Minute.
-Den Installer kannst du gefahrlos erneut ausführen.
+The installer asks for the domain, admin name and email, the Discord link and the HTTPS option.
+It generates all passwords itself and writes `.env`. It starts the containers, installs and
+configures everything (steps 1–2 below) and, with option (b), starts the Cloudflare Tunnel.
+At the end it shows the admin password and the remaining browser steps (Discord portal,
+client secret, Cloudflare). In testing, it took under a minute from zero to a finished forum.
+You can safely run the installer again.
 
-Die folgenden Abschnitte beschreiben dieselben Schritte einzeln zum Nachvollziehen.
+The sections below describe the same steps one by one, so you can follow what happens.
 
-## 1. Starten
+## 1. Start
 
 ```bash
 git clone <dieses-repo> bloodborne-forum && cd bloodborne-forum
 cp .env.example .env && chmod 600 .env
-# Passwörter erzeugen und in .env eintragen:
-openssl rand -base64 32 | tr -d '/+='   # für DB_PASSWORD, DB_ROOT_PASSWORD, FLARUM_ADMIN_PASS
-nano .env                               # FORUM_URL, Admin, DISCORD_INVITE_URL, …
+# Generate passwords and put them in .env:
+openssl rand -base64 32 | tr -d '/+='   # for DB_PASSWORD, DB_ROOT_PASSWORD, FLARUM_ADMIN_PASS
+nano .env                               # FORUM_URL, admin, DISCORD_INVITE_URL, …
 
 docker compose up -d
-docker compose logs -f flarum           # erster Start dauert ca. 1 Minute
+docker compose logs -f flarum           # first start takes about 1 minute
 ```
 
-Flarum lauscht danach nur auf `127.0.0.1:8888`, ist also noch nicht öffentlich erreichbar.
+After that, Flarum only listens on `127.0.0.1:8888`, so it is not publicly reachable yet.
 
-> **`FORUM_URL` muss exakt der Adresse entsprechen, die Besucher aufrufen**
-> (`https://`, mit oder ohne `www`, ohne Slash am Ende). Sonst brechen Icons, Schriften, Logins
-> und die Discord-Redirect-URL.
+> **`FORUM_URL` must exactly match the address visitors open**
+> (`https://`, with or without `www`, no trailing slash). Otherwise icons, fonts, logins
+> and the Discord redirect URL break.
 
-## 2. Erstinstallation: Erweiterungen und Einrichtung
+## 2. First install: extensions and setup
 
 ```bash
 scripts/install-extensions.sh                 # optional: --with-user-directory
 scripts/setup-forum.sh
 ```
 
-`setup-forum.sh` ist idempotent und kann nach jeder Änderung an `.env`, `theme/` oder `content/`
-erneut laufen. Es erledigt:
+`setup-forum.sh` is idempotent and can run again after any change to `.env`, `theme/` or `content/`.
+It does the following:
 
-1. **Admin anlegen.** Das Image legt beim ersten Start den Account `flarum`/`flarum` an. Das
-   Skript wandelt ihn in den Admin aus `.env` um (Name, E-Mail, Passwort). Danach funktioniert
-   `flarum`/`flarum` nicht mehr.
-   ⚠️ **Das Forum erst nach diesem Schritt öffentlich machen (Schritt 3).**
-2. **Erweiterungen aktivieren:** Tags, Markdown, BBCode, Emoji, Mentions, Likes, Sticky, Lock,
-   Subscriptions, Flags, Approval, Suspend, Statistics, GDPR sowie die fof-Erweiterungen.
-3. **Theme und Startseite:** Dark Mode, Farben, `theme/custom.less`, Schriften, Welcome-Banner mit
-   Discord-Link, Logo und Favicon.
-4. **Tags, Reihenfolge, Rechte, Best Answer, Help-Vorlage, Upload-Regeln** (siehe [Tags & Rechte](#tags--rechte)).
-5. **Regel-Thema** in Announcements, angepinnt und gesperrt.
-6. **Discord-Login**, sofern `DISCORD_CLIENT_ID` gesetzt ist.
+1. **Create the admin.** On first start, the image creates the account `flarum`/`flarum`. The
+   script turns it into the admin from `.env` (name, email, password). After that,
+   `flarum`/`flarum` no longer works.
+   ⚠️ **Only make the forum public after this step (step 3).**
+2. **Enable extensions:** Tags, Markdown, BBCode, Emoji, Mentions, Likes, Sticky, Lock,
+   Subscriptions, Flags, Approval, Suspend, Statistics, GDPR and the fof extensions.
+3. **Theme and home page:** dark mode, colors, `theme/custom.less`, fonts, welcome banner with
+   Discord link, logo and favicon.
+4. **Tags, order, permissions, Best Answer, Help template, upload rules** (see [Tags & Permissions](#tags--permissions)).
+5. **Rules topic** in Announcements, pinned and locked.
+6. **Discord login**, if `DISCORD_CLIENT_ID` is set.
 
-Manuell geht alles auch im Admin-Bereich unter `https://forum.example.com/admin`. Unter
-*Extensions* lassen sich die Erweiterungen dort einzeln einschalten.
+You can also do all of this by hand in the admin area at `https://forum.example.com/admin`. Under
+*Extensions* you can turn the extensions on one by one.
 
-## Lokal im Netzwerk testen (vor dem Livegang)
+## Test on your local network (before going live)
 
-Flarum baut alle Links aus `FORUM_URL`. Zum Testen im LAN stellst du deshalb URL und
-Bind-Adresse auf die LAN-IP des Docker-Hosts um (Beispiel `192.168.13.84`):
+Flarum builds all links from `FORUM_URL`. To test on the LAN, switch the URL and the
+bind address to the LAN IP of the Docker host (example `192.168.13.84`):
 
 ```bash
 sed -i -e 's|^FORUM_URL=.*|FORUM_URL=http://192.168.13.84:8888|' \
@@ -128,27 +128,27 @@ grep -q '^FLARUM_BIND=' .env || echo 'FLARUM_BIND=192.168.13.84' >> .env
 docker compose up -d db flarum
 ```
 
-Danach im Browser `http://192.168.13.84:8888` öffnen. **Zum Livegang zurückstellen:**
+Then open `http://192.168.13.84:8888` in the browser. **To switch back for going live:**
 
 ```bash
 sed -i -e 's|^FORUM_URL=.*|FORUM_URL=https://forum.example.com|' -e 's|^FLARUM_BIND=.*|FLARUM_BIND=127.0.0.1|' .env
 docker compose up -d
 ```
 
-## 3. Öffentlich machen: HTTPS
+## 3. Go public: HTTPS
 
-### Variante (a): Caddy auf dem Host
+### Option (a): Caddy on the host
 
 `/etc/caddy/Caddyfile`:
 
 ```caddy
 forum.example.com {
-    # Cloudflare-Proxy (orange Wolke) mit SSL-Modus "Full (strict)":
-    # Origin-Zertifikat aus Cloudflare → SSL/TLS → Origin Server.
-    # Bei grauer Wolke die tls-Zeile weglassen, dann holt Caddy selbst Let's Encrypt.
+    # Cloudflare proxy (orange cloud) with SSL mode "Full (strict)":
+    # origin certificate from Cloudflare → SSL/TLS → Origin Server.
+    # With a grey cloud, leave out the tls line; Caddy then gets a Let's Encrypt certificate itself.
     tls /etc/caddy/cf-origin.pem /etc/caddy/cf-origin.key
     encode zstd gzip
-    # Zusatzschutz: niemals PHP aus dem Upload-/Asset-Ordner ausführen
+    # Extra protection: never run PHP from the upload/asset folder
     @phpInAssets path_regexp ^/assets/.*\.php
     respond @phpInAssets 404
     reverse_proxy 127.0.0.1:8888
@@ -159,184 +159,183 @@ forum.example.com {
 sudo systemctl reload caddy
 ```
 
-Cloudflare-DNS: `A forum → <deine feste IP>`, proxied (orange Wolke).
-Flarum liest die echte Besucher-IP aus `CF-Connecting-IP`, wichtig für Spam-Schutz und Sperren.
-Deshalb sollten die Ports 80 und 443 der VM nur für die
-[Cloudflare-IP-Bereiche](https://www.cloudflare.com/ips/) offen sein. Sonst könnte jemand den
-Header fälschen.
+Cloudflare DNS: `A forum → <your static IP>`, proxied (orange cloud).
+Flarum reads the real visitor IP from `CF-Connecting-IP`, which matters for spam protection and bans.
+So ports 80 and 443 on the VM should only be open to the
+[Cloudflare IP ranges](https://www.cloudflare.com/ips/). Otherwise someone could fake the
+header.
 
-### Variante (b): Cloudflare Tunnel (keine offenen Ports)
+### Option (b): Cloudflare Tunnel (no open ports)
 
-1. Cloudflare Zero Trust → *Networks → Tunnels* → *Create a tunnel* → *Cloudflared* → Token kopieren.
-2. Im Tunnel unter *Public Hostname* `forum.example.com` → Service `HTTP` → `flarum:8000` eintragen.
-3. In `.env` `CF_TUNNEL_TOKEN=…` und `COMPOSE_PROFILES=tunnel` setzen. Bei `bootstrap.sh` mit
-   Variante 1 steht das schon drin.
-4. `docker compose up -d` startet jetzt auch den Service `cloudflared`.
+1. Cloudflare Zero Trust → *Networks → Tunnels* → *Create a tunnel* → *Cloudflared* → copy the token.
+2. In the tunnel, under *Public Hostname*, enter `forum.example.com` → service `HTTP` → `flarum:8000`.
+3. In `.env`, set `CF_TUNNEL_TOKEN=…` and `COMPOSE_PROFILES=tunnel`. If you ran `bootstrap.sh` with
+   option 1, this is already there.
+4. `docker compose up -d` now also starts the `cloudflared` service.
 
-## 4. Discord-Login einrichten
+## 4. Set up Discord login
 
-1. Im [Developer Portal](https://discord.com/developers/applications) auf **New Application** klicken,
-   z. B. „Bloodborne PC Port Forum“. Als Icon kannst du `theme/favicon.png` nehmen.
-2. **OAuth2 → Redirects → Add Redirect**, exakt eintragen:
+1. In the [Developer Portal](https://discord.com/developers/applications), click **New Application**,
+   e.g. "Bloodborne PC Port Forum". You can use `theme/favicon.png` as the icon.
+2. **OAuth2 → Redirects → Add Redirect**, enter exactly:
 
    ```
    https://forum.example.com/auth/discord
    ```
 
-   Das ist `${FORUM_URL}/auth/discord`: mit `https`, ohne Slash am Ende, kein Query-String.
-   Dann **Save Changes**. Diese Route erwartet fof/oauth.
-3. **OAuth2 → Client ID** kopieren, in `.env` als `DISCORD_CLIENT_ID` eintragen und
-   `scripts/setup-forum.sh` erneut ausführen. Das schaltet den Discord-Provider ein und setzt die ID.
-4. **Reset Secret** klicken und das Secret kopieren. Das Secret **nicht** in `.env` oder ins Repo
-   eintragen, sondern hier: **Flarum Admin → Extensions → OAuth (FriendsOfFlarum) → Discord
-   (Zahnrad) → Client Secret** → Speichern. Dort prüfen, dass Discord eingeschaltet ist.
-5. In einem privaten Browserfenster testen: *Log In → Log in with Discord*.
+   That is `${FORUM_URL}/auth/discord`: with `https`, no trailing slash, no query string.
+   Then **Save Changes**. fof/oauth expects this route.
+3. Copy **OAuth2 → Client ID**, put it in `.env` as `DISCORD_CLIENT_ID` and
+   run `scripts/setup-forum.sh` again. This turns on the Discord provider and sets the ID.
+4. Click **Reset Secret** and copy the secret. Do **not** put the secret in `.env` or the repo.
+   Put it here instead: **Flarum Admin → Extensions → OAuth (FriendsOfFlarum) → Discord
+   (gear icon) → Client Secret** → Save. Check there that Discord is turned on.
+5. Test in a private browser window: *Log In → Log in with Discord*.
 
-fof/oauth fragt bei Discord automatisch die Scopes `identify` und `email` an. Einen Bot brauchst du nicht.
-Hat jemand seine E-Mail bei Discord verifiziert, übernimmt Flarum sie als bestätigt. Es geht dann
-keine Bestätigungsmail raus.
+fof/oauth automatically requests the scopes `identify` and `email` from Discord. You don't need a bot.
+If someone has verified their email on Discord, Flarum takes it as confirmed. No confirmation
+email is sent in that case.
 
-### E-Mail-Registrierung abschalten (Discord als Hauptweg)
+### Turn off email sign-up (Discord as the main way in)
 
-`DISCORD_ONLY_SIGNUP=true` (Standard) in `.env` → `scripts/setup-forum.sh`. Danach lehnt Flarum
-neue Accounts ohne Discord-Login ab und zeigt die Meldung „New accounts can only be created with
-'Log in with Discord'“. Das Registrieren-Fenster zeigt dann nur den Discord-Button
-(`flarum/forum.js`, solange der Discord-Login aktiv ist). Bestehende Accounts und Admins sind nicht betroffen. Zum Abschalten:
-`DISCORD_ONLY_SIGNUP=false` und das Skript erneut ausführen.
+`DISCORD_ONLY_SIGNUP=true` (default) in `.env` → `scripts/setup-forum.sh`. After that, Flarum rejects
+new accounts without a Discord login and shows the message "New accounts can only be created with
+'Log in with Discord'". The sign-up dialog then only shows the Discord button
+(`flarum/forum.js`, as long as Discord login is active). Existing accounts and admins are not affected. To turn it off:
+set `DISCORD_ONLY_SIGNUP=false` and run the script again.
 
-> Den Core-Schalter *Admin → Basics → Allow Sign Up* **nicht** ausschalten. Er sperrt in Flarum
-> auch die Registrierung über Discord. Die Sperre übernimmt `flarum/extend.php`.
+> Do **not** turn off the core switch *Admin → Basics → Allow Sign Up*. In Flarum it also blocks
+> sign-up via Discord. `flarum/extend.php` handles the block instead.
 
-### E-Mail-Versand (empfohlen)
+### Sending email (recommended)
 
-Für Benachrichtigungen per Mail: **Admin → Email** → SMTP eines Mail-Dienstes eintragen
-(z. B. Brevo, Mailgun oder ein eigener Server). Das Setup lässt einen eingetragenen Dienst stehen.
+For email notifications: **Admin → Email** → enter the SMTP details of a mail service
+(e.g. Brevo, Mailgun or your own server). The setup leaves a configured service as it is.
 
-Ohne Mail-Dienst stellt das Setup den Treiber auf `log`: Mails landen nur im Forum-Log, Benachrichtigungen gibt es
-im Forum selbst. Der Flarum-Standard `mail` funktioniert im Container nicht (BusyBox-`sendmail` kann kein `-bs`) und
-lässt sonst Antworten mit Fehler abbrechen, sobald jemand per Mail benachrichtigt würde.
+Without a mail service, the setup sets the driver to `log`: emails only end up in the forum log, and notifications
+show up in the forum itself. Flarum's default `mail` doesn't work in the container (BusyBox `sendmail` can't do `-bs`) and
+would otherwise make replies fail with an error as soon as someone should get an email notification.
 
-## Sicherheit
+## Security
 
-**Schon eingebaut:**
+**Already built in:**
 
-- **Aktuelles Image:** Flarum 1.8.19, PHP 8.4, Alpine 3.23. Die Prozesse laufen als
-  Nicht-Root-User `flarum`, und alle Container haben `no-new-privileges` und Log-Rotation.
-- **Kaum Angriffsfläche:** Flarum lauscht nur auf `127.0.0.1`, die Datenbank hat gar keinen Port nach
-  außen. Mit Cloudflare Tunnel braucht die VM keinen einzigen offenen Port.
-- **Keine Geheimnisse im Repo:** `.env` ist in `.gitignore`, das Discord-Secret liegt nur in der
-  Flarum-Datenbank. Der Standard-Admin `flarum`/`flarum` wird durch `setup-forum.sh` ersetzt.
-- **Uploads:** nur Bilder, `.zip`/`.7z` und `.txt`, bis 20 MB, kein SVG. Die gespeicherte
-  Dateiendung leitet fof/upload aus dem erkannten Dateityp ab, nicht aus dem Dateinamen. Ein
-  hochgeladenes `.php` kann also nicht entstehen. Herunterladen dürfen nur eingeloggte Mitglieder,
-  denn Report-Zips können Systemdetails enthalten.
-- **Sicherheits-Header** über `flarum/extend.php`: `X-Frame-Options`, `Permissions-Policy` und
-  `Strict-Transport-Security` bei `https`. `nosniff` setzt bereits nginx. Session-Cookies sind
-  `HttpOnly` und `SameSite=Lax`, bei `https` zusätzlich `Secure`.
-- **Spam:** Neue Accounts nur über Discord. Dazu kommen Flarums Flood-Schutz, die Extensions
-  Flags/Approval zum Melden und Freigeben und Suspend zum zeitweisen Sperren.
+- **Current image:** Flarum 1.8.19, PHP 8.4, Alpine 3.23. The processes run as the
+  non-root user `flarum`, and all containers have `no-new-privileges` and log rotation.
+- **Small attack surface:** Flarum only listens on `127.0.0.1`, and the database has no outside
+  port at all. With Cloudflare Tunnel the VM doesn't need a single open port.
+- **No secrets in the repo:** `.env` is in `.gitignore`, and the Discord secret only lives in the
+  Flarum database. `setup-forum.sh` replaces the default admin `flarum`/`flarum`.
+- **Uploads:** images, `.zip`/`.7z` and `.txt` only, up to 20 MB, no SVG. fof/upload derives the
+  stored file extension from the detected file type, not from the file name. So an uploaded
+  `.php` file can't come about. Only logged-in members can download,
+  because report zips can contain system details.
+- **Security headers** via `flarum/extend.php`: `X-Frame-Options`, `Permissions-Policy` and
+  `Strict-Transport-Security` with `https`. nginx already sets `nosniff`. Session cookies are
+  `HttpOnly` and `SameSite=Lax`, and also `Secure` with `https`.
+- **Spam:** New accounts only via Discord. On top of that come Flarum's flood protection, the
+  Flags/Approval extensions for reporting and approving, and Suspend for temporary bans.
 
-**Selbst erledigen (empfohlen):**
+**Do it yourself (recommended):**
 
-1. **Firewall:** Bei Variante (a) die Ports 80 und 443 nur für die
-   [Cloudflare-IPs](https://www.cloudflare.com/ips/) öffnen, SSH nur per Key. Sonst kann man
-   Cloudflare umgehen und die Besucher-IP fälschen. Bei Variante (b) eingehend alles zu lassen.
-2. **Login-Drosselung:** Flarum 1.8 bremst falsche Passwörter nicht. In Cloudflare unter
-   *Security → WAF → Rate limiting rules* eine Regel anlegen: URI-Pfad ist `/login` oder
-   `/api/token`, Methode POST, mehr als 5 Anfragen in 10 Sekunden → Block. Das ist im Free-Plan
-   enthalten. Für Discord-Logins ist das egal.
-3. **Admin-Konten:** Langes Zufallspasswort und Discord-Konto mit aktivierter 2FA. Optional 2FA
-   direkt in Flarum mit `docker compose exec flarum extension require ianm/twofactor`
-   (Version 1.2.x für Flarum 1.8, von mir nicht getestet). Danach unter *Admin → Extensions*
-   aktivieren.
-4. **Updates:** Sicherheitsmeldungen für Flarum
-   ([Security Advisories](https://github.com/flarum/framework/security/advisories)) und neue
-   [crazymax/flarum-Releases](https://github.com/crazy-max/docker-flarum/releases) abonnieren, dann
-   wie unter [Update](#update) beschrieben aktualisieren. Debian selbst mit `unattended-upgrades`.
-5. **Backups** nächtlich und zusätzlich verschlüsselt auf einen anderen Rechner (siehe [Backup](#backup)).
-6. **Rechtliches** (Betreiber in Deutschland): Impressum und Datenschutzerklärung als Seiten
-   verlinken. Darin Discord-Login, Cloudflare und die Uploads erwähnen. Die Erweiterung
-   *GDPR* (aktiviert) liefert Datenexport und Account-Löschung für Nutzer.
+1. **Firewall:** With option (a), open ports 80 and 443 only to the
+   [Cloudflare IPs](https://www.cloudflare.com/ips/), and allow SSH with a key only. Otherwise people can
+   bypass Cloudflare and fake the visitor IP. With option (b), keep all inbound ports closed.
+2. **Login throttling:** Flarum 1.8 doesn't slow down wrong passwords. In Cloudflare, under
+   *Security → WAF → Rate limiting rules*, create a rule: URI path is `/login` or
+   `/api/token`, method POST, more than 5 requests in 10 seconds → Block. This is included in the
+   Free plan. It doesn't affect Discord logins.
+3. **Admin accounts:** Long random password and a Discord account with 2FA turned on. Optionally, 2FA
+   directly in Flarum with `docker compose exec flarum extension require ianm/twofactor`
+   (version 1.2.x for Flarum 1.8, not tested by me). Then enable it under *Admin → Extensions*.
+4. **Updates:** Subscribe to Flarum's security notices
+   ([Security Advisories](https://github.com/flarum/framework/security/advisories)) and to new
+   [crazymax/flarum releases](https://github.com/crazy-max/docker-flarum/releases), then
+   update as described under [Update](#update). Keep Debian itself updated with `unattended-upgrades`.
+5. **Backups** nightly, plus an encrypted copy on another machine (see [Backup](#backup)).
+6. **Legal** (operator based in Germany): link an imprint (Impressum) and a privacy policy as pages.
+   Mention the Discord login, Cloudflare and the uploads in them. The *GDPR* extension
+   (enabled) gives users data export and account deletion.
 
-## Tags & Rechte
+## Tags & Permissions
 
-| Tag | Lesen | Themen starten | Besonderheiten |
+| Tag | Read | Start topics | Notes |
 |---|---|---|---|
-| **Announcements** | alle | nur Mods/Admins | eingeschränkter Tag, Antworten für Mitglieder erlaubt, angepinntes Regel-Thema |
-| **Help & Support** | alle | Mitglieder | **Best Answer**, Beitragsvorlage mit Pflichtangaben, Uploads |
-| **Performance Reports** | alle | Mitglieder | Vorlage für Hardware, Einstellungen und FPS auf einer festen Teststrecke, angepinnte Anleitung; Grundlage für echte Werte im Hardware-Check der Website |
-| **Suggestions** | alle | Mitglieder | |
-| **Mods & Patches** | alle | Mitglieder | keine Spieldateien (Regeln) |
-| **Guides** | alle | Mitglieder | |
-| **The Hunter's Dream** | alle | Mitglieder | Off-Topic |
+| **Announcements** | everyone | mods/admins only | restricted tag, members can reply, pinned rules topic |
+| **Help & Support** | everyone | members | **Best Answer**, post template with required info, uploads |
+| **Performance Reports** | everyone | members | template for hardware, settings and FPS on a fixed test route, pinned guide; source of real numbers for the website's hardware check |
+| **Suggestions** | everyone | members | |
+| **Mods & Patches** | everyone | members | no game files (rules) |
+| **Guides** | everyone | members | |
+| **The Hunter's Dream** | everyone | members | off-topic |
 
-Rollenfarben: Admin Blutrot `#8a1118`, Mod Messing `#9c8458`. Uploads erlaubt: Bilder, `.zip`/`.7z`
-(BB-Report-Tool) und `.txt`-Logs bis 20 MB. Hoch- und herunterladen dürfen nur eingeloggte Mitglieder.
+Role colors: Admin blood red `#8a1118`, Mod brass `#9c8458`. Allowed uploads: images, `.zip`/`.7z`
+(BB Report Tool) and `.txt` logs up to 20 MB. Only logged-in members can upload and download.
 
-**Manuell im Admin-Bereich** (falls du das Skript nicht nutzt):
+**By hand in the admin area** (if you don't use the script):
 
-1. *Tags → Create Tag*: Name, Slug, Farbe und Icon wie in `scripts/lib/setup-inside.sh`. Die
-   Reihenfolge stellst du per Drag & Drop ein.
+1. *Tags → Create Tag*: name, slug, color and icon as in `scripts/lib/setup-inside.sh`. Set the
+   order by drag and drop.
 2. *Permissions → Restrict by tag → Announcements*: View = Everyone, Start discussions = Mods,
-   Reply = Members. Moderationsrechte setzt du wie in den globalen Rechten.
-3. *Best Answer* → Tag „Help & Support“ aktivieren.
-4. *Tags → Help & Support → Edit*: Feld **Template** mit dem Inhalt von `content/help-template.md` füllen,
-   ebenso *Performance Reports* mit `content/performance-template.md`.
-5. *FoF Upload* → Mime-Typen und Max-Größe setzen. *Permissions* → Upload = Members, Download = Members.
+   Reply = Members. Set the moderation permissions as in the global permissions.
+3. *Best Answer* → enable it for the tag "Help & Support".
+4. *Tags → Help & Support → Edit*: fill the **Template** field with the contents of `content/help-template.md`,
+   and do the same for *Performance Reports* with `content/performance-template.md`.
+5. *FoF Upload* → set MIME types and max size. *Permissions* → Upload = Members, Download = Members.
 
-Die Vorlage füllt den Editor vor. Technisch erzwingen kann Flarum die Pflichtangaben nicht.
-Das Regel-Thema macht sie aber verbindlich, und Mods können unvollständige Themen sperren.
+The template pre-fills the editor. Flarum can't technically enforce the required info.
+The rules topic makes it mandatory, though, and mods can lock incomplete topics.
 
-## Theme einspielen
+## Applying the theme
 
-`setup-forum.sh` setzt alles automatisch. Manuell geht es so:
+`setup-forum.sh` sets everything automatically. To do it by hand:
 
-1. *Admin → Appearance*: Dark Mode an, Primary `#8a1118`, Secondary `#9c8458`.
-2. *Edit Custom CSS*: den Inhalt von `theme/custom.less` einfügen und speichern.
-3. Die Schriften liegen selbst gehostet unter `/assets/fonts/bb/`. Das Skript kopiert sie ins Volume.
-   Flarum blockiert externe Imports in Custom LESS, und so gehen keine Anfragen an Google (DSGVO).
-4. **Logo und Favicon:** *Admin → Appearance → Logo / Favicon* → `theme/logo.png` bzw.
-   `theme/favicon.png` hochladen. Flarum 1.x wandelt Uploads in PNG um, SVG geht deshalb nicht.
-   Eigenes Logo: SVG bearbeiten und als PNG exportieren, ca. 120 px hoch.
+1. *Admin → Appearance*: dark mode on, Primary `#8a1118`, Secondary `#9c8458`.
+2. *Edit Custom CSS*: paste the contents of `theme/custom.less` and save.
+3. The fonts are self-hosted under `/assets/fonts/bb/`. The script copies them into the volume.
+   Flarum blocks external imports in custom LESS, and this way no requests go to Google (GDPR).
+4. **Logo and favicon:** *Admin → Appearance → Logo / Favicon* → upload `theme/logo.png` or
+   `theme/favicon.png`. Flarum 1.x converts uploads to PNG, so SVG doesn't work.
+   Your own logo: edit the SVG and export it as PNG, about 120 px tall.
 
-Welcome-Banner: Text in `content/welcome.html`, Titel und Discord-Link kommen aus `.env`
-(`DISCORD_INVITE_URL`). Manuell geht es unter *Admin → Basics → Welcome Banner*.
+Welcome banner: the text is in `content/welcome.html`; title and Discord link come from `.env`
+(`DISCORD_INVITE_URL`). By hand: *Admin → Basics → Welcome Banner*.
 
-**Icons und Texturen:** Die Kategorien nutzen eigene Icons (Glocke, Laternenpfahl, Kerze, Werkzeug,
-Buch, Halbmond) statt Font Awesome; im Admin steht dafür als Icon z. B. `bbicon bbicon-bell`. Weitere
-Icons: SVG (nur CC0/Public Domain) nach `media/icons/` legen, in `media/CREDITS.md` eintragen und
-`python3 media/build.py` ausführen. Nebel, Körnung und die Bilder
-aus `media/images/` (z. B. das Willkommens-Banner `forum-banner.webp`) kopiert `setup-forum.sh` nach
-`/assets/media/bb/`. Neues Banner: Datei gleichen Namens ersetzen und das Skript erneut ausführen.
+**Icons and textures:** The categories use custom icons (bell, lamppost, candle, tools,
+book, crescent moon) instead of Font Awesome; in the admin, the icon is set as e.g. `bbicon bbicon-bell`. More
+icons: put an SVG (CC0/public domain only) in `media/icons/`, add it to `media/CREDITS.md` and
+run `python3 media/build.py`. `setup-forum.sh` copies the fog, grain and the images
+from `media/images/` (e.g. the welcome banner `forum-banner.webp`) to
+`/assets/media/bb/`. New banner: replace the file with one of the same name and run the script again.
 
-**Verbindung zur Website:** `setup-forum.sh` trägt `WEBSITE_URL` und `DISCORD_INVITE_URL` aus
-`.env` ein. Daraus entstehen die Links in der Kopfzeile (Website, Install guide, FAQ, Discord; auf dem
-Handy im Seitenmenü) und die Fußzeile mit Contact, Privacy und Kontaktadresse aus `content/footer.html`
-(*Admin → Appearance → Custom Footer*). Ist eine Adresse leer oder noch ein Platzhalter, fehlen die
-zugehörigen Links einfach. Nach Änderungen an `flarum/forum.js` das Skript erneut ausführen, es baut
-das JavaScript des Forums neu.
+**Link to the website:** `setup-forum.sh` takes `WEBSITE_URL` and `DISCORD_INVITE_URL` from
+`.env`. From these come the header links (Website, Install guide, FAQ, Discord; on
+phones in the side menu) and the footer with Contact, Privacy and the contact address from `content/footer.html`
+(*Admin → Appearance → Custom Footer*). If an address is empty or still a placeholder, the
+matching links are simply left out. After changes to `flarum/forum.js`, run the script again; it rebuilds
+the forum's JavaScript.
 
-## Forenregeln (Kurzfassung)
+## Forum rules (short version)
 
-Respektvoll bleiben, **keine Piraterie: keine Links zu Spieldateien, Firmware oder Keys, auch
-keine Fragen danach**, keine Malware, Englisch, richtige Kategorie, kein Spam. Den vollständigen
-Text in `content/rules.md` veröffentlicht das Setup als angepinntes Thema.
+Be respectful, **no piracy: no links to game files, firmware or keys, and no
+asking for them either**, no malware, English only, right category, no spam. The setup publishes the full
+text from `content/rules.md` as a pinned topic.
 
 ## Backup
 
 ```bash
-scripts/backup.sh                    # → ./backups/db-<datum>.sql.gz + flarum-data-<datum>.tar.gz
+scripts/backup.sh                    # → ./backups/db-<date>.sql.gz + flarum-data-<date>.tar.gz
 ```
 
-Nächtlich per Cron (`crontab -e`), 14 Tage aufbewahren:
+Nightly via cron (`crontab -e`), kept for 14 days:
 
 ```cron
 30 3 * * * cd /opt/bloodborne-forum && scripts/backup.sh /opt/backups/forum >/dev/null 2>&1 && find /opt/backups/forum -name '*.gz' -mtime +14 -delete
 ```
 
-Zusätzlich gehören `.env` und am besten eine Kopie der Backups auf einen anderen Rechner.
+Also keep `.env`, and ideally a copy of the backups, on another machine.
 
-**Wiederherstellen** (bei laufendem Stack):
+**Restore** (with the stack running):
 
 ```bash
 gunzip -c backups/db-XXXX.sql.gz | docker compose exec -T db sh -c 'exec mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" "$MARIADB_DATABASE"'
@@ -344,150 +343,150 @@ docker compose exec -T flarum tar -C /data -xzf - < backups/flarum-data-XXXX.tar
 docker compose restart flarum
 ```
 
-Alternativ sicherst du die Volumes roh, bei gestopptem Stack:
+Alternatively, back up the raw volumes with the stack stopped:
 `docker run --rm -v bloodborne-forum_db-data:/v -v "$PWD":/b alpine tar czf /b/db-volume.tgz -C /v .`
-(analog für `bloodborne-forum_flarum-data`).
+(same for `bloodborne-forum_flarum-data`).
 
-## Automatische Updates
+## Automatic updates
 
-Einmal als root auf dem Server einrichten:
+Set this up once as root on the server:
 
 ```bash
 scripts/install-auto-update.sh
 ```
 
-Danach prüft ein systemd-Timer alle 5 Minuten, ob es auf dem Branch neue Commits gibt, und spielt sie
-ein (`scripts/auto-update.sh`): nur Fast-Forward, Forum-Einrichtung nur bei Forum-Änderungen, Backup
-und Container-Neustart nur, wenn sich die Container-Konfiguration ändert. Schlägt ein Update fehl,
-geht der Code auf den alten Stand zurück; der nächste Versuch kommt mit dem nächsten Commit oder per
-`scripts/auto-update.sh --force`. Mit `AUTO_UPDATE_DISCORD_WEBHOOK` in `.env` meldet sich jedes
-Update in einem Discord-Kanal.
+After that, a systemd timer checks every 5 minutes whether the branch has new commits and applies them
+(`scripts/auto-update.sh`): fast-forward only, forum setup only for forum changes, backup
+and container restart only when the container configuration changes. If an update fails,
+the code goes back to the previous state; the next attempt comes with the next commit or via
+`scripts/auto-update.sh --force`. With `AUTO_UPDATE_DISCORD_WEBHOOK` in `.env`, every
+update posts a message in a Discord channel.
 
 ```bash
 journalctl -u bbforum-auto-update -n 100          # Log
-systemctl start bbforum-auto-update               # sofort prüfen
-systemctl disable --now bbforum-auto-update.timer # abschalten
+systemctl start bbforum-auto-update               # check now
+systemctl disable --now bbforum-auto-update.timer # turn off
 ```
 
-## Discord-Rollen im Forum
+## Discord roles in the forum
 
-Wer sich mit Discord anmeldet, bekommt im Forum dieselben Rollen wie auf dem Discord-Server, als Gruppen mit
-gleichem Namen und gleicher Farbe. Discord bleibt die Quelle: Kommt eine Rolle dazu oder fällt sie weg,
-passiert das spätestens 10 Minuten später auch im Forum. Nach einer Anmeldung dauert es höchstens eine Minute.
-Owner, Admin und Mod kommen zusätzlich in die Gruppe „Mod“ und dürfen moderieren. Die Admin-Gruppe und von Hand
-ernannte Mods fasst der Abgleich nicht an. Code: `flarum/discord-roles.php`.
+Anyone who logs in with Discord gets the same roles in the forum as on the Discord server, as groups with
+the same name and color. Discord stays the source: if a role is added or removed,
+the forum follows within 10 minutes at most. After a login it takes one minute at most.
+Owner, Admin and Mod are also added to the group "Mod" and can moderate. The sync doesn't touch the Admin group
+or mods appointed by hand. Code: `flarum/discord-roles.php`.
 
-Als Abzeichen an Beiträgen sichtbar sind nur die Team-Rollen: Owner, Admin, Contributor, Mod, Support und Helper
-(`DISCORD_SHOWN_ROLE_IDS` in `.env`). Alle anderen Gruppen sind versteckt. In Discord sieht Waffen-, GPU- oder
-Setup-Rollen nur der Server, das Forum dagegen ist öffentlich. Für Rechte, etwa eine Kategorie nur für
-„Beta Hunter“, lassen sich auch die versteckten Gruppen nutzen. Der Abgleich setzt „versteckt“ bei jedem Lauf
-neu: Von Hand im Admin umgestellt, gilt es nur bis zum nächsten Lauf.
+Only the team roles show as badges on posts: Owner, Admin, Contributor, Mod, Support and Helper
+(`DISCORD_SHOWN_ROLE_IDS` in `.env`). All other groups are hidden. On Discord, weapon, GPU or
+setup roles are only visible inside the server, but the forum is public. For permissions, e.g. a category only for
+"Beta Hunter", you can use the hidden groups too. The sync sets "hidden" again on every run:
+if you change it by hand in the admin, it only lasts until the next run.
 
-**Namen:** Das Forum zeigt den Namen, den jemand auf unserem Discord-Server trägt, sonst seinen
-Discord-Anzeigenamen (Erweiterung Nicknames, Treiber „nickname“). Ändert er ihn auf Discord, zieht der Abgleich
-nach; selbst ändern lässt er sich im Forum nicht. Der Benutzername bleibt für Anmeldung, Profil-Adresse und
-@-Erwähnungen.
+**Names:** The forum shows the name someone uses on our Discord server, otherwise their
+Discord display name (Nicknames extension, driver "nickname"). If they change it on Discord, the sync
+follows; it can't be changed in the forum itself. The username stays for login, the profile URL and
+@mentions.
 
-**Profilbilder:** das Server-Profilbild, sonst das Discord-Bild, als Kopie im Forum (Besucher laden nichts von
-Discord). Ändert es sich auf Discord, zieht der Abgleich nach. Ein im Forum selbst hochgeladenes Bild bleibt.
+**Avatars:** the server avatar, otherwise the Discord avatar, as a copy in the forum (visitors don't load anything from
+Discord). If it changes on Discord, the sync follows. An avatar uploaded in the forum itself stays.
 
-**Abzeichen:** `flarum/forum.js` zeigt versteckte Gruppen nie als Abzeichen, auch nicht Admins und Mods, die sie
-sehen dürfen. Flarums eigenes Admin- und Mod-Abzeichen entfällt, wenn jemand eine Team-Rolle von Discord hat. Am
-Beitrag stehen höchstens drei (`theme/custom.less`).
+**Badges:** `flarum/forum.js` never shows hidden groups as badges, not even to admins and mods who
+are allowed to see them. Flarum's own Admin and Mod badge is dropped when someone has a team role from Discord. A
+post shows three badges at most (`theme/custom.less`).
 
-**Bann und Sperre:**
-- Wer auf dem Server gebannt wird, ist spätestens 10 Minuten später im Forum gesperrt. Hebt Discord den Bann
-  auf, hebt der Abgleich die Sperre wieder auf.
-- Sperrt ein Mod jemanden im Forum, bannt der Bot ihn sofort auch auf dem Server. Endet die Sperre (aufgehoben
-  oder abgelaufen), hebt der Bot den Bann innerhalb einer Minute wieder auf. Zurück auf den Server kommt
-  der Nutzer dann über einen Einladungslink.
-- Beides gilt nur für Sperren und Banns, die der Abgleich selbst gesetzt hat, und nie für Admins. Die
-  Begründung steht im Audit-Log des Servers.
+**Bans and suspensions:**
+- Anyone banned on the server is suspended in the forum within 10 minutes at most. If Discord lifts the ban,
+  the sync lifts the suspension again.
+- If a mod suspends someone in the forum, the bot bans them on the server right away too. When the suspension ends (lifted
+  or expired), the bot lifts the ban within a minute. The user can then rejoin the server
+  through an invite link.
+- Both only apply to suspensions and bans that the sync set itself, and never to admins. The
+  reason is in the server's audit log.
 
-Gelesen wird mit dem Bot der Forum-App im Developer Portal. Er braucht nur das Recht **Mitglieder bannen**
-(für Bannliste und Banns) und keine Intents:
+The data is read with the bot of the forum app in the Developer Portal. It only needs the **Ban Members** permission
+(for the ban list and for banning) and no intents:
 
-1. Developer Portal → App „Bloodborne PC Port Forum“ → **Bot**: „Public Bot“ ausschalten, dann
-   **Reset Token** und das Token kopieren.
-2. Token auf dem Server in `.env` bei `DISCORD_BOT_TOKEN=` eintragen (nie ins Repo oder in Chats),
-   dann `scripts/setup-forum.sh`.
-3. Bot einladen, nur mit „Mitglieder bannen“ (`permissions=4`; ein zweiter Aufruf ändert die Rechte eines schon
-   eingeladenen Bots):
+1. Developer Portal → app "Bloodborne PC Port Forum" → **Bot**: turn off "Public Bot", then
+   **Reset Token** and copy the token.
+2. On the server, put the token in `.env` at `DISCORD_BOT_TOKEN=` (never in the repo or in chats),
+   then run `scripts/setup-forum.sh`.
+3. Invite the bot with "Ban Members" only (`permissions=4`; inviting again changes the permissions of a bot
+   that is already on the server):
    `https://discord.com/oauth2/authorize?client_id=<Client-ID>&scope=bot&permissions=4&guild_id=<Server-ID>`
-4. Servereinstellungen → Rollen: die Rolle des Bots über die Rollen der Mitglieder ziehen, aber unter die
-   Team-Rollen. Bannen kann der Bot nur Leute, deren höchste Rolle unter seiner steht.
+4. Server Settings → Roles: drag the bot's role above the members' roles, but below the
+   team roles. The bot can only ban people whose highest role is below its own.
 
-Sofort abgleichen statt zu warten: `docker compose exec --user flarum flarum php /opt/flarum/flarum bbforum:discord-roles --all`
+Sync right away instead of waiting: `docker compose exec --user flarum flarum php /opt/flarum/flarum bbforum:discord-roles --all`
 
-## Meldungen in Discord
+## Notifications in Discord
 
-Drei automatische Meldungen, jede mit einem eigenen Webhook (in Discord: Servereinstellungen →
-Integrationen → Webhooks → Neuer Webhook → Kanal wählen → Webhook-URL kopieren). Die URL ist geheim:
-nur an den genannten Stellen eintragen, nie in Chats oder ins Repo.
+Three automatic notifications, each with its own webhook (in Discord: Server Settings →
+Integrations → Webhooks → New Webhook → choose the channel → Copy Webhook URL). The URL is secret:
+only enter it in the places listed, never in chats or the repo.
 
-| Meldung | Wo eintragen | Wann |
+| Notification | Where to enter it | When |
 |---|---|---|
-| Neue Version des Ports (z. B. #announcements) | GitHub: Repo → Settings → Secrets and variables → Actions → New repository secret `DISCORD_RELEASES_WEBHOOK` | Der Website-Workflow schaut alle 2 Stunden nach neuen Releases, baut die Website neu und meldet die Version |
-| Website oder Forum ausgefallen (z. B. Admin-Kanal) | GitHub-Secret `DISCORD_STATUS_WEBHOOK` | Einmal beim Ausfall, einmal wenn wieder alles läuft (Prüfung alle 10 Minuten) |
-| Neue Forenthemen (z. B. #forum-feed) | Server: `FORUM_DISCORD_WEBHOOK` in `.env`, danach `scripts/setup-forum.sh` | Sofort, für jedes Thema, das Gäste sehen dürfen |
+| New version of the port (e.g. #announcements) | GitHub: Repo → Settings → Secrets and variables → Actions → New repository secret `DISCORD_RELEASES_WEBHOOK` | The website workflow checks for new releases every 2 hours, rebuilds the website and announces the version |
+| Website or forum down (e.g. an admin channel) | GitHub secret `DISCORD_STATUS_WEBHOOK` | Once when it goes down, once when everything is back up (checked every 10 minutes) |
+| New forum topics (e.g. #forum-feed) | Server: `FORUM_DISCORD_WEBHOOK` in `.env`, then `scripts/setup-forum.sh` | Right away, for every topic that guests can see |
 
-Dazu kommt `AUTO_UPDATE_DISCORD_WEBHOOK` (siehe [Automatische Updates](#automatische-updates)).
-Ohne Eintrag bleibt die jeweilige Meldung aus; alles andere läuft trotzdem. Hinweis: GitHub pausiert
-zeitgesteuerte Workflows, wenn ein öffentliches Repo 60 Tage keine Commits bekommt (Actions → Workflow
-→ „Enable workflow“).
+There is also `AUTO_UPDATE_DISCORD_WEBHOOK` (see [Automatic updates](#automatic-updates)).
+Without an entry, that notification is simply skipped; everything else still works. Note: GitHub pauses
+scheduled workflows when a public repo gets no commits for 60 days (Actions → Workflow
+→ "Enable workflow").
 
 ## Update
 
 ```bash
 scripts/backup.sh
-git pull                          # Änderungen an Theme und Skripten
-# Neue Flarum-Version: FLARUM_IMAGE_TAG in .env anheben (z. B. 1.8.20)
+git pull                          # changes to theme and scripts
+# New Flarum version: raise FLARUM_IMAGE_TAG in .env (e.g. 1.8.20)
 docker compose pull
-docker compose up -d --remove-orphans   # Migrationen laufen beim Start automatisch
-scripts/setup-forum.sh            # Theme und Einstellungen erneut anwenden (optional)
+docker compose up -d --remove-orphans   # migrations run automatically on start
+scripts/setup-forum.sh            # apply theme and settings again (optional)
 ```
 
-- Die Erweiterungen stehen in `flarum/extensions.txt`. Bei jedem Start stellt
-  `flarum/restore-extensions.sh` die Liste wieder her, und das Image installiert sie neu. Dafür
-  braucht der Container Internet. Eigene Zusätze gehören in `flarum/extensions.local.txt`.
-- MariaDB bleibt auf 10.11 (LTS). Patch-Updates kommen über `docker compose pull`.
-- Ändert sich `docker-compose.yml` (z. B. neue Einbindungen), übernimmt erst
-  `docker compose up -d` die Änderung; `git pull` allein reicht dann nicht.
-- **Flarum 2.0:** Erst umsteigen, wenn ein 2.x-Image von crazymax erscheint und alle genutzten
-  Erweiterungen stabil für 2.x verfügbar sind. Vorher eine Kopie testen, die du aus einem Backup
-  wiederherstellst. 2.0 ist ein Major-Update mit eigenen Migrationen.
+- The extensions are listed in `flarum/extensions.txt`. On every start,
+  `flarum/restore-extensions.sh` restores the list, and the image reinstalls them. For this the
+  container needs internet access. Your own additions go in `flarum/extensions.local.txt`.
+- MariaDB stays on 10.11 (LTS). Patch updates come via `docker compose pull`.
+- If `docker-compose.yml` changes (e.g. new mounts), the change only takes effect with
+  `docker compose up -d`; `git pull` alone isn't enough in that case.
+- **Flarum 2.0:** Only switch once a 2.x image from crazymax is out and all extensions in use
+  are available as stable releases for 2.x. Before that, test on a copy you restore from a backup.
+  2.0 is a major update with its own migrations.
 
-## Fehlersuche
+## Troubleshooting
 
-- `docker compose logs -f flarum`; Flarum-Logs liegen in `/data/storage/logs`
+- `docker compose logs -f flarum`; Flarum logs are in `/data/storage/logs`
   (`docker compose exec flarum ls /data/storage/logs`).
-- Bei „Something went wrong“ vorübergehend `FLARUM_DEBUG: "true"` in `docker-compose.yml` setzen.
-- Fehlen Icons oder Schriften oder klappen Logins nicht, passt `FORUM_URL` nicht zur aufgerufenen
-  Adresse.
-- Bei „Redirect URI mismatch“ von Discord weicht die Redirect-URL im Portal von
-  `${FORUM_URL}/auth/discord` ab.
-- `Pool overlaps with other one on this address space` beim Start: Das feste Forum-Netz
-  `10.88.0.0/24` ist schon vergeben. In `.env` `FORUM_SUBNET` auf ein freies Netz setzen,
-  z. B. `10.89.0.0/24`.
-- „Flarum encountered a boot error“ direkt nach dem Installieren von Erweiterungen: Der PHP-Cache
-  kennt die neuen Dateien noch nicht. `docker compose up -d --force-recreate flarum` und danach
-  `scripts/setup-forum.sh`. Das aktuelle `install-extensions.sh` macht das schon selbst.
-- **Erweiterungen „not installed“** nach einem Neustart oder Update: `docker compose up -d
-  --force-recreate flarum`. Beim Start wird die Liste aus `flarum/extensions.txt`
-  wiederhergestellt und neu installiert (dauert 1–2 Minuten). Danach `scripts/setup-forum.sh`.
-  Zum Neustarten des Forums lieber `docker compose up -d --force-recreate flarum` als
-  `docker compose restart` verwenden.
-- **„circular_dependencies“** beim Ein- oder Ausschalten einer Erweiterung (Admin oder
-  `setup-forum.sh`): Zwei Erweiterungen nennen sich gegenseitig als Abhängigkeit, dann lehnt
-  Flarum 1.8 jede Änderung ab. Bekannt sind FoF SEO 3.x und FoF Sitemap; `flarum/extensions.txt`
-  legt SEO deshalb auf 2.x fest. `scripts/install-extensions.sh` und danach
-  `scripts/setup-forum.sh` ausführen.
-- **Erweiterungen schalten sich nach ein bis zwei Minuten wieder ab:** Es läuft noch der frühere
-  `cron`-Container. Ihm fehlen die Erweiterungen, und Flarum entfernt sie dann bei jedem
-  Scheduler-Lauf aus der Liste der aktivierten Erweiterungen. `docker compose up -d --remove-orphans`
-  entfernt ihn, danach `scripts/setup-forum.sh`. Den Scheduler startet jetzt `flarum/scheduler.sh`
-  im Forum-Container.
-- **Host mit knappem RAM** (der Kernel beendet Prozesse, sichtbar mit `dmesg -T | grep -i "killed process"`):
-  In `.env` `FORUM_OOM_SCORE_ADJ=-500` setzen und `docker compose up -d` ausführen. Dann beendet der
-  Kernel zuerst andere Container statt Forum und Datenbank. Startet danach ein Container mit
-  „Permission denied“ nicht, den Wert wieder auf `0` setzen.
+- On "Something went wrong", temporarily set `FLARUM_DEBUG: "true"` in `docker-compose.yml`.
+- If icons or fonts are missing or logins fail, `FORUM_URL` doesn't match the address
+  you opened.
+- If Discord reports "Redirect URI mismatch", the redirect URL in the portal differs from
+  `${FORUM_URL}/auth/discord`.
+- `Pool overlaps with other one on this address space` on start: the fixed forum network
+  `10.88.0.0/24` is already taken. Set `FORUM_SUBNET` in `.env` to a free network,
+  e.g. `10.89.0.0/24`.
+- "Flarum encountered a boot error" right after installing extensions: the PHP cache
+  doesn't know the new files yet. Run `docker compose up -d --force-recreate flarum` and then
+  `scripts/setup-forum.sh`. The current `install-extensions.sh` already does this itself.
+- **Extensions "not installed"** after a restart or update: `docker compose up -d
+  --force-recreate flarum`. On start, the list from `flarum/extensions.txt` is
+  restored and reinstalled (takes 1–2 minutes). Then run `scripts/setup-forum.sh`.
+  To restart the forum, use `docker compose up -d --force-recreate flarum` rather than
+  `docker compose restart`.
+- **"circular_dependencies"** when turning an extension on or off (in the admin or via
+  `setup-forum.sh`): two extensions list each other as a dependency, and then
+  Flarum 1.8 rejects every change. Known case: FoF SEO 3.x and FoF Sitemap; that's why `flarum/extensions.txt`
+  pins SEO to 2.x. Run `scripts/install-extensions.sh` and then
+  `scripts/setup-forum.sh`.
+- **Extensions turn themselves off again after one or two minutes:** the old
+  `cron` container is still running. It doesn't have the extensions, so Flarum removes them from the list of
+  enabled extensions on every scheduler run. `docker compose up -d --remove-orphans`
+  removes it; then run `scripts/setup-forum.sh`. The scheduler is now started by `flarum/scheduler.sh`
+  inside the forum container.
+- **Host with little RAM** (the kernel kills processes, visible with `dmesg -T | grep -i "killed process"`):
+  set `FORUM_OOM_SCORE_ADJ=-500` in `.env` and run `docker compose up -d`. The kernel then kills
+  other containers first instead of the forum and the database. If a container then fails to start with
+  "Permission denied", set the value back to `0`.

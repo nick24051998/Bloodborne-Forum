@@ -1,6 +1,6 @@
 ---
-// Erzeugt /install/, /guide/, /changelog/, /contact/, /privacy/ aus src/texts/*.md
-// (faq.md hat eine eigene Seite, showcase.md liefert nur die Texte der Galerie auf der Startseite)
+// Generates /install/, /guide/, /changelog/, /contact/, /privacy/ from src/texts/*.md
+// (faq.md has its own page, showcase.md only supplies the texts of the gallery on the home page)
 import Page from '../layouts/Page.astro';
 import HardwareCheck from '../components/HardwareCheck.astro';
 import Releases from '../components/Releases.astro';
@@ -17,9 +17,9 @@ export function getStaticPaths() {
 const { mod } = Astro.props;
 const { frontmatter } = mod;
 
-// Bausteine im Text: <div data-hwcheck></div> (install.md), <div data-release-latest></div> und
-// <div data-release-list></div> (changelog.md). Der Text wird dort geteilt und der Baustein eingesetzt.
-// Links auf "#latest-download" werden zur ZIP der neuesten Version.
+// Building blocks in the text: <div data-hwcheck></div> (install.md), <div data-release-latest></div> and
+// <div data-release-list></div> (changelog.md). The text is split there and the block is inserted.
+// Links to "#latest-download" become the ZIP of the latest version.
 const html = withDownloadLinks(await mod.compiledContent());
 const parts = html.split(/<div data-([a-z-]+)><\/div>/);
 ---

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Installiert die Flarum-Erweiterungen aus flarum/extensions.txt (+ optional
-# flarum/extensions.local.txt) per Composer im laufenden Container.
+# Installs the Flarum extensions from flarum/extensions.txt (+ optionally
+# flarum/extensions.local.txt) via Composer in the running container.
 #
-#   scripts/install-extensions.sh                        # Erweiterungen aus der Liste
+#   scripts/install-extensions.sh                        # extensions from the list
 #   scripts/install-extensions.sh --with-user-directory  # + fof/user-directory
 #
-# Bei jedem Container-Start stellt flarum/restore-extensions.sh die Liste wieder her,
-# und das Image installiert sie neu. Aktiviert werden sie von scripts/setup-forum.sh.
+# On every container start flarum/restore-extensions.sh restores the list,
+# and the image reinstalls them. They are activated by scripts/setup-forum.sh.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -46,8 +46,8 @@ wait_for_flarum
 echo "Installiere: ${EXTENSIONS[*]}"
 docker compose exec -T flarum extension require "${EXTENSIONS[@]}"
 
-# Neu ERSTELLEN statt neu starten: PHP-FPM lädt dann die neuen Dateien, und das Image
-# installiert die Liste frisch. (Ein reines "restart" bringt die Liste des Images durcheinander.)
+# RECREATE instead of restart: PHP-FPM then loads the new files, and the image
+# installs the list fresh. (A plain "restart" messes up the image's list.)
 echo
 echo "Erstelle den Flarum-Container neu, damit die Erweiterungen geladen werden …"
 docker compose up -d --force-recreate flarum

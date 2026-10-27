@@ -1,6 +1,6 @@
 ---
-// Galerie der Startseite: Kacheln in unterschiedlichen Größen, Bilder aus src/assets/showcase/,
-// Texte und Reihenfolge aus src/texts/showcase.md. Klick auf ein Bild öffnet es groß (Pfeiltasten blättern).
+// Gallery on the home page: tiles in different sizes, images from src/assets/showcase/,
+// texts and order from src/texts/showcase.md. Clicking an image opens it large (arrow keys page through).
 import { Image, getImage } from 'astro:assets';
 import Icon from './Icon.astro';
 import { SITE } from '../../site.config.mjs';
@@ -9,14 +9,14 @@ import { frontmatter } from '../texts/showcase.md';
 const files = import.meta.glob('../assets/showcase/*.{webp,jpg,jpeg,png}', { eager: true });
 const byName = Object.fromEntries(Object.entries(files).map(([path, mod]) => [path.split('/').pop(), mod.default]));
 
-// Kachelmuster: groß, klein, klein, breit, klein, breit, klein (füllt auf breiten Bildschirmen 4 × 3)
+// Tile pattern: large, small, small, wide, small, wide, small (fills 4 × 3 on wide screens)
 const pattern = ['large', 'small', 'small', 'wide', 'small', 'wide', 'small'];
 
 const items = await Promise.all(
   (frontmatter.items ?? []).map(async (item, i) => {
     const src = item.image ? byName[item.image] : undefined;
     if (item.image && !src) console.warn(`Showcase: Bild ${item.image} fehlt in src/assets/showcase/`);
-    // Großansicht in voller Auflösung bis 3440 px (Ultrawide), mit hoher Qualität, damit beim Reinzoomen nichts verschwimmt
+    // Large view at full resolution up to 3440 px (ultrawide), in high quality so nothing gets blurry when zooming in
     const full = src ? await getImage({ src, width: Math.min(src.width, 3440), format: 'webp', quality: 90 }) : undefined;
     return { ...item, size: pattern[i % pattern.length], src, full: full?.src };
   }),
@@ -99,8 +99,8 @@ const items = await Promise.all(
     const zoomOut = dialog.querySelector<HTMLButtonElement>('.lightbox-zoom-out')!;
     let current = 0;
 
-    // Zoom: das Bild wird per transform vergrößert (Ursprung oben links) und im Rahmen verschoben.
-    // scale 1 = eingepasst; höchste Stufe = volle Auflösung der Datei (mindestens 2×, höchstens 6×).
+    // Zoom: the image is enlarged via transform (origin top left) and moved within the frame.
+    // scale 1 = fitted; highest level = full resolution of the file (at least 2×, at most 6×).
     let scale = 1;
     let x = 0;
     let y = 0;
@@ -121,7 +121,7 @@ const items = await Promise.all(
       zoomOut.disabled = scale <= 1;
       zoomIn.disabled = scale >= maxScale() - 0.01;
     };
-    // Zoomt so, dass der Punkt (px, py) im Rahmen an derselben Stelle bleibt
+    // Zooms so that the point (px, py) in the frame stays at the same spot
     const zoomTo = (target: number, px = stage.clientWidth / 2, py = stage.clientHeight / 2) => {
       const next = Math.min(maxScale(), Math.max(1, target));
       x = px - (px - x) * (next / scale);
@@ -136,7 +136,7 @@ const items = await Promise.all(
       return [e.clientX - r.left, e.clientY - r.top] as const;
     };
 
-    // Ziehen verschiebt den Ausschnitt, zwei Finger zoomen
+    // Dragging moves the visible area, two fingers zoom
     const pointers = new Map<number, { x: number; y: number }>();
     let moved = 0;
     let pinchStart = 0;
@@ -175,7 +175,7 @@ const items = await Promise.all(
     };
     stage.addEventListener('pointerup', release);
     stage.addEventListener('pointercancel', release);
-    // Klick ohne Ziehen: an dieser Stelle auf volle Auflösung, beim nächsten Klick zurück
+    // Click without dragging: zoom to full resolution at that spot, the next click zooms back out
     stage.addEventListener('click', (e) => {
       if (moved > 6) return;
       if (scale > 1) reset();
@@ -212,7 +212,7 @@ const items = await Promise.all(
       if (e.key === '0') reset();
     });
     dialog.addEventListener('close', reset);
-    // Klick neben das Bild schließt
+    // Clicking next to the image closes it
     dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
   }
 </script>

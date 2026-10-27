@@ -1,6 +1,6 @@
-// Supermedos Projekte für die Seite /supermedo/ und den Hinweis auf der Startseite.
-// Quellen: nativeretro.com (seine Seite mit allen Ports) und github.com/Supermedo. Keine Zahlen (Downloads,
-// Anzahl Ports), die veralten; neue Ports hier ergänzen. "code" ist der kurze Name im Terminal-Stil (max. 12 Zeichen).
+// Supermedo's projects for the /supermedo/ page and the note on the home page.
+// Sources: nativeretro.com (his page with all ports) and github.com/Supermedo. No numbers (downloads,
+// number of ports) that would go stale; add new ports here. "code" is the short terminal-style name (max. 12 characters).
 
 export const NATIVERETRO = {
   url: 'https://nativeretro.com/',
@@ -11,7 +11,7 @@ export const NATIVERETRO = {
 const game = (slug) => `${NATIVERETRO.url}game/${slug}`;
 const repo = (name) => `https://github.com/Supermedo/${name}`;
 
-// Was der Monitor oben auf der Seite zeigt (nur Schmuck, die Karten darunter tragen den Inhalt)
+// What the monitor at the top of the page shows (decoration only, the cards below carry the content)
 export const screen = [
   ['BLOODBORNE', 'PS4', 2015],
   ['UNCHARTED', 'PS4', 2015],
@@ -22,7 +22,7 @@ export const screen = [
   ['KEEN1-7', 'DOS', 1990],
 ];
 
-// Große Ports: eigene Karte mit Text und Links. "here" markiert bbport (diese Seite).
+// Major ports: their own card with text and links. "here" marks bbport (this site).
 export const ports = [
   {
     code: 'BLOODBORNE',
@@ -63,7 +63,7 @@ export const ports = [
   },
 ];
 
-// Klassiker: als Verzeichnisliste im Terminal-Stil, jede Zeile führt zu ihrer Seite bei NativeRetro
+// Classics: as a directory listing in terminal style, each line leads to its page on NativeRetro
 export const classics = [
   { code: 'BLACKTHORNE', title: 'Blackthorne', year: 1994, studio: 'Blizzard Entertainment', href: game('blackthorne') },
   { code: 'POP2', title: 'Prince of Persia 2', year: 1993, studio: 'Broderbund', href: game('prince-of-persia-2'), source: repo('prince-of-persia-2-windows') },
@@ -78,7 +78,7 @@ export const classics = [
   { code: 'KEEN7', title: 'Commander Keen 7', year: 2006, href: game('commander-keen-7') },
 ];
 
-// Werkzeuge: keine Ports, aber ebenfalls von ihm
+// Tools: not ports, but also by him
 export const tools = [
   {
     title: 'KytyPS5 – SuperMedo version',

@@ -1,15 +1,15 @@
 ---
 eyebrow: Showcase
 heading: Made by our hunters
-# Text mit # in Anführungszeichen setzen, sonst liest YAML den Rest als Kommentar
+# Put text containing # in quotation marks, otherwise YAML reads the rest as a comment
 intro: "Screenshots, mods and setups from the community. Want yours here? Share it in the forum or in #media on Discord and tell us how you'd like to be credited."
-# Galerie auf der Startseite (src/components/Showcase.astro).
-# Bilder nach src/assets/showcase/ legen (WebP oder JPG, mindestens 1600 px breit) und hier bei "image"
-# den Dateinamen eintragen. Ohne Bild erscheint ein Platzhalter mit "Image coming soon".
-# Die Reihenfolge bestimmt die Kacheln: 1 groß, 2 und 3 klein, 4 breit, 5 klein, 6 breit, 7 klein
-# (ab dem 8. Eintrag wiederholt sich das Muster).
-# Nur Bilder mit Erlaubnis der Urheber (credit = Name, wie sie genannt werden möchten); keine offiziellen
-# Artworks oder Werbebilder des Spiels.
+# Gallery on the home page (src/components/Showcase.astro).
+# Put images in src/assets/showcase/ (WebP or JPG, at least 1600 px wide) and enter the file name
+# under "image" here. Without an image, a placeholder with "Image coming soon" appears.
+# The order determines the tiles: 1 large, 2 and 3 small, 4 wide, 5 small, 6 wide, 7 small
+# (from the 8th entry on, the pattern repeats).
+# Only images with the creators' permission (credit = name, as they want to be credited); no official
+# artwork or promotional images of the game.
 items:
   - title: Yharnam in 4K
     text: Max settings with DLSS Quality and frame generation, well above 60 FPS.

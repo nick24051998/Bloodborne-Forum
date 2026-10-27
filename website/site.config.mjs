@@ -1,44 +1,44 @@
-// Zentrale Einstellungen der Website. Alles, was mit "TODO" markiert ist, bitte ersetzen.
+// Central settings of the website. Please replace everything marked "TODO".
 export const SITE = {
-  // Name des Projekts (Überschrift der Startseite, Logo, Fußzeile)
+  // Name of the project (home page heading, logo, footer)
   name: 'Bloodborne PC Port',
-  // Name für Suchmaschinen: steht in jedem Seitentitel und ist der Seitenname bei Google (WebSite-Daten).
-  // "bbport" nennt der Port sich selbst ("Bloodborne (bbport) for Windows") und ist die Domain.
+  // Name for search engines: appears in every page title and is the site name on Google (WebSite data).
+  // "bbport" is what the port calls itself ("Bloodborne (bbport) for Windows") and is the domain.
   brand: 'bbport',
   alternateNames: ['bbport.de', 'Bloodborne PC Port', 'Bloodborne for Windows'],
 
-  // Adresse der Website (GitHub Pages mit eigener Domain, siehe README).
-  // Ohne eigene Domain: url: 'https://nick24051998.github.io', base: '/Bloodborne-Forum/'
+  // Address of the website (GitHub Pages with a custom domain, see README).
+  // Without a custom domain: url: 'https://nick24051998.github.io', base: '/Bloodborne-Forum/'
   url: 'https://bbport.de',
   base: '/',
 
-  // Standard-Beschreibung für Google (max. ~155 Zeichen)
+  // Default description for Google (max. ~155 characters)
   description:
     'bbport.de is the community hub for bbport, the native Bloodborne PC port for Windows by Supermedo: download, install guide, FAQ and forum.',
 
-  // Links – leer lassen, solange es sie noch nicht gibt (Buttons/Menüpunkte werden dann ausgeblendet)
+  // Links: leave empty while they don't exist yet (the buttons/menu items are then hidden)
   forumUrl: 'https://forum.bbport.de',
-  discordUrl: 'https://discord.gg/yTMG8c4Bqm', // dauerhafte Einladung, läuft nicht ab
-  downloadUrl: 'https://github.com/Supermedo/bloodborne_pc/releases/latest', // immer das neueste Release
-  githubUrl: '', // optional: ein eigenes GitHub-Profil der Community (nicht das des Ports)
+  discordUrl: 'https://discord.gg/yTMG8c4Bqm', // permanent invite, does not expire
+  downloadUrl: 'https://github.com/Supermedo/bloodborne_pc/releases/latest', // always the latest release
+  githubUrl: '', // optional: a GitHub profile of the community itself (not the port's)
 
-  // Der Port, um den es hier geht: Bloodborne for Windows von Supermedo. Steht auf der Startseite und in der
-  // Fußzeile, damit klar ist, welcher Port gemeint ist und wo es ihn gibt.
+  // The port this site is about: Bloodborne for Windows by Supermedo. Shown on the home page and in the
+  // footer, so it is clear which port is meant and where to get it.
   portName: 'Bloodborne for Windows',
   portAuthor: 'Supermedo',
   portAuthorUrl: 'https://github.com/Supermedo',
   portRepoUrl: 'https://github.com/Supermedo/bloodborne_pc',
 
-  // Kontakt für Fragen, Löschanfragen und Datenschutz (Fußzeile). Steht außerdem in
-  // src/texts/contact.md, src/texts/privacy.md und content/footer.html (Forum): bei Änderung dort mitziehen.
+  // Contact for questions, deletion requests and privacy (footer). Also appears in
+  // src/texts/contact.md, src/texts/privacy.md and content/footer.html (forum): update those too when changing it.
   contactEmail: 'bbportpc@gmail.com',
 
-  // Online-Server, auf dem die Community spielt. Die Live-Zahlen auf der Startseite holt der
-  // Browser über das Forum (forumUrl + '/api/hunters-dream', siehe flarum/extend.php).
-  // Vorerst nur im Forum; zum Einschalten auf der Website 'https://thehuntersdream.com' eintragen.
+  // Online server the community plays on. The live numbers on the home page are fetched by the
+  // browser via the forum (forumUrl + '/api/hunters-dream', see flarum/extend.php).
+  // Forum only for now; to switch it on for the website, enter 'https://thehuntersdream.com'.
   huntersDreamUrl: '',
 
-  // Supermedos eigener Online-Server (SuperMedo Server). Die Seite /server/ (Menüpunkt "Server") holt seine
-  // Live-Zahlen direkt von hier (nur Summen, keine Namen); siehe src/texts/privacy.md.
+  // Supermedo's own online server (SuperMedo Server). The /server/ page (menu item "Server") loads its live
+  // numbers straight from here (totals only, no names); see src/texts/privacy.md.
   superMedoStatsUrl: 'https://game.supermedo.com/public/stats',
 };

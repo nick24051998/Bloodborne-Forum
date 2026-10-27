@@ -6,10 +6,10 @@ import { SITE } from '../../site.config.mjs';
 
 import { absolute } from '../lib/url.js';
 
-// Jede Frage hat eine feste Sprungmarke (id in faq.md), z. B. bbport.de/faq/#code-3: Links aus Discord öffnen
-// genau diese Frage (Skript in Base.astro), das # neben der Frage kopiert den Link.
-// Übersicht: Fragen nach Themen (groups in faq.md, Sprungmarke #topic-<id>), oben Suche und Themenleiste; alle
-// Fragen sind zu, bis man sie öffnet oder sucht.
+// Every question has a fixed anchor (id in faq.md), e.g. bbport.de/faq/#code-3: links from Discord open
+// exactly that question (script in Base.astro), the # next to the question copies the link.
+// Overview: questions by topic (groups in faq.md, anchor #topic-<id>), search and topic bar at the top; all
+// questions are collapsed until you open one or search.
 const questions = (frontmatter.questions ?? []).map(({ id, group, q, a }) => ({ id, group, q, a: withDownloadLinks(a) }));
 const groups = (frontmatter.groups ?? [])
   .map((g) => ({ ...g, questions: questions.filter((q) => q.group === g.id) }))
@@ -17,7 +17,7 @@ const groups = (frontmatter.groups ?? [])
 const strip = (html) => html.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
 const forumSearch = SITE.forumUrl ? `${SITE.forumUrl}/t/known-fixes` : '';
 
-// Strukturierte Daten für Google (FAQPage)
+// Structured data for Google (FAQPage)
 const faqLd = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -68,8 +68,8 @@ const faqLd = {
   </div>
 
   <script>
-    // Suche in Fragen und Antworten: blendet nicht passende Fragen und leere Themen aus, öffnet bei wenigen Treffern die
-    // Antworten. Ohne Treffer: Hinweis auf Known Fixes im Forum (mit dem Suchbegriff).
+    // Search in questions and answers: hides non-matching questions and empty topics, opens the answers when there
+    // are few hits. Without hits: a pointer to Known Fixes in the forum (with the search term).
     const input = document.querySelector<HTMLInputElement>('[data-faq-search]');
     const status = document.querySelector<HTMLElement>('[data-faq-status]');
     const empty = document.querySelector<HTMLElement>('[data-faq-empty]');

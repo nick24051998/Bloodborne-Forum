@@ -1,12 +1,12 @@
 ---
-// SuperMedo Server: Supermedos eigener Online-Server (Koop-Glocken, Nachrichten, Blutflecken). Die
-// Live-Zahlen holt der Browser direkt vom Server (SITE.superMedoStatsUrl, nur Summen, keine Namen).
+// SuperMedo Server: Supermedo's own online server (co-op bells, messages, bloodstains). The browser loads
+// the live numbers straight from the server (SITE.superMedoStatsUrl, totals only, no names).
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import { SITE } from '../../site.config.mjs';
 import { link } from '../lib/url.js';
 
-// Die drei Glocken des Spiels, wie der Server sie zählt
+// The game's three bells, as the server counts them
 const bells = [
   { field: 'helpers', name: 'Small Resonant Bells', text: 'Hunters waiting to be called into another world to help.' },
   { field: 'hosts', name: 'Beckoning Bells', text: 'Hosts looking for help right now.' },
@@ -94,7 +94,7 @@ const bells = [
   </div>
 
   <script>
-    // Holt die Summen vom Server; ohne Antwort bleibt alles bei "–" und der Status sagt es
+    // Loads the totals from the server; without an answer everything stays at "–" and the status says so
     const watch = document.querySelector<HTMLElement>('.sm-watch');
     if (watch) {
       const field = (name: string) => document.querySelector<HTMLElement>(`[data-field="${name}"]`)!;
@@ -107,7 +107,7 @@ const bells = [
         closed: 'Not right now',
       };
 
-      // Ein Satz über die Nacht, aus den Zahlen
+      // One sentence about the night, from the numbers
       const tonight = (d: any) => {
         if (!d.online) return 'The night is still: no hunters are awake on the server right now.';
         const parts = [plural(d.online, 'hunter is awake', 'hunters are awake')];
@@ -168,7 +168,7 @@ const bells = [
       };
 
       load();
-      // Solange die Seite sichtbar ist, jede Minute auffrischen (der Server rechnet höchstens alle 30 s neu)
+      // Refresh every minute while the page is visible (the server works the numbers out at most every 30 s)
       setInterval(() => {
         if (document.visibilityState === 'visible') load();
       }, 60000);

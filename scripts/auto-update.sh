@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
-# Holt neue Commits vom Upstream-Branch (in der Regel origin/main) und spielt sie ins Forum ein.
-# Läuft per systemd-Timer alle 5 Minuten; einrichten mit scripts/install-auto-update.sh.
+# Fetches new commits from the upstream branch (usually origin/main) and applies them to the forum.
+# Runs from a systemd timer every 5 minutes; set it up with scripts/install-auto-update.sh.
 #
-#   scripts/auto-update.sh           nur wenn es neue Commits gibt
-#   scripts/auto-update.sh --force   Einrichtung auch ohne neue Commits erneut anwenden
+#   scripts/auto-update.sh           only if there are new commits
+#   scripts/auto-update.sh --force   re-apply the setup even without new commits
 #
-# - Nur Fast-Forward: lokale Änderungen werden nie überschrieben. Geht das nicht, bricht es ab
-#   und meldet sich.
-# - Ändern sich nur Website oder Doku (website/, .github/, README und die .md-Dateien in media/),
-#   ist im Forum nichts zu tun. content/*.md sind Forum-Inhalte und zählen nicht als Doku.
-# - Ändert sich die Container-Konfiguration (docker-compose.yml, Erweiterungsliste, Start-Skripte),
-#   macht es zuerst ein Backup (./backups) und erstellt den Container dann neu.
-# - Meldung nach Discord, wenn AUTO_UPDATE_DISCORD_WEBHOOK in .env gesetzt ist (Webhook-URL eines
-#   Kanals, z. B. eines Admin-Kanals).
-# - Schlägt ein Update fehl, geht der Code auf den alten Stand zurück und das Skript versucht es erst
-#   wieder, wenn ein neuer Commit kommt oder es mit --force gestartet wird (kein Fehler alle 5 Minuten).
+# - Fast-forward only: local changes are never overwritten. If that is not possible, it aborts
+#   and reports it.
+# - If only the website or docs change (website/, .github/, README and the .md files in media/),
+#   there is nothing to do in the forum. content/*.md are forum content and do not count as docs.
+# - If the container configuration changes (docker-compose.yml, extension list, start scripts),
+#   it first makes a backup (./backups) and then recreates the container.
+# - Reports to Discord if AUTO_UPDATE_DISCORD_WEBHOOK is set in .env (webhook URL of a
+#   channel, e.g. an admin channel).
+# - If an update fails, the code is rolled back to the old state and the script only tries again
+#   when a new commit arrives or it is started with --force (no error every 5 minutes).
 # Log: journalctl -u bbforum-auto-update -n 100
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -32,7 +32,7 @@ upstream=""
 
 on_error() {
   trap - ERR
-  # Zurück auf den alten Stand, damit der nächste Versuch das ganze Update wiederholt
+  # Back to the old state so that the next attempt repeats the whole update
   [[ -n $old ]] && git reset --quiet --keep "$old" || true
   [[ -n $upstream ]] && echo "$upstream" > "$failed_marker"
   notify "❌ Forum-Update fehlgeschlagen bei: $step. Log: journalctl -u bbforum-auto-update -n 100 · erneut versuchen: scripts/auto-update.sh --force"
@@ -64,7 +64,7 @@ fi
 new=$(git rev-parse HEAD)
 changed=$(git diff --name-only "$old" "$new")
 
-# Was muss passieren?
+# What needs to happen?
 recreate_compose=false
 recreate_flarum=false
 grep -qx 'docker-compose.yml' <<<"$changed" && recreate_compose=true

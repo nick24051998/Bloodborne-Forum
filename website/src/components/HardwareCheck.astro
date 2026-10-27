@@ -1,7 +1,7 @@
 ---
-// "Will it run on my PC?" im Install Guide (Markierung <div data-hwcheck></div> in src/texts/install.md):
-// Grafikkarte, Prozessor und Arbeitsspeicher wählen, Einschätzung nach den Regeln in src/data/hardware.js.
-// Läuft nur im Browser; gespeichert oder gesendet wird nichts. Die Auswahl steht in der Adresse (zum Teilen).
+// "Will it run on my PC?" in the Install Guide (marker <div data-hwcheck></div> in src/texts/install.md):
+// pick graphics card, processor and memory; the verdict follows the rules in src/data/hardware.js.
+// Runs in the browser only; nothing is stored or sent. The selection is kept in the address (for sharing).
 import { gpus, cpuLines, ramOptions } from '../data/hardware.js';
 import { SITE } from '../../site.config.mjs';
 
@@ -87,7 +87,7 @@ const cpuBrands = ['Intel', 'AMD'].map((brand) => ({ brand, lines: cpuLines.filt
       return node;
     };
 
-    // Generationen zur gewählten Prozessor-Serie
+    // Generations for the selected processor series
     const fillGens = (selected = '') => {
       const line = cpuLines.find((l) => l.id === cpuSel.value);
       genSel.replaceChildren();
@@ -117,7 +117,7 @@ const cpuBrands = ['Intel', 'AMD'].map((brand) => ({ brand, lines: cpuLines.filt
       const gen = line?.gens.find((g) => g.id === genSel.value);
       const ram = Number(ramSel.value);
 
-      // Auswahl in die Adresse, damit man das Ergebnis teilen kann (z. B. in einer Hilfe-Anfrage im Forum)
+      // Put the selection in the address so the result can be shared (e.g. in a help request in the forum)
       const params = new URLSearchParams();
       if (gpu) params.set('gpu', gpu.id);
       if (line) params.set('cpu', line.id);
@@ -185,7 +185,7 @@ const cpuBrands = ['Intel', 'AMD'].map((brand) => ({ brand, lines: cpuLines.filt
       result.append(foot);
     };
 
-    // Grafikkarte erkennen: nur auf Klick, der Name bleibt im Browser
+    // Detect the graphics card: on click only, the name stays in the browser
     const rendererName = () => {
       try {
         const gl = document.createElement('canvas').getContext('webgl');
@@ -201,8 +201,8 @@ const cpuBrands = ['Intel', 'AMD'].map((brand) => ({ brand, lines: cpuLines.filt
       const m = name.match(/^ANGLE \([^,]*, (.*?)(?: \(0x[0-9a-f]+\))?(?: Direct3D[^,]*)?, [^,]*\)$/i);
       return (m ? m[1] : name).trim();
     };
-    // Browser mit Fingerprinting-Schutz nennen statt der Karte nur sich selbst (Brave: "Brave",
-    // Firefox mit resistFingerprinting: "Mozilla", Safari: "Apple GPU")
+    // Browsers with fingerprinting protection report only themselves instead of the card (Brave: "Brave",
+    // Firefox with resistFingerprinting: "Mozilla", Safari: "Apple GPU")
     const isMasked = (name: string) => /^(brave|mozilla|apple gpu|webkit webgl)$/i.test(shortName(name));
     detect.hidden = !document.createElement('canvas').getContext('webgl');
     detect.addEventListener('click', () => {
@@ -228,7 +228,7 @@ const cpuBrands = ['Intel', 'AMD'].map((brand) => ({ brand, lines: cpuLines.filt
     genSel.addEventListener('change', render);
     ramSel.addEventListener('change', render);
 
-    // Auswahl aus einem geteilten Link übernehmen
+    // Take over the selection from a shared link
     const q = new URLSearchParams(location.search);
     if (gpus.some((g) => g.id === q.get('gpu'))) gpuSel.value = q.get('gpu')!;
     if (cpuLines.some((l) => l.id === q.get('cpu'))) cpuSel.value = q.get('cpu')!;

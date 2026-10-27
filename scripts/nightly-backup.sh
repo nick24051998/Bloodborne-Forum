@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Nächtliches Backup (per systemd-Timer, einrichten mit scripts/install-backup.sh):
-# scripts/backup.sh in BACKUP_DIR, danach prüfen, ob sich die Dateien lesen lassen, und Backups
-# löschen, die älter als BACKUP_KEEP_DAYS sind. Fehler meldet es nach Discord
-# (AUTO_UPDATE_DISCORD_WEBHOOK in .env), Erfolg nur einmal pro Woche (montags).
+# Nightly backup (via systemd timer, set up with scripts/install-backup.sh):
+# runs scripts/backup.sh into BACKUP_DIR, then checks that the files can be read, and deletes backups
+# older than BACKUP_KEEP_DAYS. Failures are reported to Discord
+# (AUTO_UPDATE_DISCORD_WEBHOOK in .env), success only once a week (Mondays).
 #
 #   scripts/nightly-backup.sh
 #
-# Einstellungen in .env: BACKUP_DIR (Standard /opt/backups/bloodborne-forum), BACKUP_KEEP_DAYS (14).
-# Wichtig: Ein Backup auf derselben Maschine schützt nicht vor deren Ausfall. Den Ordner zusätzlich
-# auf einen anderen Rechner kopieren (siehe README, Backup).
+# Settings in .env: BACKUP_DIR (default /opt/backups/bloodborne-forum), BACKUP_KEEP_DAYS (14).
+# Important: a backup on the same machine does not protect against that machine failing. Also copy the
+# folder to another computer (see README, Backup).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -30,7 +30,7 @@ step="Prüfung"
 db=$(ls -t "$dest"/db-*.sql.gz | head -1)
 data=$(ls -t "$dest"/flarum-data-*.tar.gz | head -1)
 gzip -t "$db"
-# grep -q hört beim ersten Treffer auf; ohne pipefail zählt nur sein Ergebnis, nicht gzips SIGPIPE
+# grep -q stops at the first match; without pipefail only its result counts, not gzip's SIGPIPE
 (set +o pipefail; gzip -cd "$db" | grep -q 'CREATE TABLE')
 tar -tzf "$data" >/dev/null
 

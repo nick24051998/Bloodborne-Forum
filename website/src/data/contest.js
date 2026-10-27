@@ -1,5 +1,5 @@
-// Logo-Contest: große Ankündigung auf der Startseite, führt auf die Seite im Forum (forum.bbport.de/logo-contest).
-// Die Daten gelten auch im Forum (CONTEST_SUBMIT_UNTIL / CONTEST_VOTE_UNTIL in .env, Standard wie hier): beide mitziehen.
+// Logo contest: big announcement on the home page, links to the page in the forum (forum.bbport.de/logo-contest).
+// The dates also apply in the forum (CONTEST_SUBMIT_UNTIL / CONTEST_VOTE_UNTIL in .env, default as here): update both.
 import { SITE } from '../../site.config.mjs';
 
 export const CONTEST = {
@@ -16,5 +16,5 @@ export const contestDates = {
   vote: day(CONTEST.voteUntil),
 };
 
-// Gezeigt bis drei Tage nach dem Ende der Abstimmung (Stand beim Bauen der Seite)
+// Shown until three days after voting ends (as of the time the site is built)
 export const contestRunning = Boolean(CONTEST.page) && Date.now() < CONTEST.voteUntil.getTime() + 3 * 86400000;

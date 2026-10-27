@@ -1,9 +1,10 @@
-// /release.json: neueste Version auf der Website. Der Workflow vergleicht sie mit GitHub (neue Version → bauen, melden).
-import { latest } from '../lib/releases.js';
+// /release.json: latest version on the website. The workflow compares it with GitHub (new version → build, report;
+// download count at the next step → build).
+import { latest, downloads } from '../lib/releases.js';
 
 export function GET() {
   const body = latest
-    ? { version: latest.version, tag: latest.tag, date: latest.date, url: latest.url, download: latest.download, sha256: latest.sha256 ?? null }
+    ? { version: latest.version, tag: latest.tag, date: latest.date, url: latest.url, download: latest.download, sha256: latest.sha256 ?? null, downloads }
     : {};
   return new Response(JSON.stringify(body), { headers: { 'Content-Type': 'application/json' } });
 }

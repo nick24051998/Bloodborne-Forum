@@ -1,11 +1,11 @@
-// Grundprüfungen für jede Seite der Website. Die Seitenliste kommt aus der Sitemap, neue Seiten werden also
-// automatisch mitgeprüft.
+// Basic checks for every page of the website. The page list comes from the sitemap, so new pages are
+// checked automatically.
 import { test, expect } from '@playwright/test';
 import { SITE } from '../site.config.mjs';
 
 const SITE_URL = SITE.url.replace(/\/$/, '');
 
-// Pfade aus sitemap-index.xml → sitemap-*.xml (dort stehen absolute Adressen mit SITE.url)
+// Paths from sitemap-index.xml → sitemap-*.xml (those contain absolute addresses with SITE.url)
 async function sitemapPaths(request) {
   const index = await (await request.get('/sitemap-index.xml')).text();
   const maps = [...index.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]).pathname);
@@ -17,13 +17,13 @@ async function sitemapPaths(request) {
   return [...new Set(paths)];
 }
 
-// Sammelt Fehler, während eine Seite lädt: Konsole, Skriptfehler, kaputte Anfragen an die eigene Seite
+// Collects errors while a page loads: console, script errors, broken requests to the site itself
 function watchErrors(page) {
   const errors = [];
   page.on('console', (msg) => { if (msg.type() === 'error') errors.push(`console: ${msg.text()}`); });
   page.on('pageerror', (err) => errors.push(`script: ${err.message}`));
   page.on('requestfailed', (req) => {
-    // ERR_ABORTED: Anfrage der vorigen Seite, beim Seitenwechsel abgebrochen
+    // ERR_ABORTED: request of the previous page, aborted on navigation
     const reason = req.failure()?.errorText ?? '';
     if (new URL(req.url()).hostname === '127.0.0.1' && !reason.includes('ERR_ABORTED')) {
       errors.push(`request failed: ${req.url()} (${reason})`);
@@ -36,7 +36,7 @@ function watchErrors(page) {
   return errors;
 }
 
-test('Sitemap und robots.txt', async ({ request }) => {
+test('Sitemap and robots.txt', async ({ request }) => {
   const paths = await sitemapPaths(request);
   expect(paths, 'Sitemap enthält die Hauptseiten').toEqual(expect.arrayContaining(['/', '/install/', '/faq/']));
   expect(paths.some((p) => p.includes('404')), '404 gehört nicht in die Sitemap').toBe(false);
@@ -46,13 +46,13 @@ test('Sitemap und robots.txt', async ({ request }) => {
   expect(await robots.text()).toContain(`Sitemap: ${SITE_URL}/sitemap-index.xml`);
 });
 
-test('404-Seite', async ({ page }) => {
+test('404 page', async ({ page }) => {
   const res = await page.goto('/gibt-es-nicht/');
   expect(res.status()).toBe(404);
   await expect(page.locator('h1')).toHaveText('You died.');
 });
 
-test('Alle Seiten laden fehlerfrei', async ({ page, request }) => {
+test('All pages load without errors', async ({ page, request }) => {
   const paths = await sitemapPaths(request);
   for (const path of paths) {
     await test.step(path, async () => {
@@ -60,20 +60,20 @@ test('Alle Seiten laden fehlerfrei', async ({ page, request }) => {
       const res = await page.goto(path, { waitUntil: 'networkidle' });
       expect(res.status(), `${path} antwortet`).toBe(200);
 
-      // Titel, Beschreibung, Canonical auf die echte Domain
+      // Title, description, canonical pointing to the real domain
       expect(await page.title(), `${path}: Titel`).not.toBe('');
       await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /^.{20,}$/s);
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${SITE_URL}${path}`);
       await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', new RegExp(`^${SITE_URL}/`));
 
-      // Keine alte Adresse mehr im Quelltext
+      // No old address left in the source
       expect(await page.content(), `${path}: alte nrnetworks-Adresse`).not.toContain('nrnetworks.de');
 
-      // Nichts ragt seitlich über den Rand (wichtig auf dem Handy)
+      // Nothing sticks out sideways past the edge (important on phones)
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       expect(overflow, `${path}: seitliches Scrollen`).toBeLessThanOrEqual(1);
 
-      // Alle Bilder vorhanden, auch die erst beim Scrollen geladenen
+      // All images present, including those that only load on scrolling
       const images = await page.$$eval('img', (imgs) => imgs.map((i) => ({ src: i.currentSrc || i.getAttribute('src'), alt: i.getAttribute('alt') })));
       for (const img of images) {
         expect(img.alt, `${path}: Bild ohne alt-Attribut (${img.src})`).not.toBeNull();
@@ -87,7 +87,7 @@ test('Alle Seiten laden fehlerfrei', async ({ page, request }) => {
   }
 });
 
-test('Interne Links führen nirgends ins Leere', async ({ page, request }) => {
+test('Internal links never lead nowhere', async ({ page, request }) => {
   const paths = await sitemapPaths(request);
   const targets = new Set();
   for (const path of paths) {

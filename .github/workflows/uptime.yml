@@ -1,7 +1,7 @@
-# Ausfall-Wächter: prüft alle 10 Minuten, ob Website und Forum antworten (scripts/uptime-check.sh).
-# Meldet nur Wechsel in Discord (ausgefallen / wieder da), wenn das Secret DISCORD_STATUS_WEBHOOK gesetzt ist
-# (Repo → Settings → Secrets and variables → Actions; Webhook-URL eines Discord-Kanals, z. B. für Admins).
-# Der letzte Zustand liegt im Actions-Cache; die Läufe bleiben grün, damit GitHub keine Mail pro Lauf schickt.
+# Outage watchdog: every 10 minutes it checks whether the website and forum respond (scripts/uptime-check.sh).
+# Reports only changes to Discord (down / back up) if the secret DISCORD_STATUS_WEBHOOK is set
+# (Repo → Settings → Secrets and variables → Actions; webhook URL of a Discord channel, e.g. for admins).
+# The last state is kept in the Actions cache; runs stay green so that GitHub doesn't send an email per run.
 name: Uptime
 
 on:
@@ -30,13 +30,13 @@ jobs:
           key: uptime-state-${{ github.run_id }}
           restore-keys: uptime-state-
       - id: check
-        name: Website und Forum prüfen
+        name: Check website and forum
         env:
           WEBSITE_URL: https://bbport.de/
           FORUM_URL: https://forum.bbport.de
           DISCORD_STATUS_WEBHOOK: ${{ secrets.DISCORD_STATUS_WEBHOOK }}
         run: bash scripts/uptime-check.sh
-      # Nur bei einem Wechsel speichern; der jüngste Eintrag ist der aktuelle Zustand
+      # Save only on a change; the most recent entry is the current state
       - if: steps.check.outputs.changed == 'true'
         uses: actions/cache/save@v4
         with:

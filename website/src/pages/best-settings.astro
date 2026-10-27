@@ -1,7 +1,7 @@
 ---
-// Best settings und erster Start für Einsteiger: der Einrichtungs-Assistent Bild für Bild, die drei Ziele, Werte je
-// Grafikkarte und was hilft, wenn es hakt. Die Bilder sind englische Launcher-Bilder (launcher_src/preview/full_en);
-// Ordnerpfad und Konto-Name sind übermalt. Werte je Karte wie der Hardware-Check (src/data/hardware.js, settingsFor).
+// Best settings and first start for beginners: the setup wizard screen by screen, the three goals, values per
+// graphics card and what helps when it stutters. The pictures are English launcher images (launcher_src/preview/full_en);
+// folder path and account name are painted over. Values per card match the hardware check (src/data/hardware.js, settingsFor).
 import Base from '../layouts/Base.astro';
 import { Image, getImage } from 'astro:assets';
 import { SITE } from '../../site.config.mjs';
@@ -35,7 +35,7 @@ const goals = [
   ['Quiet', '60 FPS and a little less detail: the graphics card works less, stays cooler and quieter.', 'Laptops, small cards, hot rooms.'],
 ];
 
-// Richtwerte je Grafikkarte; die Einschätzung für den eigenen PC macht der Hardware-Check im Install Guide
+// Guideline values per graphics card; the verdict for your own PC comes from the hardware check in the Install Guide
 const cards = [
   ['4 GB of video memory', 'GTX 1050 Ti, GTX 1650, RX 570, RX 6500 XT', '720p or 1080p', 'FSR 3.1 Performance', '60 FPS cap', 'Off'],
   ['6–8 GB, older cards', 'GTX 1660, RTX 2060, RX 5600 XT, RX 6600', '1080p', 'DLSS or FSR 3.1 Balanced', '60 FPS', 'Off'],

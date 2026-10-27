@@ -83,7 +83,7 @@ log "Admin account"
 if login "$FLARUM_ADMIN_USER" "$FLARUM_ADMIN_PASS"; then
   ok "logged in as $FLARUM_ADMIN_USER"
 elif login "$FLARUM_ADMIN_MAIL" "$FLARUM_ADMIN_PASS"; then
-  # Der Admin heißt im Forum inzwischen anders (z. B. sein Discord-Name): Anmeldung über die Mail-Adresse
+  # The admin's name in the forum has changed since (e.g. to their Discord name): log in via the e-mail address
   ok "logged in with the admin e-mail (the username differs from FLARUM_ADMIN_USER)"
 elif login flarum flarum; then
   # The image creates the root admin (id 1) as flarum/flarum. Flarum cannot delete
@@ -186,7 +186,7 @@ footer=$(subst "$D/content/footer.html")
 body=$(jq -n --arg site "$SITE_URL" --arg discord "$INVITE_URL" --arg footer "$footer" \
   '{"bbforum.website_url": $site, "bbforum.discord_url": $discord, custom_footer: $footer}')
 api POST /settings "$body" >/dev/null && ok "header links and footer: website ${SITE_URL:-(not set)}, Discord ${INVITE_URL:-(not set)}"
-# Neue Themen nach Discord (flarum/extend.php); die Adresse wird nicht ausgegeben, sie ist geheim
+# New topics to Discord (flarum/extend.php); the address is not printed, it is secret
 feed=${FORUM_DISCORD_WEBHOOK:-}
 case "$feed" in
   "" | https://discord.com/api/webhooks/* | https://discordapp.com/api/webhooks/*) ;;
@@ -194,7 +194,7 @@ case "$feed" in
 esac
 body=$(jq -n --arg w "$feed" '{"bbforum.discord_webhook": $w}')
 api POST /settings "$body" >/dev/null && ok "new discussions to Discord: $([ -n "$feed" ] && echo on || echo off)"
-# Discord-Rollen als Forum-Gruppen (flarum/discord-roles.php); das Bot-Token wird nicht ausgegeben
+# Discord roles as forum groups (flarum/discord-roles.php); the bot token is not printed
 bot=${DISCORD_BOT_TOKEN:-}
 case "$bot" in
   "" | *.*.*) ;;
@@ -207,8 +207,8 @@ body=$(jq -n --arg t "$bot" --arg g "$guild" --arg m "$modroles" --arg s "$shown
   '{"bbforum.discord_bot_token": $t, "bbforum.discord_guild_id": $g, "bbforum.discord_mod_role_ids": $m, "bbforum.discord_shown_role_ids": $s}')
 api POST /settings "$body" >/dev/null &&
   ok "Discord roles as forum groups: $([ -n "$bot" ] && [ -n "$guild" ] && echo "on (server $guild)" || echo off)"
-# Anzeigenamen kommen vom Discord-Server (flarum/discord-roles.php): Treiber „nickname“, Name nicht bei der
-# Registrierung abfragen und nicht selbst änderbar, sonst überschreibt ihn der Abgleich ohnehin wieder
+# Display names come from the Discord server (flarum/discord-roles.php): driver "nickname", don't ask for the name at
+# registration and don't let users change it themselves, otherwise the sync overwrites it again anyway
 if installed flarum/nicknames; then
   api POST /settings '{"display_name_driver": "nickname", "flarum-nicknames.set_on_registration": "0",
     "flarum-nicknames.random_username": "0", "flarum-nicknames.unique": "0"}' >/dev/null &&
@@ -216,9 +216,9 @@ if installed flarum/nicknames; then
     ok "display names from the Discord server (nicknames)"
 fi
 
-# Mails: Der Treiber "mail" ruft "sendmail -bs" auf, das BusyBox im Container nicht kann. Flarum verschickt Mails
-# direkt in der Anfrage, dann bricht z. B. eine Antwort mit Fehler ab, sobald jemand per Mail benachrichtigt wird.
-# Ohne Mail-Dienst landen Mails darum nur im Log; einen im Admin eingetragenen Dienst (SMTP usw.) lassen wir stehen.
+# Mail: the "mail" driver calls "sendmail -bs", which BusyBox in the container doesn't support. Flarum sends mail
+# directly within the request, so e.g. posting a reply fails with an error as soon as someone is notified by mail.
+# Without a mail service, mails only go to the log; a service entered in the admin panel (SMTP etc.) is left alone.
 mail_driver=$(sql "SELECT value FROM ${DB_PREFIX}settings WHERE \`key\`='mail_driver'")
 case "$mail_driver" in
   "" | mail | log)
@@ -245,7 +245,7 @@ if installed fof/upload; then
   api POST /permission '{"permission": "fof-upload.download", "groupIds": [3]}' >/dev/null && ok "upload + download: members only"
 fi
 
-# Profile: „About me“ sehen alle, eigenes schreiben Mitglieder, fremde korrigieren Mods; eigenes Titelbild für Mitglieder
+# Profiles: everyone sees "About me", members write their own, mods correct other people's; own cover image for members
 if installed fof/user-bio; then
   api POST /settings '{"fof-user-bio.maxLength": "300"}' >/dev/null
   api POST /permission '{"permission": "fof-user-bio.view", "groupIds": [2]}' >/dev/null
@@ -254,7 +254,7 @@ if installed fof/user-bio; then
 fi
 if installed sycho/flarum-profile-cover; then
   api POST /permission '{"permission": "setProfileCover", "groupIds": [3]}' >/dev/null && ok "profile cover: members"
-  # 8 MB, damit animierte Banner passen (flarum/profiles.php lässt GIFs animiert; der Webserver nimmt bis UPLOAD_MAX_SIZE)
+  # 8 MB so animated banners fit (flarum/profiles.php keeps GIFs animated; the web server accepts up to UPLOAD_MAX_SIZE)
   api POST /settings '{"sycho-profile-cover.max_size": "8192"}' >/dev/null && ok "profile cover: up to 8 MB"
 fi
 
@@ -273,8 +273,8 @@ mods-patches|Mods & Patches|#6b3a45|bbicon bbicon-tools|Share and discuss mods, 
 guides|Guides|#4c5d5a|bbicon bbicon-book|Tutorials and how-tos written by the community.
 hunters-dream|The Hunter'"'"'s Dream|#57526e|bbicon bbicon-crescent|Off-topic. Rest a while, good hunter.'
 
-# Zusatz-Tags (ohne Platz in der Reihenfolge). Themen: jeder darf sie setzen, damit man Hilfe, Bugs und Fixes
-# nach Thema filtern kann. Status: setzt nur das Team (siehe Permissions), Ablauf eines Bugs oder Vorschlags.
+# Additional tags (no slot in the ordering). Topics: anyone may set them, so that help, bugs and fixes
+# can be filtered by topic. Status: only the team sets them (see Permissions), the lifecycle of a bug or suggestion.
 TOPIC_TAGS='crash|Crash|#6b2f2f||Crashes, freezes, Device lost, the game closes.
 graphics|Graphics|#4c5a6e||Wrong colours, flicker, stretched polygons, black screen.
 fps|Performance|#475a6b||Low FPS, stutter, VRAM.
@@ -313,7 +313,7 @@ tag_id() { echo "$existing" | jq -r --arg s "$1" '.data[] | select(.attributes.s
 gen=$(echo "$existing" | jq -r '.data[] | select(.attributes.slug == "general" and .attributes.discussionCount == 0) | .id')
 [ -n "$gen" ] && api DELETE "/tags/$gen" >/dev/null && ok "empty default tag 'General' removed"
 
-# Alles, was hier fehlt, wird ein Zusatz-Tag (Flarum setzt bei der Reihenfolge die übrigen Plätze zurück)
+# Everything missing here becomes an additional tag (Flarum resets the remaining slots when the order is set)
 order=$(for s in announcements logo-contest known-fixes help-support bug-reports suggestions beta performance mods-patches guides hunters-dream; do tag_id "$s"; done |
   jq -R . | jq -s 'map({id: ., children: []})')
 api POST /tags/order "{\"order\": $order}" >/dev/null && ok "order set"
@@ -341,11 +341,11 @@ ok "Known Fixes, Bug Reports: everyone can read and reply, only the team starts 
 echo "$STATUS_TAGS" | while IFS='|' read -r slug _rest; do team_only "$slug"; done
 ok "status tags (Open, In progress, Fixed, Planned, Done, Not planned, Duplicate): only the team sets them"
 
-# Helfer (Discord „Messenger · Helper“; die Gruppe legt der Rollen-Abgleich an, bbforum.discord_role_groups) arbeiten
-# wie das Team: Beiträge bearbeiten, Titel und Tags ändern, Themen schließen und öffnen, beste Antwort setzen, Status
-# von Vorschlägen und Bugs, Known Fixes und Bugs anlegen (Nick, 26.10.2026). Ausblenden, Löschen und Anpinnen bleiben
-# bei den Mods. Mods und Helfer dürfen über die Grenze von 3 Zusatz-Tags (der Status zählt mit), Mods setzen jetzt
-# auch die beste Antwort. In Bereichen mit eingeschränkten Tags gelten nur Rechte pro Tag, darum auch die. Nur hinzufügen.
+# Helpers (Discord "Messenger · Helper"; the group is created by the role sync, bbforum.discord_role_groups) work
+# like the team: edit posts, change titles and tags, lock and unlock topics, set the best answer, set the status
+# of suggestions and bugs, create Known Fixes and bugs (Nick, 2026-10-26). Hiding, deleting and pinning stay
+# with the mods. Mods and helpers may exceed the limit of 3 additional tags (the status counts too), and mods now also
+# set the best answer. In areas with restricted tags only per-tag permissions apply, so those are set too. Add only.
 HELPER_ROLE=1559561716642222122
 helper=$(sql "SELECT JSON_UNQUOTE(JSON_EXTRACT(value, '\$.\"$HELPER_ROLE\"')) FROM ${DB_PREFIX}settings WHERE \`key\` = 'bbforum.discord_role_groups';" 2>/dev/null)
 case "$helper" in ''|NULL|*[!0-9]*) helper= ;; esac
@@ -371,12 +371,12 @@ fi
 
 # --------------------------------------------------------------------------
 log "Logo contest"
-# Daten der Seite /logo-contest und der Regeln in flarum/contest.php (Einsendeschluss, Ende der Abstimmung, UTC)
+# Dates for the /logo-contest page and the rules in flarum/contest.php (submission deadline, end of voting, UTC)
 csub=${CONTEST_SUBMIT_UNTIL:-2026-11-08T23:59:59Z}
 cvote=${CONTEST_VOTE_UNTIL:-2026-11-15T23:59:59Z}
 body=$(jq -n --arg s "$csub" --arg v "$cvote" '{"bbforum.contest_submit_until": $s, "bbforum.contest_vote_until": $v}')
 api POST /settings "$body" >/dev/null && ok "logo contest: entries until $csub, voting until $cvote"
-# Werke als Karten in einen Discord-Kanal (nur ansehen): Webhook dieses Kanals in FORUM_CONTEST_WEBHOOK
+# Entries as cards in a Discord channel (view only): webhook of that channel in FORUM_CONTEST_WEBHOOK
 cfeed=${FORUM_CONTEST_WEBHOOK:-}
 case "$cfeed" in
   "" | https://discord.com/api/webhooks/* | https://discordapp.com/api/webhooks/*) ;;
@@ -387,10 +387,10 @@ api POST /settings "$body" >/dev/null && ok "logo contest entries to Discord: $(
 
 # --------------------------------------------------------------------------
 log "Beta: only for unlocked testers"
-# Freigeschaltet ist, wer die Discord-Rolle „Beta Hunter“ oder „Test Subject“ hat (der Rollen-Abgleich legt für jede
-# Rolle eine versteckte Gruppe an) oder im Forum in der Gruppe „Beta Testers“ ist (Admin → Nutzer → Gruppen).
-# Diese Gruppen haben im Bereich Beta die Rechte normaler Mitglieder, das Team (Mod) seine üblichen; sonst sieht ihn niemand.
-# Neue Testversionen postet flarum/betas.php (bbforum:betas, alle 10 Minuten) aus den Repos in BETA_REPOS.
+# Unlocked are those who have the Discord role "Beta Hunter" or "Test Subject" (the role sync creates a hidden group
+# for each role) or who are in the forum group "Beta Testers" (Admin → Users → Groups).
+# In the Beta area these groups have normal member permissions, the team (mod) its usual ones; nobody else sees it.
+# New test builds are posted by flarum/betas.php (bbforum:betas, every 10 minutes) from the repos in BETA_REPOS.
 bt=$(api GET /groups | jq -r '[.data[] | select(.attributes.nameSingular == "Beta Tester") | .id][0] // empty')
 if [ -z "$bt" ]; then
   bt=$(api POST /groups '{"data":{"type":"groups","attributes":{"nameSingular":"Beta Tester","namePlural":"Beta Testers","color":"#57526e","icon":"fas fa-flask","isHidden":true}}}' | jq -r '.data.id')
@@ -431,7 +431,7 @@ fi
 if installed fof/discussion-templates; then
   body=$(jq -n --rawfile t "$D/content/help-template.md" '{data: {template: $t}}')
   api PATCH "/tags/$help/template" "$body" >/dev/null && ok "post template for Help & Support"
-  # Performance Reports: Hardware, Einstellungen und FPS auf einer festen Teststrecke (Grundlage für Schätzungen)
+  # Performance Reports: hardware, settings and FPS on a fixed test route (basis for estimates)
   body=$(jq -n --rawfile t "$D/content/performance-template.md" '{data: {template: $t}}')
   api PATCH "/tags/$(tag_id performance)/template" "$body" >/dev/null && ok "post template for Performance Reports"
   for t in known-fixes:known-fix bug-reports:bug suggestions:suggestion beta:beta logo-contest:logo-entry; do
@@ -449,13 +449,13 @@ api PATCH /groups/4 '{"data":{"type":"groups","id":"4","attributes":{"color":"#9
 log "Pinned topics"
 pinned_topic() { # pinned_topic TAG-SLUG TAG-ID TITLE CONTENT-FILE: creates the topic once, pinned and locked
   _content=$(subst "$4")
-  # Ohne Text nie etwas anlegen oder überschreiben (z. B. wenn ein zweiter Lauf /tmp/bbsetup schon aufgeräumt hat)
+  # Never create or overwrite anything without text (e.g. if a second run has already cleaned up /tmp/bbsetup)
   [ -n "$_content" ] || { warn "$3: $4 missing or empty, skipped"; return 0; }
   _did=$(api GET "/discussions?filter%5Btag%5D=$1&page%5Blimit%5D=50" |
     jq -r --arg t "$3" '[.data[] | select(.attributes.title == $t) | .id][0] // empty' 2>/dev/null || true)
   if [ -n "$_did" ]; then
-    # Text aus dem Repo übernehmen, wenn er sich geändert hat
-    # Den Text liefert nur /posts/ID (die Themen-Abfrage enthält ihn nicht)
+    # Take over the text from the repo if it has changed
+    # Only /posts/ID returns the text (the topic query does not include it)
     _pid=$(api GET "/discussions/$_did?include=firstPost" | jq -r '[.included[]? | select(.type == "posts") | .id][0] // empty')
     if [ -n "$_pid" ] && [ "$(api GET "/posts/$_pid" | jq -r '.data.attributes.content // empty')" != "$_content" ]; then
       _body=$(jq -n --arg c "$_content" --arg id "$_pid" '{data: {type: "posts", id: $id, attributes: {content: $c}}}')
@@ -494,7 +494,7 @@ done
 
 # Rebuild the forum JavaScript (flarum/forum.js) and stylesheets
 gosu flarum:flarum php /opt/flarum/flarum cache:clear >/dev/null && ok "forum assets rebuilt"
-# Gleich über eine Seite neu bauen lassen (Übersetzungen, JS, CSS) und prüfen, ob die Übersetzungen drin sind
+# Trigger a rebuild right away via a page request (translations, JS, CSS) and check that the translations are included
 curl -fsS -o /dev/null http://127.0.0.1:8000/ || warn "forum page did not load after the rebuild"
 if [ "$(cat /data/assets/forum-*.js 2>/dev/null | wc -c)" -gt 5000 ]; then
   ok "forum translations loaded"

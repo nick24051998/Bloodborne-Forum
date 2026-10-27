@@ -1,24 +1,24 @@
 <?php
 /*
- * Forum-Meldungen in Discord (Nick, 26.10.2026; geladen von flarum/extend.php, Oberfläche in flarum/forum.js).
+ * Forum notifications in Discord (Nick, 26.10.2026; loaded by flarum/extend.php, UI in flarum/forum.js).
  *
- * Ablauf: Discord ist ein eigener Benachrichtigungsweg im Forum (Treiber „discord“, Spalte „Discord“ in den
- * Einstellungen). Was ein Mitglied dort angehakt hat, legt der Treiber in die Warteschlange bb_discord_notify. BB Helper
- * holt sie über GET /api/bb-discord-notify ab (Schlüssel bbforum.discord_notify_token im Kopf X-BB-Token) und schreibt
- * in den privaten Thread „📬 Forum inbox“ des Mitglieds in #🔔・forum-inbox, mit Ping. Keine DMs (Nick).
+ * Flow: Discord is a notification channel of its own in the forum (driver "discord", column "Discord" in the
+ * settings). Whatever a member has ticked there, the driver puts into the queue bb_discord_notify. BB Helper
+ * picks it up via GET /api/bb-discord-notify (key bbforum.discord_notify_token in the header X-BB-Token) and writes
+ * into the member's private thread "📬 Forum inbox" in #🔔・forum-inbox, with a ping. No DMs (Nick's wish).
  *
- * - Aus, solange bbforum.discord_notify_enabled nicht 1 ist: dann wird nichts gesammelt, damit nach dem Einschalten
- *   nichts Altes auf einmal rausgeht. Abgeholt wird nur, was höchstens 6 Stunden alt ist.
- * - Erst nach 2 Minuten: wer den Beitrag bis dahin im Forum gelesen hat, bekommt keinen Ping (skipped).
- * - Antworten im selben Thema kommen als eine Meldung; in Themen, denen man nur folgt, höchstens einmal pro Stunde.
- *   Höchstens 8 Meldungen pro Stunde und Mitglied, der Rest wartet.
- * - Standardmäßig an: Antworten im eigenen oder gefolgten Thema, Antwort auf den eigenen Beitrag, Erwähnungen (auch
- *   @Helpers), beste Antwort, Erinnerung „beste Antwort wählen“, Status des eigenen Vorschlags oder Bugs (neue
- *   Meldung statusChanged). Likes, Umbenennen und Sperren nicht.
- * - Wer ein Thema eröffnet oder antwortet, folgt ihm jetzt standardmäßig (followAfterReply, sonst erführe der
- *   Fragesteller nichts von Antworten).
- * - POST /api/bb-discord-notify/ack (ids, state sent|failed|skipped) und /api/bb-discord-notify/action (mute: Thema
- *   nicht mehr folgen, off: alle Discord-Häkchen aus), beide mit demselben Schlüssel, ohne CSRF (kein Browser).
+ * - Off as long as bbforum.discord_notify_enabled is not 1: then nothing is collected, so that after switching it
+ *   on nothing old goes out all at once. Only what is at most 6 hours old is picked up.
+ * - Only after 2 minutes: whoever has read the post in the forum by then gets no ping (skipped).
+ * - Replies in the same discussion come as one notification; in discussions that one merely follows, at most
+ *   once per hour. At most 8 notifications per hour and member, the rest waits.
+ * - On by default: replies in your own or a followed discussion, reply to your own post, mentions (also
+ *   @Helpers), best answer, reminder "select the best answer", status of your own suggestion or bug (new
+ *   notification statusChanged). Not likes, renames and suspensions.
+ * - Whoever starts a discussion or replies now follows it by default (followAfterReply, otherwise the
+ *   asker would not hear about replies).
+ * - POST /api/bb-discord-notify/ack (ids, state sent|failed|skipped) and /api/bb-discord-notify/action (mute: stop
+ *   following the discussion, off: all Discord ticks off), both with the same key, without CSRF (no browser).
  */
 
 use Carbon\Carbon;
@@ -36,9 +36,9 @@ if (! class_exists('BBForumDiscordNotify')) {
     class BBForumDiscordNotify
     {
         const TABLE = 'bb_discord_notify';
-        const DELAY = 120;            // Sekunden, bevor eine Meldung rausgeht
-        const MAX_AGE = 6 * 3600;     // ältere werden nicht mehr verschickt
-        const KEEP = 3 * 86400;       // so lange bleiben Zeilen zum Nachsehen
+        const DELAY = 120;            // seconds before a notification goes out
+        const MAX_AGE = 6 * 3600;     // older ones are no longer sent
+        const KEEP = 3 * 86400;       // rows are kept this long for reference
         const PER_HOUR = 8;
         const DEFAULT_ON = ['newPost', 'postMentioned', 'userMentioned', 'groupMentioned', 'awardedBestAnswer',
             'bestAnswerInDiscussion', 'selectBestAnswer', 'statusChanged'];
@@ -103,7 +103,7 @@ if (! class_exists('BBForumDiscordNotify')) {
             }
             try {
                 $html = str_replace(['</p>', '<br>', '<br/>'], ' ', $post->formatContent());
-                // Erwähnungen als „@Name“ (im HTML steht nur der Name im Link)
+                // Mentions as "@Name" (in the HTML only the name is in the link)
                 $html = preg_replace('#<a [^>]*class="(?:PostMention|UserMention)[^"]*"[^>]*>(.*?)</a>#s', '@$1', $html);
                 $text = strip_tags($html);
             } catch (\Throwable $e) {
@@ -113,7 +113,7 @@ if (! class_exists('BBForumDiscordNotify')) {
             return mb_strlen($text) > 180 ? rtrim(mb_substr($text, 0, 177)).'…' : $text;
         }
 
-        /** Eine Meldung für ein Mitglied in die Warteschlange (vom Treiber, nur wenn eingeschaltet und angehakt) */
+        /** Queue one notification for a member (from the driver, only if enabled and ticked) */
         public static function queue(User $user, BlueprintInterface $blueprint): void
         {
             $discordId = self::discordId($user);
@@ -172,7 +172,7 @@ if (! class_exists('BBForumDiscordNotify')) {
             return in_array('bug-reports', $slugs, true) ? 'bug report' : 'suggestion';
         }
 
-        /** Status-Tag geändert (Suggestions, Bug Reports): dem Ersteller melden, wenn es jemand anderes war */
+        /** Status tag changed (Suggestions, Bug Reports): notify the author if someone else did it */
         public static function tagged(\Flarum\Tags\Event\DiscussionWasTagged $event): void
         {
             $discussion = $event->discussion;
@@ -197,7 +197,7 @@ if (! class_exists('BBForumDiscordNotify')) {
             return $token !== '' && hash_equals($token, $request->getHeaderLine('X-BB-Token'));
         }
 
-        /** Was jetzt raus darf, gebündelt je Mitglied und Thema */
+        /** What may go out now, bundled per member and discussion */
         public static function pending(): array
         {
             self::ensureTable();
@@ -209,7 +209,7 @@ if (! class_exists('BBForumDiscordNotify')) {
             $rows = $db->table(self::TABLE)->where('state', 'pending')
                 ->where('created_at', '<=', $now->copy()->subSeconds(self::DELAY))->orderBy('id')->get();
 
-            // Dieselbe Antwort als Erwähnung und als „neue Antwort“: nur die genauere Meldung (die Erwähnung)
+            // The same reply as a mention and as a "new reply": only the more specific notification (the mention)
             $mentioned = [];
             foreach ($rows as $row) {
                 if ($row->type !== 'newPost' && $row->post_number) {
@@ -224,7 +224,7 @@ if (! class_exists('BBForumDiscordNotify')) {
                     $skip[] = $row->id;
                     continue;
                 }
-                // Inzwischen ausgeblendet oder gelöscht (Spam, den ein Mod in den 2 Minuten weggeräumt hat)?
+                // Hidden or deleted in the meantime (spam that a mod cleaned up within the 2 minutes)?
                 if ($row->discussion_id && ! $db->table('discussions')->where('id', $row->discussion_id)->whereNull('hidden_at')->exists()) {
                     $skip[] = $row->id;
                     continue;
@@ -240,7 +240,7 @@ if (! class_exists('BBForumDiscordNotify')) {
                         continue;
                     }
                 }
-                // Schon im Forum gelesen?
+                // Already read in the forum?
                 if ($row->discussion_id && $row->post_number) {
                     $read = $db->table('discussion_user')->where('user_id', $row->user_id)
                         ->where('discussion_id', $row->discussion_id)->value('last_read_post_number');
@@ -265,7 +265,7 @@ if (! class_exists('BBForumDiscordNotify')) {
                         ->where('sent_at', '>=', $hourAgo)->count();
                 }
                 $replies = $row->type === 'newPost';
-                // In gefolgten (nicht eigenen) Themen höchstens eine Meldung pro Stunde
+                // In followed (not own) discussions at most one notification per hour
                 if ($replies && ! $row->own && $db->table(self::TABLE)->where('user_id', $uid)
                     ->where('discussion_id', $row->discussion_id)->where('state', 'sent')->where('sent_at', '>=', $hourAgo)->exists()) {
                     continue;
@@ -299,7 +299,7 @@ if (! class_exists('BBForumDiscordNotify')) {
                     'title' => $title,
                     'topic' => $first->topic,
                     'excerpt' => $last->excerpt,
-                    'url' => $first->url, // zur ersten neuen Antwort
+                    'url' => $first->url, // to the first new reply
                     'discussion_id' => (int) $first->discussion_id,
                 ];
             }
@@ -316,7 +316,7 @@ if (! class_exists('BBForumDiscordNotify')) {
                 ->update(['state' => $state, 'sent_at' => Carbon::now()]);
         }
 
-        /** Knöpfe in der Meldung: mute (diesem Thema nicht mehr folgen) oder off (alle Discord-Häkchen aus) */
+        /** Buttons in the notification: mute (stop following this discussion) or off (all Discord ticks off) */
         public static function action(string $action, string $discordId, int $discussionId): bool
         {
             $userId = \Flarum\User\LoginProvider::where('provider', 'discord')->where('identifier', $discordId)->value('user_id');
@@ -362,7 +362,7 @@ if (! class_exists('BBForumDiscordNotifyDriver')) {
                     continue;
                 }
                 if ($from && (int) $from->id === (int) $user->id) {
-                    continue; // nichts für eigene Aktionen
+                    continue; // nothing for own actions
                 }
                 try {
                     BBForumDiscordNotify::queue($user, $blueprint);
@@ -384,7 +384,7 @@ if (! class_exists('BBForumDiscordNotifyDriver')) {
 }
 
 if (! class_exists('BBForumStatusChangedBlueprint')) {
-    /** Neue Meldung: der Status (Tag status-…) eines Vorschlags oder Bugs hat sich geändert */
+    /** New notification: the status (tag status-…) of a suggestion or bug has changed */
     class BBForumStatusChangedBlueprint implements BlueprintInterface
     {
         public $discussion;

@@ -5,12 +5,12 @@ heading: Changelog
 intro: What changed in each release. The newest version is at the top.
 ---
 
-<!-- Version, Datum, Download und die Liste aller Releases kommen automatisch von GitHub (Kasten oben,
-Liste unten). Hier nur die Kurzfassung in einfachen Worten ergänzen, neue Versionen oben. Vorlage:
+<!-- Version, date, download and the list of all releases come automatically from GitHub (box at the top,
+list at the bottom). Only add the short summary in plain words here, newest versions on top. Template:
 
 ## 1.9.3 – 20 October 2026
 
-- **Kurz, was neu ist:** ein Satz dazu.
+- **In short, what's new:** one sentence about it.
 
 -->
 

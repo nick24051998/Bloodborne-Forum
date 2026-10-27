@@ -12,7 +12,7 @@ interface Props {
 }
 
 const { title, description = SITE.description, jsonLd = [], noindex = false } = Astro.props;
-// Suchname vorn auf der Startseite, hinten auf den Unterseiten: Google zeigt ihn so bei der Suche nach "bbport"
+// Search name first on the home page, last on the subpages: this is how Google shows it when searching for "bbport"
 const fullTitle = title ? `${title} | ${SITE.brand}` : `${SITE.brand} – ${SITE.name}: Download, Install Guide & Community`;
 const canonical = new URL(Astro.url.pathname, SITE.url).href;
 const path = Astro.url.pathname;
@@ -28,7 +28,7 @@ const nav = [
   ...(SITE.forumUrl ? [{ href: SITE.forumUrl, label: 'Forum' }] : []),
 ];
 
-// Seitenname für Google (erscheint über dem Titel im Suchergebnis)
+// Site name for Google (appears above the title in the search result)
 const baseLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
@@ -115,8 +115,8 @@ const baseLd = {
       </div>
     </footer>
     <script>
-      // Sprungmarken: Ein # neben jeder Überschrift der Textseiten (und jeder FAQ-Frage, siehe faq.astro) kopiert
-      // den Link zu genau dieser Stelle. Ein Link auf eine FAQ-Frage klappt sie beim Öffnen auf.
+      // Anchors: a # next to every heading of the text pages (and every FAQ question, see faq.astro) copies
+      // the link to exactly that spot. A link to an FAQ question expands it when opened.
       document.querySelectorAll('.prose h2[id], .prose h3[id]').forEach((heading) => {
         const anchor = document.createElement('a');
         anchor.className = 'anchor-link';
@@ -139,7 +139,7 @@ const baseLd = {
       document.addEventListener('click', async (event) => {
         const anchor = event.target instanceof Element ? event.target.closest('.anchor-link') : null;
         if (!(anchor instanceof HTMLAnchorElement)) return;
-        // Kein Auf- und Zuklappen der FAQ-Frage, keine neue Seite im Verlauf: nur Adresse setzen und Link kopieren
+        // No expanding or collapsing of the FAQ question, no new history entry: just set the address and copy the link
         event.preventDefault();
         const id = anchor.hash.slice(1);
         const target = document.getElementById(id);
@@ -151,7 +151,7 @@ const baseLd = {
           anchor.dataset.copied = '';
           setTimeout(() => delete anchor.dataset.copied, 1500);
         } catch {
-          // Ohne Zugriff auf die Zwischenablage steht der Link trotzdem in der Adresszeile
+          // Without clipboard access, the link is still in the address bar
         }
       });
     </script>

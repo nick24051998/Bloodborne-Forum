@@ -1,14 +1,14 @@
 // ============================================================================
-//  Bloodborne PC Port Community – Gothic-Theme im Discord-Stil (Flarum 1.8)
-//  Einspielen: Admin → Appearance → Custom Styles (Edit Custom CSS)
-//  oder automatisch per scripts/setup-forum.sh
-//  Voraussetzung: Dark Mode an, Primary #8a1118, Secondary #9c8458 (macht das Skript)
+//  Bloodborne PC Port Community – Gothic theme in Discord style (Flarum 1.8)
+//  Installing: Admin → Appearance → Custom Styles (Edit Custom CSS)
+//  or automatically via scripts/setup-forum.sh
+//  Prerequisite: dark mode on, Primary #8a1118, Secondary #9c8458 (the script sets this)
 // ============================================================================
 
-// --- Schriften: selbst gehostet (Cinzel + Inter, SIL OFL) ------------------------
-// Flarum blockiert externe Imports in Custom LESS; außerdem bleibt so alles
-// DSGVO-freundlich ohne Google-Server. scripts/setup-forum.sh kopiert theme/fonts/*.woff2
-// nach /assets/fonts/bb/ – die Pfade unten sind relativ zu /assets/forum.css.
+// --- Fonts: self-hosted (Cinzel + Inter, SIL OFL) ------------------------
+// Flarum blocks external imports in custom LESS; this also keeps everything
+// GDPR-friendly without Google servers. scripts/setup-forum.sh copies theme/fonts/*.woff2
+// to /assets/fonts/bb/ – the paths below are relative to /assets/forum.css.
 .bb-font(@family; @weight; @file) {
   @font-face {
     font-family: @family;
@@ -26,10 +26,10 @@
 .bb-font("Inter"; 700; "inter-latin-700-normal");
 
 // --- Palette ----------------------------------------------------------------
-// Angelehnt an Bloodborne: fast alles kühles Anthrazit und Schiefergrau (Stein, Nacht,
-// Nebel), Pergament für Text, Messing wie die Gaslaternen für Links und kleine Akzente,
-// Blutrot nur sparsam (Hauptbutton, aktive Markierung). Grob verteilt: ~85 % Grautöne,
-// ~10 % Pergament und Messing, ~3 % Rot. Mondlicht und Dämmerungsviolett nur in Verläufen.
+// Inspired by Bloodborne: almost everything is cool anthracite and slate grey (stone, night,
+// fog), parchment for text, brass like the gas lamps for links and small accents,
+// blood red only sparingly (main button, active highlight). Rough split: ~85 % greys,
+// ~10 % parchment and brass, ~3 % red. Moonlight and dusk violet only in gradients.
 @bb-bg-deep:       #08090a;
 @bb-bg:            #0d0e10;
 @bb-surface:       #121316;
@@ -44,17 +44,17 @@
 @bb-muted:         #8a8c90;
 @bb-blood:         #8a1118;
 @bb-blood-hover:   #a3161e;
-@bb-blood-light:   #c22a30; // Lichtkante im Blut (Animationen)
+@bb-blood-light:   #c22a30; // light edge in the blood (animations)
 @bb-gold:          #9c8458;
 @bb-gold-light:    #c2a878;
 @bb-moon:          #c9cdd2;
 @bb-dusk:          #3b3448;
 
-@bb-ease: cubic-bezier(0.2, 0.7, 0.1, 1); // schwere Kurve: schneller Start, langes Auslaufen
+@bb-ease: cubic-bezier(0.2, 0.7, 0.1, 1); // heavy curve: fast start, long ease-out
 @bb-font-head: "Cinzel", "Cormorant Garamond", Georgia, serif;
 @bb-font-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
 
-// --- Flarum-Variablen überschreiben (wirken auch auf die CSS-Custom-Properties)
+// --- Override Flarum variables (they also affect the CSS custom properties)
 @body-bg-dark:         @bb-bg;
 @body-bg:              @bb-bg;
 @text-color:           @bb-text;
@@ -75,7 +75,7 @@
 @hero-color:           @bb-text;
 @border-radius:        8px;
 
-// --- Typografie --------------------------------------------------------------
+// --- Typography --------------------------------------------------------------
 body,
 .FormControl,
 .Button,
@@ -126,19 +126,19 @@ h1, h2, h3,
   color: @bb-gold-light;
 }
 
-// --- Ein Menü für Website und Forum (wie .nav in website/src/styles/global.css) ------------------------
-// Links neben dem Logo: Install, Guide, FAQ, Changelog, Forum in derselben Schrift und Größe wie auf der Website,
-// ohne Symbole; beim Zeigen dunkle Fläche und Messinglinie, der aktive Bereich mit Blutlinie darunter.
-// Rechts die Aktionen: Suche, Anmelden, Discord-Knopf. Höhe 64px wie die Website.
-@bb-nav-size: 15.2px; // 0.95rem auf der Website
+// --- One menu for website and forum (like .nav in website/src/styles/global.css) ------------------------
+// Links next to the logo: Install, Guide, FAQ, Changelog, Forum in the same font and size as on the website,
+// without icons; on hover a dark surface and brass line, the active section with a blood line underneath.
+// Actions on the right: search, log in, Discord button. Height 64px like the website.
+@bb-nav-size: 15.2px; // 0.95rem on the website
 
-// Höhe über Flarums Variable: Inhalt, Seitenleiste und Scrubber rücken mit
+// Height via Flarum's variable: content, sidebar and scrubber move along with it
 :root {
   --header-height: 64px;
 }
 
-// Dieselbe Spalte wie die Website (--container in website/src/styles/global.css): Logo, Links und Discord
-// stehen beim Wechsel zwischen Website und Forum an derselben Stelle
+// Same column as the website (--container in website/src/styles/global.css): logo, links and Discord
+// stay in the same place when switching between website and forum
 @media @desktop-up {
   .App-header {
     padding-left: 0;
@@ -155,7 +155,7 @@ h1, h2, h3,
     margin-right: 24px;
   }
 
-  // Zurück-Pfeil nur auf dem Handy; am Rechner führt "Forum" im Menü zur Übersicht
+  // Back arrow only on phones; on desktop "Forum" in the menu leads to the overview
   .Header-navigation {
     display: none;
   }
@@ -185,7 +185,7 @@ h1, h2, h3,
   }
 }
 
-// "Forum" ist hier die aktive Seite: markiert wie die aktive Seite auf der Website
+// "Forum" is the active page here: highlighted like the active page on the website
 .Header-primary .bb-navLink--current,
 .Header-primary .bb-navLink--current:hover {
   background: @bb-card-hover;
@@ -197,7 +197,7 @@ h1, h2, h3,
   background: none;
 }
 
-// Discord ganz rechts: kleiner Knopf nach der Knopf-Regel (Discord-Blau, siehe Knöpfe unten)
+// Discord at the far right: small button following the button rule (Discord blue, see Buttons below)
 .Header-secondary .bb-discordButton {
   height: auto;
   min-height: 38px;
@@ -206,10 +206,10 @@ h1, h2, h3,
   font-size: 14.4px;
 }
 
-// Alles in einer Zeile: Suche schmaler als bei Flarum und beim Reinklicken gleich breit. Flarum macht das Feld fest
-// 225 px breit und beim Fokus 400 px, um 400 px nach links verschoben: Das ragte aus unserem Rahmen und schob sich
-// über das Menü. Hier füllt das Feld den Rahmen, nichts springt; die Trefferliste ist breiter und hängt rechtsbündig
-// darunter.
+// Everything on one line: search narrower than in Flarum and the same width when clicked into. Flarum makes the
+// field a fixed 225 px wide and 400 px on focus, shifted 400 px to the left: that stuck out of our frame and slid
+// over the menu. Here the field fills the frame, nothing jumps; the result list is wider and hangs right-aligned
+// below it.
 @media @desktop-up {
   .Header-secondary .Search,
   .Header-secondary .Search.focused {
@@ -233,11 +233,11 @@ h1, h2, h3,
   }
 }
 
-// Platz im Kopf (gemessen, abgemeldet; angemeldet sind Glocke und Name etwa 30 px breiter als "Log In"):
-// - "Sign Up" am Rechner nie: "Log In" führt über Discord und legt das Konto ohnehin an
-// - bis 1399 px Menülinks etwas schmaler, bis 1279 px die Suche
-// - "Supermedo" ab 1280 px, "Changelog" ab 1800 px (dort ist die Spalte 1400 px breit); auf dem Handy steht alles
-//   im Seitenmenü, auf der Website immer im Menü
+// Space in the header (measured, logged out; when logged in, bell and name are about 30 px wider than "Log In"):
+// - "Sign Up" never on desktop: "Log In" goes through Discord and creates the account anyway
+// - up to 1399 px menu links are slightly narrower, up to 1279 px the search
+// - "Supermedo" from 1280 px, "Changelog" from 1800 px (the column is 1400 px wide there); on phones everything is
+//   in the side menu, on the website always in the menu
 @media @desktop-up {
   .Header-secondary .item-signUp {
     display: none;
@@ -257,7 +257,7 @@ h1, h2, h3,
   }
 }
 
-// "Website" nur auf dem Handy (im Seitenmenü gibt es kein Logo)
+// "Website" only on phones (there is no logo in the side menu)
 @media @tablet-up {
   .Header-primary .item-bb-home {
     display: none;
@@ -284,12 +284,12 @@ h1, h2, h3,
   }
 }
 
-// --- Willkommens-Banner --------------------------------------------------------
+// --- Welcome banner --------------------------------------------------------
 .WelcomeHero {
-  // Gotische Stadt unter dem Blutmond (media/images/forum-banner.webp, für dieses Projekt mit
-  // ChatGPT erzeugt, siehe media/CREDITS.md; setup-forum.sh kopiert es nach /assets/media/bb).
-  // Darüber: Abdunklung hinter dem Text und Übergang in die Seite.
-  // ~"…": sonst rechnet LESS das "/" in der Bildangabe als Division.
+  // Gothic city under the blood moon (media/images/forum-banner.webp, generated for this project
+  // with ChatGPT, see media/CREDITS.md; setup-forum.sh copies it to /assets/media/bb).
+  // On top: darkening behind the text and a fade into the page.
+  // ~"…": otherwise LESS treats the "/" in the image shorthand as division.
   background:
     linear-gradient(180deg, transparent 55%, @bb-bg 100%),
     radial-gradient(ellipse 34% 58% at 50% 55%, fade(@bb-bg-deep, 72%) 0%, transparent 100%),
@@ -305,7 +305,7 @@ h1, h2, h3,
     letter-spacing: 0.06em;
     text-shadow: 0 2px 18px rgba(0, 0, 0, 0.8);
 
-    // Feine Messinglinie wie die Ornamente im Spielmenü
+    // Fine brass line like the ornaments in the game menu
     &::after {
       content: "";
       display: block;
@@ -318,7 +318,7 @@ h1, h2, h3,
 
   @media @phone {
     padding: 40px 0 36px;
-    // Schmal liegt der Text über der Stadt: Ausschnitt nach rechts, stärker abgedunkelt
+    // On narrow screens the text sits over the city: crop shifted right, darkened more
     background:
       linear-gradient(180deg, transparent 50%, @bb-bg 100%),
       linear-gradient(fade(@bb-bg-deep, 58%), fade(@bb-bg-deep, 58%)),
@@ -353,11 +353,11 @@ h1, h2, h3,
   }
 }
 
-// --- Seitenleiste wie Discord-Kanalliste ------------------------------------------
-// Flarum setzt IndexPage-nav und sideNav auf dasselbe Element
+// --- Sidebar like the Discord channel list ------------------------------------------
+// Flarum puts IndexPage-nav and sideNav on the same element
 .IndexPage-nav.sideNav .Dropdown-menu > li > a {
   border-radius: 6px;
-  padding: 6px 10px 6px 40px; // Icon sitzt per margin-left: -30px davor
+  padding: 6px 10px 6px 40px; // icon sits in front of it via margin-left: -30px
   transition: background 0.12s, color 0.12s;
 
   &:hover {
@@ -378,8 +378,8 @@ h1, h2, h3,
   letter-spacing: 0.02em;
 }
 
-// --- The Hunter's Dream: Live-Zahlen (flarum/forum.js, Daten über /api/hunters-dream) -----------
-// Breit: Kasten unter der Kategorienliste. Schmal (Seitenleiste wird zur Zeile): Zeile unter dem Banner.
+// --- The Hunter's Dream: live figures (flarum/forum.js, data via /api/hunters-dream) -----------
+// Wide: box below the category list. Narrow (sidebar becomes a row): row below the banner.
 .bb-hd {
   margin-top: 24px;
   padding: 14px 14px 12px;
@@ -420,7 +420,7 @@ h1, h2, h3,
   background: @bb-muted;
 
   .is-online > & {
-    background: #bc9570; // Laternenlicht
+    background: #bc9570; // lantern light
   }
 }
 
@@ -507,8 +507,8 @@ h1, h2, h3,
   white-space: nowrap;
 }
 
-// --- Logo-Contest: Seite /logo-contest (flarum/forum.js) --------------------------------------------------
-// Kopf mit Blut-Schein, darunter die Werke als Karten auf dunklem Grund (so dunkel wie der Launcher, #0d0e10)
+// --- Logo contest: page /logo-contest (flarum/forum.js) --------------------------------------------------
+// Header with a blood glow, below it the entries as cards on a dark background (as dark as the launcher, #0d0e10)
 .bb-contest-hero {
   padding: 48px 0 36px;
   border-bottom: 1px solid @bb-border;
@@ -653,7 +653,7 @@ h1, h2, h3,
   text-align: center;
 }
 
-// --- Team-Block in der Seitenleiste (flarum/forum.js): Überschrift wie die übrigen Abschnitte -----------
+// --- Team block in the sidebar (flarum/forum.js): heading like the other sections -----------
 .bb-teamTitle {
   display: block;
   padding: 8px 0 4px 12px;
@@ -664,8 +664,8 @@ h1, h2, h3,
   color: @bb-gold-light;
 }
 
-// --- Wegweiser unter dem Banner (flarum/forum.js): welcher Bereich wofür ist -------------------------
-// Rundum gerahmte Karten (keine Streifen am Rand), das Symbol in der Farbe des Bereichs
+// --- Signpost below the banner (flarum/forum.js): which section is for what -------------------------
+// Cards framed all around (no stripes at the edge), the icon in the colour of the section
 .bb-guide {
   background: @bb-bg-deep;
   border-bottom: 1px solid @bb-border;
@@ -703,7 +703,7 @@ h1, h2, h3,
   }
 }
 
-// Übersicht (vorher der Wegweiser): vier Bereiche mit je fünf Themen, rundum gerahmt
+// Overview (formerly the signpost): four sections with five topics each, framed all around
 .bb-dash-blocks {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -802,9 +802,9 @@ h1, h2, h3,
   }
 }
 
-// --- Stimmen, Reiter, Etiketten, Known-Fixes-Index (flarum/forum.js, flarum/overview.php) ---------------------------
-// Stimmen-Box links neben dem Avatar (Suggestions); die Zeile rückt dafür ein. Der Avatar steht mit negativem Rand im
-// linken Innenabstand, die Box davor.
+// --- Votes, tabs, labels, Known Fixes index (flarum/forum.js, flarum/overview.php) ---------------------------
+// Vote box to the left of the avatar (Suggestions); the row is indented to make room. The avatar sits with a negative
+// margin in the left padding, the box in front of it.
 .DiscussionListItem.bb-hasVote .DiscussionListItem-content {
   padding-left: 118px;
 }
@@ -872,13 +872,13 @@ h1, h2, h3,
   }
 }
 
-// Die Leiste umschließt auch die Knöpfe rechts (Neu laden, Gelesen): bei umbrechenden Reitern lagen sie sonst halb
-// über dem ersten Thema
+// The bar also encloses the buttons on the right (Refresh, Mark as read): with wrapping tabs they otherwise sat half
+// over the first topic
 .IndexPage-toolbar {
   display: flow-root;
 }
 
-// Status eines Vorschlags oder Bugs in der Seitenleiste des Themas (nur Team)
+// Status of a suggestion or bug in the topic's sidebar (team only)
 .bb-statusPanel {
   margin-top: 18px;
   padding: 12px;
@@ -949,7 +949,7 @@ h1, h2, h3,
   line-height: 1.4;
 }
 
-// Hinweis unter den Benachrichtigungs-Einstellungen (Spalte Discord)
+// Note below the notification settings (Discord column)
 .bb-discordNote {
   margin-top: 10px;
   font-size: 12.5px;
@@ -959,7 +959,7 @@ h1, h2, h3,
   }
 }
 
-// Reiter über den Listen (Top/New/Planned …, Open/Solved/Closed/All)
+// Tabs above the lists (Top/New/Planned …, Open/Solved/Closed/All)
 .bb-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -991,7 +991,7 @@ h1, h2, h3,
   }
 }
 
-// Etiketten in der Themenzeile und in der Übersicht
+// Labels in the topic row and in the overview
 .bb-chip {
   display: inline-block;
   padding: 1px 7px;
@@ -1028,7 +1028,7 @@ h1, h2, h3,
   color: #fff;
 }
 
-// Neue Vorschläge der letzten 7 Tage über der Liste
+// New suggestions from the last 7 days above the list
 .bb-newIdeas {
   margin: 0 0 14px;
   padding: 12px 14px 6px;
@@ -1083,7 +1083,7 @@ h1, h2, h3,
   }
 }
 
-// Known Fixes als Nachschlagewerk
+// Known Fixes as a reference
 .bb-kf-search {
   margin-bottom: 16px;
 }
@@ -1181,7 +1181,7 @@ h1, h2, h3,
   }
 }
 
-// Hunter's Dream: Titel und Knopf zum Einklappen in einer Zeile
+// Hunter's Dream: title and collapse button on one line
 .bb-hd-head {
   display: flex;
   align-items: flex-start;
@@ -1213,12 +1213,12 @@ h1, h2, h3,
   }
 }
 
-// --- Knöpfe: eine Regel für alle (wie auf der Website, website/src/styles/global.css) --------------
-// Jeder echte Knopf ist eine dunkle Platte mit Messing-Haarlinie: gleiche Rundung, Schrift und Höhe.
-// Die Füllung sagt die Rolle: Blut = Hauptaktion (Button--primary), Stein = alles andere, Discord-Blau nur für Discord.
-// Beim Zeigen steigt von unten Blut auf (bei Discord dessen dunkleres Blau), die Haarlinie glüht; Drücken sinkt ein;
-// die Tastatur zeigt einen Messingring. Text- und Symbolknöpfe (Menü, Antworten, Liken …) bleiben schlicht.
-// :where() hält die Spezifität niedrig, damit die Ecken der geteilten Knöpfe (Dropdown--split) unten greifen.
+// --- Buttons: one rule for all (as on the website, website/src/styles/global.css) --------------
+// Every real button is a dark plate with a thin brass line: same rounding, type and height.
+// The fill shows the role: blood = main action (Button--primary), stone = everything else, Discord blue only for Discord.
+// On hover, blood rises from below (for Discord its darker blue) and the thin line glows; pressing sinks in;
+// the keyboard shows a brass ring. Text and icon buttons (menu, reply, like …) stay plain.
+// :where() keeps the specificity low so that the corners of the split buttons (Dropdown--split) below take effect.
 @bb-btn-line: fade(#c2a878, 40%);
 @bb-btn-line-hot: fade(#e0c694, 95%);
 
@@ -1228,8 +1228,8 @@ h1, h2, h3,
 
 .Button:where(:not(.Button--link):not(.Button--icon):not(.Button--text):not(.Button--flat)),
 :where(.Dropdown--split) .Button {
-  // Werte ausgeschrieben: less.php übersetzt Variablen und Farbfunktionen in --Eigenschaften nicht zuverlässig
-  --btn-fill: rgba(16, 17, 19, 0.8); // Stein
+  // Values written out: less.php does not reliably translate variables and colour functions in --custom-properties
+  --btn-fill: rgba(16, 17, 19, 0.8); // stone
   --btn-rise: #8a1118; // @bb-blood
   --btn-glow: rgba(138, 17, 24, 0.4);
   position: relative;
@@ -1243,7 +1243,7 @@ h1, h2, h3,
   letter-spacing: 0.02em;
   transition: border-color 220ms, color 220ms, box-shadow 220ms, transform 120ms;
 
-  // Blut steigt beim Zeigen von unten auf
+  // Blood rises from below on hover
   &::before {
     content: "";
     position: absolute;
@@ -1297,7 +1297,7 @@ h1, h2, h3,
   }
 }
 
-// Rollen: nur die Füllung ändert sich
+// Roles: only the fill changes
 .Button--primary {
   --btn-fill: #8a1118; // @bb-blood
   --btn-rise: #a3161e; // @bb-blood-hover
@@ -1312,7 +1312,7 @@ h1, h2, h3,
   color: #fff;
 }
 
-// Antworten-Knopf mit Pfeil (Dropdown--split): zwei Platten, innen ohne Rundung; ohne Pfeil (itemCount1) rundum
+// Reply button with arrow (Dropdown--split): two plates, square inside; without arrow (itemCount1) rounded all around
 .Dropdown--split .SplitDropdown-button {
   border-radius: 10px 0 0 10px;
 }
@@ -1323,7 +1323,7 @@ h1, h2, h3,
 }
 
 .Dropdown--split.itemCount1 .Button {
-  border-radius: 10px !important; // Flarum setzt hier var(--border-radius) mit !important
+  border-radius: 10px !important; // Flarum sets var(--border-radius) with !important here
 }
 
 .FormControl {
@@ -1337,7 +1337,7 @@ h1, h2, h3,
   }
 }
 
-// --- Diskussionsliste: kompakte Karten ------------------------------------------------
+// --- Discussion list: compact cards ------------------------------------------------
 .DiscussionList-discussions > li {
   margin-bottom: 6px;
 
@@ -1357,7 +1357,7 @@ h1, h2, h3,
     border-color: @bb-border-strong;
   }
 
-  // Karte hebt sich (nur mit Maus, auf Touch-Geräten bliebe sie sonst hängen)
+  // Card lifts (mouse only, on touch devices it would otherwise stay stuck)
   @media (hover: hover) {
     &:hover {
       transform: translateY(-2px);
@@ -1400,7 +1400,7 @@ h1, h2, h3,
   color: @bb-muted;
 }
 
-// Unread-Punkt / Sticky-Hervorhebung in Gold
+// Unread dot / sticky highlight in gold
 .DiscussionListItem-badges .Badge--sticky {
   background: @bb-gold;
   color: @bb-bg-deep;
@@ -1418,13 +1418,13 @@ h1, h2, h3,
   border: 1px solid @bb-border;
 }
 
-// --- Avatare ----------------------------------------------------------------------------
+// --- Avatars ----------------------------------------------------------------------------
 .Avatar {
   border-radius: 50%;
   box-shadow: 0 0 0 2px @bb-bg;
 }
 
-// --- Beiträge ---------------------------------------------------------------------------
+// --- Posts ---------------------------------------------------------------------------
 .DiscussionHero {
   background:
     radial-gradient(ellipse 70% 150% at 50% -50%, fade(@bb-dusk, 70%) 0%, transparent 70%),
@@ -1436,13 +1436,13 @@ h1, h2, h3,
   }
 }
 
-// Mit Kategorie: deren Farbe scheint nur gedämpft von oben durch, das Label bleibt farbig
+// With a category: its colour shows through from above only muted, the label stays coloured
 .DiscussionHero--colored {
   background:
     radial-gradient(ellipse 70% 160% at 50% -60%, fade(@bb-bg-deep, 45%) 0%, fade(@bb-bg-deep, 94%) 70%),
     var(--hero-bg);
 
-  // Eine Klasse mehr als die Regel der Tags-Erweiterung, die nach diesem Theme geladen wird
+  // One class more than the rule of the Tags extension, which is loaded after this theme
   &.DiscussionHero .TagsLabel .TagLabel.colored {
     --tag-color: var(--contrast-color, #fff);
     background-color: var(--tag-bg);
@@ -1501,7 +1501,7 @@ h1, h2, h3,
   }
 }
 
-// Rollen (Gruppen-Badges) als Discord-Pills
+// Roles (group badges) as Discord pills
 .Badge {
   box-shadow: 0 0 0 2px @bb-card;
 }
@@ -1514,20 +1514,20 @@ h1, h2, h3,
   background: @bb-gold;
 }
 
-// Am Beitrag höchstens drei Abzeichen, sonst laufen sie über den Namen (im Profil stehen alle)
+// At most three badges on a post, otherwise they run over the name (all are shown in the profile)
 .PostUser-badges li:nth-child(n + 4) {
   display: none;
 }
 
-// fof/best-answer: Lösung hervorheben
+// fof/best-answer: highlight the solution
 .CommentPost.Post--bestAnswer,
 .Post--bestAnswer {
   border-color: fade(@bb-gold, 70%);
   box-shadow: 0 0 0 1px fade(@bb-gold, 30%), 0 0 24px fade(@bb-gold, 12%);
 }
 
-// Die Lösung unter dem Eröffnungsbeitrag: Die Erweiterung legt eine grüne Fläche um eine ganze Beitragskarte (mit
-// leerer Avatar-Spalte, das Bild blendet sie aus). Hier ein ruhiger, rundum grün gerahmter Kasten ohne Lücke links.
+// The solution below the opening post: the extension puts a green surface around a whole post card (with an
+// empty avatar column, the image hides it). Here a calm box framed in green all around, with no gap on the left.
 .Post-footer .item-bestAnswerPost {
   margin-top: 18px;
   padding: 0;
@@ -1554,7 +1554,7 @@ h1, h2, h3,
   }
 }
 
-// Das Abzeichen „Best Answer“ im Grün des Forums statt im grellen Grün der Erweiterung
+// The "Best Answer" badge in the forum's green instead of the extension's garish green
 .Post--BestAnswer {
   padding: 1px 8px;
   border: 1px solid #3f6b4a;
@@ -1600,7 +1600,7 @@ h1, h2, h3,
   border-bottom: 1px solid @bb-border;
 }
 
-// Discord-only-Registrierung: E-Mail-Formular weg, sobald ein Login-Button (Discord) da ist
+// Discord-only registration: email form gone as soon as a login button (Discord) is present
 .SignUpModal--discordOnly .LogInButtons:not(:empty) {
   + .Form {
     display: none;
@@ -1616,12 +1616,12 @@ h1, h2, h3,
   }
 }
 
-// --- Fußzeile (content/footer.html, Admin → Appearance → Custom Footer) ---------------------
+// --- Footer (content/footer.html, Admin → Appearance → Custom Footer) ---------------------
 .bb-footer {
   margin-top: 40px;
   padding: 24px 0 32px;
   border-top: 1px solid @bb-border;
-  // Dunkler Stein (media/textures/stone.webp, KI-generiert, nahtlos gemacht), stark abgedunkelt
+  // Dark stone (media/textures/stone.webp, AI-generated, made seamless), heavily darkened
   background:
     linear-gradient(fade(@bb-bg-deep, 55%), fade(@bb-bg-deep, 78%)),
     ~"url('media/bb/stone.webp') 0 0 / 320px repeat",
@@ -1651,9 +1651,9 @@ h1, h2, h3,
   gap: 8px 20px;
 }
 
-// --- Körnung --------------------------------------------------------------------------------
-// Feines Filmkorn über der ganzen Seite (media/textures/grain.svg, selbst erzeugt). Klicks gehen
-// hindurch; sehr schwach, damit Text scharf bleibt.
+// --- Grain --------------------------------------------------------------------------------
+// Fine film grain over the whole page (media/textures/grain.svg, self-generated). Clicks pass
+// through; very faint so text stays sharp.
 body::after {
   content: "";
   position: fixed;
@@ -1667,10 +1667,10 @@ body::after {
   opacity: 0.05;
 }
 
-// --- Bewegung (Regeln in media/BRAND.md) ------------------------------------------------------
-// Eine schwere Kurve für alles; nur Position und Deckkraft; "Bewegung reduzieren" schaltet ab.
+// --- Motion (rules in media/BRAND.md) ------------------------------------------------------
+// One heavy curve for everything; only position and opacity; "reduce motion" turns it off.
 
-// Ziehender Nebel über dem Willkommens-Banner (media/textures/fog.svg, nahtlos 600 px breit)
+// Drifting fog over the welcome banner (media/textures/fog.svg, seamless, 600 px wide)
 .WelcomeHero {
   position: relative;
   overflow: hidden;
@@ -1696,7 +1696,7 @@ body::after {
   to { transform: translateX(-600px); }
 }
 
-// Laterne im Hunter's-Dream-Kasten flackert, solange der Server läuft (langsam, unregelmäßig)
+// Lantern in the Hunter's Dream box flickers while the server is running (slow, irregular)
 .is-online > .bb-hd-lamp {
   animation: bb-flicker 4.2s steps(1, end) infinite;
 }
@@ -1710,10 +1710,10 @@ body::after {
   83% { opacity: 0.88; box-shadow: 0 0 4px 0 fade(#bc9570, 32%); }
 }
 
-// Messinglinie unter den Website- und Discord-Links in der Kopfzeile
+// Brass line under the Website and Discord links in the header
 .Header-primary .bb-navLink .Button-label {
   padding-bottom: 2px;
-  // ~"…": sonst rechnet LESS "100% / 0%" als Division
+  // ~"…": otherwise LESS treats "100% / 0%" as division
   background: linear-gradient(@bb-gold-light, @bb-gold-light) ~"0 100% / 0% 1px" no-repeat;
   transition: background-size 220ms @bb-ease;
 }
@@ -1723,7 +1723,7 @@ body::after {
   background-size: 100% 1px;
 }
 
-// Ladeanzeige: ein Blutstropfen fällt und zieht Kreise (statt des Standard-Kreisels)
+// Loading indicator: a drop of blood falls and ripples outward (instead of the default spinner)
 .LoadingIndicator {
   position: relative;
   border: 0;
@@ -1778,8 +1778,8 @@ body::after {
   100% { opacity: 0; transform: scale(1.3); }
 }
 
-// Neuer Beitrag: Flarum setzt kurz "flash" (nach dem Antworten oder beim Springen zu einem Beitrag);
-// der rote Rand pulsiert einmal und wird dann ruhig
+// New post: Flarum briefly sets "flash" (after replying or when jumping to a post);
+// the red border pulses once and then settles
 .PostStream-item.flash {
   animation: none;
 
@@ -1794,7 +1794,7 @@ body::after {
   100% { background-color: transparent; }
 }
 
-// Beste Antwort: der Messingrahmen glüht einmal auf, wenn der Beitrag erscheint
+// Best answer: the brass frame glows once when the post appears
 .Post--bestAnswer {
   animation: bb-best 1100ms @bb-ease;
 }
@@ -1805,7 +1805,7 @@ body::after {
   100% { box-shadow: 0 0 0 1px fade(@bb-gold, 30%), 0 0 24px fade(@bb-gold, 12%); }
 }
 
-// "Bewegung reduzieren" im System: nur die Ladeanzeige bleibt, sie zeigt ja etwas an
+// "Reduce motion" in the system: only the loading indicator stays, since it conveys information
 @media (prefers-reduced-motion: reduce) {
   .WelcomeHero::before,
   .is-online > .bb-hd-lamp,
@@ -1841,12 +1841,12 @@ body::after {
   background: @bb-bg;
 }
 
-// --- Größenstufen für verschiedene Viewports ---------------------------------------------
-// Flarum ist responsiv bis 1100 px und wächst darüber nicht mehr (Spalte 1100 px, Schrift
-// 13 px). Hier skaliert das Layout auf großen Monitoren weiter; Handy und Tablet behalten
-// Flarums eigenes Layout und bekommen nur gut lesbaren Beitragstext.
-//                       Spalte   Basis  Beitrag  Listentitel  Navigation
-//   ≥ 1400 px (z. B. 1440p-Laptop, WQHD@125 %)   1280 px  14 px  15.5 px  17 px  14 px
+// --- Size steps for different viewports ---------------------------------------------
+// Flarum is responsive up to 1100 px and does not grow beyond that (column 1100 px, font
+// 13 px). Here the layout keeps scaling on large monitors; phones and tablets keep
+// Flarum's own layout and only get easily readable post text.
+//                       Column   Base   Post     List title   Navigation
+//   ≥ 1400 px (e.g. 1440p laptop, WQHD@125 %)    1280 px  14 px  15.5 px  17 px  14 px
 //   ≥ 1800 px (Full HD, WQHD)                    1440 px  15 px  16.5 px  18 px  15 px
 //   ≥ 2400 px (WQHD@100 %, 4K@150 %)             1680 px  16 px  18 px    20 px  16 px
 @media @phone {
@@ -1924,9 +1924,9 @@ body::after {
   .bb-scale(1680px; 16px; 18px; 20px; 16px; 44px);
 }
 
-// --- Profile: verdiente Effekte und Discord-Deko (flarum/forum.js, flarum/profiles.php) --------------------------
-// Ein Rahmen je Nutzer (Discord-Deko ersetzt ihn): Blutmond für Booster, Messing-Laterne fürs Team. Namen: Booster
-// glüht blutrot, Contest-Sieger schimmern im Mondlicht. Rolle als Schild und verdiente Zeichen stehen hinter dem Namen.
+// --- Profiles: earned effects and Discord decorations (flarum/forum.js, flarum/profiles.php) --------------------------
+// One frame per user (a Discord decoration replaces it): blood moon for boosters, brass lantern for the team. Names:
+// boosters glow blood red, contest winners shimmer in moonlight. Role shield and earned marks come after the name.
 .PostUser.bb-frame--booster .PostUser-avatar,
 .UserCard.bb-frame--booster .UserCard-avatar .Avatar {
   box-shadow: 0 0 0 3px #8a1118, 0 0 0 5px rgba(194, 42, 48, 0.3), 0 0 14px 3px rgba(194, 42, 48, 0.4);
@@ -2000,7 +2000,7 @@ body::after {
   }
 }
 
-// Discord-Avatar-Deko: am Beitrag als Bild über dem Avatar (64 px, Deko 20 % größer), im Profil per Variable
+// Discord avatar decoration: on posts an image over the avatar (64 px, 20 % larger), in the profile via a variable
 @media (min-width: 768px) {
   .PostUser .bb-deco {
     position: absolute;
@@ -2035,12 +2035,12 @@ body::after {
   }
 }
 
-// Profilbild in der Profilkarte: dunkler Ring statt Flarums weißem
+// Profile picture in the profile card: dark ring instead of Flarum's white one
 .UserCard-avatar .Avatar {
   border-color: @bb-bg-deep;
 }
 
-// Rollen-Schild: eine Farbe je Rolle, der volle Discord-Name beim Zeigen. Ersetzt Flarums Gruppen-Abzeichen.
+// Role shield: one colour per role, the full Discord name on hover. Replaces Flarum's group badges.
 .bb-role {
   display: inline-block;
   margin-left: 8px;
@@ -2098,7 +2098,7 @@ body::after {
   color: #b3cbe3;
 }
 
-// Verdiente Zeichen hinter dem Namen am Beitrag; Insight mit Stufe
+// Earned marks after the name on a post; Insight with a level
 .bb-marks {
   display: inline-flex;
   gap: 7px;
@@ -2136,7 +2136,7 @@ body::after {
   color: @bb-moon;
 }
 
-// Rechner des Verfassers in Hilfe- und Bug-Themen, neben der Zeit (auf dem Handy in eigener Zeile darunter)
+// Author's PC rig in help and bug topics, next to the time (on phones on its own line below)
 .Post-header .item-bbRig {
   color: @bb-muted;
   font-size: 12px;
@@ -2162,7 +2162,7 @@ body::after {
   }
 }
 
-// Profilkarte: Schilder, Zeichen, Hunter-Karte und Discord-Link je in eigener Zeile
+// Profile card: shields, marks, Hunter card and Discord link each on their own line
 .UserCard-info {
   .item-bbRoles,
   .item-bbMarks,
@@ -2190,7 +2190,7 @@ body::after {
   gap: 6px;
 }
 
-// Auf dem Handy steht die Profilkarte mittig, die Zeilen auch
+// On phones the profile card is centred, and so are the lines
 @media (max-width: 767.98px) {
   .UserCard .bb-roles,
   .UserCard .bb-markList,
@@ -2217,7 +2217,7 @@ body::after {
   }
 }
 
-// Profilkarte: Discord-Banner als Titelbild (wie ein eigenes Titelbild), zum Lesen nach unten abgedunkelt
+// Profile card: Discord banner as cover image (like a custom cover image), darkened toward the bottom for legibility
 .UserCard.bb-hasBanner {
   background-image: var(--background-image);
   background-position: center;
@@ -2228,8 +2228,8 @@ body::after {
   }
 }
 
-// Eigene Profilfarben (Profile look): Verlauf auf der Karte, leicht abgedunkelt, damit helle Farben lesbar bleiben;
-// mit Banner oder Titelbild tönen sie nur die Abdunklung nach unten
+// Custom profile colours (Profile look): gradient on the card, slightly darkened so light colours stay readable;
+// with a banner or cover image they only tint the darkening toward the bottom
 .UserCard.bb-themed:not(.bb-hasBanner):not(.bb-hasCover) {
   background: linear-gradient(rgba(8, 9, 10, 0.3), rgba(8, 9, 10, 0.3)), linear-gradient(160deg, var(--bb-theme1), var(--bb-theme2));
 }
@@ -2240,13 +2240,13 @@ body::after {
     color-mix(in srgb, var(--bb-theme2) 85%, rgba(8, 9, 10, 0.9)) 100%);
 }
 
-// Wie bei Nitro: die Karte beim Zeigen auf einen Namen (und die Vorschau) bekommt einen Rand in der ersten Farbe
+// As with Nitro: the card shown when hovering over a name (and the preview) gets a border in the first colour
 .UserCard--popover.bb-themed,
 .bb-look-card.bb-themed {
   box-shadow: 0 0 0 2px var(--bb-theme1), 0 8px 28px rgba(0, 0, 0, 0.5);
 }
 
-// Hochgeladene GIFs sind nicht zugeschnitten (die Animation bliebe sonst nicht erhalten): quadratisch anzeigen
+// Uploaded GIFs are not cropped (the animation would otherwise be lost): display them square
 img.Avatar {
   object-fit: cover;
 }
@@ -2262,7 +2262,7 @@ img.Avatar {
   font-weight: 600;
 }
 
-// Einstellungen: Profile look (Steuerung links, Vorschau rechts; schmal untereinander)
+// Settings: Profile look (controls on the left, preview on the right; stacked when narrow)
 .bb-look-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
@@ -2398,7 +2398,7 @@ img.Avatar {
   }
 }
 
-// Hunter-Karte im Profil: Waffe, Insight, Grafikkarte, VRAM
+// Hunter card in the profile: weapon, Insight, graphics card, VRAM
 .UserCard-info .item-bbHunter {
   display: block;
   margin-top: 8px;

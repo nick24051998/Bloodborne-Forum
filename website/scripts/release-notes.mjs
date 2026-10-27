@@ -1,7 +1,7 @@
-// Release-Texte für die Changelog-Seite. GitHub liefert sie schon als bereinigtes HTML (body_html); wir lassen
-// trotzdem nur einfache Textauszeichnung durch, weil der Text aus einem fremden Repo kommt:
-// Überschriften werden h3/h4, Links behalten nur ein http(s)-Ziel, alle übrigen Tags und Attribute fallen weg
-// (ihr Text bleibt), Skripte, Styles und eingebettete Inhalte fallen samt Inhalt weg.
+// Release texts for the changelog page. GitHub already delivers them as sanitized HTML (body_html); we still
+// let only simple text markup through, because the text comes from a foreign repo:
+// headings become h3/h4, links keep only an http(s) target, all other tags and attributes are dropped
+// (their text stays), scripts, styles and embedded content are dropped together with their content.
 const KEEP = new Set(['p', 'br', 'hr', 'ul', 'ol', 'li', 'strong', 'b', 'em', 'i', 'code', 'pre', 'blockquote',
   'del', 's', 'kbd', 'sub', 'sup', 'a', 'table', 'thead', 'tbody', 'tr', 'th', 'td']);
 const DROP = /<(script|style|iframe|object|embed|template|svg|math|noscript|textarea|select)\b[\s\S]*?<\/\1\s*>/gi;
@@ -19,7 +19,7 @@ export function cleanNotes(html) {
     out += escapeText(source.slice(last, m.index));
     last = m.index + m[0].length;
     const [, close, tag, attrs] = m;
-    if (!tag) continue; // Kommentar
+    if (!tag) continue; // comment
     let name = tag.toLowerCase();
     if (/^h[1-6]$/.test(name)) name = ['h1', 'h2'].includes(name) ? 'h3' : 'h4';
     else if (!KEEP.has(name)) continue;

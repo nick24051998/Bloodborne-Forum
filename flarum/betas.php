@@ -1,21 +1,22 @@
 <?php
 /*
- * Betas im Forum (geladen von flarum/extend.php).
+ * Betas in the forum (loaded by flarum/extend.php).
  *
- * Testversionen stehen nur im Bereich „Beta“, den nur freigeschaltete Tester und das Team sehen (Rechte setzt
- * scripts/lib/setup-inside.sh: Discord-Rollen „Beta Hunter“ und „Test Subject“ über den Rollen-Abgleich, dazu
- * die Forum-Gruppe „Beta Testers“ für Freischaltungen nur im Forum).
+ * Test builds appear only in the "Beta" section, which only approved testers and the team can see (permissions are
+ * set by scripts/lib/setup-inside.sh: Discord roles "Beta Hunter" and "Test Subject" via the role sync, plus
+ * the forum group "Beta Testers" for approvals in the forum only).
  *
- * Der Befehl „php flarum bbforum:betas“ läuft alle 10 Minuten (Flarum-Scheduler). Er liest die Vorabversionen
- * (Pre-releases) der Repos in bbforum.beta_repos auf GitHub und legt für jede neue ein Thema im Bereich Beta an:
- * Downloads, Hinweise zum Testen, der Text der Release-Seite, eine Erwähnung der Tester-Gruppen (die bekommen
- * eine Benachrichtigung). Das neueste Thema ist angepinnt; im vorigen steht ein Hinweis auf das neue.
- * Beim allerersten Lauf kommt nur die neueste Vorabversion ins Forum, ältere gelten als erledigt.
+ * The command "php flarum bbforum:betas" runs every 10 minutes (Flarum scheduler). It reads the pre-releases
+ * of the repos in bbforum.beta_repos on GitHub and creates a discussion in the Beta section for each new one:
+ * downloads, testing notes, the text of the release page, a mention of the tester groups (they get
+ * a notification). The newest discussion is pinned; the previous one gets a note pointing to the new one.
+ * On the very first run only the newest pre-release goes into the forum; older ones count as done.
  *
- * Gemerkt wird in den Einstellungen:
- * - bbforum.beta_posted: "repo@tag" → Themen-ID (0 = übersprungen)
- * - bbforum.beta_etags: "repo" → ETag der letzten Antwort (GitHub zählt unveränderte Antworten nicht zum Limit)
- * Mit --dry-run nur anzeigen, was neu wäre.
+ * Remembered in the settings:
+ * - bbforum.beta_posted: "repo@tag" → discussion ID (0 = skipped)
+ * - bbforum.beta_etags: "repo" → ETag of the last response (GitHub does not count unchanged responses toward
+ *   the rate limit)
+ * With --dry-run only show what would be new.
  */
 
 use Flarum\Console\AbstractCommand;
@@ -59,8 +60,8 @@ if (! class_exists('BBForumBetas')) {
                 fn ($r) => preg_match('#^[\w.-]+/[\w.-]+$#', $r)));
         }
 
-        /** Vorabversionen aller Repos, älteste zuerst; null, wenn sich bei GitHub nichts geändert hat.
-         *  Die ETags kommen in $etags zurück und werden erst nach einem echten Lauf gespeichert. */
+        /** Pre-releases of all repos, oldest first; null if nothing changed on GitHub.
+         *  The ETags are returned in $etags and only saved after a real run. */
         private function prereleases(array &$etags): ?array
         {
             $changed = false;
@@ -99,7 +100,7 @@ if (! class_exists('BBForumBetas')) {
                 return ['skipped' => 'no beta tag'];
             }
             $posted = $this->json(self::POSTED);
-            // Ohne gemerkte Themen (erster Lauf) immer frisch fragen, sonst nur bei Änderungen
+            // Without remembered discussions (first run) always ask fresh, otherwise only on changes
             $etags = $posted ? $this->json(self::ETAGS) : [];
             $releases = $this->prereleases($etags);
             if ($releases === null) {
@@ -107,7 +108,7 @@ if (! class_exists('BBForumBetas')) {
             }
             $key = fn ($rel) => $rel['_repo'].'@'.$rel['tag_name'];
             $new = array_values(array_filter($releases, fn ($rel) => ! array_key_exists($key($rel), $posted)));
-            // Erster Lauf: nur die neueste Vorabversion zeigen, ältere gelten als erledigt
+            // First run: show only the newest pre-release, older ones count as done
             if (! $posted && count($new) > 1) {
                 foreach (array_slice($new, 0, -1) as $old) {
                     $posted[$key($old)] = 0;
@@ -127,7 +128,7 @@ if (! class_exists('BBForumBetas')) {
                 $posted[$key($rel)] = (int) $discussion->id;
                 $this->settings->set(self::POSTED, json_encode($posted));
 
-                // Das neue Thema angepinnt, die älteren nicht mehr; im vorigen ein Hinweis auf das neue
+                // Pin the new discussion, unpin the older ones; post a note pointing to the new one in the previous one
                 Discussion::whereIn('id', array_values($previous))->update(['is_sticky' => false]);
                 $discussion->is_sticky = true;
                 $discussion->save();
@@ -189,8 +190,8 @@ if (! class_exists('BBForumBetas')) {
         protected function configure()
         {
             $this->setName('bbforum:betas')
-                ->setDescription('Neue Testversionen von GitHub im Bereich Beta posten')
-                ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Nur anzeigen, was neu wäre');
+                ->setDescription('Post new test builds from GitHub in the Beta section')
+                ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Only show what would be new');
         }
 
         protected function fire()

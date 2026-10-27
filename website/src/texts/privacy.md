@@ -6,10 +6,10 @@ intro: Which data our website and forum process, why, and what you can do about 
 ---
 
 <!--
-Datenschutzhinweise für Website und Forum, aus dem tatsächlichen Aufbau abgeleitet (Stand: Oktober 2026).
-Bei Änderungen am Aufbau (neue Dienste, Einbettungen, Tracking, E-Mail-Versand) hier nachziehen.
-Hinweis: Die DSGVO verlangt die Angabe des Verantwortlichen (Name und Kontakt). Bewusst steht hier
-vorerst nur die Kontaktadresse; die Entscheidung dazu liegt beim Betreiber.
+Privacy notice for the website and forum, derived from the actual setup (as of October 2026).
+When the setup changes (new services, embeds, tracking, email sending), update it here.
+Note: the GDPR (DSGVO) requires naming the controller (name and contact). On purpose, only the
+contact address is given here for now; the decision on that is up to the operator.
 -->
 
 This notice covers our website (bbport.de) and our forum (forum.bbport.de).

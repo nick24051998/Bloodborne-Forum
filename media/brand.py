@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Leitet Discord-Icon, Favicons, Website-Emblem und den Logo-Baustein aus dem Siegel ab.
+"""Derives the Discord icon, favicons, website emblem and the logo building block from the sigil.
 
-  python3 media/brand.py         (braucht Pillow; danach: node media/render-logo.cjs)
+  python3 media/brand.py         (needs Pillow; afterwards: node media/render-logo.cjs)
 
-Quelle: media/brand/sigil.png, das Siegel der Community auf dunklem Grund
-(für dieses Projekt mit ChatGPT erzeugt, siehe media/CREDITS.md und media/BRAND.md).
+Source: media/brand/sigil.png, the community's sigil on a dark background
+(generated for this project with ChatGPT, see media/CREDITS.md and media/BRAND.md).
 """
 import pathlib
 
@@ -15,11 +15,11 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 BRAND = ROOT / "media" / "brand"
 PUBLIC = ROOT / "website" / "public"
 THEME = ROOT / "theme"
-PLATE = (15, 19, 23)  # #0f1317, Grund des Siegels
+PLATE = (15, 19, 23)  # #0f1317, background of the sigil
 
 
 def cutout():
-    """Siegel freigestellt und knapp beschnitten (Alpha aus dem Abstand zur Hintergrundfarbe)."""
+    """Sigil cut out and tightly cropped (alpha from the distance to the background color)."""
     a = np.asarray(Image.open(BRAND / "sigil.png").convert("RGB")).astype(float)
     corners = np.concatenate([a[:40, :40], a[:40, -40:], a[-40:, :40], a[-40:, -40:]]).reshape(-1, 3)
     bg = np.median(corners, 0)
@@ -31,12 +31,12 @@ def cutout():
 
 
 def split_blood(sigil):
-    """Teilt das Siegel in Knochen und Blut, damit sich der Kelch auf der Startseite füllen kann.
+    """Splits the sigil into bone and blood so that the chalice on the home page can fill up.
 
-    Blut = Rot mindestens doppelt so stark wie Grün und Blau (Verhältnis statt Abstand, damit auch das
-    dunkle Blut im Schatten zählt; Knochen und Stein liegen bei etwa 1,1). Nur im Bereich des Bluts im
-    Kelch, sonst färben rötliche Kantenpixel am Umriss mit. Die Blut-Ebene reicht 2 px unter die
-    Knochen-Ebene: übereinander gelegt ergeben beide wieder das Original, ohne Lücken an den Übergängen.
+    Blood = red at least twice as strong as green and blue (a ratio, not a distance, so that dark blood in the
+    shadows counts too; bone and stone sit at about 1.1). Only within the area of the blood in the chalice,
+    otherwise reddish edge pixels along the outline get picked up. The blood layer extends 2 px under the
+    bone layer: stacked on top of each other, the two give back the original, with no gaps at the transitions.
     """
     a = np.asarray(sigil).astype(float)
     rgb, cover = a[..., :3], a[..., 3] / 255
@@ -54,8 +54,8 @@ def split_blood(sigil):
 
 
 def icon(sigil, size, height, round_plate):
-    """Siegel mittig auf der dunklen Platte; height = Anteil der Siegelhöhe an der Kantenlänge."""
-    big = size * 4  # 4-fach zeichnen für glatte Kanten
+    """Sigil centered on the dark plate; height = share of the sigil height in the edge length."""
+    big = size * 4  # draw at 4x for smooth edges
     if round_plate:
         canvas = Image.new("RGBA", (big, big), (0, 0, 0, 0))
         ImageDraw.Draw(canvas).ellipse((0, 0, big - 1, big - 1), fill=PLATE + (255,))
@@ -69,16 +69,16 @@ def icon(sigil, size, height, round_plate):
 
 def main():
     sigil = cutout()
-    sigil.save(BRAND / "sigil-cutout.png", optimize=True)  # für media/logo.html und media/og.html
+    sigil.save(BRAND / "sigil-cutout.png", optimize=True)  # for media/logo.html and media/og.html
 
-    # Discord schneidet das Icon rund zu: 0.66 hält die Hornspitzen sicher im Kreis
+    # Discord crops the icon to a circle: 0.66 keeps the horn tips safely inside the circle
     icon(sigil, 1024, 0.66, False).convert("RGB").save(BRAND / "discord-icon.png", optimize=True)
     for target in (THEME / "favicon.png", PUBLIC / "favicon.png"):
         icon(sigil, 128, 0.66, True).save(target, optimize=True)
     icon(sigil, 180, 0.70, False).convert("RGB").save(PUBLIC / "apple-touch-icon.png", optimize=True)
 
-    # Emblem der Website-Startseite in zwei Ebenen, Knochen und Blut (wird mit 380 px Breite gezeigt,
-    # hier doppelt für scharfe Displays)
+    # Emblem of the website home page in two layers, bone and blood (shown at 380 px width,
+    # here doubled for sharp displays)
     w = 760
     size = (w, round(sigil.height * w / sigil.width))
     for layer, name in zip(split_blood(sigil), ("emblem-bone.webp", "emblem-blood.webp")):

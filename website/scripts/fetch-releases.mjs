@@ -1,15 +1,17 @@
-// Releases des Ports von GitHub (Repo aus SITE.downloadUrl). Läuft in .github/workflows/website.yml:
+// Releases of the port from GitHub (repo taken from SITE.downloadUrl). Runs in .github/workflows/website.yml:
 //
-//   node scripts/fetch-releases.mjs             schreibt src/data/releases.json (bei Fehlern bleibt die alte Datei)
-//   node scripts/fetch-releases.mjs --check     neueste Version auf GitHub und auf der Website → $GITHUB_OUTPUT
-//                                               (changed: neu bauen; announce: wirklich neuer, also melden)
-//   node scripts/fetch-releases.mjs --announce  meldet die neueste Version in Discord (DISCORD_RELEASES_WEBHOOK)
+//   node scripts/fetch-releases.mjs             writes src/data/releases.json (on errors the old file stays)
+//   node scripts/fetch-releases.mjs --check     latest version on GitHub and on the website → $GITHUB_OUTPUT
+//                                               (changed: new version or next download step, so rebuild;
+//                                               announce: really newer, so announce it)
+//   node scripts/fetch-releases.mjs --announce  announces the latest version on Discord (DISCORD_RELEASES_WEBHOOK)
 //
-// GITHUB_TOKEN (in Actions automatisch) hebt das Abfragelimit an. Zum Testen: RELEASES_FIXTURE=antwort.json
-// statt der GitHub-API, LIVE_RELEASE_URL statt <Website>/release.json.
+// GITHUB_TOKEN (set automatically in Actions) raises the rate limit. For testing: RELEASES_FIXTURE=response.json
+// instead of the GitHub API, LIVE_RELEASE_URL instead of <website>/release.json.
 import { readFile, writeFile, appendFile } from 'node:fs/promises';
 import { SITE } from '../site.config.mjs';
 import { cleanNotes } from './release-notes.mjs';
+import { totalDownloads, downloadsLabel } from '../src/lib/downloads.js';
 
 const repo = SITE.downloadUrl.match(/github\.com\/([^/]+\/[^/]+)/)?.[1];
 const dataFile = new URL('../src/data/releases.json', import.meta.url);
@@ -25,12 +27,19 @@ async function github(path, accept = 'application/vnd.github+json') {
 
 async function fetchReleases() {
   if (process.env.RELEASES_FIXTURE) return JSON.parse(await readFile(process.env.RELEASES_FIXTURE, 'utf8'));
-  return github('/releases?per_page=40');
+  // Every page: the download count adds up all releases, not just the newest ones
+  const all = [];
+  for (let page = 1; page <= 10; page++) {
+    const batch = await github(`/releases?per_page=100&page=${page}`);
+    all.push(...batch);
+    if (batch.length < 100) break;
+  }
+  return all;
 }
 
-// Release-Texte als HTML (body_html, so wie GitHub sie anzeigt) für die Releases, die der Changelog zeigt, einzeln
-// je Release: Die ganze Liste mit Texten (full+json) kam von GitHub mal leer zurück, beim Bauen auch bei 20 Stück.
-// Fehlt ein Text, verlinkt der Changelog für dieses Release auf GitHub.
+// Release texts as HTML (body_html, as GitHub displays them) for the releases the changelog shows, fetched one
+// by one per release: the whole list with texts (full+json) once came back empty from GitHub, also with 20 items.
+// If a text is missing, the changelog links to GitHub for that release.
 const NOTES_FOR = 12;
 async function addNotes(api) {
   const shown = new Set(normalize(api).slice(0, NOTES_FOR).map((r) => r.tag));
@@ -44,13 +53,13 @@ async function addNotes(api) {
   return api;
 }
 
-// Nur veröffentlichte Releases; gibt es Windows-Tags (windows-v1.9.2), dann nur diese
+// Only published releases; if there are Windows tags (windows-v1.9.2), only those
 export function normalize(api) {
   const visible = api.filter((r) => !r.draft);
   const windows = visible.filter((r) => /^windows-/i.test(r.tag_name));
   return (windows.length ? windows : visible)
     .map((r) => {
-      // Seit 1.9.4 hängen zwei ZIPs am Release (Port und fsr4vk-…-src.zip): die des Ports nehmen
+      // Since 1.9.4 two ZIPs are attached to the release (the port and fsr4vk-…-src.zip): take the port's
       const zips = (r.assets ?? []).filter((a) => /\.zip$/i.test(a.name));
       const zip = zips.find((a) => /^Bloodborne/i.test(a.name)) ?? zips.find((a) => !/-src\.zip$/i.test(a.name)) ?? zips[0];
       const published = r.published_at ?? r.created_at ?? '';
@@ -65,7 +74,8 @@ export function normalize(api) {
         download: zip?.browser_download_url ?? null,
         downloadName: zip?.name ?? null,
         downloadSize: zip ? Math.round(zip.size / 1048576) : null,
-        // GitHub rechnet die Prüfsumme selbst aus ("sha256:…"), damit lässt sich die ZIP nach dem Download prüfen
+        downloads: zip?.download_count ?? 0,
+        // GitHub computes the checksum itself ("sha256:…"), so the ZIP can be verified after downloading
         sha256: /^sha256:[0-9a-f]{64}$/i.test(zip?.digest ?? '') ? zip.digest.slice(7) : null,
         notes: cleanNotes(r.body_html),
       };
@@ -75,7 +85,7 @@ export function normalize(api) {
 
 const latestOf = (releases) => releases.find((r) => !r.prerelease) ?? null;
 
-// 1.10 > 1.9.2 > 1.9; zurückgezogene Versionen (GitHub älter als die Website) werden nicht gemeldet
+// 1.10 > 1.9.2 > 1.9; withdrawn versions (GitHub older than the website) are not announced
 export function isNewer(a, b) {
   const pa = a.split(/[^0-9]+/).filter(Boolean).map(Number);
   const pb = b.split(/[^0-9]+/).filter(Boolean).map(Number);
@@ -85,12 +95,12 @@ export function isNewer(a, b) {
   return false;
 }
 
-async function liveVersion() {
+async function liveRelease() {
   try {
     const response = await fetch(process.env.LIVE_RELEASE_URL ?? `${siteUrl}/release.json`, { signal: AbortSignal.timeout(15000) });
-    return response.ok ? ((await response.json()).version ?? '') : '';
+    return response.ok ? await response.json() : {};
   } catch {
-    return '';
+    return {};
   }
 }
 
@@ -104,19 +114,27 @@ async function output(values) {
 const mode = process.argv[2] ?? '';
 
 if (mode === '--check') {
-  // Fehler bei GitHub: latest bleibt leer, dann baut und meldet der Zeitplan nichts
+  // Error from GitHub: latest stays empty, so the schedule neither builds nor announces anything
   let latest = '';
+  let downloads = '';
   try {
-    latest = latestOf(normalize(await fetchReleases()))?.version ?? '';
+    const releases = normalize(await fetchReleases());
+    latest = latestOf(releases)?.version ?? '';
+    downloads = downloadsLabel(totalDownloads(releases));
   } catch (e) {
     console.log(`::warning::Releases nicht abrufbar: ${e.message}`);
   }
-  const live = await liveVersion();
+  const liveData = await liveRelease();
+  const live = liveData.version ?? '';
+  const liveDownloads = downloadsLabel(liveData.downloads ?? 0);
   await output({
     latest,
     live,
-    changed: Boolean(latest) && latest !== live,
-    // Erste Veröffentlichung (live leer): nichts melden, die Version ist ja nicht neu
+    downloads,
+    liveDownloads,
+    // A new version, or the download count on the home page has moved to the next step
+    changed: Boolean(latest) && (latest !== live || (Boolean(downloads) && downloads !== liveDownloads)),
+    // First publication (live is empty): announce nothing, the version isn't new after all
     announce: Boolean(latest && live) && isNewer(latest, live),
   });
 } else if (mode === '--announce') {
@@ -155,7 +173,7 @@ if (mode === '--check') {
     await writeFile(dataFile, `${JSON.stringify({ source: `https://github.com/${repo}/releases`, fetchedAt: new Date().toISOString(), releases }, null, 2)}\n`);
     console.log(`${releases.length} Releases, neueste: ${latestOf(releases)?.version}, mit Text: ${releases.filter((r) => r.notes).length}`);
   } catch (e) {
-    // Die Website baut dann mit dem Stand aus dem Repo
+    // The website then builds with the state from the repo
     console.log(`::warning::Releases nicht abrufbar, nutze src/data/releases.json aus dem Repo: ${e.message}`);
   }
 }

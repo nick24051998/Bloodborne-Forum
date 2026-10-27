@@ -3,9 +3,10 @@ title: FAQ – Frequently Asked Questions
 description: Answers to the most common questions about bbport, the Bloodborne PC port for Windows – game files, code 3, crashes, online co-op, mods and more.
 heading: Frequently asked questions
 intro: Quick answers to the questions we get most often, sorted by topic. Search below or jump to a topic. How the launcher works, page by page, is in the launcher guide.
-# Fragen und Antworten, nach Gruppen, darin nach Häufigkeit in #help. Antworten sind HTML (<p>, <ol>, <code>, Links).
-# id = feste Sprungmarke für Links (bbport.de/faq/#code-3): nicht ändern, Links in Discord zeigen darauf.
-# Gruppen der FAQ-Seite: id (Sprungmarke #topic-<id>), Überschrift, ein Satz; jede Frage nennt ihre Gruppe.
+# Questions and answers, by group, and within a group by how often they come up in #help.
+# Answers are HTML (<p>, <ol>, <code>, links).
+# id = fixed anchor for links (bbport.de/faq/#code-3): do not change it, links in Discord point to it.
+# Groups of the FAQ page: id (anchor #topic-<id>), heading, one sentence; each question names its group.
 groups:
   - id: start
     title: Getting started
