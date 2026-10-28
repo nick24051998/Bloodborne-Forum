@@ -348,8 +348,9 @@ h1, h2, h3,
 }
 
 // --- Sidebar like the Discord channel list ------------------------------------------
-// Flarum puts IndexPage-nav and sideNav on the same element
-.IndexPage-nav.sideNav .Dropdown-menu > li > a {
+// Flarum puts IndexPage-nav and sideNav on the same element; .bb-sectionNav is the same list inside a topic
+.IndexPage-nav.sideNav .Dropdown-menu > li > a,
+.bb-sectionNav .Dropdown-menu > li > a {
   border-radius: 6px;
   padding: 6px 10px 6px 40px; // icon sits in front of it via margin-left: -30px
   transition: background 0.12s, color 0.12s;
@@ -360,7 +361,8 @@ h1, h2, h3,
   }
 }
 
-.IndexPage-nav.sideNav .Dropdown-menu > li.active > a {
+.IndexPage-nav.sideNav .Dropdown-menu > li.active > a,
+.bb-sectionNav .Dropdown-menu > li.active > a {
   background: @bb-card-hover;
   color: @bb-gold-light;
   font-weight: 600;
@@ -370,6 +372,65 @@ h1, h2, h3,
 .DiscussionPage-nav .Button--primary {
   font-weight: 700;
   letter-spacing: 0.02em;
+}
+
+// Sections inside a topic (flarum/forum.js sectionNav, Zed 28.10.2026): from 1280 px a column on the left at the
+// same place and width as on the home page, the posts in the middle, Reply and the scrubber on the right as before.
+// It stays in view while scrolling and scrolls by itself when the window is lower than the list. Narrower screens
+// keep Flarum's layout (posts need the width; phones have the side menu).
+.bb-sectionNav {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  // 75 px before Reply as in Flarum; the gap to the posts is the 50 px margin of .sideNav, as on the home page
+  .DiscussionPage-discussion > .container {
+    grid-template-columns: auto minmax(0, 1fr) 75px 150px;
+    grid-template-areas: "sections stream . nav";
+    column-gap: 0;
+  }
+
+  .bb-sectionNav {
+    display: block;
+    grid-area: sections;
+    align-self: start;
+    position: sticky;
+    top: var(--header-height);
+    max-height: calc(100vh - var(--header-height));
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    // The list keeps its width (.sideNav > ul); the scrollbar gets a gutter of its own next to it and shows on hover
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+
+    &:hover,
+    &:focus-within {
+      scrollbar-color: @bb-border-strong transparent;
+    }
+
+    > ul {
+      padding-bottom: 20px;
+    }
+  }
+
+  // Wins over .sideNav's width (also in .bb-scale); 40 px + the gutter ≈ the home page's 50 px
+  .sideNav.bb-sectionNav {
+    width: auto;
+    margin-right: 40px;
+  }
+
+  // Flarum's topic list pinned on the left (old pin setting; the pin itself is hidden on desktop): the posts keep
+  // their width, no sections then
+  .hasPane.panePinned .DiscussionPage-discussion > .container {
+    grid-template-columns: minmax(0, 1fr) 75px 150px;
+    grid-template-areas: "stream . nav";
+  }
+
+  .hasPane.panePinned .bb-sectionNav {
+    display: none;
+  }
 }
 
 // --- The Hunter's Dream: live figures (flarum/forum.js, data via /api/hunters-dream) -----------
@@ -1392,6 +1453,42 @@ h1, h2, h3,
 
 .DiscussionListItem-info .item-terminalPost a {
   color: @bb-muted;
+}
+
+// Tags and status from the list (flarum/forum.js quickEdit, Zed 28.10.2026): for whoever may change the tags the
+// topic's ⋮ menu stays visible instead of appearing on hover only, also on touch screens, where Flarum hides it.
+// Phones: at the bottom right below the reply count, instead of the swipe.
+.DiscussionListItem.bb-quickEdit .DiscussionListItem-controls {
+  opacity: 1;
+}
+
+.DiscussionListItem.bb-quickEdit .DiscussionListItem-controls > .Dropdown-toggle {
+  display: block;
+}
+
+// The open menu stays above the cards below it (a hovered card has a transform and paints in list order)
+.DiscussionListItem:has(.DiscussionListItem-controls.open) {
+  z-index: 3;
+}
+
+@media @phone {
+  .DiscussionListItem.bb-quickEdit {
+    position: relative;
+  }
+
+  .DiscussionListItem.bb-quickEdit .DiscussionListItem-controls {
+    display: block;
+    position: absolute;
+    right: 3px;
+    bottom: 2px;
+    z-index: 2;
+  }
+
+  // 42 px: below the reply count without covering it
+  .DiscussionListItem.bb-quickEdit .DiscussionListItem-controls > .Dropdown-toggle {
+    width: 42px;
+    height: 42px;
+  }
 }
 
 // Unread dot / sticky highlight in gold

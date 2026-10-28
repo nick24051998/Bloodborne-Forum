@@ -44,6 +44,7 @@
   var DiscussionControls = compat['forum/utils/DiscussionControls'];
   var DiscussionComposer = compat['forum/components/DiscussionComposer'];
   var Button = compat['common/components/Button'];
+  var SelectDropdown = compat['common/components/SelectDropdown'];
   var Separator = compat['common/components/Separator'];
   var Stream = compat['common/utils/Stream'];
   var SignUpModal = compat['forum/components/SignUpModal'];
@@ -1170,6 +1171,20 @@
     });
   }
 
+  // Sections inside a topic too (Zed, 28.10.2026: switch sections without going back): the home page's sidebar list
+  // (navItems) with the topic's section highlighted, as a column on the left; custom.less shows it on wide screens
+  // only. flarum/tags takes the active section from currentTag(), the other navItems extensions need nothing from
+  // the page.
+  function sectionNav(discussion) {
+    var section = (discussion.tags() || []).filter(function (t) { return t && t.position() !== null && !t.isChild(); })[0];
+    var index = Object.create(IndexPage.prototype);
+    index.currentTag = function () { return section; };
+    return m('nav.sideNav.bb-sectionNav', { 'aria-label': 'Forum sections' }, m('ul', m('li.item-nav', SelectDropdown.component({
+      buttonClassName: 'Button',
+      accessibleToggleLabel: app.translator.trans('core.forum.index.toggle_sidenav_dropdown_accessible_label'),
+    }, IndexPage.prototype.navItems.call(index).toArray()))));
+  }
+
   // --- Top helpers (flarum/helpers.php, Nick 28.10.2026) ----------------------------------------------------------
   // Reload at most every 10 minutes (the server recalculates every 30); without data the box stays hidden
   var helpers = { data: null, loadedAt: 0, loading: false };
@@ -1661,6 +1676,27 @@
       var discussion = this.discussion;
       var options = discussion && statusOptions(discussion);
       if (options && options.length) items.add('bbStatus', statusPanel(discussion, options), -10);
+    });
+
+    // The sections on the left of the topic (wide screens, see sectionNav)
+    extend(DiscussionPage.prototype, 'mainContent', function (items) {
+      if (this.discussion) items.add('bbSections', sectionNav(this.discussion), 200);
+    });
+
+    // Tags and status straight from the topic list (Zed, 28.10.2026): whoever may change a topic's tags (team,
+    // helpers, Modding in its section) sees the topic's ⋮ menu with Edit Tags and the status buttons all the time,
+    // not only on hover. Touch screens hide it (phones reach it only by swiping): there it is a plain button
+    // instead of the swipe (custom.less .bb-quickEdit).
+    function quickEdit(discussion) {
+      return !!(app.session.user && discussion.canTag && discussion.canTag());
+    }
+
+    extend(DiscussionListItem.prototype, 'elementAttrs', function (attrs) {
+      if (quickEdit(this.attrs.discussion)) attrs.className = (attrs.className || '') + ' bb-quickEdit';
+    });
+
+    override(DiscussionListItem.prototype, 'isSlidableEnabled', function (original) {
+      return original() && !quickEdit(this.attrs.discussion);
     });
 
     // Below the banner: Hunter's Dream (narrow screens) and, on the home page (not inside a section, no
