@@ -38,7 +38,7 @@ questions:
     q: Do I need to own the game? Which version?
     a: |
       <p>Yes, you need your own dump of Bloodborne (CUSA03173) with the 1.09 update. No game files are included, and we don't share them or help find them.</p>
-      <p>The port's FPS, resolution and effect patches need the unmodified 1.09 <code>eboot.bin</code>, copied over the base game. The clean file is exactly 93,825,704 bytes. Other versions run at 30 FPS, and pre-patched files ("60 fps" eboots like Lance McDonald's, repacks) make the port skip its patches, break co-op and can crash the game.</p>
+      <p>The port's FPS, resolution and effect patches need the unmodified 1.09 <code>eboot.bin</code>, copied over the base game. The clean file is exactly 93,825,704 bytes. Other versions run at 30 FPS. With pre-patched files ("60 fps" eboots like Lance McDonald's, repacks) the port only applies the patches that still fit, so its FPS and effect options may do nothing, co-op can break and the game can crash.</p>
   - id: download
     group: start
     q: Where can I download the port?
@@ -48,7 +48,7 @@ questions:
     group: start
     q: Are the FPS and resolution patches included, or do I download them?
     a: |
-      <p>They are included. The port brings the community patches for 1.09: 30/60/90 FPS or unlocked, any output resolution, effects on/off, Quit to Desktop, Rebirth at the Doll, the HUD position, cheats and gameplay tweaks. You set them in the launcher on Picture &amp; performance, and in expert view on All graphics and Cheats. shadPS4/GoldHEN XML patches are optional and not needed. More in the <a href="../guide/">launcher guide</a>.</p>
+      <p>They are included. The port brings the community patches for 1.09: 30/60/90 FPS or unlocked, any output resolution, effects on/off, Quit to Desktop, Rebirth at the Doll, the HUD position, cheats and gameplay tweaks. You set them in the launcher: frame rate, resolution and effects on Picture &amp; performance (expert view: All graphics), Quit to Desktop, Rebirth and the other gameplay tweaks on Gameplay, and cheats on Cheats. shadPS4/GoldHEN XML patches are optional and not needed. More in the <a href="../guide/">launcher guide</a>.</p>
   - id: update-1-9-3
     group: updates
     q: The launcher doesn't offer the update (1.9.3).
@@ -85,7 +85,7 @@ questions:
     q: The game crashes while I play.
     a: |
       <ol>
-        <li>Update to the newest version in the launcher. 1.9.2 fixed several crashes on 4–8 GB cards and with frame generation.</li>
+        <li>Update to the newest version (1.9.4). 1.9.2 and 1.9.3 fixed several crashes on 4–8 GB cards and with frame generation. On 1.9.3, <a href="#update-1-9-3">update by hand</a> once.</li>
         <li>Set Advanced &gt; Two-stage GPU pipeline to "Off (more stable)".</li>
         <li>Close MSI Afterburner, RTSS and other overlays.</li>
         <li>Update your graphics driver.</li>
@@ -119,6 +119,7 @@ questions:
     q: Online doesn't connect.
     a: |
       <ul>
+        <li>"Failed to acquire Bloodborne server information": update to 1.9.4, which fixes it for PCs whose antivirus scans HTTPS connections.</li>
         <li>Your firewall or router must let the game server port 20443 through.</li>
         <li>The "Seamless co-op" tool overwrites a hidden server address. On 1.9.4: Online play &gt; shadNet server &gt; Use my own servers &gt; empty the Game server field &gt; switch back to The Hunter's Dream. 1.9.5 fixes this for good.</li>
         <li>Your own shadNet servers: the public server's WebAPI is <code>http://srv.shadps4.net:31315</code> (plain http). An <code>https://</code> address fails with "SSL: UNEXPECTED_EOF_WHILE_READING".</li>

@@ -8,13 +8,20 @@ intro: What changed in each release. The newest version is at the top.
 <!-- Version, date, download and the list of all releases come automatically from GitHub (box at the top,
 list at the bottom). Only add the short summary in plain words here, newest versions on top. Template:
 
-## 1.9.3 – 20 October 2026
+## 1.9.4 – 21 October 2026
 
 - **In short, what's new:** one sentence about it.
 
 -->
 
 <div data-release-latest></div>
+
+## 1.9.4 – 21 October 2026
+
+- **Online fix:** "Failed to acquire Bloodborne server information" no longer appears when your antivirus scans HTTPS connections (Avast, AVG, Kaspersky and others) or Windows had not fetched the server's root certificate yet.
+- **Updates work again:** the launcher offers new versions again. On 1.9.3 its launcher can't update itself, so update by hand once.
+- **Better settings for laptops:** the hardware check knows laptop processors, and fast PCs no longer get a 30 FPS cap from the automatic settings.
+- **Measure on this PC is off for now:** it comes back later. System & tests is now Your PC, and Advanced has a new benchmark for bug reports.
 
 ## 1.9.2 – 18 October 2026
 
@@ -25,6 +32,7 @@ list at the bottom). Only add the short summary in plain words here, newest vers
 
 ## Earlier releases
 
+- **1.9.3 (21 October 2026):** new launcher with a first-start setup guide, the goals Smooth, Balanced and Quiet, automatic save backups and a Gameplay page; graphics back to 1.8.2's code (fixes stretched polygons and black screens), less video memory and a Low-VRAM profile for 4 GB cards.
 - **1.9.1 (17 October 2026):** hotfix for stretched polygons and the FPS drop after dying or loading.
 - **1.9 (16 October 2026):** frame generation (FSR 3.1 / DLSS), memory fixes for 4–8 GB cards.
 

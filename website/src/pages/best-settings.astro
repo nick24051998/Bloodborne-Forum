@@ -88,12 +88,12 @@ const cards = [
       </table>
       <figure class="settings-figure">
         <a class="launcher-shot" href={pictureFull} aria-label="Open the Picture & performance page in full size">
-          <Image src={picture} alt="Picture & performance: the settings made for your PC, your goal, Measure on this PC and Undo" widths={[640, 960, 1280]} sizes="(max-width: 780px) 100vw, 720px" loading="lazy" />
+          <Image src={picture} alt="Picture & performance: the settings made for your PC, your goal and Undo" widths={[640, 960, 1280]} sizes="(max-width: 780px) 100vw, 720px" loading="lazy" />
         </a>
         <figcaption>Picture &amp; performance: the line at the top shows what the launcher picked for your PC.</figcaption>
       </figure>
       <ul>
-        <li><strong>Measure on this PC</strong> finds the best settings by trying them: the game starts a few times by itself from a copy of your last save, which takes 2 to 10 minutes. Use it once you have a save.</li>
+        <li><strong>Measure on this PC</strong> is switched off for now (since 1.9.4) and comes back in a later version. Until then, your goal sets everything for you.</li>
         <li><strong>Undo</strong> puts back what you had before.</li>
         <li>In the game, <kbd>Insert</kbd> (keyboard) or <kbd>L3</kbd> + <kbd>R3</kbd> (controller) opens the port's menu: change the upscaler, resolution and effects while you play.</li>
       </ul>
@@ -111,7 +111,7 @@ const cards = [
         </table>
       </div>
       <ul>
-        <li><strong>4 GB cards:</strong> also Model detail "Default" and Object motion vectors off. Keep the Windows page file on "System managed".</li>
+        <li><strong>4 GB cards:</strong> keep Advanced → Low-VRAM profile on "Auto" (it switches on by itself) and Model detail on "Default". Object motion turns itself off below 6 GB. Keep the Windows page file on "System managed".</li>
         <li><strong>DLSS</strong> needs a GeForce RTX card. <strong>FSR 4</strong> is best on Radeon RX 7000 and 9000; older cards use FSR 3.1.</li>
         <li><strong>Frame generation</strong> feels best from about 60 FPS before it doubles them, and adds a little input delay.</li>
       </ul>
