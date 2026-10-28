@@ -2157,6 +2157,7 @@ body::after {
 // --- Top helpers (flarum/forum.js, data via /api/bb-top-helpers) ------------------------------
 // Wide screens: box below The Hunter's Dream. Narrower: only the link "Top helpers" in the menu.
 .bb-helpers-period {
+  margin: -6px 0 6px;
   color: @bb-muted;
   font-size: 12px;
 }
@@ -2221,6 +2222,12 @@ body::after {
 .bb-helpers-stats {
   color: @bb-muted;
   font-size: 12px;
+
+  .bb-helpers-list & {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 @media (max-width: 991.98px) {

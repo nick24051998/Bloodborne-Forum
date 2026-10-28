@@ -1099,10 +1099,10 @@
     return n + ' ' + (n === 1 ? one : many);
   }
 
-  // Short in the box (solutions and topics), complete on the page
+  // Short in the box (solved and topics, one line), complete on the page
   function helperStats(row, full) {
     var parts = [];
-    if (row.solved) parts.push(count(row.solved, 'solution', 'solutions'));
+    if (row.solved) parts.push(full ? count(row.solved, 'solution', 'solutions') : row.solved + ' solved');
     if (full && row.fixes) parts.push(count(row.fixes, 'Known Fix', 'Known Fixes'));
     if (row.topics) parts.push((full ? 'helped in ' : '') + count(row.topics, 'topic', 'topics'));
     return parts.join(' · ');
@@ -1116,10 +1116,8 @@
     var rows = helperList('month').slice(0, 5);
     if (!rows.length) return null;
     return m('div.bb-hd.bb-helpers', [
-      m('div.bb-hd-head', [
-        m(Link, { className: 'bb-hd-title', href: app.route('topHelpers') }, 'Top helpers'),
-        m('span.bb-helpers-period', 'Last 30 days'),
-      ]),
+      m(Link, { className: 'bb-hd-title', href: app.route('topHelpers') }, 'Top helpers'),
+      m('p.bb-helpers-period', 'Last 30 days'),
       m('ol.bb-helpers-list', rows.map(function (row, i) {
         return m('li', m(Link, { href: app.route.user(row.user), title: helperStats(row, true) }, [
           m('span.bb-helpers-rank', i + 1),
