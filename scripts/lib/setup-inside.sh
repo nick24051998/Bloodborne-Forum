@@ -369,6 +369,30 @@ else
   warn "helper group not mirrored yet (Discord role sync), helper permissions skipped"
 fi
 
+# Modding (Discord "Blood Gem Smith · Modding", Nick 2026-10-28: someone who looks after the modding people without
+# too many rights): in Mods & Patches only, edit posts, titles and tags, lock, pin, hide topics and posts, approve
+# posts, see reports there and set the best answer. Nothing outside that area, no deleting, no suspending.
+# For per-tag rights the tag must be restricted: first everyone keeps what they have (global rights copied to the tag,
+# starting topics included), then the modding group gets its rights. Add only.
+MODDING_ROLE=1564921489713537055
+modding=$(sql "SELECT JSON_UNQUOTE(JSON_EXTRACT(value, '\$.\"$MODDING_ROLE\"')) FROM ${DB_PREFIX}settings WHERE \`key\` = 'bbforum.discord_role_groups';" 2>/dev/null)
+case "$modding" in ''|NULL|*[!0-9]*) modding= ;; esac
+mods=$(tag_id mods-patches)
+if [ -n "$mods" ] && [ -n "$modding" ]; then
+  api PATCH "/tags/$mods" "{\"data\":{\"type\":\"tags\",\"id\":\"$mods\",\"attributes\":{\"isRestricted\":true}}}" >/dev/null
+  sql "INSERT IGNORE INTO ${DB_PREFIX}group_permission (group_id, permission)
+         SELECT group_id, CONCAT('tag${mods}.', permission) FROM ${DB_PREFIX}group_permission
+         WHERE permission IN ('viewForum', 'startDiscussion') OR permission LIKE 'discussion.%';"
+  for p in viewForum startDiscussion discussion.editPosts discussion.rename discussion.tag discussion.lock \
+           discussion.sticky discussion.hide discussion.hidePosts discussion.approvePosts discussion.viewFlags \
+           discussion.selectBestAnswerNotOwnDiscussion; do
+    sql "INSERT IGNORE INTO ${DB_PREFIX}group_permission (group_id, permission) VALUES ($modding, 'tag${mods}.$p');"
+  done
+  ok "modding: Mods & Patches moderated by the modding role (edit, titles, tags, lock, pin, hide, approve, reports)"
+else
+  warn "Mods & Patches or the modding group missing (Discord role sync), modding permissions skipped"
+fi
+
 # --------------------------------------------------------------------------
 log "Logo contest"
 # Dates for the /logo-contest page and the rules in flarum/contest.php (submission deadline, end of voting, UTC)

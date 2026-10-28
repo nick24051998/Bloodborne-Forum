@@ -273,7 +273,8 @@ if (! class_exists('BBForumProfiles')) {
          */
         public static function roles(User $user): array
         {
-            $order = ['developer' => 0, 'owner' => 1, 'admin' => 2, 'mod' => 3, 'contributor' => 4, 'helper' => 5, 'code' => 6];
+            $order = ['developer' => 0, 'owner' => 1, 'admin' => 2, 'mod' => 3, 'contributor' => 4, 'helper' => 5, 'modding' => 6,
+                'code' => 7];
             $roles = [];
             $devs = array_filter(array_map('trim', explode(',', (string) resolve(\Flarum\Settings\SettingsRepositoryInterface::class)
                 ->get('bbforum.developer_discord_ids', '280443805415505921'))));
@@ -287,7 +288,7 @@ if (! class_exists('BBForumProfiles')) {
                 $key = null;
                 if ($label !== null) {
                     $key = ['Owner' => 'owner', 'Admin' => 'admin', 'Mod' => 'mod', 'Contributor' => 'contributor',
-                        'Helper' => 'helper', 'Code Contributor' => 'code'][$label] ?? null;
+                        'Helper' => 'helper', 'Modding' => 'modding', 'Code Contributor' => 'code'][$label] ?? null;
                 } elseif ((int) $group->id === 1) {
                     [$key, $label, $name] = ['admin', 'Admin', 'Forum admin'];
                 } elseif ((int) $group->id === 4) {
