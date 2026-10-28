@@ -33,6 +33,8 @@ const helpUrl = SITE.forumUrl ? `${SITE.forumUrl}/t/help-support` : SITE.discord
 
 // Live numbers from The Hunter's Dream: the browser asks the forum, which caches them
 const liveUrl = SITE.forumUrl && SITE.huntersDreamUrl ? `${SITE.forumUrl}/api/hunters-dream` : '';
+// SuperMedo Server, a band below the hero: the forum asks the server once a minute (flarum/server-stats.php)
+const serverUrl = SITE.forumUrl ? `${SITE.forumUrl}/api/bb-server/summary` : '';
 
 const orgLd = {
   '@context': 'https://schema.org',
@@ -132,6 +134,65 @@ const appLd = {
       </div>
     </div>
   </section>
+
+  {serverUrl && (
+    <section class="srv-band" data-src={serverUrl} aria-label="SuperMedo Server right now" hidden>
+      <div class="container">
+        <p class="srv-band-name">
+          <span class="sm-lamp" aria-hidden="true"></span>
+          <span><span class="srv-band-title">SuperMedo Server</span><span data-field="state"></span></span>
+        </p>
+        <p class="srv-band-stat"><strong data-field="online">0</strong><span>Online now</span></p>
+        <p class="srv-band-stat"><strong data-field="played">0</strong><span>Played today</span></p>
+        <p class="srv-band-stat"><strong data-field="died">0</strong><span>Died today</span></p>
+        <p class="srv-band-fact" data-field="fastest"></p>
+        <a class="btn btn-ghost" href={link('server/')}>Full statistics</a>
+      </div>
+    </section>
+  )}
+
+  <script>
+    // Fills the SuperMedo Server band; without data (forum or server unreachable) it stays hidden
+    const band = document.querySelector<HTMLElement>('.srv-band');
+    if (band) {
+      const field = (name: string) => band.querySelector<HTMLElement>(`[data-field="${name}"]`)!;
+      const number = (value: number) => Number(value ?? 0).toLocaleString('en-US');
+
+      const load = async () => {
+        try {
+          const response = await fetch(band.dataset.src!, { credentials: 'omit' });
+          if (!response.ok) return;
+          const d = await response.json();
+          const awake = d.status === 'online';
+          band.classList.toggle('is-awake', awake);
+          const since = new Date(d.awakeSince * 1000).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+          const bells = d.bells ?? {};
+          field('state').textContent = !awake ? 'Resting for maintenance'
+            : bells.hosts_searching ? `Online since ${since}, ${number(bells.hosts_searching)} ${bells.hosts_searching === 1 ? 'host wants' : 'hosts want'} help`
+            : `Online since ${since}, no bells ringing`;
+          field('online').textContent = number(d.online);
+          field('played').textContent = number(d.playedToday);
+          field('died').textContent = number(d.diedToday);
+          const fastest = field('fastest');
+          fastest.replaceChildren();
+          if (d.fastest) {
+            const name = document.createElement('strong');
+            name.textContent = d.fastest.name;
+            fastest.append('Kills fastest: ', name, `, ${number(d.fastest.deaths)} deaths in ${number(d.fastest.minutes)} min`);
+          }
+          band.hidden = false;
+        } catch {
+          // Network error: the band stays as it is
+        }
+      };
+
+      load();
+      // While the page is visible, refresh every minute (the forum also caches for one minute)
+      setInterval(() => {
+        if (document.visibilityState === 'visible') load();
+      }, 60000);
+    }
+  </script>
 
   {contestRunning && (
     <section class="contest-banner" id="logo-contest" aria-labelledby="contest-heading">

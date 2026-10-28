@@ -38,9 +38,9 @@ export const SITE = {
   // Forum only for now; to switch it on for the website, enter 'https://thehuntersdream.com'.
   huntersDreamUrl: '',
 
-  // Supermedo's own online server (SuperMedo Server). The /server/ page (menu item "Server") loads its live
-  // numbers straight from here (totals only, no names); see src/texts/privacy.md.
-  superMedoStatsUrl: 'https://game.supermedo.com/public/stats',
+  // Supermedo's own online server (SuperMedo Server). The /server/ page (menu item "Server"), /server/hunter/ and
+  // the band on the home page load its statistics through the forum (forumUrl + '/api/bb-server', see
+  // flarum/server-stats.php), which asks the server once a minute; see src/texts/privacy.md.
   // Its account pages: make an account, and a new password by email
   superMedoAccountUrl: 'https://game.supermedo.com/account',
 };

@@ -409,3 +409,68 @@ test('Links to the forum and Discord point to the current addresses', async ({ p
   if (SITE.forumUrl) expect(hrefs.some((h) => h.startsWith(SITE.forumUrl)), `Link auf ${SITE.forumUrl}`).toBe(true);
   if (SITE.discordUrl) expect(hrefs).toContain(SITE.discordUrl);
 });
+
+// SuperMedo Server (/server/, /server/hunter/): the numbers come from the forum; here from a fixed sample, so the
+// tests don't depend on who is online right now
+const SERVER_SAMPLE = {
+  server: {
+    status: 'online', awake_since: 1793213799, registration: 'open', online: 2, counting_since: 1793104933,
+    bells: { helpers: 0, hosts_searching: 1, invaders: 0 }, hunters: { registered: 27, played_online: 23, new_this_week: 27 },
+    peak_online: { today: { online: 3, at: 1793145605 }, ever: { online: 3, at: 1793138885 } },
+    last_24h: { bells_rung: 11, deaths: 44, hunter_minutes: 715, messages: 6, ratings: 4, summons: 1, summons_joined: 1 },
+    totals: { bells_rung: 19, deaths: 118, hunter_minutes: 1066, messages: 18, ratings: 6, summons: 3, summons_joined: 3 },
+    deaths_by_cause: { killed: 82, fall: 30, other: 6, poison: 0, brainsucker: 0 },
+  },
+  areas: [
+    { name: "Hunter's Dream", online: 1, hunter_minutes: 229, deaths: 0, bells_rung: 0, messages: 1, footsteps: 283 },
+    { name: "Yahar'gul, Unseen Village", online: 1, hunter_minutes: 38, deaths: 13, bells_rung: 0, messages: 1, footsteps: 124 },
+  ],
+  history: [{ date: '2026-10-28', hunters: 13, new_hunters: 7, peak_online: 3, peak_at: 1793145605, hunter_minutes: 495,
+    deaths: 35, messages: 6, ratings: 4, bells_rung: 5, summons: 0, summons_joined: 0 }],
+  killers: [{ name: 'Orphan of Kos', deaths: 3 }],
+  deaths: [{ player: 'rowl666', cause: 'killed', killer: 'Father Gascoigne', place: 'Central Yharnam', area: 'Central Yharnam', time: 1793209156 }],
+  summons: [{ host: 'rowl666', summoned: 'jaummn', kind: 'co-op', result: 'joined', time: 1793130620 }],
+  messages: [{ text: 'remember Thrust attack', author: 'medo1986', place: 'Old Yharnam', area: 'Old Yharnam', good: 0, poor: 0, written: 1792954957 }],
+  leaderboards: { minutes_played: [{ rank: 1, name: 'rowl666', value: 667 }] },
+  week: {},
+  hunters: [{ name: '<b>x</b>', level: 114, minutes_played: 667, deaths: 40, summoned_to_help: 0, summons_hosted: 1, invasions: 1,
+    messages: 9, last_seen: 1793210233, online: false }],
+  huntersTotal: 1,
+  chalices: [{ glyph: 'bpahczp9', depth: 1, visits: 0, maker: null, made: 1793204375 }],
+  updatedAt: 1793220298,
+};
+const CORS = { 'Access-Control-Allow-Origin': '*' };
+
+test('Server page shows the statistics from the forum', async ({ page }) => {
+  await page.route('**/api/bb-server', (route) => route.fulfill({ json: SERVER_SAMPLE, headers: CORS }));
+  await page.goto('/server/');
+  await expect(page.locator('[data-field="online"]')).toHaveText('2');
+  await expect(page.locator('[data-field="advice"]')).toContainText('Small Resonant Bell');
+  await expect(page.locator('[data-field="areaFacts"]')).toContainText("Yahar'gul");
+  await expect(page.locator('[data-field="killers"]')).toContainText('Orphan of Kos');
+  await expect(page.locator('[data-field="deaths"]')).toContainText('was killed by Father Gascoigne');
+  await expect(page.locator('[data-field="messages"]')).toContainText('remember Thrust attack');
+  await expect(page.locator('[data-field="chalices"]')).toContainText('bpahczp9');
+  // Online IDs go in as text, never as HTML
+  await expect(page.locator('[data-field="hunters"] a').first()).toHaveText('<b>x</b>');
+  await expect(page.locator('[data-field="hunters"] b')).toHaveCount(0);
+  await page.getByRole('button', { name: 'This week' }).click();
+  await expect(page.locator('[data-field="board"]')).toContainText('No one yet this week');
+});
+
+test('Hunter page loads one hunter by Online ID', async ({ page }) => {
+  await page.route('**/api/bb-server/hunters/medo1986', (route) => route.fulfill({ headers: CORS, json: {
+    hunter: { name: 'medo1986', level: 36, minutes_played: 33, deaths: 0, messages: 4, online: false, last_seen: 1793211649,
+      joined: 1792947684, first_seen: 1792954957, discord: null, summoned_to_help: 0, summons_hosted: 0, invasions: 0, bells_rung: 0,
+      ratings_given: 0, ratings_received: { good: 0, poor: 3 }, deaths_by_cause: { killed: 1, other: 1 }, deadliest_area: null,
+      nemesis: { name: 'Father Gascoigne', deaths: 1 } },
+    messages: [{ text: 'fear Man', place: 'Cathedral Ward', area: 'Cathedral Ward', good: 0, poor: 3, written: 1792957746 }],
+    ranks: [{ board: 'messages', rank: 2, value: 4 }],
+    updatedAt: 1793220298,
+  } }));
+  await page.goto('/server/hunter/?id=medo1986');
+  await expect(page.locator('h1')).toHaveText('medo1986');
+  await expect(page.locator('[data-field="nemesis"]')).toHaveText('Father Gascoigne');
+  await expect(page.locator('[data-field="ranks"]')).toHaveText('#2 in messages');
+  await expect(page.locator('[data-field="messages"]')).toContainText('fear Man');
+});

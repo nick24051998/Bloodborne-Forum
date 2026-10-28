@@ -38,6 +38,7 @@ with a Bloodborne gothic theme in Discord style.
 | `flarum/forum.js` | Links to the website and to Discord in the forum header, sign-up dialog with only the Discord button, live numbers from The Hunter's Dream (sidebar; on phones below the banner) |
 | `flarum/helpers.php` | Top helpers: ranking of the last 30 days and of all time (`/api/bb-top-helpers`), box in the sidebar, page `/top-helpers`, mark for the top 3 |
 | `flarum/supermedo-account.php` | "My game account" in the member's menu: `/supermedo-account` signs the member in on SuperMedo Server (game.supermedo.com) with a note signed by the shared key `SUPERMEDO_ACCOUNT_KEY`, valid for 60 seconds; off without the key |
+| `flarum/server-stats.php` | SuperMedo Server statistics for the website (`/server/`, `/server/hunter/?id=…`, band on the home page) and the forum box: `/api/bb-server`, `/api/bb-server/summary`, `/api/bb-server/hunters/{id}`, one request a minute to game.supermedo.com |
 | `media/` | Icons (CC0), banner images (`media/images/`, AI-generated) and self-made textures; sources in `media/CREDITS.md`, rebuild with `python3 media/build.py`. Brand rules in `media/BRAND.md`, ChatGPT prompts for new media in `media/PROMPTS.md` |
 | `flarum/icons.less` | Custom category icons (`bbicon bbicon-NAME`), generated from `media/icons/` |
 | `theme/custom.less` | Theme (Admin → Appearance → Custom Styles) |

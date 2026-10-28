@@ -37,11 +37,13 @@ stored or sent to us. Only if you click Detect does your browser tell the page t
 pick it in the list. Your choices appear in the page address so you can share the result; like any address, it
 reaches GitHub only when you open or share that link.
 
-**Server page.** The [Server](/server/) page shows live totals from SuperMedo Server, the online server
-for the port run by Supermedo. While the page is open, your browser loads these totals from
-game.supermedo.com about once a minute. That server sees your IP address and browser like any website,
-but does not record them for these requests (Art. 6(1)(f) GDPR). The page shows only totals, nothing
-about individual players.
+**Server page.** The [Server](/server/) page, its hunter pages and the band on the home page show
+statistics from SuperMedo Server, the online server for the port run by Supermedo. While a page is open,
+your browser fetches them from our forum (forum.bbport.de) about once a minute; the forum in turn asks
+game.supermedo.com at most once a minute for everyone, so SuperMedo Server never sees your address for
+this (Art. 6(1)(f) GDPR). The statistics are the ones SuperMedo Server publishes: totals, and players
+by their Online ID with their in-game records, never where they are right now. Players can ask an admin
+of SuperMedo Server to hide them.
 
 **Links.** Links to Discord, GitHub, The Hunter's Dream and other sites take you to services with their
 own privacy policies. Nothing from them is loaded before you click.
@@ -81,8 +83,9 @@ while you browse, and, if you choose "Remember me", a cookie that keeps you logg
 remembers a few choices you make, such as hiding the welcome banner, in your browser. None of this is
 used for tracking.
 
-**Live statistics.** The forum shows numbers from The Hunter's Dream (the online co-op server). Our
-server fetches these totals directly from thehuntersdream.com; no data about you is sent there.
+**Live statistics.** The forum shows numbers from The Hunter's Dream and SuperMedo Server (online co-op
+servers). Our server fetches them directly from thehuntersdream.com and game.supermedo.com; no data about you
+is sent there.
 
 **"My game account."** When you click "My game account" in your forum menu, the forum sends your Discord user ID
 to SuperMedo Server (game.supermedo.com), with a signature that is valid for one minute, so it can sign you in to

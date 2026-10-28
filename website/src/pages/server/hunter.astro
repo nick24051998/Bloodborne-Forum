@@ -1,0 +1,136 @@
+---
+// One hunter on SuperMedo Server (/server/hunter/?id=ONLINE_ID): the site is static, so the page reads the Online ID
+// from the address and loads the card through the forum (SITE.forumUrl + '/api/bb-server/hunters/ID').
+import Base from '../../layouts/Base.astro';
+import { SITE } from '../../../site.config.mjs';
+import { link } from '../../lib/url.js';
+
+const api = SITE.forumUrl ? `${SITE.forumUrl}/api/bb-server/hunters/` : '';
+---
+
+<Base title="Hunter on SuperMedo Server" description="One hunter's record on SuperMedo Server." noindex>
+  <section class="page-hero">
+    <div class="container sm-hero">
+      <nav class="sm-crumbs" aria-label="Breadcrumb">
+        <a href={link('server/')}>SuperMedo Server</a><span aria-hidden="true">/</span><a href={link('server/#hunters')}>Hunters</a>
+      </nav>
+      <h1 data-field="name">Hunter</h1>
+      <p class="sm-state"><span class="sm-lamp" aria-hidden="true"></span><span data-field="state">Looking for this hunter…</span></p>
+      <div class="sm-counts sm-counts-big" data-field="glance" hidden></div>
+      <p class="sm-label" data-field="ranks"></p>
+    </div>
+  </section>
+
+  <div class="sm-page" data-src={api} data-server={link('server/')} hidden>
+    <section class="section section-alt">
+      <div class="container sm-cols">
+        <div>
+          <h2 class="sm-label">Co-op and invasions</h2>
+          <dl class="sm-facts" data-field="coop"></dl>
+        </div>
+        <div>
+          <h2 class="sm-label">Messages and ratings</h2>
+          <dl class="sm-facts" data-field="rep"></dl>
+        </div>
+        <div>
+          <h2 class="sm-label">Nemesis</h2>
+          <p class="sm-nemesis" data-field="nemesis">–</p>
+          <dl class="sm-facts" data-field="died"></dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="sm-head">
+          <h2>Messages left</h2>
+          <p class="sm-small" data-field="messagesNote"></p>
+        </div>
+        <div class="sm-messages" data-field="messages"></div>
+        <p class="sm-note">
+          Hunters appear by their Online ID only. Discord shows here only if the hunter turns it on in their SuperMedo
+          Server account. Don't want to be listed? Ask an admin of SuperMedo Server to hide your account.
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    import { el, num, hours, when, place } from '../../lib/server-stats.js';
+
+    const page = document.querySelector<HTMLElement>('.sm-page')!;
+    const field = (name: string) => document.querySelector<HTMLElement>(`[data-field="${name}"]`)!;
+    const set = (name: string, text: string) => { field(name).textContent = text; };
+    const id = new URLSearchParams(window.location.search).get('id')?.trim() ?? '';
+    const boards: Record<string, string> = {
+      minutes_played: 'hours played', deaths: 'deaths', messages: 'messages', ratings_received: 'good ratings',
+      summoned_to_help: 'times helping', summons_hosted: 'summons hosted', invasions: 'invasions',
+    };
+    const causes: Record<string, string> = { killed: 'Killed', fall: 'Fell', poison: 'Poison', brainsucker: 'Brainsucker', other: 'Something else' };
+    const facts = (target: string, rows: [string, string][]) => {
+      field(target).replaceChildren(...rows.map(([label, value]) => {
+        const div = el('div');
+        div.append(el('dt', '', label), el('dd', '', value));
+        return div;
+      }));
+    };
+
+    const show = (d: any) => {
+      const h = d.hunter;
+      document.title = `${h.name} on SuperMedo Server | bbport`;
+      set('name', h.name);
+      const state = document.querySelector<HTMLElement>('.sm-state')!;
+      state.classList.toggle('is-awake', Boolean(h.online));
+      set('state', [h.online ? 'Online now' : `Offline, last seen ${when(h.last_seen)}`, `account since ${when(h.joined, false, true)}`,
+        h.first_seen ? `first online ${when(h.first_seen)}` : '', h.discord ? `Discord: ${h.discord}` : 'Discord hidden'].filter(Boolean).join(' · '));
+      const glance = field('glance');
+      glance.replaceChildren(...[[num(h.level), 'level'], [hours(h.minutes_played), 'hours online'], [num(h.deaths), 'deaths'], [num(h.messages), 'messages']]
+        .map(([value, label]) => {
+          const span = el('span');
+          span.append(el('strong', '', value), ` ${label}`);
+          return span;
+        }));
+      glance.hidden = false;
+      set('ranks', (d.ranks ?? []).map((r: any) => `#${r.rank} in ${boards[r.board] ?? r.board}`).join(' · '));
+
+      const rr = h.ratings_received ?? {};
+      facts('coop', [['Summoned to help', num(h.summoned_to_help)], ['Summons hosted', num(h.summons_hosted)], ['Invasions', num(h.invasions)], ['Bells rung', num(h.bells_rung)]]);
+      facts('rep', [['Messages written', num(h.messages)], ['Ratings received', `${num(rr.good)} good · ${num(rr.poor)} poor`], ['Ratings given', num(h.ratings_given)]]);
+      set('nemesis', h.nemesis?.name ?? (h.nemesis ? 'An enemy without a name yet' : 'None yet'));
+      const died = Object.entries(h.deaths_by_cause ?? {}).filter(([, n]) => Number(n) > 0)
+        .map(([key, n]) => [causes[key] ?? key, num(n)] as [string, string]);
+      died.push(['Dies most in', h.deadliest_area?.name ?? (typeof h.deadliest_area === 'string' ? h.deadliest_area : 'No area yet')]);
+      facts('died', died);
+
+      const messages = d.messages ?? [];
+      set('messagesNote', messages.length ? `${num(messages.length)}, newest first` : '');
+      if (!messages.length) field('messages').replaceChildren(el('p', 'sm-empty', 'No messages yet.'));
+      else field('messages').replaceChildren(...messages.map((m: any) => {
+        const card = el('div', 'sm-message');
+        card.append(el('span', 'sm-message-text', m.text ?? ''), el('span', 'sm-meta', `${place(m)} · ${when(m.written)}`),
+          el('span', 'sm-meta', `${num(m.good)} good · ${num(m.poor)} poor`));
+        return card;
+      }));
+      page.hidden = false;
+    };
+
+    const missing = (text: string) => {
+      set('state', text);
+      const back = el('a', '', 'See all hunters');
+      (back as HTMLAnchorElement).href = `${page.dataset.server}#hunters`;
+      field('ranks').replaceChildren(back);
+    };
+
+    if (!id) missing('Pick a hunter from the list on the server page.');
+    else if (page.dataset.src) {
+      set('name', id);
+      fetch(page.dataset.src + encodeURIComponent(id), { credentials: 'omit' })
+        .then(async (response) => {
+          if (response.status === 404) return missing(`No hunter with this Online ID on SuperMedo Server.`);
+          if (!response.ok) throw new Error(String(response.status));
+          show(await response.json());
+        })
+        .catch(() => set('state', "The server isn't answering right now. Try again in a minute."));
+    }
+  </script>
+</Base>

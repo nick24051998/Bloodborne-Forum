@@ -1,181 +1,466 @@
 ---
-// SuperMedo Server: Supermedo's own online server (co-op bells, messages, bloodstains). The browser loads
-// the live numbers straight from the server (SITE.superMedoStatsUrl, totals only, no names).
+// SuperMedo Server: Supermedo's own online server (co-op bells, messages, bloodstains). The numbers come from the
+// forum (SITE.forumUrl + '/api/bb-server', flarum/server-stats.php), which asks SuperMedo Server once a minute:
+// visitors' addresses stay with us and the server isn't asked once per visitor. Online IDs as the server shows them.
 import Base from '../layouts/Base.astro';
-import Icon from '../components/Icon.astro';
 import { SITE } from '../../site.config.mjs';
+import { link } from '../lib/url.js';
 
-// The game's three bells, as the server counts them
-const bells = [
-  { field: 'helpers', name: 'Small Resonant Bells', text: 'Hunters waiting to be called into another world to help.' },
-  { field: 'hosts', name: 'Beckoning Bells', text: 'Hosts looking for help right now.' },
-  { field: 'invaders', name: 'Sinister Resonant Bells', text: 'Hunters waiting to invade someone.', red: true },
+const api = SITE.forumUrl ? `${SITE.forumUrl}/api/bb-server` : '';
+const toc = [
+  ['now', 'Right now'], ['day', 'Last 24 hours'], ['areas', 'Areas'], ['deaths', 'How hunters die'],
+  ['community', 'Messages and co-op'], ['chalices', 'Chalice dungeons'], ['hunters', 'Hunters'], ['join', 'Join'],
 ];
 ---
 
 <Base
   title="SuperMedo Server"
-  description={`What happens tonight on SuperMedo Server, the online server for ${SITE.portName}: bells, summons and where hunters walk and fall.`}
+  description={`What happens on SuperMedo Server, the online server for ${SITE.portName}: who is online, where hunters die, best messages and leaderboards.`}
 >
   <section class="page-hero">
-    <div class="container">
+    <div class="container sm-hero">
       <p class="eyebrow">Our own online server</p>
       <h1>SuperMedo Server</h1>
-      <p>
-        Co-op bells, messages and bloodstains for {SITE.portName}, run by {SITE.portAuthor}. What happens on it tonight,
-        straight from the server.
+      <p class="sm-lead">
+        Co-op bells, messages and bloodstains for {SITE.portName}, run by {SITE.portAuthor}. Who is online, where
+        hunters die and who helps most, straight from the server.
       </p>
       <p class="sm-state"><span class="sm-lamp" aria-hidden="true"></span><span data-field="state">Asking the server…</span></p>
+      <nav class="sm-toc" aria-label="On this page">
+        {toc.map(([id, label]) => <a href={`#${id}`}>{label}</a>)}
+      </nav>
     </div>
   </section>
 
-  <div class="sm-watch" data-src={SITE.superMedoStatsUrl}>
-    <section class="section">
-      <div class="container">
-        <p class="sm-tonight" data-field="tonight" aria-live="polite">&nbsp;</p>
-        <div class="sm-bells">
-          {bells.map((b) => (
-            <article class:list={['sm-bell', { 'sm-bell-red': b.red }]}>
-              <Icon name="bell" class="sm-bell-icon" />
-              <p class="sm-count" data-field={b.field}>–</p>
-              <h3>{b.name}</h3>
-              <p>{b.text}</p>
-            </article>
-          ))}
+  <div class="sm-page" data-src={api} data-hunter={link('server/hunter/')}>
+    <section class="section" id="now" aria-labelledby="now-h">
+      <div class="container sm-now">
+        <div>
+          <h2 id="now-h">Right now</h2>
+          <p class="sm-big"><strong data-field="online">–</strong><span>Hunters online</span></p>
+          <p class="sm-peaks">
+            <span><strong data-field="peakToday">–</strong> most today<span data-field="peakTodayAt"></span></span>
+            <span><strong data-field="peakEver">–</strong> record<span data-field="peakEverAt"></span></span>
+          </p>
+          <p class="sm-where" data-field="where" aria-live="polite"></p>
         </div>
-        <div class="sm-answered">
-          <span class="sm-answered-label">Summons answered in the last 24 hours</span>
-          <span class="sm-gauge" aria-hidden="true"><span data-field="answeredBar"></span></span>
-          <span class="sm-answered-count" data-field="answered">–</span>
+        <div class="sm-monitor">
+          <div class="sm-screen">
+            <p class="sm-prompt">C:\SUPERMEDO&gt; bells</p>
+            <p><span>Hosts want help</span><span data-field="hosts">–</span></p>
+            <p><span>Helpers waiting</span><span data-field="helpers">–</span></p>
+            <p><span>Invaders</span><span data-field="invaders">–</span></p>
+            <p class="sm-advice" data-field="advice">&gt; waiting for the server</p>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="section section-alt">
-      <div class="container">
-        <h2>Across Yharnam</h2>
-        <p class="about">
-          Every place hunters on this server have walked and fallen. A footstep is about a minute a hunter spent there; a
-          bloodstain is a death. The lamp lights up where hunters are right now.
-        </p>
-        <ol class="sm-areas" data-field="areas"><li class="sm-empty">Waiting for the server…</li></ol>
-      </div>
-    </section>
-
-    <section class="section">
+    <section class="section section-alt" id="day" aria-labelledby="day-h">
       <div class="container sm-split">
         <div>
-          <h2>The ledger</h2>
-          <dl class="sm-ledger">
-            <div><dt>Hunters sworn in</dt><dd data-field="hunters">–</dd></div>
-            <div><dt>New this week</dt><dd data-field="new7d">–</dd></div>
-            <div><dt>Messages left</dt><dd data-field="messages">–</dd></div>
-            <div><dt>Awake since</dt><dd data-field="since">–</dd></div>
-            <div><dt>New hunters</dt><dd data-field="registration">–</dd></div>
-          </dl>
+          <h2 id="day-h">Last 24 hours</h2>
+          <table class="sm-table sm-ledger">
+            <thead><tr><th scope="col"><span class="visually-hidden">What</span></th><th scope="col">Last 24 h</th><th scope="col" data-field="sinceHead">In all</th></tr></thead>
+            <tbody data-field="ledger"></tbody>
+          </table>
         </div>
         <div>
-          <h2>Join the hunt</h2>
-          <ol class="sm-steps">
-            <li>Get {SITE.portName} and start its launcher.</li>
-            <li>
-              <a href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">Create an account</a>, or skip this and use <strong>Sign in with Discord</strong> in the launcher.
-            </li>
-            <li>
-              Open <strong>Online co-op</strong>, pick <strong>SuperMedo Server</strong> under <strong>Co-op pool</strong> and sign in. Then start the game and ring a bell.
-            </li>
-          </ol>
-          <div class="sm-actions">
-            <a class="btn btn-primary" href={SITE.downloadUrl} rel="noopener">Download</a>
-            <a class="btn btn-ghost" href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">Create an account</a>
+          <h3>Day by day</h3>
+          <div class="sm-scroll">
+            <table class="sm-table">
+              <thead><tr><th scope="col">Day</th><th scope="col" class="sm-wide">Hunters</th><th scope="col">New</th><th scope="col">Most at once</th><th scope="col">Hours</th><th scope="col">Deaths</th></tr></thead>
+              <tbody data-field="history"></tbody>
+            </table>
           </div>
-          <p class="sm-forgot">
-            Forgot your password? <a href={`${SITE.superMedoAccountUrl}/forgot`} rel="noopener">Get a new one by email</a>.
-            Signed up with Discord? Just sign in with Discord again.
-          </p>
+          <p class="sm-small">Point at a day for its messages, ratings, bells and summons.</p>
         </div>
       </div>
     </section>
 
-    <p class="container sm-note">Updated every minute. Only totals leave the server: no names, no addresses.</p>
+    <section class="section" id="areas" aria-labelledby="areas-h">
+      <div class="container">
+        <h2 id="areas-h">Areas</h2>
+        <p class="sm-prose" data-field="areaFacts"></p>
+        <div class="sm-scroll">
+          <table class="sm-table">
+            <thead><tr><th scope="col">Area, most played first</th><th scope="col">Here now</th><th scope="col">Hours</th><th scope="col">Deaths</th><th scope="col" class="sm-wide">Deaths per hour</th><th scope="col">Bells</th><th scope="col">Messages</th><th scope="col">Footsteps</th></tr></thead>
+            <tbody data-field="areas"></tbody>
+          </table>
+        </div>
+        <p class="sm-small">Deaths per hour only for areas with at least 30 minutes played, so one unlucky visit doesn't top the list. A footstep is about a minute a hunter spent there.</p>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="deaths" aria-labelledby="deaths-h">
+      <div class="container">
+        <h2 id="deaths-h">How hunters die</h2>
+        <div class="sm-cols">
+          <div>
+            <h3 class="sm-label" data-field="causesHead">Cause</h3>
+            <div data-field="causes"></div>
+          </div>
+          <div>
+            <h3 class="sm-label">What killed hunters most</h3>
+            <ol class="sm-list" data-field="killers"></ol>
+          </div>
+          <div>
+            <h3 class="sm-label">Latest deaths</h3>
+            <ul class="sm-list" data-field="deaths"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="community" aria-labelledby="community-h">
+      <div class="container">
+        <h2 id="community-h">Messages and co-op</h2>
+        <div class="sm-messages" data-field="messages"></div>
+        <div class="sm-cols sm-cols-2">
+          <div>
+            <h3 class="sm-label">Latest summons <span class="sm-label-note" data-field="summonRate"></span></h3>
+            <ul class="sm-list" data-field="summons"></ul>
+          </div>
+          <div>
+            <h3 class="sm-label">Leaderboards</h3>
+            <div class="sm-tabs" role="group" aria-label="Pick a leaderboard" data-field="boardTabs"></div>
+            <div class="sm-period" role="group" aria-label="Time range">
+              <button type="button" data-period="all" aria-pressed="true">All time</button>
+              <button type="button" data-period="week" aria-pressed="false">This week</button>
+            </div>
+            <ol class="sm-list sm-board" data-field="board"></ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="chalices" aria-labelledby="chalices-h">
+      <div class="container">
+        <h2 id="chalices-h">Chalice dungeons</h2>
+        <p class="sm-prose">Glyphs shared on the server, newest first. Enter a glyph at a Ritual Altar to visit the same dungeon.</p>
+        <div class="sm-scroll">
+          <table class="sm-table">
+            <thead><tr><th scope="col">Glyph</th><th scope="col">Depth</th><th scope="col">Made by</th><th scope="col">Visits</th><th scope="col">Shared</th></tr></thead>
+            <tbody data-field="chalices"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="hunters" aria-labelledby="hunters-h">
+      <div class="container">
+        <div class="sm-head">
+          <h2 id="hunters-h">Hunters</h2>
+          <p class="sm-counts">
+            <span><strong data-field="registered">–</strong> registered</span>
+            <span><strong data-field="playedOnline">–</strong> played online</span>
+            <span><strong data-field="newWeek">–</strong> new this week</span>
+          </p>
+        </div>
+        <div class="sm-scroll">
+          <table class="sm-table">
+            <thead><tr><th scope="col">Online ID, most hours first</th><th scope="col">Level</th><th scope="col">Hours</th><th scope="col">Deaths</th><th scope="col">Helped · hosted</th><th scope="col">Invasions</th><th scope="col">Messages</th><th scope="col">Last seen</th></tr></thead>
+            <tbody data-field="hunters"></tbody>
+          </table>
+        </div>
+        <button type="button" class="btn btn-ghost sm-more" data-field="moreHunters" hidden>Show all hunters</button>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="join" aria-labelledby="join-h">
+      <div class="container">
+        <h2 id="join-h">Join the hunt</h2>
+        <ol class="sm-steps">
+          <li>Get {SITE.portName} and start its launcher.</li>
+          <li>
+            <a href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">Create an account</a>, or skip this and use <strong>Sign in with Discord</strong> in the launcher.
+          </li>
+          <li>
+            Open <strong>Online co-op</strong>, pick <strong>SuperMedo Server</strong> under <strong>Co-op pool</strong> and sign in. Then start the game and ring a bell.
+          </li>
+        </ol>
+        <div class="sm-actions">
+          <a class="btn btn-primary" href={SITE.downloadUrl} rel="noopener">Download</a>
+          <a class="btn btn-ghost" href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">Create an account</a>
+        </div>
+        <p class="sm-small">
+          Forgot your password? <a href={`${SITE.superMedoAccountUrl}/forgot`} rel="noopener">Get a new one by email</a>.
+          Signed up with Discord? Just sign in with Discord again.
+        </p>
+      </div>
+    </section>
+
+    <p class="container sm-note">
+      Refreshed every minute through forum.bbport.de. Hunters appear by their Online ID only, never where they are right
+      now. Admins of SuperMedo Server can hide a hunter from these lists.
+    </p>
   </div>
 
   <script>
-    // Loads the totals from the server; without an answer everything stays at "–" and the status says so
-    const watch = document.querySelector<HTMLElement>('.sm-watch');
-    if (watch) {
+    import { el, num, hours, when, place, hunterLink, death } from '../lib/server-stats.js';
+
+    const page = document.querySelector<HTMLElement>('.sm-page');
+    if (page && page.dataset.src) {
       const field = (name: string) => document.querySelector<HTMLElement>(`[data-field="${name}"]`)!;
-      const number = (value: number) => Number(value ?? 0).toLocaleString('en-US');
-      const plural = (n: number, one: string, many: string) => `${number(n)} ${n === 1 ? one : many}`;
+      const set = (name: string, text: string) => { field(name).textContent = text; };
+      const hunterUrl = page.dataset.hunter!;
+      const boards: [string, string][] = [
+        ['minutes_played', 'Hours played'], ['deaths', 'Deaths'], ['messages', 'Messages'], ['ratings_received', 'Good ratings'],
+        ['summoned_to_help', 'Helped'], ['summons_hosted', 'Hosted'], ['invasions', 'Invasions'],
+      ];
+      const causes: Record<string, string> = {
+        killed: 'Killed by an enemy or hunter', fall: 'Fell', poison: 'Poison', brainsucker: 'Brainsucker (Insight)', other: 'Something else',
+      };
+      let data: any = null;
+      let board = 'minutes_played';
+      let period: 'all' | 'week' = 'all';
+      let allHunters = false;
+
+      // One table row; the first `head` cells are row headings
+      const row = (cells: (Node | string)[], head = 0) => {
+        const tr = document.createElement('tr');
+        cells.forEach((c, i) => {
+          const td = el(i < head ? 'th' : 'td');
+          if (i < head) td.setAttribute('scope', 'row');
+          td.append(c);
+          tr.append(td);
+        });
+        return tr;
+      };
+      const bar = (pct: number, red = false) => {
+        const b = el('span', red ? 'sm-bar sm-bar-red' : 'sm-bar');
+        const f = el('span');
+        f.style.width = `${Math.max(0, Math.min(100, pct))}%`;
+        b.append(f);
+        return b;
+      };
+      const empty = (target: HTMLElement, text: string, cols = 0) => {
+        if (cols) {
+          const tr = document.createElement('tr');
+          const td = el('td', 'sm-empty', text) as HTMLTableCellElement;
+          td.colSpan = cols;
+          tr.append(td);
+          target.replaceChildren(tr);
+        } else {
+          target.replaceChildren(el(target.tagName === 'OL' || target.tagName === 'UL' ? 'li' : 'p', 'sm-empty', text));
+        }
+      };
+
+      const renderNow = (s: any) => {
+        set('online', num(s.online));
+        set('peakToday', num(s.peak_online?.today?.online ?? 0));
+        set('peakTodayAt', s.peak_online?.today?.online ? `, ${when(s.peak_online.today.at, true)}` : '');
+        set('peakEver', num(s.peak_online?.ever?.online ?? 0));
+        set('peakEverAt', s.peak_online?.ever?.online ? `, ${when(s.peak_online.ever.at)}` : '');
+        const here = (data.areas ?? []).filter((a: any) => a.online > 0);
+        set('where', here.length
+          ? `In ${here.map((a: any) => `${a.name} (${a.online})`).join(', ')}.`
+          : 'Nobody in Yharnam right now. When hunters are on, the areas they are in show here.');
+        const b = s.bells ?? {};
+        set('hosts', num(b.hosts_searching ?? 0));
+        set('helpers', num(b.helpers ?? 0));
+        set('invaders', num(b.invaders ?? 0));
+        // What a bell would do right now
+        let advice = 'No bells ringing right now.';
+        if (s.status !== 'online') advice = 'The server is resting. Bells are quiet until it is back.';
+        else if (b.hosts_searching && !b.helpers) advice = `${num(b.hosts_searching)} ${b.hosts_searching === 1 ? 'host wants' : 'hosts want'} help. Ring the Small Resonant Bell to be summoned.`;
+        else if (b.helpers && !b.hosts_searching) advice = `${num(b.helpers)} ${b.helpers === 1 ? 'helper is' : 'helpers are'} waiting. Ring the Beckoning Bell and help comes to you.`;
+        else if (b.helpers && b.hosts_searching) advice = 'Bells are ringing on both sides. Ring yours, a match is close.';
+        if (s.status === 'online' && b.invaders) advice += ` Careful: ${num(b.invaders)} ${b.invaders === 1 ? 'invader is' : 'invaders are'} waiting.`;
+        set('advice', `> ${advice}`);
+      };
+
+      const renderDay = (s: any) => {
+        const d = s.last_24h ?? {};
+        const t = s.totals ?? {};
+        set('sinceHead', `Since ${when(s.counting_since, false, true)}`);
+        const rows: [string, string, string][] = [
+          ['Hours played', hours(d.hunter_minutes), hours(t.hunter_minutes)],
+          ['Deaths', num(d.deaths), num(t.deaths)],
+          ['Messages', num(d.messages), num(t.messages)],
+          ['Ratings', num(d.ratings), num(t.ratings)],
+          ['Bells rung', num(d.bells_rung), num(t.bells_rung)],
+          ['Summons that worked', `${num(d.summons_joined)} of ${num(d.summons)}`, `${num(t.summons_joined)} of ${num(t.summons)}`],
+        ];
+        field('ledger').replaceChildren(...rows.map(([a, b, c]) => row([a, el('strong', '', b), c], 1)));
+        const history = data.history ?? [];
+        if (!history.length) return empty(field('history'), 'No days counted yet.', 6);
+        const most = Math.max(1, ...history.map((h: any) => h.hunters ?? 0));
+        field('history').replaceChildren(...history.map((h: any) => {
+          const hunters = el('span', 'sm-barcell');
+          hunters.append(el('strong', '', num(h.hunters)), bar((100 * h.hunters) / most));
+          const day = new Date(`${h.date}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+          const peak = h.peak_online ? `${num(h.peak_online)} at ${when(h.peak_at, true, false, true)}` : '–';
+          const tr = row([day, hunters, num(h.new_hunters), peak, hours(h.hunter_minutes), num(h.deaths)], 1);
+          tr.title = `${num(h.messages)} messages · ${num(h.ratings)} ratings · ${num(h.bells_rung)} bells · ${num(h.summons_joined)} of ${num(h.summons)} summons worked`;
+          return tr;
+        }));
+      };
+
+      const renderAreas = () => {
+        const areas = (data.areas ?? []).filter((a: any) => a.online || a.hunter_minutes || a.deaths || a.footsteps);
+        if (!areas.length) {
+          set('areaFacts', 'No hunter has set foot anywhere yet.');
+          return empty(field('areas'), '–', 8);
+        }
+        const rate = (a: any) => (a.hunter_minutes >= 30 ? (60 * a.deaths) / a.hunter_minutes : null);
+        const top = (key: (a: any) => number) => areas.reduce((best: any, a: any) => (key(a) > key(best) ? a : best), areas[0]);
+        const played = top((a) => a.hunter_minutes);
+        const deadly = top((a) => a.deaths);
+        const rated = areas.filter((a: any) => rate(a) !== null && a.deaths > 0);
+        const fastest = rated.length ? rated.reduce((best: any, a: any) => (rate(a)! > rate(best)! ? a : best), rated[0]) : null;
+        const strong = (t: string) => el('strong', '', t);
+        const facts = el('span');
+        facts.append('Most played is ', strong(played.name), ` with ${hours(played.hunter_minutes)} hours.`);
+        if (deadly.deaths) facts.append(' Most hunters died in ', strong(deadly.name), `, ${num(deadly.deaths)} times.`);
+        if (fastest) facts.append(' But nothing kills as fast as ', strong(fastest.name), `: ${num(fastest.deaths)} deaths in ${num(fastest.hunter_minutes)} minutes.`);
+        field('areaFacts').replaceChildren(facts);
+        const maxRate = Math.max(1, ...areas.map((a: any) => rate(a) ?? 0));
+        field('areas').replaceChildren(...areas.map((a: any) => {
+          const r = rate(a);
+          const cell = el('span', 'sm-barcell');
+          cell.append(el('strong', '', r === null ? '–' : r.toFixed(1)), bar(r === null ? 0 : (100 * r) / maxRate, true));
+          const tr = row([a.name, num(a.online), hours(a.hunter_minutes), num(a.deaths), cell, num(a.bells_rung), num(a.messages), num(a.footsteps)], 1);
+          if (a.online) tr.classList.add('is-lit');
+          return tr;
+        }));
+      };
+
+      const renderDeaths = (s: any) => {
+        const c: Record<string, number> = s.deaths_by_cause ?? {};
+        const total = Object.values(c).reduce((sum, n) => sum + Number(n || 0), 0);
+        set('causesHead', `Cause of ${num(total)} deaths`);
+        field('causes').replaceChildren(...Object.entries(c).sort((a, b) => b[1] - a[1]).map(([key, n]) => {
+          const pct = total ? Math.round((100 * n) / total) : 0;
+          const line = el('div', 'sm-cause');
+          const head = el('p');
+          head.append(el('span', '', causes[key] ?? key), el('span', '', `${num(n)} · ${pct}%`));
+          line.append(head, bar(pct, true));
+          return line;
+        }));
+        const killers = data.killers ?? [];
+        if (!killers.length) empty(field('killers'), 'The names of the enemies are coming soon.');
+        else field('killers').replaceChildren(...killers.slice(0, 8).map((k: any, i: number) => {
+          const li = el('li');
+          li.append(el('span', 'sm-rank', String(i + 1)), el('span', 'sm-grow', k.name), el('strong', '', num(k.deaths)));
+          return li;
+        }));
+        const deaths = data.deaths ?? [];
+        if (!deaths.length) empty(field('deaths'), 'No deaths yet. Yharnam is quiet, for now.');
+        else field('deaths').replaceChildren(...deaths.slice(0, 6).map((d: any) => {
+          const li = el('li', 'sm-stack');
+          const line = el('span');
+          line.append(hunterLink(hunterUrl, d.player), ` ${death(d)}`);
+          li.append(line, el('span', 'sm-meta', `${place(d)} · ${when(d.time)}`));
+          return li;
+        }));
+      };
+
+      const renderBoard = () => {
+        field('boardTabs').replaceChildren(...boards.map(([key, label]) => {
+          const b = el('button', '', label) as HTMLButtonElement;
+          b.type = 'button';
+          b.setAttribute('aria-pressed', String(key === board));
+          b.addEventListener('click', () => { board = key; renderBoard(); });
+          return b;
+        }));
+        page.querySelectorAll<HTMLButtonElement>('[data-period]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.period === period)));
+        const entries = ((period === 'week' ? data.week : data.leaderboards) ?? {})[board] ?? [];
+        if (!entries.length) return empty(field('board'), period === 'week' ? 'No one yet this week.' : 'No one yet.');
+        field('board').replaceChildren(...entries.map((e: any) => {
+          const li = el('li');
+          li.append(el('span', 'sm-rank', String(e.rank)), hunterLink(hunterUrl, e.name, 'sm-grow'),
+            el('strong', '', board === 'minutes_played' ? `${hours(e.value)} h` : num(e.value)));
+          return li;
+        }));
+      };
+      page.querySelectorAll<HTMLButtonElement>('[data-period]').forEach((b) => b.addEventListener('click', () => {
+        period = b.dataset.period as 'all' | 'week';
+        if (data) renderBoard();
+      }));
+
+      const renderCommunity = () => {
+        const messages = data.messages ?? [];
+        if (!messages.length) empty(field('messages'), 'No messages rated yet.');
+        else field('messages').replaceChildren(...messages.map((m: any) => {
+          const card = el('div', 'sm-message');
+          const meta = el('span', 'sm-meta');
+          meta.append(`${place(m)} · by `, hunterLink(hunterUrl, m.author), ` · ${when(m.written, false, true)}`);
+          card.append(el('span', 'sm-message-text', m.text ?? ''), meta, el('span', 'sm-meta', `${num(m.good)} good · ${num(m.poor)} poor`));
+          return card;
+        }));
+        const t = data.server.totals ?? {};
+        set('summonRate', t.summons ? `· ${num(t.summons_joined)} of ${num(t.summons)} worked` : '');
+        const summons = data.summons ?? [];
+        if (!summons.length) empty(field('summons'), 'No summons yet.');
+        else field('summons').replaceChildren(...summons.map((x: any) => {
+          const li = el('li', 'sm-summon');
+          const invasion = x.kind === 'invasion';
+          const who = el('span');
+          if (invasion) who.append(hunterLink(hunterUrl, x.summoned), ' invaded ', hunterLink(hunterUrl, x.host));
+          else who.append(hunterLink(hunterUrl, x.host), ' summoned ', hunterLink(hunterUrl, x.summoned));
+          who.append(el('span', 'sm-meta', ` · ${invasion ? 'invasion' : 'co-op'}, ${x.result}`));
+          li.append(who, el('span', 'sm-meta', when(x.time)));
+          return li;
+        }));
+        renderBoard();
+      };
+
+      const renderChalices = () => {
+        const list = data.chalices ?? [];
+        if (!list.length) return empty(field('chalices'), 'No glyph shared yet.', 5);
+        field('chalices').replaceChildren(...list.map((c: any) => row([el('code', 'sm-glyph', c.glyph), num(c.depth), c.maker || 'Not shown', num(c.visits), when(c.made)], 1)));
+      };
+
+      const renderHunters = (s: any) => {
+        set('registered', num(s.hunters?.registered ?? 0));
+        set('playedOnline', num(s.hunters?.played_online ?? 0));
+        set('newWeek', num(s.hunters?.new_this_week ?? 0));
+        const all = data.hunters ?? [];
+        if (!all.length) empty(field('hunters'), 'No hunters yet.', 8);
+        else field('hunters').replaceChildren(...(allHunters ? all : all.slice(0, 10)).map((p: any) => {
+          const id = el('span', 'sm-who');
+          if (p.online) id.append(el('span', 'sm-dot'));
+          id.append(hunterLink(hunterUrl, p.name));
+          return row([id, num(p.level), hours(p.minutes_played), num(p.deaths), `${num(p.summoned_to_help)} · ${num(p.summons_hosted)}`,
+            num(p.invasions), num(p.messages), p.online ? 'online now' : p.last_seen ? when(p.last_seen) : 'not yet'], 1);
+        }));
+        const more = field('moreHunters') as HTMLButtonElement;
+        more.hidden = all.length <= 10;
+        more.textContent = allHunters ? 'Show the top 10' : `Show all ${num(all.length)} hunters`;
+      };
+      field('moreHunters').addEventListener('click', () => {
+        allHunters = !allHunters;
+        if (data) renderHunters(data.server);
+      });
+
       const state = document.querySelector<HTMLElement>('.sm-state')!;
-      const registration: Record<string, string> = {
-        open: 'Welcome',
-        discord: 'Welcome, with Discord',
-        closed: 'Not right now',
-      };
-
-      // One sentence about the night, from the numbers
-      const tonight = (d: any) => {
-        if (!d.online) return 'The night is still: no hunters are awake on the server right now.';
-        const parts = [plural(d.online, 'hunter is awake', 'hunters are awake')];
-        const ringing = d.bells.helpers + d.bells.invaders;
-        if (ringing) parts.push(plural(ringing, 'bell is ringing', 'bells are ringing'));
-        if (d.bells.hosts) parts.push(plural(d.bells.hosts, 'host is searching', 'hosts are searching'));
-        return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts.at(-1)}.` : `${parts[0]}.`;
-      };
-
-      const areaRow = (a: any, most: number) => {
-        const li = document.createElement('li');
-        li.className = a.now ? 'sm-area is-lit' : 'sm-area';
-        const name = document.createElement('span');
-        name.className = 'sm-area-name';
-        name.textContent = a.name;
-        const lamp = document.createElement('span');
-        lamp.className = 'sm-area-now';
-        lamp.textContent = a.now ? plural(a.now, 'hunter here now', 'hunters here now') : '';
-        const bar = document.createElement('span');
-        bar.className = 'sm-gauge';
-        bar.setAttribute('aria-hidden', 'true');
-        const fill = document.createElement('span');
-        fill.style.width = `${Math.max(2, Math.round((100 * a.footsteps) / most))}%`;
-        bar.append(fill);
-        const figures = document.createElement('span');
-        figures.className = 'sm-area-figures';
-        figures.textContent = `${plural(a.footsteps, 'footstep', 'footsteps')} · ${plural(a.bloodstains, 'bloodstain', 'bloodstains')}`;
-        li.append(name, lamp, bar, figures);
-        return li;
-      };
-
+      const registration: Record<string, string> = { open: 'registration open', discord: 'registration with Discord', closed: 'registration closed' };
       const load = async () => {
         try {
-          const response = await fetch(watch.dataset.src!, { credentials: 'omit' });
+          const response = await fetch(page.dataset.src!, { credentials: 'omit' });
           if (!response.ok) throw new Error(String(response.status));
-          const d = await response.json();
-          const awake = d.status === 'online';
+          data = await response.json();
+          const s = data.server;
+          const awake = s.status === 'online';
           state.classList.toggle('is-awake', awake);
-          field('state').textContent = awake ? 'Awake' : 'Resting for maintenance, back soon';
-          field('tonight').textContent = tonight(d);
-          for (const name of ['helpers', 'hosts', 'invaders']) field(name).textContent = number(d.bells[name]);
-          field('answered').textContent = `${number(d.joined_24h)} of ${number(d.summons_24h)}`;
-          field('answeredBar').style.width = d.summons_24h ? `${Math.round((100 * d.joined_24h) / d.summons_24h)}%` : '0%';
-          field('hunters').textContent = number(d.hunters);
-          field('new7d').textContent = number(d.new_7d);
-          field('messages').textContent = number(d.messages);
-          field('since').textContent = new Date(d.awake_since * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
-          field('registration').textContent = registration[d.registration] ?? '–';
-          const areas = (d.areas ?? []).filter((a: any) => a.now || a.footsteps || a.bloodstains);
-          const most = Math.max(1, ...areas.map((a: any) => a.footsteps));
-          const list = field('areas');
-          list.replaceChildren(...areas.map((a: any) => areaRow(a, most)));
-          if (!areas.length) list.innerHTML = '<li class="sm-empty">No hunter has set foot anywhere yet.</li>';
+          set('state', [awake ? `Online since ${when(s.awake_since)}` : 'Resting for maintenance, back soon',
+            registration[s.registration] ?? '', `updated ${when(data.updatedAt, true)}`].filter(Boolean).join(' · '));
+          renderNow(s);
+          renderDay(s);
+          renderAreas();
+          renderDeaths(s);
+          renderCommunity();
+          renderChalices();
+          renderHunters(s);
         } catch {
           state.classList.remove('is-awake');
-          field('state').textContent = "The server isn't answering right now";
+          set('state', "The server isn't answering right now. The numbers come back by themselves.");
         }
       };
 
       load();
-      // Refresh every minute while the page is visible (the server works the numbers out at most every 30 s)
+      // Refresh every minute while the page is visible (the forum caches for a minute as well)
       setInterval(() => {
         if (document.visibilityState === 'visible') load();
       }, 60000);
