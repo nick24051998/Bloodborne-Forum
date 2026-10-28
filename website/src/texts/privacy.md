@@ -84,6 +84,11 @@ used for tracking.
 **Live statistics.** The forum shows numbers from The Hunter's Dream (the online co-op server). Our
 server fetches these totals directly from thehuntersdream.com; no data about you is sent there.
 
+**"My game account."** When you click "My game account" in your forum menu, the forum sends your Discord user ID
+to SuperMedo Server (game.supermedo.com), with a signature that is valid for one minute, so it can sign you in to
+your game account there (Art. 6(1)(b) GDPR, at your request). Nothing else is sent, and nothing at all unless you
+click. SuperMedo Server is responsible for what happens there.
+
 **Backups.** We back up the forum database and uploaded files every night and keep the backups for
 14 days, so the forum can be restored after a failure.
 

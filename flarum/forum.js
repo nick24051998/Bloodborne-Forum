@@ -25,6 +25,8 @@
 //   Logo Contest), submitting and voting; rules and data in flarum/contest.php, link in the sidebar
 // - Top helpers (flarum/helpers.php): box with the top 5 of the last 30 days below The Hunter's Dream (wide screens,
 //   otherwise a link in the menu), page /top-helpers (last 30 days and all time), mark for the top 3
+// - "My game account" in the member's menu (flarum/supermedo-account.php): to their account on SuperMedo Server,
+//   already signed in; only while the forum has the shared key
 // The addresses are set by scripts/setup-forum.sh (WEBSITE_URL, DISCORD_INVITE_URL from .env).
 (function () {
   var compat = flarum.core.compat;
@@ -35,6 +37,7 @@
   var avatar = compat['common/helpers/avatar'];
   var HeaderPrimary = compat['forum/components/HeaderPrimary'];
   var HeaderSecondary = compat['forum/components/HeaderSecondary'];
+  var SessionDropdown = compat['forum/components/SessionDropdown'];
   var LinkButton = compat['common/components/LinkButton'];
   var IndexPage = compat['forum/components/IndexPage'];
   var DiscussionControls = compat['forum/utils/DiscussionControls'];
@@ -76,6 +79,40 @@
       icon('fab fa-discord', { className: 'Button-icon' }),
       m('span.Button-label', 'Discord'),
     ]);
+  }
+
+  // "My game account" (flarum/supermedo-account.php): the forum signs the member in on SuperMedo Server. Guests who
+  // open the address come back with ?gameAccount=login, log in and then continue there (the tab remembers it for
+  // 10 minutes); members without a Discord login come back with ?gameAccount=no-discord and get a notice.
+  var GAME_ACCOUNT_STORE = 'bbGameAccount';
+
+  function gameAccountUrl() {
+    return app.forum.attribute('baseUrl') + '/supermedo-account';
+  }
+
+  function gameAccountReturn() {
+    if (!app.forum.attribute('bbSupermedoAccount')) return;
+    var params = new URLSearchParams(window.location.search);
+    var reason = params.get('gameAccount');
+    if (reason) {
+      params.delete('gameAccount');
+      var rest = params.toString();
+      window.history.replaceState(window.history.state, '', window.location.pathname + (rest ? '?' + rest : '') + window.location.hash);
+    }
+    if (reason === 'no-discord') {
+      app.alerts.show({ type: 'error' }, 'Your forum account isn\'t linked to Discord, so SuperMedo Server can\'t tell which game account is yours.');
+      return;
+    }
+    var since = 0;
+    try { since = Number(window.sessionStorage.getItem(GAME_ACCOUNT_STORE)) || 0; } catch (e) {}
+    if (app.session.user) {
+      if (reason !== 'login' && !since) return;
+      try { window.sessionStorage.removeItem(GAME_ACCOUNT_STORE); } catch (e) {}
+      if (reason === 'login' || Date.now() - since < 600000) window.location.href = gameAccountUrl();
+    } else if (reason === 'login') {
+      try { window.sessionStorage.setItem(GAME_ACCOUNT_STORE, String(Date.now())); } catch (e) {}
+      app.modal.show(LogInModal);
+    }
   }
 
   // Reload the numbers at most once a minute; without data (server gone, error) everything stays hidden
@@ -333,14 +370,17 @@
     'mods-patches': 'Modding and mods only. Write the port version and the date of your test in the topic.',
   };
 
-  // The page ships only sections and the most-used extra tags, not the status tags: load all of them once
+  // The page ships only sections and the most-used extra tags, not the status tags: load all of them once.
+  // Topic lists bring along only the statuses they show (Done, Not planned and Duplicate rarely), so check every
+  // status of the area, not just the first one (a helper saw only Planned and In progress, 28.10.2026)
   var statusTagsLoading = false;
 
   function statusOptions(discussion) {
     var slugs = tagSlugs(discussion);
     var area = Object.keys(STATUSES).filter(function (s) { return slugs.indexOf(s) !== -1; })[0];
     if (!area || !discussion.canTag || !discussion.canTag()) return null;
-    if (!tagBySlug(STATUSES[area][0][0]) && !statusTagsLoading) {
+    var missing = STATUSES[area].some(function (s) { return !tagBySlug(s[0]); });
+    if (missing && !statusTagsLoading) {
       statusTagsLoading = true;
       (app.tagList ? app.tagList.load(['parent']) : app.store.find('tags')).then(function () { m.redraw(); });
     }
@@ -1477,6 +1517,24 @@
     extend(HeaderSecondary.prototype, 'items', function (items) {
       var discord = app.forum.attribute('bbforumDiscordUrl');
       if (discord) items.add('bb-discord', discordButton(discord), -100);
+    });
+
+    // "My game account" in the member's menu, below the profile; SuperMedo Server is a third-party service, so a new
+    // tab like Discord. Only while the forum has the key (forum attribute, flarum/supermedo-account.php)
+    extend(SessionDropdown.prototype, 'items', function (items) {
+      if (!app.forum.attribute('bbSupermedoAccount')) return;
+      items.add('bbGameAccount', LinkButton.component({
+        href: gameAccountUrl(),
+        icon: 'fas fa-gamepad',
+        external: true,
+        target: '_blank',
+        rel: 'noopener',
+      }, 'My game account'), 90);
+    });
+
+    // Back from /supermedo-account (?gameAccount=…): after startup, when the login window can open
+    extend(HeaderSecondary.prototype, 'oncreate', function () {
+      setTimeout(gameAccountReturn, 0);
     });
 
     // Logo at the top left: leads to the website, like on the website itself. Only after startup (app.forum does

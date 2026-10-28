@@ -207,6 +207,18 @@ body=$(jq -n --arg t "$bot" --arg g "$guild" --arg m "$modroles" --arg s "$shown
   '{"bbforum.discord_bot_token": $t, "bbforum.discord_guild_id": $g, "bbforum.discord_mod_role_ids": $m, "bbforum.discord_shown_role_ids": $s}')
 api POST /settings "$body" >/dev/null &&
   ok "Discord roles as forum groups: $([ -n "$bot" ] && [ -n "$guild" ] && echo "on (server $guild)" || echo off)"
+# "My game account" (flarum/supermedo-account.php): key shared with SuperMedo Server, 64 characters, used as is.
+# Empty = off (button hidden, /supermedo-account answers 404). The key is not printed.
+smkey=${SUPERMEDO_ACCOUNT_KEY:-}
+case "$smkey" in
+  *[!A-Za-z0-9._~+/=-]*) warn "SUPERMEDO_ACCOUNT_KEY has characters that don't belong in it, ignored"; smkey="" ;;
+esac
+if [ -n "$smkey" ] && [ "${#smkey}" -ne 64 ]; then
+  warn "SUPERMEDO_ACCOUNT_KEY is ${#smkey} characters long instead of 64, ignored"; smkey=""
+fi
+body=$(jq -n --arg k "$smkey" '{"bbforum.supermedo_account_key": $k}')
+api POST /settings "$body" >/dev/null && ok "SuperMedo game account button: $([ -n "$smkey" ] && echo on || echo off)"
+unset smkey
 # Display names come from the Discord server (flarum/discord-roles.php): driver "nickname", don't ask for the name at
 # registration and don't let users change it themselves, otherwise the sync overwrites it again anyway
 if installed flarum/nicknames; then
