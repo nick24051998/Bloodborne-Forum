@@ -36,6 +36,7 @@ with a Bloodborne gothic theme in Discord style.
 | `flarum/extend.php` | "New accounts only via Discord" switch, security headers, `/api/hunters-dream` (live numbers from The Hunter's Dream, cached for one minute, totals only) and new topics to Discord |
 | `flarum/extend-loader.php` | Mounted as `/opt/flarum/extend.php`; loads `flarum/extend.php` so changes take effect after `git pull` without a restart |
 | `flarum/forum.js` | Links to the website and to Discord in the forum header, sign-up dialog with only the Discord button, live numbers from The Hunter's Dream (sidebar; on phones below the banner) |
+| `flarum/helpers.php` | Top helpers: ranking of the last 30 days and of all time (`/api/bb-top-helpers`), box in the sidebar, page `/top-helpers`, mark for the top 3 |
 | `media/` | Icons (CC0), banner images (`media/images/`, AI-generated) and self-made textures; sources in `media/CREDITS.md`, rebuild with `python3 media/build.py`. Brand rules in `media/BRAND.md`, ChatGPT prompts for new media in `media/PROMPTS.md` |
 | `flarum/icons.less` | Custom category icons (`bbicon bbicon-NAME`), generated from `media/icons/` |
 | `theme/custom.less` | Theme (Admin → Appearance → Custom Styles) |
@@ -270,7 +271,7 @@ would otherwise make replies fail with an error as soon as someone should get an
 | **The Hunter's Dream** | everyone | members | off-topic |
 
 Role colors: Admin blood red `#8a1118`, Mod brass `#9c8458`. Allowed uploads: images, `.zip`/`.7z`
-(BB Report Tool) and `.txt` logs up to 20 MB. Only logged-in members can upload and download.
+(report zips from the launcher) and `.txt` logs up to 20 MB. Only logged-in members can upload and download.
 
 **By hand in the admin area** (if you don't use the script):
 

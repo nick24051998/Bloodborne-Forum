@@ -23,6 +23,8 @@
 //   work lists (unanswered, unsolved, open bugs, suggestions) and "Save as Known Fix" on help topics
 // - Logo contest: page /logo-contest with all entries (first image in the opening post of a topic in the section
 //   Logo Contest), submitting and voting; rules and data in flarum/contest.php, link in the sidebar
+// - Top helpers (flarum/helpers.php): box with the top 5 of the last 30 days below The Hunter's Dream (wide screens,
+//   otherwise a link in the menu), page /top-helpers (last 30 days and all time), mark for the top 3
 // The addresses are set by scripts/setup-forum.sh (WEBSITE_URL, DISCORD_INVITE_URL from .env).
 (function () {
   var compat = flarum.core.compat;
@@ -30,6 +32,7 @@
   var extend = compat['common/extend'].extend;
   var override = compat['common/extend'].override;
   var icon = compat['common/helpers/icon'];
+  var avatar = compat['common/helpers/avatar'];
   var HeaderPrimary = compat['forum/components/HeaderPrimary'];
   var HeaderSecondary = compat['forum/components/HeaderSecondary'];
   var LinkButton = compat['common/components/LinkButton'];
@@ -202,7 +205,7 @@
   // Overview of the home page: four sections with five topics each and a sentence on what the section is for.
   // [section, heading, sort, sentence, bbview]; only sections that exist (setup creates them).
   var DASH = [
-    ['help-support', 'New questions', '-createdAt', "Something doesn't work: one topic per problem, with your BB Report Tool zip."],
+    ['help-support', 'New questions', '-createdAt', "Something doesn't work: one topic per problem, with your report zip (launcher: Help → Save a report)."],
     ['suggestions', 'Top suggestions', '-bbVotes', 'Ideas for the port, the launcher, this forum or Discord. Vote with 👍.', 'active'],
     ['known-fixes', 'New known fixes', '-createdAt', 'Solutions that worked, checked by a helper. Search here first.'],
     ['announcements', 'News', '-createdAt', 'Releases and news from the team.'],
@@ -287,10 +290,10 @@
   // Work lists for the team: search with gambits (is:unanswered from extend.php, is:solved from Best Answer)
   // Closed help topics (7 days without a post, flarum/overview.php) no longer count as open
   var TEAM_LISTS = [
-    ['bbTeamUnanswered', 'Waiting for an answer', { q: 'tag:help-support is:unanswered -is:locked', sort: 'oldest' }, 'fas fa-hourglass-half'],
-    ['bbTeamUnsolved', 'Help not solved yet', { q: 'tag:help-support -is:solved -is:locked', sort: 'latest' }, 'fas fa-life-ring'],
-    ['bbTeamBugs', 'Open bugs', { q: 'tag:bug-reports tag:status-open', sort: 'latest' }, 'fas fa-bug'],
-    ['bbTeamIdeas', 'New suggestions', { q: 'tag:suggestions', sort: 'newest' }, 'fas fa-lightbulb'],
+    ['bbTeamUnanswered', 'Waiting for an answer', { q: 'tag:help-support is:unanswered -is:locked', sort: 'oldest' }, 'bbicon bbicon-hourglass'],
+    ['bbTeamUnsolved', 'Help not solved yet', { q: 'tag:help-support -is:solved -is:locked', sort: 'latest' }, 'bbicon bbicon-lantern'],
+    ['bbTeamBugs', 'Open bugs', { q: 'tag:bug-reports tag:status-open', sort: 'latest' }, 'bbicon bbicon-spider'],
+    ['bbTeamIdeas', 'New suggestions', { q: 'tag:suggestions', sort: 'newest' }, 'bbicon bbicon-candle'],
   ];
 
   function teamNavItems(items) {
@@ -318,6 +321,16 @@
       ['status-fixed', 'Fixed', 'fas fa-check'],
       ['status-duplicate', 'Duplicate', 'far fa-clone'],
     ],
+    // Tested mod list (Nick, 28.10.2026): set by the modding role and the mods
+    'mods-patches': [
+      ['status-works', 'Works', 'fas fa-check'],
+      ['status-limits', 'Works with limits', 'fas fa-exclamation-triangle'],
+      ['status-broken', 'Doesn\'t work', 'fas fa-ban'],
+      ['status-retest', 'Retest', 'fas fa-redo'],
+    ],
+  };
+  var STATUS_HINTS = {
+    'mods-patches': 'Modding and mods only. Write the port version and the date of your test in the topic.',
   };
 
   // The page ships only sections and the most-used extra tags, not the status tags: load all of them once
@@ -372,6 +385,7 @@
   // Sidebar of the topic (desktop): all states at a glance, the current one highlighted
   function statusPanel(discussion, options) {
     var current = tagSlugs(discussion);
+    var area = Object.keys(STATUSES).filter(function (s) { return current.indexOf(s) !== -1; })[0];
     return m('div.bb-statusPanel', [
       m('div.bb-statusPanel-title', 'Status'),
       m('div.bb-statusPanel-options', options.map(function (s) {
@@ -384,7 +398,7 @@
           onclick: function () { setStatus(discussion, s[0]); },
         }, [icon(s[2]), ' ', s[1]]);
       })),
-      m('p.bb-statusPanel-hint', 'Team only. Done, Fixed, Not planned and Duplicate take it out of the open lists.'),
+      m('p.bb-statusPanel-hint', STATUS_HINTS[area] || 'Team only. Done, Fixed, Not planned and Duplicate take it out of the open lists.'),
     ]);
   }
 
@@ -578,6 +592,13 @@
       ['progress', 'In progress', { view: 'status-in-progress' }],
       ['fixed', 'Fixed', { view: 'status-fixed' }],
       ['all', 'All', {}],
+    ],
+    'mods-patches': [
+      ['all', 'All', {}],
+      ['works', 'Works', { view: 'status-works' }],
+      ['limits', 'Works with limits', { view: 'status-limits' }],
+      ['broken', 'Doesn\'t work', { view: 'status-broken' }],
+      ['retest', 'Retest', { view: 'status-retest' }],
     ],
   };
 
@@ -820,6 +841,7 @@
     insight: ['fas fa-eye', 'Insight', 'Earned by helping other hunters. Grows with every level.'],
     beta: ['fas fa-flask', 'Beta tester', 'Tests new builds before they are released.'],
     winner: ['fas fa-moon', 'Contest winner', 'Won a community contest.'],
+    tophelper: ['fas fa-hands-helping', 'Top helper', 'One of the three members who helped most in the last 30 days. Thank you!'],
   };
   var INSIGHT_NAMES = ['Resonant Bell', 'Lamplighter', 'Old Hunter', 'Hunter of the Workshop'];
 
@@ -1028,11 +1050,11 @@
 
   // "Start here" in the sidebar: the guides that used to be pinned at the top
   var START = [
-    [3, 'Read first: common fixes', 'fas fa-first-aid'],
-    [2, 'Install guide', 'fas fa-download'],
-    [124, 'Best settings', 'fas fa-sliders-h'],
-    [1, 'Forum rules', 'fas fa-gavel'],
-    [4, 'Post a performance report', 'fas fa-tachometer-alt'],
+    [3, 'Read first: common fixes', 'bbicon bbicon-scroll'],
+    [2, 'Install guide', 'bbicon bbicon-download'],
+    [124, 'Best settings', 'bbicon bbicon-gears'],
+    [1, 'Forum rules', 'bbicon bbicon-gavel'],
+    [4, 'Post a performance report', 'bbicon bbicon-chart'],
   ];
 
   function startItems(items) {
@@ -1046,8 +1068,147 @@
     });
   }
 
+  // --- Top helpers (flarum/helpers.php, Nick 28.10.2026) ----------------------------------------------------------
+  // Reload at most every 10 minutes (the server recalculates every 30); without data the box stays hidden
+  var helpers = { data: null, loadedAt: 0, loading: false };
+
+  function loadHelpers() {
+    if (helpers.loading || Date.now() - helpers.loadedAt < 600000) return;
+    helpers.loading = true;
+    // No error box for visitors if the list can't be loaded: the box simply stays away
+    app.request({ method: 'GET', url: app.forum.attribute('apiUrl') + '/bb-top-helpers', errorHandler: function () {} })
+      .then(function (payload) {
+        app.store.pushPayload(payload);
+        helpers.data = payload.meta || null;
+      })
+      .catch(function () {})
+      .then(function () {
+        helpers.loading = false;
+        helpers.loadedAt = Date.now();
+        m.redraw();
+      });
+  }
+
+  // [{user, solved, fixes, topics, points}] for 'month' (last 30 days) or 'all'
+  function helperList(period) {
+    return ((helpers.data && helpers.data[period]) || []).map(function (row) {
+      return Object.assign({ user: app.store.getById('users', String(row.id)) }, row);
+    }).filter(function (row) { return row.user; });
+  }
+
+  function count(n, one, many) {
+    return n + ' ' + (n === 1 ? one : many);
+  }
+
+  // Short in the box (solved and topics, one line), complete on the page
+  function helperStats(row, full) {
+    var parts = [];
+    if (row.solved) parts.push(full ? count(row.solved, 'solution', 'solutions') : row.solved + ' solved');
+    if (full && row.fixes) parts.push(count(row.fixes, 'Known Fix', 'Known Fixes'));
+    if (row.topics) parts.push((full ? 'helped in ' : '') + count(row.topics, 'topic', 'topics'));
+    return parts.join(' · ');
+  }
+
+  var HELPERS_RULE = "How it counts: a solution (your reply is the best answer in someone else's topic) 5 points, a Known " +
+    'Fix you wrote 3, every Help & Support or Bug Reports topic of another member you replied in 1. ' +
+    'BB-Helper and the admins are not ranked.';
+
+  function helpersCard() {
+    var rows = helperList('month').slice(0, 5);
+    if (!rows.length) return null;
+    return m('div.bb-hd.bb-helpers', [
+      m(Link, { className: 'bb-hd-title', href: app.route('topHelpers') }, 'Top helpers'),
+      m('p.bb-helpers-period', 'Last 30 days'),
+      m('ol.bb-helpers-list', rows.map(function (row, i) {
+        return m('li', m(Link, { href: app.route.user(row.user), title: helperStats(row, true) }, [
+          m('span.bb-helpers-rank', i + 1),
+          avatar(row.user, { loading: 'lazy' }),
+          m('span.bb-helpers-who', [
+            m('span.bb-helpers-name', row.user.displayName()),
+            m('span.bb-helpers-stats', helperStats(row)),
+          ]),
+        ]));
+      })),
+      m(Link, { className: 'bb-hd-more', href: app.route('topHelpers') }, 'All top helpers →'),
+    ]);
+  }
+
+  class TopHelpersPage extends Page {
+    oninit(vnode) {
+      super.oninit(vnode);
+      this.period = 'month';
+      app.setTitle('Top helpers');
+      app.setTitleCount(0);
+      // Fresh numbers when the page opens
+      helpers.loadedAt = 0;
+      loadHelpers();
+    }
+
+    role(user) {
+      var role = user.attribute('bbRole');
+      return role ? rolePill(role) : null;
+    }
+
+    view() {
+      var page = this;
+      var rows = helperList(this.period);
+      var body;
+      if (!helpers.data) {
+        body = helpers.loading ? m(LoadingIndicator) : m('p.bb-helpers-empty', 'The list could not be loaded. Please try again later.');
+      } else if (!rows.length) {
+        body = m('p.bb-helpers-empty', 'Nobody has helped enough to be listed yet. Answer a question in Help & Support and you could be first.');
+      } else {
+        body = [
+          m('ol.bb-helpers-top', rows.slice(0, 3).map(function (row, i) {
+            return m('li', m(Link, { href: app.route.user(row.user) }, [
+              m('span.bb-helpers-place', i + 1),
+              avatar(row.user),
+              m('strong.bb-helpers-name', row.user.displayName()),
+              page.role(row.user),
+              m('span.bb-helpers-stats', helperStats(row, true)),
+              m('span.bb-helpers-points', count(row.points, 'point', 'points')),
+            ]));
+          })),
+          rows.length > 3 ? m('ol.bb-helpers-rows', rows.slice(3).map(function (row, i) {
+            return m('li', m(Link, { href: app.route.user(row.user) }, [
+              m('span.bb-helpers-rank', i + 4),
+              avatar(row.user, { loading: 'lazy' }),
+              m('span.bb-helpers-who', [m('span.bb-helpers-name', row.user.displayName()), page.role(row.user)]),
+              m('span.bb-helpers-stats', helperStats(row, true)),
+              m('span.bb-helpers-points', count(row.points, 'pt', 'pts')),
+            ]));
+          })) : null,
+        ];
+      }
+
+      return m('div.bb-helpersPage', [
+        m('div.bb-contest-hero', m('div.container', [
+          m('p.bb-contest-eyebrow', 'Thank you'),
+          m('h1', 'Top helpers'),
+          m('p.bb-contest-lead', 'They answer questions, test fixes and write them down, so the next hunter finds the answer faster. A lot of what works here works because of them.'),
+        ])),
+        m('div.container.bb-helpers-body', [
+          m('nav.bb-tabs', { 'aria-label': 'Period' }, [['month', 'Last 30 days'], ['all', 'All time']].map(function (p) {
+            return m('button.bb-tab' + (page.period === p[0] ? '.is-active' : ''), {
+              type: 'button',
+              'aria-pressed': page.period === p[0] ? 'true' : 'false',
+              onclick: function () { page.period = p[0]; },
+            }, p[1]);
+          })),
+          body,
+          m('p.bb-helpers-rule', [
+            HELPERS_RULE + ' The top 3 of the last 30 days wear the Top helper mark ',
+            m('span.bb-mark.bb-mark--tophelper', icon('fas fa-hands-helping')),
+            ' next to their name.',
+          ]),
+        ]),
+      ]);
+    }
+  }
+
   app.initializers.add('bbforum', function () {
     app.routes.logoContest = { path: '/logo-contest', component: LogoContestPage };
+    app.routes.topHelpers = { path: '/top-helpers', component: TopHelpersPage };
 
     // --- Overview ---
     if (app.translator.addTranslations) {
@@ -1285,6 +1446,9 @@
         if (tag.position() === null && items.has('tag' + tag.id())) items.remove('tag' + tag.id());
       });
       if (items.has('moreTags')) items.remove('moreTags');
+      // "Tags" in the same icon set as the sections (flarum/tags brings a Font Awesome icon)
+      var tagsLink = items.has('tags') ? items.get('tags') : null;
+      if (tagsLink && tagsLink.attrs) tagsLink.attrs.icon = 'bbicon bbicon-tag';
     });
 
     extend(HeaderPrimary.prototype, 'items', function (items) {
@@ -1335,10 +1499,21 @@
       if (hd.data) items.add('bbHuntersDream', huntersDreamCard(hd.data), -100);
     });
 
+    // Top helpers: box below The Hunter's Dream (wide screens); narrower screens get a link in the menu instead
+    extend(IndexPage.prototype, 'sidebarItems', function (items) {
+      loadHelpers();
+      var card = helpersCard();
+      if (card) items.add('bbTopHelpersCard', card, -110);
+    });
+
+    extend(IndexPage.prototype, 'navItems', function (items) {
+      items.add('bbTopHelpers', LinkButton.component({ href: app.route('topHelpers'), icon: 'fas fa-hands-helping' }, 'Top helpers'), -20);
+    });
+
     // Team block in the sidebar (home page and sections); for everyone the link to the logo contest while it runs
     extend(IndexPage.prototype, 'navItems', function (items) {
       if (contestPhase() !== 'closed') {
-        items.add('bbLogoContest', LinkButton.component({ href: app.route('logoContest'), icon: 'fas fa-trophy' }, 'Logo contest'), 95);
+        items.add('bbLogoContest', LinkButton.component({ href: app.route('logoContest'), icon: 'bbicon bbicon-trophy' }, 'Logo contest'), 95);
       }
       if (isTeam()) teamNavItems(items);
     });

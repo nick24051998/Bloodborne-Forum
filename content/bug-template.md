@@ -5,4 +5,4 @@
 **Workaround:** (or "none known yet")
 **Reports:** (links to the Help & Support topics)
 
-Same problem? Reply only with new info: your GPU, the steps, or the BB Report Tool zip.
+Same problem? Reply only with new info: your GPU, the steps, or your report zip (launcher: Help > Save a report).

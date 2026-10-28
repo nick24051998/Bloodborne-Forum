@@ -5,7 +5,7 @@ heading: Contact
 intro: How to reach the team behind this website and the forum.
 ---
 
-**E-mail:** [bbportpc@gmail.com](mailto:bbportpc@gmail.com)
+**E-mail:** [bbport@supermedo.com](mailto:bbport@supermedo.com)
 
 Write to us about the website or the forum, about content you want removed, or about your personal
 data (see the [privacy notice](../privacy/)).

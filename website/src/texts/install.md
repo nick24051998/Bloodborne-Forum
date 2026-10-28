@@ -27,13 +27,13 @@ intro: Everything you need to get Bloodborne running on Windows – from system 
 
 ### Settings for 4 GB cards
 
-720p/1080p, FSR 3.1 Performance, Model detail Default, Object motion vectors off, frame generation off, a 60 FPS cap, and the page file on "System managed".
+Since 1.9.3 the launcher does most of this itself: the Low-VRAM profile (Advanced, "Auto") switches on for cards with 4.5 GB or less, and object motion is off below 6 GB. Otherwise: 720p/1080p, FSR 3.1 Performance, Model detail Default, frame generation off, a 60 FPS cap, and the page file on "System managed".
 
 ### Driver notes
 
 - **DLSS** needs a GeForce RTX 20 series or newer. **DLSS Frame Generation** needs RTX 40 (2×) or RTX 50 (up to 4×). **FSR 3.1** frame generation works on any card and works best from about 60 base FPS.
 - **FSR 4** is slow below Radeon RX 7000/9000; use FSR 3.1 there.
-- **AMD driver 26.8.1:** if an RX 6000/9000 crashes or shows broken graphics, clear the shader cache (Advanced), or try another driver.
+- **AMD driver 26.8.1:** if an RX 6000/9000 crashes or shows broken graphics, clear the shader cache (Help → Only a black screen → Clear the shader cache), or try another driver.
 - **Intel graphics** get no upscaler, and FSR 4 freezes on Intel Arc.
 - **Overlays:** if the game won't start or keeps crashing, close MSI Afterburner, RTSS and other overlays.
 

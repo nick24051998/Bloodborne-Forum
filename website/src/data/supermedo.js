@@ -30,7 +30,7 @@ export const ports = [
     system: 'PS4',
     year: 2015,
     studio: 'FromSoftware',
-    text: 'The port this site is about. A launcher in 13 languages, DLSS and FSR 3.1/4, unlocked frame rates, mods, online co-op and one-click updates.',
+    text: 'The port this site is about. A launcher in 12 languages, DLSS and FSR 3.1/4, unlocked frame rates, mods, online co-op and one-click updates.',
     here: true,
     links: [
       { label: 'Install guide', href: 'install/', internal: true },

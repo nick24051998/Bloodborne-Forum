@@ -29,6 +29,7 @@
  * caches the result and passes on only totals, no player names. If the
  * numbers are older than 15 minutes, it answers with 503 and the fields stay hidden.
  *
+ * /api/bb-ai/…: open help topics for BB Helper's AI answers and its reply as BB-Helper (flarum/ai-help.php)
  * /api/bb-discord-notify: queue of forum notifications for BB Helper (flarum/discord-notify.php), which delivers
  * them in the member's private inbox thread on Discord; off until bbforum.discord_notify_enabled = 1.
  *
@@ -39,6 +40,9 @@
  *
  * Discord roles as forum groups, names from the server and ban/suspension in both directions:
  * flarum/discord-roles.php (command bbforum:discord-roles every minute, plus the Suspended event).
+ *
+ * Top helpers (flarum/helpers.php): /api/bb-top-helpers with the ranking of the last 30 days and of all time
+ * (solutions, Known Fixes, topics helped), page /top-helpers; the top 3 get the mark "Top helper".
  *
  * Overview (flarum/overview.php): votes (👍 on the opening post) as the sort order "-bbVotes", filter "bbview"
  * for the tabs above the lists, command bbforum:close-stale (close help discussions after 7 days without a post).
@@ -329,6 +333,8 @@ require_once __DIR__.'/contest.php';
 require_once __DIR__.'/overview.php';
 require_once __DIR__.'/profiles.php';
 require_once __DIR__.'/discord-notify.php';
+require_once __DIR__.'/ai-help.php';
+require_once __DIR__.'/helpers.php';
 
 return [
     (new Extend\ServiceProvider())->register(BBForumCliLocale::class),
@@ -430,6 +436,10 @@ return [
             return BBForumContest::attributes($serializer->getActor(), $discussion);
         }),
 
+    // Top helpers (flarum/helpers.php): ranking for the sidebar box and the page /top-helpers
+    (new Extend\Routes('api'))->get('/bb-top-helpers', 'bbforum.topHelpers', BBForumTopHelpersController::class),
+    (new Extend\Frontend('forum'))->route('/top-helpers', 'topHelpers'),
+
     // Follow own discussions (instead of Flarum's "off"): replies show up in the notifications
     (new Extend\User())->registerPreference('followAfterReply', 'boolval', true),
 
@@ -476,10 +486,15 @@ return [
     (new Extend\Routes('api'))
         ->get('/bb-discord-notify', 'bbforum.discordNotify.pending', BBForumDiscordNotifyPending::class)
         ->post('/bb-discord-notify/ack', 'bbforum.discordNotify.ack', BBForumDiscordNotifyAck::class)
-        ->post('/bb-discord-notify/action', 'bbforum.discordNotify.action', BBForumDiscordNotifyAction::class),
+        ->post('/bb-discord-notify/action', 'bbforum.discordNotify.action', BBForumDiscordNotifyAction::class)
+        ->get('/bb-ai/candidates', 'bbforum.ai.candidates', BBForumAiCandidates::class)
+        ->get('/bb-ai/topics/{id}', 'bbforum.ai.topic', BBForumAiTopic::class)
+        ->get('/bb-ai/files/{uuid}', 'bbforum.ai.file', BBForumAiFile::class)
+        ->post('/bb-ai/reply', 'bbforum.ai.reply', BBForumAiReply::class),
     (new Extend\Csrf())
         ->exemptRoute('bbforum.discordNotify.ack')
-        ->exemptRoute('bbforum.discordNotify.action'),
+        ->exemptRoute('bbforum.discordNotify.action')
+        ->exemptRoute('bbforum.ai.reply'),
 
     ...(is_file('/bbforum/forum.js') ? [(new Extend\Frontend('forum'))->js('/bbforum/forum.js')] : []),
     ...(is_file('/bbforum/icons.less') ? [

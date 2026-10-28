@@ -18,7 +18,7 @@ name changes in the launcher, update it here too. Do not copy internal notes (do
 - Quit to Desktop, Rebirth at the Doll and the HUD position
 - cheats and gameplay tweaks
 
-You set all of it in the launcher: on **Picture & performance**, and with the **Expert view** switch at the bottom of the side bar also on **All graphics** and **Cheats**. In the game, Insert (keyboard) or L3 + R3 (controller) opens the port's menu for upscaler, resolution and effects.
+You set all of it in the launcher: frame rate, resolution and effects on **Picture & performance**, Quit to Desktop, Rebirth and the other gameplay tweaks on **Gameplay**, and with the **Expert view** switch at the bottom of the side bar also on **All graphics** and **Cheats**. In the game, Insert (keyboard) or L3 + R3 (controller) opens the port's menu for upscaler, resolution, effects and the field of view.
 
 shadPS4/GoldHEN XML patches in the `patches` folder are optional. You don't need them.
 
@@ -26,7 +26,7 @@ shadPS4/GoldHEN XML patches in the `patches` folder are optional. You don't need
 
 - You need your own dump of Bloodborne **CUSA03173** with the **1.09 update copied over the base game**: one folder with `eboot.bin`, `sce_module`, `sce_sys` and `dvdroot_ps4` (about 29 GB in about 28,800 files). The [install guide](../install/) shows how.
 - The clean 1.09 `eboot.bin` is **exactly 93,825,704 bytes** (right-click it, then Properties).
-- Don't use an `eboot.bin` with a 60 FPS patch built in, like Lance McDonald's. The port brings its own 60 FPS and patches only the clean file: with a changed one the game runs at 30 FPS, the effect options do nothing, and it can crash at the gestures menu or the cutscene after Rom.
+- Don't use an `eboot.bin` with a 60 FPS patch built in, like Lance McDonald's. The port brings its own 60 FPS. With a changed file it only applies the patches that still fit (since 1.9.3), so the FPS and effect options may do nothing, and it can crash at the gestures menu or the cutscene after Rom.
 - We don't help with game files from the internet (rule 2 on our Discord).
 
 ## First start
@@ -64,6 +64,7 @@ Everyone in a session needs game version 1.09 and the same co-op pool. Please as
 
 **It doesn't connect?**
 
+- **"Failed to acquire Bloodborne server information":** update to 1.9.4, which fixes it for PCs whose antivirus scans HTTPS connections.
 - Your firewall or router must let the game server port **20443** through.
 - **"Seamless co-op" tool:** it overwrites a hidden server address. On 1.9.4: Online play → shadNet server → **Use my own servers** → empty the **Game server** field → switch back to The Hunter's Dream. 1.9.5 fixes this for good.
 - **Your own shadNet servers:** the public server's WebAPI is `http://srv.shadps4.net:31315`, with plain `http`. An `https://` address fails with "SSL: UNEXPECTED_EOF_WHILE_READING". From 1.9.5 on, the server fields only count with **Use my own servers** ticked.
@@ -84,6 +85,7 @@ Everyone in a session needs game version 1.09 and the same co-op pool. Please as
 
 ## Mods
 
+- **Which mods work?** Check the [tested mods](https://forum.bbport.de/t/mods-patches?tab=works) in our forum: each one says the port version and date of its test. Not listed yet? Ask in [Mods & Patches](https://forum.bbport.de/t/mods-patches).
 - Put each mod in its own folder under `mods` (with `dvdroot_ps4\…` inside, or `chr\`, `parts\` and so on directly).
 - Switch mods on and put them in order on **Mods & patches** (drag and drop). Your game files are never changed.
 - Mods must not bring their own `eboot.bin`.

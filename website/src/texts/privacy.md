@@ -18,7 +18,7 @@ Our Discord server is a separate service; Discord's own privacy policy applies t
 ## Who is responsible
 
 The Bloodborne PC Port Community, a volunteer project. Contact for all privacy questions:
-[bbportpc@gmail.com](mailto:bbportpc@gmail.com).
+[bbport@supermedo.com](mailto:bbport@supermedo.com).
 
 ## Website
 
@@ -68,7 +68,7 @@ with the same names and rules in both places (Art. 6(1)(f) GDPR).
 
 **What you post.** Discussions, posts, likes and your profile are visible to everyone who visits the
 forum, including search engines. Files you upload (images, logs, zip/7z archives) can only be opened by
-logged-in members. Report Tool archives and logs can contain information about your PC, so please check
+logged-in members. Report zips and logs can contain information about your PC, so please check
 them before uploading and don't post personal data you don't want to share. When you post, the forum
 stores the IP address you used, so moderators can act against spam and abuse (Art. 6(1)(f) GDPR).
 
@@ -95,10 +95,10 @@ settings you can export your data and request the deletion of your account; you 
 You have the right to access the data we hold about you, to have it corrected or deleted, to restrict
 its processing, to object to processing based on legitimate interests, and to receive your data in a
 portable format (Art. 15–21 GDPR). To use these rights, write to
-[bbportpc@gmail.com](mailto:bbportpc@gmail.com). You can also complain to a data protection
+[bbport@supermedo.com](mailto:bbport@supermedo.com). You can also complain to a data protection
 supervisory authority, for example the one where you live.
 
 ## E-mail
 
 If you write to us, we use your message and address only to answer you. Our mailbox is provided by
-Google (Gmail), which processes the messages on our behalf.
+iFastNet, the host of supermedo.com, which processes the messages on our behalf.

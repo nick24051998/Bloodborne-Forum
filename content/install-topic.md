@@ -26,6 +26,6 @@ The full guide lives on our website: **[Install guide & system requirements]({{W
 
 1. **Prepare your game folder (once):** unpack the base game and the 1.09 update into two new, empty folders, then copy everything from the update folder into the base game folder and choose "Replace the files in the destination". The folder now has `eboot.bin`, `sce_module`, `sce_sys` and `dvdroot_ps4` directly inside.
 2. **Unpack the port:** download `Bloodborne-Windows.zip` from the [official release page](https://github.com/Supermedo/bloodborne_pc/releases/latest) and extract it to a plain folder like `C:\Games\BBPort`. Avoid OneDrive or other synced folders, and avoid Program Files.
-3. **First start:** double-click `Bloodborne.exe`, go to Game & effects > Game folder > Browse and pick your game folder. The Play page should show "Game version 01.09: every patch available". Press PLAY. The first minutes can stutter while the shader cache is built, which is normal.
+3. **First start:** double-click `Bloodborne.exe`. The first time, a short setup guide picks your game folder and the settings for your PC, and the Play page checks the game version (it should say 01.09). Press PLAY. The first minutes can stutter while the shader cache is built, which is normal.
 
 Driver notes, settings for 4 GB cards and the full steps are in the [install guide]({{WEBSITE_URL}}/install/). Something not working? Read the pinned post in Help & Support or the [FAQ]({{WEBSITE_URL}}/faq/).

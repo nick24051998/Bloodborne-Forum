@@ -11,7 +11,7 @@
 import { readFile, writeFile, appendFile } from 'node:fs/promises';
 import { SITE } from '../site.config.mjs';
 import { cleanNotes } from './release-notes.mjs';
-import { totalDownloads, downloadsLabel } from '../src/lib/downloads.js';
+import { totalDownloads, mostDownloads, downloadsLabel } from '../src/lib/downloads.js';
 
 const repo = SITE.downloadUrl.match(/github\.com\/([^/]+\/[^/]+)/)?.[1];
 const dataFile = new URL('../src/data/releases.json', import.meta.url);
@@ -117,23 +117,29 @@ if (mode === '--check') {
   // Error from GitHub: latest stays empty, so the schedule neither builds nor announces anything
   let latest = '';
   let downloads = '';
+  let players = '';
   try {
     const releases = normalize(await fetchReleases());
     latest = latestOf(releases)?.version ?? '';
     downloads = downloadsLabel(totalDownloads(releases));
+    players = downloadsLabel(mostDownloads(releases));
   } catch (e) {
     console.log(`::warning::Releases nicht abrufbar: ${e.message}`);
   }
   const liveData = await liveRelease();
   const live = liveData.version ?? '';
   const liveDownloads = downloadsLabel(liveData.downloads ?? 0);
+  const livePlayers = downloadsLabel(liveData.players ?? 0);
   await output({
     latest,
     live,
     downloads,
     liveDownloads,
-    // A new version, or the download count on the home page has moved to the next step
-    changed: Boolean(latest) && (latest !== live || (Boolean(downloads) && downloads !== liveDownloads)),
+    players,
+    livePlayers,
+    // A new version, or the download or player count on the home page has moved to the next step
+    changed: Boolean(latest) && (latest !== live || (Boolean(downloads) && downloads !== liveDownloads)
+      || (Boolean(players) && players !== livePlayers)),
     // First publication (live is empty): announce nothing, the version isn't new after all
     announce: Boolean(latest && live) && isNewer(latest, live),
   });

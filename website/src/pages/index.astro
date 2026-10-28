@@ -6,13 +6,13 @@ import { Image, getImage } from 'astro:assets';
 import launcherPlay from '../assets/launcher/launcher-play.png';
 import { SITE } from '../../site.config.mjs';
 import { link, absolute } from '../lib/url.js';
-import { latest, downloadUrl, formatDate, downloads, downloadsText } from '../lib/releases.js';
+import { latest, downloadUrl, formatDate, downloads, downloadsText, playersText } from '../lib/releases.js';
 import { CONTEST, contestDates, contestRunning } from '../data/contest.js';
 
-// Home page texts. Icons: names from media/icons (droplet, crescent, key, tools, bell, …)
+// Home page texts. Icons: names from media/icons (gauge, bell, key, anvil, moon, …)
 const features = [
   {
-    icon: 'droplet',
+    icon: 'gauge',
     title: 'High frame rates, sharp image',
     text: '60, 90 or unlocked FPS, output from 720p to 4K, NVIDIA DLSS and AMD FSR 3.1/4, and frame generation that turns 60 FPS into 120 or more.',
   },
@@ -24,9 +24,9 @@ const features = [
   {
     icon: 'key',
     title: 'Everything in one launcher',
-    text: 'Controller, keyboard and mouse with free key mapping, mods, game effects, field of view, cheats and one-click updates, in 13 languages.',
+    text: 'Controller, keyboard and mouse with free key mapping, mods, game effects, cheats and one-click updates, in 12 languages. The field of view is in the in-game menu.',
   },
-  { icon: 'tools', title: 'Mods & patches', text: 'Share and discuss mods, patches and tweaks with the community.' },
+  { icon: 'anvil', title: 'Mods & patches', text: 'Share and discuss mods, patches and tweaks with the community.' },
 ];
 
 const helpUrl = SITE.forumUrl ? `${SITE.forumUrl}/t/help-support` : SITE.discordUrl;
@@ -90,8 +90,16 @@ const appLd = {
         </p>
         {downloadsText && (
           <p class="hero-stat">
-            <strong class="hero-downloads">{downloadsText}</strong>
-            <span>downloads</span>
+            {playersText && (
+              <span class="hero-stat-item" title="Downloads of the most downloaded version">
+                <strong class="hero-players">{playersText}</strong>
+                <span>players</span>
+              </span>
+            )}
+            <span class="hero-stat-item" title="All versions together, launcher updates included">
+              <strong class="hero-downloads">{downloadsText}</strong>
+              <span>downloads</span>
+            </span>
           </p>
         )}
         <div class="actions">
@@ -285,7 +293,7 @@ const appLd = {
         <h2 style="margin-top:0">Need help?</h2>
         <p>
           Read the <a href={link('faq/')}>FAQ</a> first – most problems are covered there. When you ask for help, include
-          your port version, GPU and driver, what happens and your BB Report Tool zip.
+          your port version, GPU and driver, what happens and your report zip (launcher: Help → Save a report).
         </p>
         {helpUrl && <p><a class="btn btn-ghost" href={helpUrl} rel="noopener">{SITE.forumUrl ? 'Open the forum' : 'Ask on Discord'}</a></p>}
       </div>

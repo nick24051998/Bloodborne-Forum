@@ -1,8 +1,8 @@
 # Media: sources and licenses
 
-All media in `media/` are public domain (CC0), designed by the project itself, or created with
-ChatGPT for this project. Attribution is not legally required; it is listed here anyway so that
-it stays clear where each file comes from.
+All media in `media/` are public domain (CC0), licensed under CC BY 3.0 (the icons), designed by the project
+itself, or created with ChatGPT for this project. Only the icons legally require attribution; everything else is
+listed here anyway so that it stays clear where each file comes from.
 
 ## Sigil
 
@@ -30,24 +30,44 @@ Designed by the admin of the Discord server; the basis of the earlier logo.
 
 ## Icons and textures
 
+Icons from [game-icons.net](https://game-icons.net), drawn by hand by the artists named below, licensed under
+[CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). The license asks for credit: it is in the footer of the
+website (`website/src/layouts/Base.astro`) and of the forum (`content/footer.html`). Keep it there as long as these
+icons are used. Since 27 October 2026 they replace the Pinhead map icons and the Font Awesome icons in the sidebar
+(Nick: icons that look neither AI-made nor mixed).
+
+| File | Used for | game-icons.net icon | Artist |
+|---|---|---|---|
+| `icons/bell.svg` | Announcements; website: online co-op | `ringing-bell` | Lorc |
+| `icons/trophy.svg` | Logo Contest | `laurels-trophy` | Delapouite |
+| `icons/key.svg` | Known Fixes, "Save as Known Fix"; website: launcher | `skeleton-key` | Lorc |
+| `icons/lantern.svg` | Help & Support; team list "Help not solved yet" | `old-lantern` | Delapouite |
+| `icons/spider.svg` | Bug Reports; team list "Open bugs" | `spider-alt` | Carl Olsen |
+| `icons/candle.svg` | Suggestions; team list "New suggestions" | `candle-light` | Lorc |
+| `icons/gauge.svg` | Performance Reports; website: frame rates | `speedometer` | Delapouite |
+| `icons/anvil.svg` | Mods & Patches; website: mods | `anvil-impact` | Lorc |
+| `icons/book.svg` | Guides | `spell-book` | Delapouite |
+| `icons/moon.svg` | The Hunter's Dream; website: gallery placeholder | `evil-moon` | Lorc |
+| `icons/flask.svg` | Beta | `fizzing-flask` | Lorc |
+| `icons/scroll.svg` | Start here: Read first | `scroll-quill` | Delapouite |
+| `icons/download.svg` | Start here: Install guide | `save-arrow` | Delapouite |
+| `icons/gears.svg` | Start here: Best settings | `gears` | Lorc |
+| `icons/gavel.svg` | Start here: Forum rules | `gavel` | Lorc |
+| `icons/chart.svg` | Start here: Post a performance report | `chart` | Delapouite |
+| `icons/tag.svg` | Sidebar: Tags | `price-tag` | Delapouite |
+| `icons/hourglass.svg` | Team list "Waiting for an answer" | `hourglass` | Lorc |
+
 | File | Source | License |
 |---|---|---|
-| `icons/bell.svg` (Announcements) | [Pinhead Map Icons](https://github.com/waysidemapping/pinhead) (Quincy Morgan), icon `bell` | CC0 1.0 |
-| `icons/lamppost.svg` (Help & Support) | Pinhead, `lantern-lamppost` | CC0 1.0 |
-| `icons/candle.svg` (Suggestions) | Pinhead, `candle-with-flame` | CC0 1.0 |
-| `icons/tools.svg` (Mods & Patches) | Pinhead, `wrench-and-hammer` | CC0 1.0 |
-| `icons/book.svg` (Guides) | Pinhead, `book-with-bookmark` | CC0 1.0 |
-| `icons/crescent.svg` (The Hunter's Dream) | Pinhead, `crescent` | CC0 1.0 |
-| `icons/droplet.svg`, `icons/key.svg` (website) | Pinhead, `droplet`, `cast-iron-key-with-heart-shaped-handle` | CC0 1.0 |
 | `icons/discord.svg` | [Simple Icons](https://simpleicons.org/), `discord` | CC0 1.0 (trademark: Discord Inc., used per their brand guidelines for links to the server) |
 | `textures/grain.svg` | self-made (SVG noise filter) | own work, free |
 | `textures/fog.svg` | self-made (SVG noise filter), drifting fog over the header images | own work, free |
 
-Obtained via the Iconify packages `@iconify-json/pinhead` and `@iconify-json/simple-icons` (npm),
-whose license information matches the projects.
+Obtained via the Iconify packages `@iconify-json/game-icons` and `@iconify-json/simple-icons` (api.iconify.design);
+the artist of each icon is the folder it has in the game-icons/icons repository.
 
-New icons: put the SVG in `media/icons/` (CC0/public domain only), add the source here and
-run `python3 media/build.py`. This generates `flarum/icons.less` (classes `bbicon bbicon-NAME`,
+New icons: put the SVG in `media/icons/` (only licenses that allow it, credit added here and, for CC BY, in both
+footers) and run `python3 media/build.py`. This generates `flarum/icons.less` (classes `bbicon bbicon-NAME`,
 e.g. as a tag icon in the admin) and `website/src/lib/icons.js` (`<Icon name="NAME" />`).
 
 ## AI-generated images (created with ChatGPT for this project)

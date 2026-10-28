@@ -17,7 +17,7 @@ Starting a topic in **Help & Support** prefills a template. Please fill in every
 - Port version
 - GPU + driver version
 - What happens (and what you expected)
-- Your **BB Report Tool** zip, attached with the upload button
+- Your **report zip** (launcher: Help > Save a report), attached with the upload button
 
 Topics that leave out this information will be answered slowly or not at all.
 

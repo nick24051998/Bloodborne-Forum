@@ -1,7 +1,7 @@
 // Releases of the port (src/data/releases.json, fetched fresh from GitHub at build time, see scripts/fetch-releases.mjs)
 import data from '../data/releases.json';
 import { SITE } from '../../site.config.mjs';
-import { totalDownloads, downloadsLabel } from './downloads.js';
+import { totalDownloads, mostDownloads, downloadsLabel } from './downloads.js';
 
 export const releases = data.releases;
 export const releasesSource = data.source;
@@ -10,6 +10,9 @@ export const latest = releases.find((r) => !r.prerelease) ?? null;
 // How often the port was downloaded from GitHub, all versions together (0 if the data has no counts)
 export const downloads = totalDownloads(releases);
 export const downloadsText = downloadsLabel(downloads);
+// Players: downloads of the most downloaded version (see mostDownloads)
+export const players = mostDownloads(releases);
+export const playersText = downloadsLabel(players);
 
 // The ZIP of the latest version directly (without a detour via the GitHub page); if it is missing, the release page
 export const downloadUrl = latest?.download ?? SITE.downloadUrl;

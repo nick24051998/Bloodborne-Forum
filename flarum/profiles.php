@@ -10,7 +10,8 @@
  * - Earned effects (Nick's wish: earned, not freely selectable), from the groups that the sync mirrors from Discord:
  *   booster (Server Booster according to the member's premium_since: blood moon frame, glowing name, mark), lantern
  *   (Helper, Mod, Admin, Owner: brass lantern), insight1–4 (Insight levels: mark with level), beta (Beta Hunter,
- *   Test Subject, Beta Testers: mark), winner (bbforum.contest_winners, forum IDs separated by commas: moonlight name).
+ *   Test Subject, Beta Testers: mark), winner (bbforum.contest_winners, forum IDs separated by commas: moonlight name),
+ *   tophelper (top 3 of the last 30 days in flarum/helpers.php: mark).
  * - Role shields instead of Flarum's group badges (roles()): developer of the Port, then the team roles.
  * - Hunter card in the profile: weapon (/hunter on Discord), Insight level, graphics card and VRAM (hardware roles);
  *   graphics card and VRAM also appear on posts in help and bug discussions.
@@ -251,6 +252,9 @@ if (! class_exists('BBForumProfiles')) {
             if (in_array((int) $user->id, $winners, true)) {
                 $perks[] = 'winner';
             }
+            if (class_exists('BBForumTopHelpers') && in_array((int) $user->id, BBForumTopHelpers::topIds(), true)) {
+                $perks[] = 'tophelper';
+            }
             return $perks;
         }
 
@@ -273,7 +277,8 @@ if (! class_exists('BBForumProfiles')) {
          */
         public static function roles(User $user): array
         {
-            $order = ['developer' => 0, 'owner' => 1, 'admin' => 2, 'mod' => 3, 'contributor' => 4, 'helper' => 5, 'code' => 6];
+            $order = ['developer' => 0, 'owner' => 1, 'admin' => 2, 'mod' => 3, 'contributor' => 4, 'helper' => 5, 'modding' => 6,
+                'code' => 7, 'modder' => 8];
             $roles = [];
             $devs = array_filter(array_map('trim', explode(',', (string) resolve(\Flarum\Settings\SettingsRepositoryInterface::class)
                 ->get('bbforum.developer_discord_ids', '280443805415505921'))));
@@ -287,7 +292,7 @@ if (! class_exists('BBForumProfiles')) {
                 $key = null;
                 if ($label !== null) {
                     $key = ['Owner' => 'owner', 'Admin' => 'admin', 'Mod' => 'mod', 'Contributor' => 'contributor',
-                        'Helper' => 'helper', 'Code Contributor' => 'code'][$label] ?? null;
+                        'Helper' => 'helper', 'Modding' => 'modding', 'Code Contributor' => 'code', 'Modder' => 'modder'][$label] ?? null;
                 } elseif ((int) $group->id === 1) {
                     [$key, $label, $name] = ['admin', 'Admin', 'Forum admin'];
                 } elseif ((int) $group->id === 4) {
