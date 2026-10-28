@@ -10,7 +10,8 @@
  * - Earned effects (Nick's wish: earned, not freely selectable), from the groups that the sync mirrors from Discord:
  *   booster (Server Booster according to the member's premium_since: blood moon frame, glowing name, mark), lantern
  *   (Helper, Mod, Admin, Owner: brass lantern), insight1–4 (Insight levels: mark with level), beta (Beta Hunter,
- *   Test Subject, Beta Testers: mark), winner (bbforum.contest_winners, forum IDs separated by commas: moonlight name).
+ *   Test Subject, Beta Testers: mark), winner (bbforum.contest_winners, forum IDs separated by commas: moonlight name),
+ *   tophelper (top 3 of the last 30 days in flarum/helpers.php: mark).
  * - Role shields instead of Flarum's group badges (roles()): developer of the Port, then the team roles.
  * - Hunter card in the profile: weapon (/hunter on Discord), Insight level, graphics card and VRAM (hardware roles);
  *   graphics card and VRAM also appear on posts in help and bug discussions.
@@ -250,6 +251,9 @@ if (! class_exists('BBForumProfiles')) {
             $winners = array_filter(array_map('intval', explode(',', (string) $settings->get('bbforum.contest_winners', ''))));
             if (in_array((int) $user->id, $winners, true)) {
                 $perks[] = 'winner';
+            }
+            if (class_exists('BBForumTopHelpers') && in_array((int) $user->id, BBForumTopHelpers::topIds(), true)) {
+                $perks[] = 'tophelper';
             }
             return $perks;
         }

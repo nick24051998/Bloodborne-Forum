@@ -41,6 +41,9 @@
  * Discord roles as forum groups, names from the server and ban/suspension in both directions:
  * flarum/discord-roles.php (command bbforum:discord-roles every minute, plus the Suspended event).
  *
+ * Top helpers (flarum/helpers.php): /api/bb-top-helpers with the ranking of the last 30 days and of all time
+ * (solutions, Known Fixes, topics helped), page /top-helpers; the top 3 get the mark "Top helper".
+ *
  * Overview (flarum/overview.php): votes (👍 on the opening post) as the sort order "-bbVotes", filter "bbview"
  * for the tabs above the lists, command bbforum:close-stale (close help discussions after 7 days without a post).
  *
@@ -331,6 +334,7 @@ require_once __DIR__.'/overview.php';
 require_once __DIR__.'/profiles.php';
 require_once __DIR__.'/discord-notify.php';
 require_once __DIR__.'/ai-help.php';
+require_once __DIR__.'/helpers.php';
 
 return [
     (new Extend\ServiceProvider())->register(BBForumCliLocale::class),
@@ -431,6 +435,10 @@ return [
         ->attributes(function ($serializer, $discussion) {
             return BBForumContest::attributes($serializer->getActor(), $discussion);
         }),
+
+    // Top helpers (flarum/helpers.php): ranking for the sidebar box and the page /top-helpers
+    (new Extend\Routes('api'))->get('/bb-top-helpers', 'bbforum.topHelpers', BBForumTopHelpersController::class),
+    (new Extend\Frontend('forum'))->route('/top-helpers', 'topHelpers'),
 
     // Follow own discussions (instead of Flarum's "off"): replies show up in the notifications
     (new Extend\User())->registerPreference('followAfterReply', 'boolval', true),

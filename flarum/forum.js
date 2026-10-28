@@ -23,6 +23,8 @@
 //   work lists (unanswered, unsolved, open bugs, suggestions) and "Save as Known Fix" on help topics
 // - Logo contest: page /logo-contest with all entries (first image in the opening post of a topic in the section
 //   Logo Contest), submitting and voting; rules and data in flarum/contest.php, link in the sidebar
+// - Top helpers (flarum/helpers.php): box with the top 5 of the last 30 days below The Hunter's Dream (wide screens,
+//   otherwise a link in the menu), page /top-helpers (last 30 days and all time), mark for the top 3
 // The addresses are set by scripts/setup-forum.sh (WEBSITE_URL, DISCORD_INVITE_URL from .env).
 (function () {
   var compat = flarum.core.compat;
@@ -30,6 +32,7 @@
   var extend = compat['common/extend'].extend;
   var override = compat['common/extend'].override;
   var icon = compat['common/helpers/icon'];
+  var avatar = compat['common/helpers/avatar'];
   var HeaderPrimary = compat['forum/components/HeaderPrimary'];
   var HeaderSecondary = compat['forum/components/HeaderSecondary'];
   var LinkButton = compat['common/components/LinkButton'];
@@ -838,6 +841,7 @@
     insight: ['fas fa-eye', 'Insight', 'Earned by helping other hunters. Grows with every level.'],
     beta: ['fas fa-flask', 'Beta tester', 'Tests new builds before they are released.'],
     winner: ['fas fa-moon', 'Contest winner', 'Won a community contest.'],
+    tophelper: ['fas fa-hands-helping', 'Top helper', 'One of the three members who helped most in the last 30 days. Thank you!'],
   };
   var INSIGHT_NAMES = ['Resonant Bell', 'Lamplighter', 'Old Hunter', 'Hunter of the Workshop'];
 
@@ -1064,8 +1068,148 @@
     });
   }
 
+  // --- Top helpers (flarum/helpers.php, Nick 28.10.2026) ----------------------------------------------------------
+  // Reload at most every 10 minutes (the server recalculates every 30); without data the box stays hidden
+  var helpers = { data: null, loadedAt: 0, loading: false };
+
+  function loadHelpers() {
+    if (helpers.loading || Date.now() - helpers.loadedAt < 600000) return;
+    helpers.loading = true;
+    app.request({ method: 'GET', url: app.forum.attribute('apiUrl') + '/bb-top-helpers' })
+      .then(function (payload) {
+        app.store.pushPayload(payload);
+        helpers.data = payload.meta || null;
+      })
+      .catch(function () {})
+      .then(function () {
+        helpers.loading = false;
+        helpers.loadedAt = Date.now();
+        m.redraw();
+      });
+  }
+
+  // [{user, solved, fixes, topics, points}] for 'month' (last 30 days) or 'all'
+  function helperList(period) {
+    return ((helpers.data && helpers.data[period]) || []).map(function (row) {
+      return Object.assign({ user: app.store.getById('users', String(row.id)) }, row);
+    }).filter(function (row) { return row.user; });
+  }
+
+  function count(n, one, many) {
+    return n + ' ' + (n === 1 ? one : many);
+  }
+
+  // Short in the box (solutions and topics), complete on the page
+  function helperStats(row, full) {
+    var parts = [];
+    if (row.solved) parts.push(count(row.solved, 'solution', 'solutions'));
+    if (full && row.fixes) parts.push(count(row.fixes, 'Known Fix', 'Known Fixes'));
+    if (row.topics) parts.push((full ? 'helped in ' : '') + count(row.topics, 'topic', 'topics'));
+    return parts.join(' · ');
+  }
+
+  var HELPERS_RULE = "How it counts: a solution (your reply is the best answer in someone else's topic) 5 points, a Known " +
+    'Fix you wrote 3, every Help & Support or Bug Reports topic of another member you replied in 1. ' +
+    'BB-Helper and the admins are not ranked.';
+
+  function helpersCard() {
+    var rows = helperList('month').slice(0, 5);
+    if (!rows.length) return null;
+    return m('div.bb-hd.bb-helpers', [
+      m('div.bb-hd-head', [
+        m(Link, { className: 'bb-hd-title', href: app.route('topHelpers') }, 'Top helpers'),
+        m('span.bb-helpers-period', 'Last 30 days'),
+      ]),
+      m('ol.bb-helpers-list', rows.map(function (row, i) {
+        return m('li', m(Link, { href: app.route.user(row.user), title: helperStats(row, true) }, [
+          m('span.bb-helpers-rank', i + 1),
+          avatar(row.user, { loading: 'lazy' }),
+          m('span.bb-helpers-who', [
+            m('span.bb-helpers-name', row.user.displayName()),
+            m('span.bb-helpers-stats', helperStats(row)),
+          ]),
+        ]));
+      })),
+      m(Link, { className: 'bb-hd-more', href: app.route('topHelpers') }, 'All top helpers →'),
+    ]);
+  }
+
+  class TopHelpersPage extends Page {
+    oninit(vnode) {
+      super.oninit(vnode);
+      this.period = 'month';
+      app.setTitle('Top helpers');
+      app.setTitleCount(0);
+      // Fresh numbers when the page opens
+      helpers.loadedAt = 0;
+      loadHelpers();
+    }
+
+    role(user) {
+      var role = user.attribute('bbRole');
+      return role ? rolePill(role) : null;
+    }
+
+    view() {
+      var page = this;
+      var rows = helperList(this.period);
+      var body;
+      if (!helpers.data) {
+        body = helpers.loading ? m(LoadingIndicator) : m('p.bb-helpers-empty', 'The list could not be loaded. Please try again later.');
+      } else if (!rows.length) {
+        body = m('p.bb-helpers-empty', 'Nobody has helped enough to be listed yet. Answer a question in Help & Support and you could be first.');
+      } else {
+        body = [
+          m('ol.bb-helpers-top', rows.slice(0, 3).map(function (row, i) {
+            return m('li', m(Link, { href: app.route.user(row.user) }, [
+              m('span.bb-helpers-place', i + 1),
+              avatar(row.user),
+              m('strong.bb-helpers-name', row.user.displayName()),
+              page.role(row.user),
+              m('span.bb-helpers-stats', helperStats(row, true)),
+              m('span.bb-helpers-points', count(row.points, 'point', 'points')),
+            ]));
+          })),
+          rows.length > 3 ? m('ol.bb-helpers-rows', rows.slice(3).map(function (row, i) {
+            return m('li', m(Link, { href: app.route.user(row.user) }, [
+              m('span.bb-helpers-rank', i + 4),
+              avatar(row.user, { loading: 'lazy' }),
+              m('span.bb-helpers-who', [m('span.bb-helpers-name', row.user.displayName()), page.role(row.user)]),
+              m('span.bb-helpers-stats', helperStats(row, true)),
+              m('span.bb-helpers-points', count(row.points, 'pt', 'pts')),
+            ]));
+          })) : null,
+        ];
+      }
+
+      return m('div.bb-helpersPage', [
+        m('div.bb-contest-hero', m('div.container', [
+          m('p.bb-contest-eyebrow', 'Thank you'),
+          m('h1', 'Top helpers'),
+          m('p.bb-contest-lead', 'They answer questions, test fixes and write them down, so the next hunter finds the answer faster. A lot of what works here works because of them.'),
+        ])),
+        m('div.container.bb-helpers-body', [
+          m('nav.bb-tabs', { 'aria-label': 'Period' }, [['month', 'Last 30 days'], ['all', 'All time']].map(function (p) {
+            return m('button.bb-tab' + (page.period === p[0] ? '.is-active' : ''), {
+              type: 'button',
+              'aria-pressed': page.period === p[0] ? 'true' : 'false',
+              onclick: function () { page.period = p[0]; },
+            }, p[1]);
+          })),
+          body,
+          m('p.bb-helpers-rule', [
+            HELPERS_RULE + ' The top 3 of the last 30 days wear the Top helper mark ',
+            m('span.bb-mark.bb-mark--tophelper', icon('fas fa-hands-helping')),
+            ' next to their name.',
+          ]),
+        ]),
+      ]);
+    }
+  }
+
   app.initializers.add('bbforum', function () {
     app.routes.logoContest = { path: '/logo-contest', component: LogoContestPage };
+    app.routes.topHelpers = { path: '/top-helpers', component: TopHelpersPage };
 
     // --- Overview ---
     if (app.translator.addTranslations) {
@@ -1353,6 +1497,17 @@
     extend(IndexPage.prototype, 'sidebarItems', function (items) {
       loadHuntersDream();
       if (hd.data) items.add('bbHuntersDream', huntersDreamCard(hd.data), -100);
+    });
+
+    // Top helpers: box below The Hunter's Dream (wide screens); narrower screens get a link in the menu instead
+    extend(IndexPage.prototype, 'sidebarItems', function (items) {
+      loadHelpers();
+      var card = helpersCard();
+      if (card) items.add('bbTopHelpersCard', card, -110);
+    });
+
+    extend(IndexPage.prototype, 'navItems', function (items) {
+      items.add('bbTopHelpers', LinkButton.component({ href: app.route('topHelpers'), icon: 'fas fa-hands-helping' }, 'Top helpers'), -20);
     });
 
     // Team block in the sidebar (home page and sections); for everyone the link to the logo contest while it runs
