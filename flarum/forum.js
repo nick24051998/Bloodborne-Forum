@@ -5,7 +5,8 @@
 //   one (on phones in the side menu, where "Website" is added as well)
 // - Discord-only sign-up: the sign-up window shows only the Discord button
 // - Live numbers from The Hunter's Dream (from /api/hunters-dream, see extend.php): as a box
-//   in the sidebar, on narrow screens as a line below the welcome banner
+//   in the sidebar, on narrow screens as a line below the welcome banner. SuperMedo Server the same way, as a box
+//   below it (from /api/bb-server/summary, see flarum/server-stats.php), leading to bbport.de/server/
 // - No group badges: role shields at the name, earned marks after it (flarum/profiles.php)
 // - Overview below the banner of the home page: four blocks (new help questions, top suggestions, new Known Fixes,
 //   News) with five topics each; can be hidden (the browser remembers it). Sidebar: "Start here" with the guides,
@@ -237,6 +238,67 @@
       ]),
       m('span.bb-hdStrip-stat', ' · ' + extra),
     ]));
+  }
+
+  // SuperMedo Server (flarum/server-stats.php): the same box below The Hunter's Dream, numbers from
+  // /api/bb-server/summary; the title leads to the statistics on the website (/server/, same tab)
+  var srv = { data: null, loadedAt: 0, loading: false };
+
+  function loadServer() {
+    if (srv.loading || Date.now() - srv.loadedAt < 60000) return;
+    srv.loading = true;
+    fetch(app.forum.attribute('apiUrl') + '/bb-server/summary')
+      .then(function (response) { return response.ok ? response.json() : null; })
+      .then(function (data) { srv.data = data; })
+      .catch(function () {})
+      .then(function () {
+        srv.loading = false;
+        srv.loadedAt = Date.now();
+        m.redraw();
+      });
+  }
+
+  var SRV_KEY = 'bbforum.srvCollapsed';
+  var srvClosed = null;
+
+  function srvIsCollapsed() {
+    if (srvClosed === null) {
+      try { srvClosed = localStorage.getItem(SRV_KEY) === '1'; } catch (e) { srvClosed = false; }
+    }
+    return srvClosed;
+  }
+
+  function toggleSrv() {
+    srvClosed = !srvIsCollapsed();
+    try { localStorage.setItem(SRV_KEY, srvClosed ? '1' : '0'); } catch (e) {}
+  }
+
+  function serverCard(d) {
+    var page = (app.forum.attribute('bbforumWebsiteUrl') || '') + '/server/';
+    var online = d.status === 'online';
+    var closed = srvIsCollapsed();
+    // Hosts searching only while the server runs: then a helper knows ringing the Small Resonant Bell pays off
+    var rows = [['Played today', d.playedToday], ['Most at once today', d.peakToday]];
+    if (online) rows.unshift(['Hosts want help now', (d.bells || {}).hosts_searching || 0]);
+
+    return m('div.bb-hd.bb-srv' + (closed ? '.is-collapsed' : ''), [
+      m('div.bb-hd-head', [
+        m('a.bb-hd-title', { href: page }, 'SuperMedo Server'),
+        m('button.bb-hd-toggle', {
+          type: 'button',
+          'aria-expanded': closed ? 'false' : 'true',
+          title: closed ? 'Show the numbers' : 'Hide the numbers',
+          onclick: toggleSrv,
+        }, icon(closed ? 'fas fa-chevron-down' : 'fas fa-chevron-up')),
+      ]),
+      statusLine({ serverOnline: online, online: d.online }),
+      closed ? null : [
+        m('dl.bb-hd-stats', rows.map(function (row) {
+          return m('div', [m('dt', row[0]), m('dd', countUp(row[1]), number(row[1]))]);
+        }).concat(d.fastest ? [m('div', [m('dt', 'Kills fastest'), m('dd', d.fastest.name)])] : [])),
+        m('a.bb-hd-more', { href: page }, 'Statistics →'),
+      ],
+    ]);
   }
 
   // Overview of the home page: four sections with five topics each and a sentence on what the section is for.
@@ -1555,6 +1617,8 @@
     extend(IndexPage.prototype, 'sidebarItems', function (items) {
       loadHuntersDream();
       if (hd.data) items.add('bbHuntersDream', huntersDreamCard(hd.data), -100);
+      loadServer();
+      if (srv.data) items.add('bbServer', serverCard(srv.data), -105);
     });
 
     // Top helpers: box below The Hunter's Dream (wide screens); narrower screens get a link in the menu instead
