@@ -41,4 +41,6 @@ export const SITE = {
   // Supermedo's own online server (SuperMedo Server). The /server/ page (menu item "Server") loads its live
   // numbers straight from here (totals only, no names); see src/texts/privacy.md.
   superMedoStatsUrl: 'https://game.supermedo.com/public/stats',
+  // Its account pages: make an account, and a new password by email
+  superMedoAccountUrl: 'https://game.supermedo.com/account',
 };

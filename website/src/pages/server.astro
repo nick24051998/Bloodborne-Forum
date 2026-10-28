@@ -4,7 +4,6 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import { SITE } from '../../site.config.mjs';
-import { link } from '../lib/url.js';
 
 // The game's three bells, as the server counts them
 const bells = [
@@ -79,13 +78,21 @@ const bells = [
           <h2>Join the hunt</h2>
           <ol class="sm-steps">
             <li>Get {SITE.portName} and start its launcher.</li>
-            <li>Open <strong>Online co-op</strong> and pick <strong>SuperMedo Server</strong> under <strong>Co-op pool</strong>.</li>
-            <li>Press <strong>Sign in with Discord</strong>, start the game and ring a bell.</li>
+            <li>
+              <a href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">Create an account</a>, or skip this and use <strong>Sign in with Discord</strong> in the launcher.
+            </li>
+            <li>
+              Open <strong>Online co-op</strong>, pick <strong>SuperMedo Server</strong> under <strong>Co-op pool</strong> and sign in. Then start the game and ring a bell.
+            </li>
           </ol>
           <div class="sm-actions">
             <a class="btn btn-primary" href={SITE.downloadUrl} rel="noopener">Download</a>
-            <a class="btn btn-ghost" href={link('install/')}>Install guide</a>
+            <a class="btn btn-ghost" href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">Create an account</a>
           </div>
+          <p class="sm-forgot">
+            Forgot your password? <a href={`${SITE.superMedoAccountUrl}/forgot`} rel="noopener">Get a new one by email</a>.
+            Signed up with Discord? Just sign in with Discord again.
+          </p>
         </div>
       </div>
     </section>

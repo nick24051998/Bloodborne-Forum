@@ -821,6 +821,7 @@ h3 { font-size: var(--step-1); }
   font-family: var(--font-head); font-weight: 700; color: var(--gold-light); }
 .sm-steps strong { color: var(--text-strong); }
 .sm-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.sm-forgot { margin: 1rem 0 0; color: var(--muted); font-size: 0.9rem; }
 .sm-note { margin-block: 0 3rem; color: var(--muted); font-size: 0.85rem; }
 @media (max-width: 860px) {
   .sm-bells, .sm-split { grid-template-columns: 1fr; }
