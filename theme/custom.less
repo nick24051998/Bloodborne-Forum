@@ -2297,6 +2297,37 @@ body::after {
     color: @bb-text-strong;
     font-size: 16px;
   }
+
+  // Phones: compact cards, place and avatar on the left, the rest next to them
+  @media @phone {
+    a {
+      display: grid;
+      grid-template-columns: 22px 52px 1fr;
+      column-gap: 12px;
+      row-gap: 3px;
+      align-items: center;
+      justify-items: start;
+      padding: 12px 14px;
+      text-align: left;
+    }
+
+    .bb-helpers-place,
+    .Avatar {
+      grid-row: 1 / span 4;
+    }
+
+    .Avatar {
+      --size: 52px;
+      margin: 0;
+    }
+
+    .bb-helpers-name,
+    .bb-role,
+    .bb-helpers-stats,
+    .bb-helpers-points {
+      grid-column: 3;
+    }
+  }
 }
 
 .bb-helpers-place {

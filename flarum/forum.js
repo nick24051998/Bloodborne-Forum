@@ -1075,7 +1075,8 @@
   function loadHelpers() {
     if (helpers.loading || Date.now() - helpers.loadedAt < 600000) return;
     helpers.loading = true;
-    app.request({ method: 'GET', url: app.forum.attribute('apiUrl') + '/bb-top-helpers' })
+    // No error box for visitors if the list can't be loaded: the box simply stays away
+    app.request({ method: 'GET', url: app.forum.attribute('apiUrl') + '/bb-top-helpers', errorHandler: function () {} })
       .then(function (payload) {
         app.store.pushPayload(payload);
         helpers.data = payload.meta || null;
