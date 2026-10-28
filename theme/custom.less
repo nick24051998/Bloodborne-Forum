@@ -348,9 +348,10 @@ h1, h2, h3,
 }
 
 // --- Sidebar like the Discord channel list ------------------------------------------
-// Flarum puts IndexPage-nav and sideNav on the same element; .bb-sectionNav is the same list inside a topic
+// Flarum puts IndexPage-nav and sideNav on the same element; .bb-sectionNav is the same list inside a topic. Two
+// classes on the nav, otherwise Flarum's .sideNav .Dropdown--select … wins (active link in red/tag colour).
 .IndexPage-nav.sideNav .Dropdown-menu > li > a,
-.bb-sectionNav .Dropdown-menu > li > a {
+.sideNav.bb-sectionNav .Dropdown-menu > li > a {
   border-radius: 6px;
   padding: 6px 10px 6px 40px; // icon sits in front of it via margin-left: -30px
   transition: background 0.12s, color 0.12s;
@@ -362,7 +363,7 @@ h1, h2, h3,
 }
 
 .IndexPage-nav.sideNav .Dropdown-menu > li.active > a,
-.bb-sectionNav .Dropdown-menu > li.active > a {
+.sideNav.bb-sectionNav .Dropdown-menu > li.active > a {
   background: @bb-card-hover;
   color: @bb-gold-light;
   font-weight: 600;
