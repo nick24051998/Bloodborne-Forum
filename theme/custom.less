@@ -2381,6 +2381,12 @@ body::after {
     flex-direction: row;
     align-items: center;
     gap: 8px;
+
+    // Phones: the role shield moves below a long name instead of cutting it off
+    @media @phone {
+      flex-wrap: wrap;
+      row-gap: 2px;
+    }
   }
 
   .bb-helpers-stats {
