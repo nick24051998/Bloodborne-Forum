@@ -70,9 +70,10 @@ if (! class_exists('BBForumDiscordRoles')) {
         const BAN_UNTIL = '2038-01-01 00:00:00';
         // Owner, Admin, Mod on the Discord server (default if nothing is configured)
         const DEFAULT_MOD_ROLES = '1557459945291513996,1557459946994401412,1557459950312103976';
-        // Team roles that stay visible as badges: Owner, Admin, Contributor, Mod, Support, Helper, Modding
+        // Team roles that stay visible as badges: Owner, Admin, Contributor, Mod, Support, Helper, Modding, Modder
         const DEFAULT_SHOWN_ROLES = '1557459945291513996,1557459946994401412,1559601172107493427,'
-            .'1557459950312103976,1557459952396673196,1559561716642222122,1564921489713537055';
+            .'1557459950312103976,1557459952396673196,1559561716642222122,1564921489713537055,'
+            .'1564931850412105738';
 
         private $settings;
         private $log;

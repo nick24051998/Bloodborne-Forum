@@ -139,6 +139,7 @@ questions:
     q: How do I install mods?
     a: |
       <p>Put each mod in its own folder under <code>mods</code>, then switch it on and put it in order on Mods &amp; patches (drag and drop). Your game files are never changed. Rebirth, the HUD layout and the field of view are built into the port, not mods.</p>
+      <p>Which mods work with the port: see the <a href="https://forum.bbport.de/t/mods-patches?tab=works">tested mods</a> in our forum, each with the port version and date of its test.</p>
   - id: official
     group: about
     q: Is this an official Sony or FromSoftware product?

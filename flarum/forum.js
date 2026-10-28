@@ -318,6 +318,16 @@
       ['status-fixed', 'Fixed', 'fas fa-check'],
       ['status-duplicate', 'Duplicate', 'far fa-clone'],
     ],
+    // Tested mod list (Nick, 28.10.2026): set by the modding role and the mods
+    'mods-patches': [
+      ['status-works', 'Works', 'fas fa-check'],
+      ['status-limits', 'Works with limits', 'fas fa-exclamation-triangle'],
+      ['status-broken', 'Doesn\'t work', 'fas fa-ban'],
+      ['status-retest', 'Retest', 'fas fa-redo'],
+    ],
+  };
+  var STATUS_HINTS = {
+    'mods-patches': 'Modding and mods only. Write the port version and the date of your test in the topic.',
   };
 
   // The page ships only sections and the most-used extra tags, not the status tags: load all of them once
@@ -372,6 +382,7 @@
   // Sidebar of the topic (desktop): all states at a glance, the current one highlighted
   function statusPanel(discussion, options) {
     var current = tagSlugs(discussion);
+    var area = Object.keys(STATUSES).filter(function (s) { return current.indexOf(s) !== -1; })[0];
     return m('div.bb-statusPanel', [
       m('div.bb-statusPanel-title', 'Status'),
       m('div.bb-statusPanel-options', options.map(function (s) {
@@ -384,7 +395,7 @@
           onclick: function () { setStatus(discussion, s[0]); },
         }, [icon(s[2]), ' ', s[1]]);
       })),
-      m('p.bb-statusPanel-hint', 'Team only. Done, Fixed, Not planned and Duplicate take it out of the open lists.'),
+      m('p.bb-statusPanel-hint', STATUS_HINTS[area] || 'Team only. Done, Fixed, Not planned and Duplicate take it out of the open lists.'),
     ]);
   }
 
@@ -578,6 +589,13 @@
       ['progress', 'In progress', { view: 'status-in-progress' }],
       ['fixed', 'Fixed', { view: 'status-fixed' }],
       ['all', 'All', {}],
+    ],
+    'mods-patches': [
+      ['all', 'All', {}],
+      ['works', 'Works', { view: 'status-works' }],
+      ['limits', 'Works with limits', { view: 'status-limits' }],
+      ['broken', 'Doesn\'t work', { view: 'status-broken' }],
+      ['retest', 'Retest', { view: 'status-retest' }],
     ],
   };
 

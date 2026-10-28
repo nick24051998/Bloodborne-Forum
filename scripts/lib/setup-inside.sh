@@ -291,10 +291,16 @@ status-planned|Planned|#475a6b||Accepted idea, not built yet.
 status-done|Done|#3f6b4a||The idea is in a release.
 status-not-planned|Not planned|#4a4a4e||Won'"'"'t be done, the topic says why.
 status-duplicate|Duplicate|#4a4a4e||Already covered by another topic, linked inside.'
+# Status of a mod in Mods & Patches (Nick, 2026-10-28: a tested mod list). Set by the modding role and the mods,
+# the topic names the port version and the date of the test.
+MOD_STATUS_TAGS='status-works|Works|#3f6b4a||Tested: works with the port version named in the topic.
+status-limits|Works with limits|#9a6b1f||Tested: works, with the limits the topic names.
+status-broken|Doesn'"'"'t work|#6b2f2f||Tested: doesn'"'"'t work with the port, the topic says why.
+status-retest|Retest|#475a6b||A new port version is out, the mod needs a new test.'
 
 if ! installed flarum/tags; then die "flarum/tags is missing"; fi
 existing=$(api GET /tags)
-printf '%s\n%s\n%s\n' "$TAGS" "$TOPIC_TAGS" "$STATUS_TAGS" | while IFS='|' read -r slug name color icon desc; do
+printf '%s\n%s\n%s\n%s\n' "$TAGS" "$TOPIC_TAGS" "$STATUS_TAGS" "$MOD_STATUS_TAGS" | while IFS='|' read -r slug name color icon desc; do
   [ -n "$slug" ] || continue
   attrs=$(jq -n --arg n "$name" --arg s "$slug" --arg c "$color" --arg i "$icon" --arg d "$desc" \
     '{name: $n, slug: $s, color: $c, icon: $i, description: $d, isHidden: false}')
@@ -389,6 +395,19 @@ if [ -n "$mods" ] && [ -n "$modding" ]; then
     sql "INSERT IGNORE INTO ${DB_PREFIX}group_permission (group_id, permission) VALUES ($modding, 'tag${mods}.$p');"
   done
   ok "modding: Mods & Patches moderated by the modding role (edit, titles, tags, lock, pin, hide, approve, reports)"
+  # The mod status (Works, Works with limits, Doesn't work, Retest): only the modding role and the mods set it.
+  # The tags are restricted like the other status tags, so the modding role needs its rights there too.
+  echo "$MOD_STATUS_TAGS" | while IFS='|' read -r slug _rest; do
+    team_only "$slug"
+    _id=$(tag_id "$slug")
+    [ -n "$_id" ] || continue
+    for p in startDiscussion discussion.editPosts discussion.rename discussion.tag discussion.lock discussion.sticky \
+             discussion.hide discussion.hidePosts discussion.approvePosts discussion.viewFlags \
+             discussion.selectBestAnswerNotOwnDiscussion; do
+      sql "INSERT IGNORE INTO ${DB_PREFIX}group_permission (group_id, permission) VALUES ($modding, 'tag${_id}.$p');"
+    done
+  done
+  ok "mod status (Works, Works with limits, Doesn't work, Retest): only the modding role and the mods set it"
 else
   warn "Mods & Patches or the modding group missing (Discord role sync), modding permissions skipped"
 fi
@@ -458,7 +477,7 @@ if installed fof/discussion-templates; then
   # Performance Reports: hardware, settings and FPS on a fixed test route (basis for estimates)
   body=$(jq -n --rawfile t "$D/content/performance-template.md" '{data: {template: $t}}')
   api PATCH "/tags/$(tag_id performance)/template" "$body" >/dev/null && ok "post template for Performance Reports"
-  for t in known-fixes:known-fix bug-reports:bug suggestions:suggestion beta:beta logo-contest:logo-entry; do
+  for t in known-fixes:known-fix bug-reports:bug suggestions:suggestion beta:beta logo-contest:logo-entry mods-patches:mod; do
     body=$(jq -n --rawfile t "$D/content/${t#*:}-template.md" '{data: {template: $t}}')
     api PATCH "/tags/$(tag_id "${t%%:*}")/template" "$body" >/dev/null && ok "post template for ${t%%:*}"
   done

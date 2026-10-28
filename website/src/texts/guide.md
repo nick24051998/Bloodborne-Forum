@@ -84,6 +84,7 @@ Everyone in a session needs game version 1.09 and the same co-op pool. Please as
 
 ## Mods
 
+- **Which mods work?** Check the [tested mods](https://forum.bbport.de/t/mods-patches?tab=works) in our forum: each one says the port version and date of its test. Not listed yet? Ask in [Mods & Patches](https://forum.bbport.de/t/mods-patches).
 - Put each mod in its own folder under `mods` (with `dvdroot_ps4\…` inside, or `chr\`, `parts\` and so on directly).
 - Switch mods on and put them in order on **Mods & patches** (drag and drop). Your game files are never changed.
 - Mods must not bring their own `eboot.bin`.
