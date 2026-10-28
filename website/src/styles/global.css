@@ -130,8 +130,8 @@ h3 { font-size: var(--step-1); }
 .menu-input { position: absolute; opacity: 0; pointer-events: none; }
 .menu-button { display: none; }
 
-/* Menu button instead of the bar up to 1100 px: below that, the eight links plus logo and Discord don't fit on one line */
-@media (max-width: 1100px) {
+/* Menu button instead of the bar up to 1000 px: below that, the seven links plus logo and Discord don't fit on one line */
+@media (max-width: 1000px) {
   .site-header .container { flex-wrap: wrap; min-height: 56px; gap: 0; }
   .brand img { height: 34px; }
   .menu-button {
@@ -888,6 +888,14 @@ h3 { font-size: var(--step-1); }
   font-family: var(--font-head); font-weight: 700; color: var(--gold-light); }
 .sm-steps strong { color: var(--text-strong); }
 .sm-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.sm-steps .sm-servers, .sm-tips { display: grid; gap: 0.5rem; margin: 0.6rem 0 0; padding-left: 1.1rem; color: var(--text); }
+.sm-steps .sm-servers li { counter-increment: none; padding: 0; }
+.sm-steps .sm-servers li::before { content: none; }
+.sm-tips { margin-bottom: 1.4rem; }
+.sm-tips strong { color: var(--text-strong); }
+/* Label between "Play online" and the live numbers of SuperMedo Server */
+.sm-band { padding: 1.1rem 0 0; border-top: 1px solid rgba(156, 132, 88, 0.4); background: var(--bg-deep); }
+.sm-band .sm-label { margin: 0; }
 
 /* Home page: band below the hero */
 .srv-band { padding: 1.1rem 0; border-block: 1px solid rgba(156, 132, 88, 0.4);

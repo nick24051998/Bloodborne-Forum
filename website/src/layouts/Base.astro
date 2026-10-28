@@ -17,14 +17,16 @@ const fullTitle = title ? `${title} | ${SITE.brand}` : `${SITE.brand} – ${SITE
 const canonical = new URL(Astro.url.pathname, SITE.url).href;
 const path = Astro.url.pathname;
 
+// Menu by what visitors look for (Nick, 29.10.2026): get it running, use the launcher, tune it, play online, problems,
+// what's new. The addresses stay the same (/guide/ is "Launcher", /server/ is "Online"), so old links keep working.
+// Supermedo and Community are in the footer.
 const nav = [
   { href: link('install/'), label: 'Install' },
-  { href: link('guide/'), label: 'Guide' },
+  { href: link('guide/'), label: 'Launcher' },
   { href: link('best-settings/'), label: 'Best settings' },
+  { href: link('server/'), label: 'Online' },
   { href: link('faq/'), label: 'FAQ' },
   { href: link('changelog/'), label: 'Changelog' },
-  { href: link('server/'), label: 'Server' },
-  { href: link('supermedo/'), label: 'Supermedo' },
   ...(SITE.forumUrl ? [{ href: SITE.forumUrl, label: 'Forum' }] : []),
 ];
 
@@ -97,6 +99,7 @@ const baseLd = {
         <div class="cols">
           <ul>
             {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+            <li><a href={link('supermedo/')}>Supermedo</a></li>
             <li><a href={link('community/')}>Community</a></li>
             {SITE.discordUrl && <li><a href={SITE.discordUrl} rel="noopener">Discord</a></li>}
             {SITE.portRepoUrl && <li><a href={SITE.portRepoUrl} rel="noopener">Port on GitHub</a></li>}

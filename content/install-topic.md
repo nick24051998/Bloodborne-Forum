@@ -28,4 +28,4 @@ The full guide lives on our website: **[Install guide & system requirements]({{W
 2. **Unpack the port:** download `Bloodborne-Windows.zip` from the [official release page](https://github.com/Supermedo/bloodborne_pc/releases/latest) and extract it to a plain folder like `C:\Games\BBPort`. Avoid OneDrive or other synced folders, and avoid Program Files.
 3. **First start:** double-click `Bloodborne.exe`. The first time, a short setup guide picks your game folder and the settings for your PC, and the Play page checks the game version (it should say 01.09). Press PLAY. The first minutes can stutter while the shader cache is built, which is normal.
 
-Driver notes, settings for 4 GB cards and the full steps are in the [install guide]({{WEBSITE_URL}}/install/). Something not working? Read the pinned post in Help & Support or the [FAQ]({{WEBSITE_URL}}/faq/).
+Driver notes and the full steps are in the [install guide]({{WEBSITE_URL}}/install/), the settings for your card (4 GB cards too) in [best settings]({{WEBSITE_URL}}/best-settings/). Something not working? Read the pinned post in Help & Support or the [FAQ]({{WEBSITE_URL}}/faq/).

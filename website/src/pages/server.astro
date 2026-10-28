@@ -1,38 +1,79 @@
 ---
-// SuperMedo Server: Supermedo's own online server (co-op bells, messages, bloodstains). The numbers come from the
-// forum (SITE.forumUrl + '/api/bb-server', flarum/server-stats.php), which asks SuperMedo Server once a minute:
-// visitors' addresses stay with us and the server isn't asked once per visitor. Online IDs as the server shows them.
+// Online (menu item "Online", Nick 29.10.2026): how to play online, then what happens on SuperMedo Server,
+// Supermedo's own online server. The numbers come from the forum (SITE.forumUrl + '/api/bb-server',
+// flarum/server-stats.php), which asks SuperMedo Server once a minute: visitors' addresses stay with us and the
+// server isn't asked once per visitor. Online IDs as the server shows them. The address stays /server/.
 import Base from '../layouts/Base.astro';
 import { SITE } from '../../site.config.mjs';
 import { link } from '../lib/url.js';
 
 const api = SITE.forumUrl ? `${SITE.forumUrl}/api/bb-server` : '';
 const toc = [
-  ['now', 'Right now'], ['day', 'Last 24 hours'], ['areas', 'Areas'], ['deaths', 'How hunters die'],
-  ['community', 'Messages and co-op'], ['chalices', 'Chalice dungeons'], ['hunters', 'Hunters'], ['join', 'Join'],
+  ['play', 'Play online'], ['now', 'Right now'], ['day', 'Last 24 hours'], ['areas', 'Areas'], ['deaths', 'How hunters die'],
+  ['community', 'Messages and co-op'], ['chalices', 'Chalice dungeons'], ['hunters', 'Hunters'],
 ];
 ---
 
 <Base
-  title="SuperMedo Server"
-  description={`What happens on SuperMedo Server, the online server for ${SITE.portName}: who is online, where hunters die, best messages and leaderboards.`}
+  title="Online play & SuperMedo Server"
+  description={`How to play ${SITE.portName} online, and what happens on SuperMedo Server: who is online, where hunters die, best messages and leaderboards.`}
 >
   <section class="page-hero">
     <div class="container sm-hero">
-      <p class="eyebrow">Our own online server</p>
-      <h1>SuperMedo Server</h1>
+      <p class="eyebrow">Play together</p>
+      <h1>Online</h1>
       <p class="sm-lead">
-        Co-op bells, messages and bloodstains for {SITE.portName}, run by {SITE.portAuthor}. Who is online, where
-        hunters die and who helps most, straight from the server.
+        Co-op, invasions and messages from other hunters: how to get online, and what happens right now on SuperMedo
+        Server, the online server run by {SITE.portAuthor}.
       </p>
-      <p class="sm-state"><span class="sm-lamp" aria-hidden="true"></span><span data-field="state">Asking the server…</span></p>
+      <p class="sm-state"><span class="sm-lamp" aria-hidden="true"></span><span data-field="state">Asking SuperMedo Server…</span></p>
       <nav class="sm-toc" aria-label="On this page">
         {toc.map(([id, label]) => <a href={`#${id}`}>{label}</a>)}
       </nav>
     </div>
   </section>
 
+  <section class="section" id="play" aria-labelledby="play-h">
+    <div class="container sm-split">
+      <div>
+        <h2 id="play-h">Play online</h2>
+        <ol class="sm-steps">
+          <li>In the launcher, open <strong>Online play</strong> and tick <strong>Play online</strong>.</li>
+          <li>
+            Choose who you play with:
+            <ul class="sm-servers">
+              <li><strong>The Hunter's Dream</strong> (the default): co-op together with bbhost players. Press <strong>Sign in with Discord</strong> once and enter the code on the page that opens.</li>
+              <li><strong>SuperMedo Server</strong>: {SITE.portAuthor}'s own server, the numbers below come from it. Sign in with Discord, or <a href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">create an account</a>.</li>
+              <li><strong>shadNet server</strong>: register at <a href="https://shadnet.shadps4.net" rel="noopener">shadnet.shadps4.net</a> and enter the account name (not the e-mail) and password.</li>
+            </ul>
+          </li>
+          <li>Press <strong>Test connection</strong>, then PLAY, and choose online at the title screen. Ring a bell.</li>
+        </ol>
+        <p class="sm-small">
+          Everyone in a session needs game version 1.09 and the same server. Please ask on our Discord or forum, not The
+          Hunter's Dream, for help with the port. Forgot your SuperMedo Server password?
+          <a href={`${SITE.superMedoAccountUrl}/forgot`} rel="noopener">Get a new one by email</a>.
+        </p>
+      </div>
+      <div>
+        <h3>It doesn't connect?</h3>
+        <ul class="sm-tips">
+          <li><strong>"Failed to acquire Bloodborne server information":</strong> update to 1.9.4, which fixes it for PCs whose antivirus scans HTTPS connections.</li>
+          <li>Your firewall or router must let the game server port <strong>20443</strong> through.</li>
+          <li><strong>"Seamless co-op" tool:</strong> it overwrites a hidden server address. On 1.9.4: Online play → shadNet server → <strong>Use my own servers</strong> → empty the <strong>Game server</strong> field → switch back to The Hunter's Dream. 1.9.5 fixes this for good.</li>
+          <li><strong>Your own shadNet servers:</strong> the public server's WebAPI is <code>http://srv.shadps4.net:31315</code>, with plain <code>http</code>. An <code>https://</code> address fails with "SSL: UNEXPECTED_EOF_WHILE_READING". From 1.9.5 on, the server fields only count with <strong>Use my own servers</strong> ticked.</li>
+          <li>More in the <a href={link('faq/#online-connection')}>FAQ</a>.</li>
+        </ul>
+        <div class="sm-actions">
+          <a class="btn btn-primary" href={SITE.downloadUrl} rel="noopener">Download</a>
+          <a class="btn btn-ghost" href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">SuperMedo Server account</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="sm-page" data-src={api} data-hunter={link('server/hunter/')}>
+    <div class="sm-band"><div class="container"><p class="sm-label">SuperMedo Server, live</p></div></div>
     <section class="section" id="now" aria-labelledby="now-h">
       <div class="container sm-now">
         <div>
@@ -164,29 +205,6 @@ const toc = [
           </table>
         </div>
         <button type="button" class="btn btn-ghost sm-more" data-field="moreHunters" hidden>Show all hunters</button>
-      </div>
-    </section>
-
-    <section class="section section-alt" id="join" aria-labelledby="join-h">
-      <div class="container">
-        <h2 id="join-h">Join the hunt</h2>
-        <ol class="sm-steps">
-          <li>Get {SITE.portName} and start its launcher.</li>
-          <li>
-            <a href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">Create an account</a>, or skip this and use <strong>Sign in with Discord</strong> in the launcher.
-          </li>
-          <li>
-            Open <strong>Online co-op</strong>, pick <strong>SuperMedo Server</strong> under <strong>Co-op pool</strong> and sign in. Then start the game and ring a bell.
-          </li>
-        </ol>
-        <div class="sm-actions">
-          <a class="btn btn-primary" href={SITE.downloadUrl} rel="noopener">Download</a>
-          <a class="btn btn-ghost" href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">Create an account</a>
-        </div>
-        <p class="sm-small">
-          Forgot your password? <a href={`${SITE.superMedoAccountUrl}/forgot`} rel="noopener">Get a new one by email</a>.
-          Signed up with Discord? Just sign in with Discord again.
-        </p>
       </div>
     </section>
 
@@ -444,7 +462,7 @@ const toc = [
           const s = data.server;
           const awake = s.status === 'online';
           state.classList.toggle('is-awake', awake);
-          set('state', [awake ? `Online since ${when(s.awake_since)}` : 'Resting for maintenance, back soon',
+          set('state', [awake ? `SuperMedo Server online since ${when(s.awake_since)}` : 'SuperMedo Server is resting for maintenance, back soon',
             registration[s.registration] ?? '', `updated ${when(data.updatedAt, true)}`].filter(Boolean).join(' · '));
           renderNow(s);
           renderDay(s);
@@ -455,7 +473,7 @@ const toc = [
           renderHunters(s);
         } catch {
           state.classList.remove('is-awake');
-          set('state', "The server isn't answering right now. The numbers come back by themselves.");
+          set('state', "SuperMedo Server isn't answering right now. The numbers come back by themselves.");
         }
       };
 

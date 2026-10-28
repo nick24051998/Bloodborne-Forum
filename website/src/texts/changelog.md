@@ -23,6 +23,13 @@ list at the bottom). Only add the short summary in plain words here, newest vers
 - **Better settings for laptops:** the hardware check knows laptop processors, and fast PCs no longer get a 30 FPS cap from the automatic settings.
 - **Measure on this PC is off for now:** it comes back later. System & tests is now Your PC, and Advanced has a new benchmark for bug reports.
 
+## 1.9.3 – 21 October 2026
+
+- **New launcher:** a first-start setup guide, the goals Smooth, Balanced and Quiet, automatic save backups and a Gameplay page.
+- **Graphics back to 1.8.2's code:** fixes stretched polygons and black screens.
+- **Less video memory:** and a Low-VRAM profile for 4 GB cards.
+- **Known problem:** this version can't update itself and its sign-in to The Hunter's Dream hangs. [Update by hand](../install/#updating-by-hand-193) to 1.9.4 once.
+
 ## 1.9.2 – 18 October 2026
 
 - **Frame generation memory leak fixed:** with FSR 3.1 frame generation on, video memory no longer grows until the game crashes.
@@ -32,7 +39,6 @@ list at the bottom). Only add the short summary in plain words here, newest vers
 
 ## Earlier releases
 
-- **1.9.3 (21 October 2026):** new launcher with a first-start setup guide, the goals Smooth, Balanced and Quiet, automatic save backups and a Gameplay page; graphics back to 1.8.2's code (fixes stretched polygons and black screens), less video memory and a Low-VRAM profile for 4 GB cards.
 - **1.9.1 (17 October 2026):** hotfix for stretched polygons and the FPS drop after dying or loading.
 - **1.9 (16 October 2026):** frame generation (FSR 3.1 / DLSS), memory fixes for 4–8 GB cards.
 

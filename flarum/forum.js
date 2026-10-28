@@ -1,6 +1,6 @@
 // Included in the forum via flarum/extend.php (no build step needed).
-// - Header like on the website (one menu for both): to the left of the logo Install, Guide, Best settings, FAQ,
-//   Changelog, Server, Supermedo, Forum (active) in the same font, without icons; on the right the actions, here Search,
+// - Header like on the website (one menu for both): to the left of the logo Install, Launcher, Best settings, Online,
+//   FAQ, Changelog, Forum (active) in the same font, without icons; on the right the actions, here Search,
 //   Log in and, as the last button, Discord like on the website. Website links open in the same tab, Discord in a new
 //   one (on phones in the side menu, where "Website" is added as well)
 // - Discord-only sign-up: the sign-up window shows only the Discord button
@@ -1562,12 +1562,11 @@
       if (site) {
         items.add('bb-home', externalLink(site + '/', 'Website'), 60);
         items.add('bb-install', externalLink(site + '/install/', 'Install'), 50);
-        items.add('bb-guide', externalLink(site + '/guide/', 'Guide'), 45);
+        items.add('bb-guide', externalLink(site + '/guide/', 'Launcher'), 45);
         items.add('bb-best', externalLink(site + '/best-settings/', 'Best settings'), 42);
+        items.add('bb-online', externalLink(site + '/server/', 'Online'), 41);
         items.add('bb-faq', externalLink(site + '/faq/', 'FAQ'), 40);
         items.add('bb-changelog', externalLink(site + '/changelog/', 'Changelog'), 30);
-        items.add('bb-server', externalLink(site + '/server/', 'Server'), 28);
-        items.add('bb-supermedo', externalLink(site + '/supermedo/', 'Supermedo'), 25);
         items.add('bb-forum', LinkButton.component({
           href: app.route('index'),
           className: 'Button Button--link bb-navLink bb-navLink--current',

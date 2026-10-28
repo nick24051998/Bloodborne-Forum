@@ -194,7 +194,7 @@ test('Menu: links next to the logo, Discord at the far right', async ({ page, is
   test.skip(isMobile, 'auf dem Handy steckt das Menü hinter dem Menü-Knopf');
   await page.goto('/');
   expect(await page.$$eval('.nav a', (all) => all.map((a) => a.textContent.trim())))
-    .toEqual(['Install', 'Guide', 'Best settings', 'FAQ', 'Changelog', 'Server', 'Supermedo', 'Forum', 'Discord']);
+    .toEqual(['Install', 'Launcher', 'Best settings', 'Online', 'FAQ', 'Changelog', 'Forum', 'Discord']);
   const logo = await page.locator('.brand').boundingBox();
   const first = await page.locator('.nav a').first().boundingBox();
   const discord = await page.locator('.nav .nav-discord').boundingBox();
@@ -287,8 +287,7 @@ test('Supermedo page shows his projects and links to NativeRetro', async ({ page
   expect(external).toEqual([]);
   expect(await page.evaluate(async () => (await document.fonts.load('20px VT323')).length)).toBeGreaterThan(0);
 
-  // The menu, home page and footer lead here
-  await expect(page.locator('.nav a[aria-current="page"]')).toHaveText('Supermedo');
+  // The home page and footer lead here (not the menu since 29.10.2026)
   await page.goto('/');
   await expect(page.locator('.nr-teaser a[href="/supermedo/"]')).toBeVisible();
   await expect(page.locator('footer a[href="/supermedo/"]')).toHaveCount(1);
@@ -341,15 +340,24 @@ test('Home page shows how often the port was downloaded and by how many players'
   expect(live.players).toBe(players);
 });
 
-test('Launcher guide: in the menu and with its sections', async ({ page }) => {
+test('Launcher page: in the menu and with its sections, install and online elsewhere', async ({ page }) => {
   await page.goto('/');
   // On phones the menu sits inside the side menu, the link is still there
   await expect(page.locator('header a[href$="/guide/"]').first()).toHaveCount(1);
   await page.goto('/guide/');
-  await expect(page.locator('h1')).toHaveText(/Launcher guide/i);
-  for (const id of ['whats-included', 'online-play', 'saves', 'mods']) {
+  await expect(page.locator('h1')).toHaveText(/Launcher/i);
+  for (const id of ['whats-included', 'saves', 'steam', 'mods', 'help-and-reports']) {
     await expect(page.locator(`h2#${id}`), id).toHaveCount(1);
   }
+  // Each topic in one place: the first start and updating on Install, online play on Online
+  await expect(page.locator('h2#online-play, h2#updates, h2#first-start')).toHaveCount(0);
+  await page.goto('/install/');
+  for (const id of ['step-3-first-start', 'updating', 'updating-by-hand-193']) {
+    await expect(page.locator(`#${id}`), id).toHaveCount(1);
+  }
+  await page.goto('/server/');
+  await expect(page.locator('h2#play-h')).toHaveText('Play online');
+  await expect(page.locator('.nav a[aria-current="page"]')).toHaveText('Online');
 });
 
 // Logo contest: big announcement on the home page, leads to the contest page in the forum; the template is on the website

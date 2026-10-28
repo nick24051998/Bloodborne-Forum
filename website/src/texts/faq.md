@@ -2,7 +2,7 @@
 title: FAQ – Frequently Asked Questions
 description: Answers to the most common questions about bbport, the Bloodborne PC port for Windows – game files, code 3, crashes, online co-op, mods and more.
 heading: Frequently asked questions
-intro: Quick answers to the questions we get most often, sorted by topic. Search below or jump to a topic. How the launcher works, page by page, is in the launcher guide.
+intro: Quick answers to the questions we get most often, sorted by topic. Search below or jump to a topic. How the launcher works, page by page, is on the launcher page.
 # Questions and answers, by group, and within a group by how often they come up in #help.
 # Answers are HTML (<p>, <ol>, <code>, links).
 # id = fixed anchor for links (bbport.de/faq/#code-3): do not change it, links in Discord point to it.
@@ -59,7 +59,7 @@ questions:
         <li><a href="#latest-download">Download the newest version</a>. The zip holds one folder, <code>bbport-windows</code>.</li>
         <li>Copy what is inside that folder (<code>Bloodborne.exe</code>, <code>_internal</code>, <code>bin</code> …) into your port folder and replace the files.</li>
       </ol>
-      <p>Saves, graphics settings, key bindings and mods stay. Don't use a new folder for this. From then on, updates show up at the bottom left of the launcher again. Details in the <a href="../guide/#updating-by-hand-193">launcher guide</a>.</p>
+      <p>Saves, graphics settings, key bindings and mods stay. Don't use a new folder for this. From then on, updates show up at the bottom left of the launcher again. Details in the <a href="../install/#updating-by-hand-193">launcher guide</a>.</p>
   - id: updates-and-saves
     group: updates
     q: Will updates delete my saves?
@@ -124,7 +124,7 @@ questions:
         <li>The "Seamless co-op" tool overwrites a hidden server address. On 1.9.4: Online play &gt; shadNet server &gt; Use my own servers &gt; empty the Game server field &gt; switch back to The Hunter's Dream. 1.9.5 fixes this for good.</li>
         <li>Your own shadNet servers: the public server's WebAPI is <code>http://srv.shadps4.net:31315</code> (plain http). An <code>https://</code> address fails with "SSL: UNEXPECTED_EOF_WHILE_READING".</li>
       </ul>
-      <p>Details in the <a href="../guide/#online-play">launcher guide</a>.</p>
+      <p>Step by step, with all three servers: <a href="../server/#play">online</a>.</p>
   - id: controller
     group: play
     q: Does my controller work?
