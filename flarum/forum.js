@@ -333,14 +333,17 @@
     'mods-patches': 'Modding and mods only. Write the port version and the date of your test in the topic.',
   };
 
-  // The page ships only sections and the most-used extra tags, not the status tags: load all of them once
+  // The page ships only sections and the most-used extra tags, not the status tags: load all of them once.
+  // Topic lists bring along only the statuses they show (Done, Not planned and Duplicate rarely), so check every
+  // status of the area, not just the first one (a helper saw only Planned and In progress, 28.10.2026)
   var statusTagsLoading = false;
 
   function statusOptions(discussion) {
     var slugs = tagSlugs(discussion);
     var area = Object.keys(STATUSES).filter(function (s) { return slugs.indexOf(s) !== -1; })[0];
     if (!area || !discussion.canTag || !discussion.canTag()) return null;
-    if (!tagBySlug(STATUSES[area][0][0]) && !statusTagsLoading) {
+    var missing = STATUSES[area].some(function (s) { return !tagBySlug(s[0]); });
+    if (missing && !statusTagsLoading) {
       statusTagsLoading = true;
       (app.tagList ? app.tagList.load(['parent']) : app.store.find('tags')).then(function () { m.redraw(); });
     }
