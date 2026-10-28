@@ -44,6 +44,9 @@
  * Top helpers (flarum/helpers.php): /api/bb-top-helpers with the ranking of the last 30 days and of all time
  * (solutions, Known Fixes, topics helped), page /top-helpers; the top 3 get the mark "Top helper".
  *
+ * "My game account" (flarum/supermedo-account.php): /supermedo-account hands the logged-in member over to their
+ * account on SuperMedo Server with a signed note; off (404, no button) while bbforum.supermedo_account_key is empty.
+ *
  * Overview (flarum/overview.php): votes (👍 on the opening post) as the sort order "-bbVotes", filter "bbview"
  * for the tabs above the lists, command bbforum:close-stale (close help discussions after 7 days without a post).
  *
@@ -335,6 +338,7 @@ require_once __DIR__.'/profiles.php';
 require_once __DIR__.'/discord-notify.php';
 require_once __DIR__.'/ai-help.php';
 require_once __DIR__.'/helpers.php';
+require_once __DIR__.'/supermedo-account.php';
 
 return [
     (new Extend\ServiceProvider())->register(BBForumCliLocale::class),
@@ -440,6 +444,9 @@ return [
     (new Extend\Routes('api'))->get('/bb-top-helpers', 'bbforum.topHelpers', BBForumTopHelpersController::class),
     (new Extend\Frontend('forum'))->route('/top-helpers', 'topHelpers'),
 
+    // "My game account" (flarum/supermedo-account.php): signed hand-over to SuperMedo Server, off without the key
+    (new Extend\Routes('forum'))->get('/supermedo-account', 'bbforum.supermedoAccount', BBForumSupermedoAccount::class),
+
     // Follow own discussions (instead of Flarum's "off"): replies show up in the notifications
     (new Extend\User())->registerPreference('followAfterReply', 'boolval', true),
 
@@ -470,7 +477,11 @@ return [
         ->serializeToForum('bbforumDiscordOnly', 'bbforum.oauth_only_signup', 'boolval')
         ->serializeToForum('bbContestSubmitUntil', 'bbforum.contest_submit_until')
         ->serializeToForum('bbContestVoteUntil', 'bbforum.contest_vote_until')
-        ->serializeToForum('bbDiscordNotify', 'bbforum.discord_notify_enabled', 'boolval'),
+        ->serializeToForum('bbDiscordNotify', 'bbforum.discord_notify_enabled', 'boolval')
+        // Only whether the key is set, never the key itself
+        ->serializeToForum('bbSupermedoAccount', 'bbforum.supermedo_account_key', function ($key) {
+            return trim((string) $key) !== '';
+        }),
 
     // Forum notifications in Discord (flarum/discord-notify.php): notification channel "discord", new notification on
     // status change, queue for BB Helper; own discussions and replies are now followed by default
