@@ -47,6 +47,9 @@
  * "My game account" (flarum/supermedo-account.php): /supermedo-account hands the logged-in member over to their
  * account on SuperMedo Server with a signed note; off (404, no button) while bbforum.supermedo_account_key is empty.
  *
+ * SuperMedo Server statistics (flarum/server-stats.php): /api/bb-server, /api/bb-server/summary and
+ * /api/bb-server/hunters/{id} for the website's /server/ page, its home page band and the forum box, cached a minute.
+ *
  * Overview (flarum/overview.php): votes (👍 on the opening post) as the sort order "-bbVotes", filter "bbview"
  * for the tabs above the lists, command bbforum:close-stale (close help discussions after 7 days without a post).
  *
@@ -339,6 +342,7 @@ require_once __DIR__.'/discord-notify.php';
 require_once __DIR__.'/ai-help.php';
 require_once __DIR__.'/helpers.php';
 require_once __DIR__.'/supermedo-account.php';
+require_once __DIR__.'/server-stats.php';
 
 return [
     (new Extend\ServiceProvider())->register(BBForumCliLocale::class),
@@ -446,6 +450,12 @@ return [
 
     // "My game account" (flarum/supermedo-account.php): signed hand-over to SuperMedo Server, off without the key
     (new Extend\Routes('forum'))->get('/supermedo-account', 'bbforum.supermedoAccount', BBForumSupermedoAccount::class),
+
+    // SuperMedo Server statistics (flarum/server-stats.php) for the website's /server/ page and the forum box
+    (new Extend\Routes('api'))
+        ->get('/bb-server', 'bbforum.server', BBForumServerOverview::class)
+        ->get('/bb-server/summary', 'bbforum.server.summary', BBForumServerSummary::class)
+        ->get('/bb-server/hunters/{id}', 'bbforum.server.hunter', BBForumServerHunter::class),
 
     // Follow own discussions (instead of Flarum's "off"): replies show up in the notifications
     (new Extend\User())->registerPreference('followAfterReply', 'boolval', true),
