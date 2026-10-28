@@ -33,8 +33,10 @@ const toc = [
     </div>
   </section>
 
-  <section class="section" id="play" aria-labelledby="play-h">
-    <div class="container sm-split">
+  <!-- The steps are the main thing: the wide column, with the buttons where the steps end. The help for when it
+       doesn't connect is the narrower column beside it; both start on the same line. -->
+  <section class="section section-alt sm-play" id="play" aria-labelledby="play-h">
+    <div class="container sm-play-grid">
       <div>
         <h2 id="play-h">Play online</h2>
         <ol class="sm-steps">
@@ -49,14 +51,21 @@ const toc = [
           </li>
           <li>Press <strong>Test connection</strong>, then PLAY, and choose online at the title screen. Ring a bell.</li>
         </ol>
+        <p class="sm-play-note">
+          Everyone in a session needs game version 1.09 and the same server. Questions about the port go to our Discord
+          or forum, not to The Hunter's Dream.
+        </p>
+        <div class="sm-actions">
+          <a class="btn btn-primary" href={SITE.downloadUrl} rel="noopener">Download</a>
+          <a class="btn btn-ghost" href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">SuperMedo Server account</a>
+        </div>
         <p class="sm-small">
-          Everyone in a session needs game version 1.09 and the same server. Please ask on our Discord or forum, not The
-          Hunter's Dream, for help with the port. Forgot your SuperMedo Server password?
+          Forgot your SuperMedo Server password?{' '}
           <a href={`${SITE.superMedoAccountUrl}/forgot`} rel="noopener">Get a new one by email</a>.
         </p>
       </div>
-      <div>
-        <h3>It doesn't connect?</h3>
+      <aside class="sm-play-help" aria-labelledby="help-h">
+        <h3 id="help-h" class="sm-label">It doesn't connect?</h3>
         <ul class="sm-tips">
           <li><strong>"Failed to acquire Bloodborne server information":</strong> update to 1.9.4, which fixes it for PCs whose antivirus scans HTTPS connections.</li>
           <li>Your firewall or router must let the game server port <strong>20443</strong> through.</li>
@@ -64,19 +73,15 @@ const toc = [
           <li><strong>Your own shadNet servers:</strong> the public server's WebAPI is <code>http://srv.shadps4.net:31315</code>, with plain <code>http</code>. An <code>https://</code> address fails with "SSL: UNEXPECTED_EOF_WHILE_READING". From 1.9.5 on, the server fields only count with <strong>Use my own servers</strong> ticked.</li>
           <li>More in the <a href={link('faq/#online-connection')}>FAQ</a>.</li>
         </ul>
-        <div class="sm-actions">
-          <a class="btn btn-primary" href={SITE.downloadUrl} rel="noopener">Download</a>
-          <a class="btn btn-ghost" href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">SuperMedo Server account</a>
-        </div>
-      </div>
+      </aside>
     </div>
   </section>
 
   <div class="sm-page" data-src={api} data-hunter={link('server/hunter/')}>
-    <div class="sm-band"><div class="container"><p class="sm-label">SuperMedo Server, live</p></div></div>
     <section class="section" id="now" aria-labelledby="now-h">
       <div class="container sm-now">
         <div>
+          <p class="eyebrow">SuperMedo Server, live</p>
           <h2 id="now-h">Right now</h2>
           <p class="sm-big"><strong data-field="online">–</strong><span>Hunters online</span></p>
           <p class="sm-peaks">
