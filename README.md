@@ -271,7 +271,7 @@ would otherwise make replies fail with an error as soon as someone should get an
 | **The Hunter's Dream** | everyone | members | off-topic |
 
 Role colors: Admin blood red `#8a1118`, Mod brass `#9c8458`. Allowed uploads: images, `.zip`/`.7z`
-(BB Report Tool) and `.txt` logs up to 20 MB. Only logged-in members can upload and download.
+(report zips from the launcher) and `.txt` logs up to 20 MB. Only logged-in members can upload and download.
 
 **By hand in the admin area** (if you don't use the script):
 

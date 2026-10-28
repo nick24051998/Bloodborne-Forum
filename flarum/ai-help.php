@@ -8,7 +8,7 @@
  *   whose newest post comes from the asker or another member, not from the team or BB-Helper, and is at least `wait`
  *   minutes and at most `catchup` hours old. Helpers go first; anything older is left alone.
  * - GET /api/bb-ai/topics/{id}: the topic with its visible posts (source text, author, role, time, attached files).
- * - GET /api/bb-ai/files/{uuid}: a file attached to one of those posts (BB Report Tool zip, log, screenshot).
+ * - GET /api/bb-ai/files/{uuid}: a file attached to one of those posts (report zip, log, screenshot).
  * - POST /api/bb-ai/reply {discussion_id, after, content}: posts as BB-Helper (bbforum.ai_user_id, default 61), but
  *   only if nobody posted after post number `after`. The usual notifications follow, so the asker gets the Discord
  *   inbox ping.

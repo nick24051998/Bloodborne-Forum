@@ -62,7 +62,7 @@ with the same names and rules in both places (Art. 6(1)(f) GDPR).
 
 **What you post.** Discussions, posts, likes and your profile are visible to everyone who visits the
 forum, including search engines. Files you upload (images, logs, zip/7z archives) can only be opened by
-logged-in members. Report Tool archives and logs can contain information about your PC, so please check
+logged-in members. Report zips and logs can contain information about your PC, so please check
 them before uploading and don't post personal data you don't want to share. When you post, the forum
 stores the IP address you used, so moderators can act against spam and abuse (Art. 6(1)(f) GDPR).
 

@@ -205,7 +205,7 @@
   // Overview of the home page: four sections with five topics each and a sentence on what the section is for.
   // [section, heading, sort, sentence, bbview]; only sections that exist (setup creates them).
   var DASH = [
-    ['help-support', 'New questions', '-createdAt', "Something doesn't work: one topic per problem, with your BB Report Tool zip."],
+    ['help-support', 'New questions', '-createdAt', "Something doesn't work: one topic per problem, with your report zip (launcher: Help → Save a report)."],
     ['suggestions', 'Top suggestions', '-bbVotes', 'Ideas for the port, the launcher, this forum or Discord. Vote with 👍.', 'active'],
     ['known-fixes', 'New known fixes', '-createdAt', 'Solutions that worked, checked by a helper. Search here first.'],
     ['announcements', 'News', '-createdAt', 'Releases and news from the team.'],
