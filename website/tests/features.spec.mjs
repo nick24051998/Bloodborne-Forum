@@ -133,10 +133,10 @@ test('Anchors: FAQ questions open via link, headings have # links', async ({ pag
   expect(new Set(ids).size, 'ids sind eindeutig').toBe(ids.length);
 
   await page.goto('/guide/');
-  const link = page.locator('h2#online-play a.anchor-link');
-  await expect(link).toHaveAttribute('href', '#online-play');
+  const link = page.locator('h2#saves a.anchor-link');
+  await expect(link).toHaveAttribute('href', '#saves');
   await link.click();
-  await expect(page).toHaveURL(/\/guide\/#online-play$/);
+  await expect(page).toHaveURL(/\/guide\/#saves$/);
 });
 
 // A clear FAQ: questions by topic, topic bar and search at the top; without hits, the way to Known Fixes in the forum
@@ -304,7 +304,8 @@ test.describe('Download and releases', () => {
   });
 
   test('Install Guide and FAQ link the ZIP directly', async ({ page }) => {
-    for (const path of ['/install/', '/faq/', '/guide/']) {
+    // Updating by hand lives on the install guide since 29.10.2026, so the launcher page has no download link
+    for (const path of ['/install/', '/faq/']) {
       await page.goto(path);
       await expect(page.locator('a[href="#latest-download"]'), path).toHaveCount(0);
       expect(await page.locator(`a[href="${zipUrl}"]`).count(), path).toBeGreaterThan(0);
