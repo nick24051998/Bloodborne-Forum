@@ -22,7 +22,7 @@ items:
     alt: ""
     credit: ""
   - title: Co-op night
-    text: Ringing the bells on The Hunter's Dream.
+    text: Ringing the bells with other hunters online.
     image: ""
     alt: ""
     credit: ""

@@ -16,6 +16,15 @@ list at the bottom). Only add the short summary in plain words here, newest vers
 
 <div data-release-latest></div>
 
+## 1.9.5 – 28 October 2026
+
+- **Our own online server:** SuperMedo Server is the default. Sign in with Discord or make a free account on the launcher's Online page. The Hunter's Dream is the other choice; shadNet and your own servers can't be chosen any more. Friends on the same Wi-Fi play together over their home network. [Step by step](../server/#play).
+- **The most common random crash is fixed** (`ucrtbase.dll`, often after about an hour in busy fights), and error code 21 no longer stops the game.
+- **PC Settings in the game's own menu.**
+- **Smooth at any frame rate:** capes, coats, plants and jumps behave as on the PS4, Ebrietas without frame drops, and new low-latency options.
+- **Installing:** unpack into a new, empty folder or over 1.9.4. The first start rebuilds the shader cache, so it may stutter for the first minutes.
+- **Known problem:** the "device lost" crash some NVIDIA players see in fights isn't fixed yet. If you hit it, send a report (launcher: Help → Save a report).
+
 ## 1.9.4 – 21 October 2026
 
 - **Online fix:** "Failed to acquire Bloodborne server information" no longer appears when your antivirus scans HTTPS connections (Avast, AVG, Kaspersky and others) or Windows had not fetched the server's root certificate yet.
