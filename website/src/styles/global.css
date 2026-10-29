@@ -242,7 +242,7 @@ h3 { font-size: var(--step-1); }
 .hero-port { margin: 1.4rem 0 0; color: var(--muted); font-size: 0.92rem; }
 .hero-download + .hero-port { margin-top: 0.35rem; }
 .hero-port strong { color: var(--text-soft); font-weight: 600; }
-/* The credit sentence, then the links on their own line; a link or the date never splits over two lines */
+/* The credit sentence, then the link on its own line; a link or the date never splits over two lines */
 .hero-port-links { display: block; }
 .hero-port a, .hero-when { white-space: nowrap; }
 .hero .emblem { position: relative; isolation: isolate; justify-self: center; width: min(330px, 75%); }

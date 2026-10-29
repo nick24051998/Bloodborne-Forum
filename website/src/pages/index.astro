@@ -107,6 +107,7 @@ const appLd = {
           {downloadUrl && <a class="btn btn-ghost hero-download-btn" href={downloadUrl} rel="noopener">Download{latest && ` ${latest.version}`}</a>}
           {SITE.discordUrl && <a class="btn btn-discord" href={SITE.discordUrl} rel="noopener"><Icon name="discord" />Join Discord</a>}
           {SITE.forumUrl && <a class="btn btn-ghost" href={SITE.forumUrl}>Visit forum</a>}
+          {SITE.supportUrl && <a class="btn btn-ghost" href={SITE.supportUrl} rel="noopener">Buy him a coffee</a>}
         </div>
         {latest?.download && (
           <p class="hero-download">
@@ -119,10 +120,7 @@ const appLd = {
           <p class="hero-port">
             The community for <strong>{SITE.portName}</strong> ({SITE.brand}) by{' '}
             <a href={SITE.portAuthorUrl} rel="noopener">{SITE.portAuthor}</a>
-            <span class="hero-port-links">
-              <a href={SITE.portRepoUrl} rel="noopener">Source code on GitHub</a>
-              {SITE.supportUrl && <><span aria-hidden="true"> · </span><a href={SITE.supportUrl} rel="noopener">Buy him a coffee</a></>}
-            </span>
+            <span class="hero-port-links"><a href={SITE.portRepoUrl} rel="noopener">Source code on GitHub</a></span>
           </p>
         )}
       </div>
