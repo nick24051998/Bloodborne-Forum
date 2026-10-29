@@ -61,7 +61,9 @@
 @heading-color:        @bb-text-strong;
 @link-color:           @bb-gold-light;
 @muted-color:          @bb-muted;
-@muted-more-color:     #6c6f74;
+// Author lines, excerpts and dates in the lists: #6c6f74 reached only 3.55:1 on the cards (WCAG AA needs 4.5:1,
+// UX review 29.10.2026); #9a9ca1 gives 6.5:1 on @bb-card
+@muted-more-color:     #9a9ca1;
 @shadow-color:         rgba(0, 0, 0, 0.6);
 @control-bg:           @bb-card-hover;
 @control-color:        #b3b1ac;
@@ -100,6 +102,13 @@ h1, h2, h3,
 ::selection {
   background: fade(@bb-blood, 75%);
   color: #fff;
+}
+
+// Keyboard focus as on the website: 2 px gold with a gap (before, the browser's thin orange ring showed).
+// Lowest specificity, so the focus rules of single controls further down still win.
+:focus-visible {
+  outline: 2px solid @bb-gold-light;
+  outline-offset: 2px;
 }
 
 // --- Header ------------------------------------------------------------------
@@ -317,11 +326,13 @@ h1, h2, h3,
     @bb-surface;
   border-bottom: 1px solid @bb-border;
   color: @bb-text;
-  padding: 64px 0 60px;
+  // Compact (UX review 29.10.2026): only guests see it (forum.js), and it shouldn't push the topics out of the
+  // first screen; two lines of text, then the two ways in as buttons (content/welcome.html)
+  padding: 30px 0 28px;
 
   .Hero-title {
     color: @bb-text-strong;
-    font-size: 28px;
+    font-size: 23px;
     letter-spacing: 0.06em;
     text-shadow: 0 2px 18px rgba(0, 0, 0, 0.8);
 
@@ -331,13 +342,32 @@ h1, h2, h3,
       display: block;
       width: 64px;
       height: 1px;
-      margin: 14px auto 0;
+      margin: 9px auto 0;
       background: linear-gradient(90deg, transparent, @bb-gold, transparent);
     }
   }
 
+  // The buttons in the welcome text: theme buttons, not the gold underlined links of the text
+  .Hero-subtitle .bb-welcome-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 10px;
+    margin-top: 14px;
+
+    .Button {
+      border-bottom: 1px solid @bb-btn-line;
+      color: @bb-text-strong;
+      font-weight: 700;
+    }
+
+    .Button--primary {
+      color: #fff;
+    }
+  }
+
   @media @phone {
-    padding: 40px 0 36px;
+    padding: 22px 0 20px;
     // On narrow screens the text sits over the city: crop shifted right, darkened more
     background:
       linear-gradient(180deg, transparent 50%, @bb-bg 100%),
@@ -346,7 +376,7 @@ h1, h2, h3,
       @bb-surface;
 
     .Hero-title {
-      font-size: 21px;
+      font-size: 19px;
     }
 
     .Hero-subtitle {
@@ -1545,6 +1575,8 @@ h1, h2, h3,
   border-radius: 4px;
   font-weight: 600;
   letter-spacing: 0.02em;
+  // Flarum's 85 % made 10.2 px in the lists; never smaller than 11.5 px
+  font-size: ~"max(85%, 11.5px)";
 }
 
 .TagTile {
@@ -1631,6 +1663,27 @@ h1, h2, h3,
     &:hover {
       color: @bb-text-strong;
       text-decoration-color: @bb-gold-light;
+    }
+  }
+
+  // Attached files (FoF Upload: download icon, file name, size): one row that fits the post, a long name ends in
+  // "…". On phones the three parts each took a line of their own (UX review 29.10.2026).
+  .ButtonGroup[data-fof-upload-download-uuid] {
+    display: flex;
+    width: fit-content;
+    max-width: 100%;
+    margin-bottom: 6px;
+
+    > .Button {
+      float: none;
+      flex: none;
+    }
+
+    > .Button:nth-child(2) {
+      flex: 0 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }
@@ -2038,11 +2091,11 @@ body::after {
   }
 
   .WelcomeHero .Hero-title {
-    font-size: (@base * 2.1);
+    font-size: (@base * 1.65);
   }
 
   .WelcomeHero .Hero-subtitle {
-    font-size: (@base + 2px);
+    font-size: (@base + 1px);
   }
 }
 

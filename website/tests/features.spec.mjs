@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 import { SITE } from '../site.config.mjs';
 import { TIERS, gpus, cpuLines, evaluate } from '../src/data/hardware.js';
 import { cleanNotes } from '../scripts/release-notes.mjs';
-import { totalDownloads, mostDownloads, downloadsLabel } from '../src/lib/downloads.js';
+import { totalDownloads, downloadsLabel } from '../src/lib/downloads.js';
 
 // The same data the site was built from (fetched fresh from GitHub in the workflow)
 const { releases } = JSON.parse(readFileSync(new URL('../src/data/releases.json', import.meta.url), 'utf8'));
@@ -333,18 +333,40 @@ test.describe('Download and releases', () => {
   });
 });
 
-// Download count from GitHub, all versions together, and players (the most downloaded version), both rounded down;
-// release.json carries the exact numbers for the check
-test('Home page shows how often the port was downloaded and by how many players', async ({ page, request }) => {
+// Download count from GitHub, all versions together, rounded down, with what it counts written below it (no tooltip,
+// no "players": the data doesn't say how many people play); release.json carries the exact number for the check
+test('Home page shows how often the port was downloaded and what the number counts', async ({ page, request }) => {
   const total = totalDownloads(releases);
-  const players = mostDownloads(releases);
   test.skip(!total, 'no download counts in src/data/releases.json');
   await page.goto('/');
   await expect(page.locator('.hero-stat .hero-downloads')).toHaveText(downloadsLabel(total));
-  await expect(page.locator('.hero-stat .hero-players')).toHaveText(downloadsLabel(players));
+  await expect(page.locator('.hero-stat-note')).toBeVisible();
+  await expect(page.locator('.hero-stat')).not.toContainText(/players/i);
+  await expect(page.locator('.hero-stat [title]')).toHaveCount(0);
   const live = await (await request.get('/release.json')).json();
   expect(live.downloads).toBe(total);
-  expect(live.players).toBe(players);
+  expect(live).not.toHaveProperty('players');
+});
+
+// Right below the hero buttons: the zip needs your own game, with a link to which files (UX review 29.10.2026)
+test('Home page says at the download that you need your own game files', async ({ page }) => {
+  await page.goto('/');
+  const req = page.locator('.hero-req');
+  await expect(req).toBeVisible();
+  await expect(req).toContainText('CUSA03173');
+  await expect(req).toContainText('1.09');
+  await expect(req.getByRole('link', { name: 'Which files?' })).toHaveAttribute('href', /faq\/#game-files$/);
+});
+
+// The menu checkbox only takes keyboard focus where the menu button shows (up to 1000 px)
+test('On wide screens the keyboard skips the hidden menu checkbox', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/');
+  await expect(page.locator('#menu')).toBeHidden();
+  for (let i = 0; i < 4; i++) {
+    await page.keyboard.press('Tab');
+    expect(await page.evaluate(() => document.activeElement?.id)).not.toBe('menu');
+  }
 });
 
 test('Launcher page: in the menu and with its sections, install and online elsewhere', async ({ page }) => {

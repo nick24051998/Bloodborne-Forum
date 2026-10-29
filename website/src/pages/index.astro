@@ -6,7 +6,7 @@ import { Image, getImage } from 'astro:assets';
 import launcherPlay from '../assets/launcher/launcher-play.png';
 import { SITE } from '../../site.config.mjs';
 import { link, absolute } from '../lib/url.js';
-import { latest, downloadUrl, formatDate, downloads, downloadsText, playersText } from '../lib/releases.js';
+import { latest, downloadUrl, formatDate, downloads, downloadsText } from '../lib/releases.js';
 import { CONTEST, contestDates, contestRunning } from '../data/contest.js';
 
 // Home page texts. Icons: names from media/icons (gauge, bell, key, anvil, moon, …)
@@ -88,18 +88,15 @@ const appLd = {
           bbport brings the original PS4 game natively to Windows 10 and 11 – at 60 FPS or more, in up to 4K, with
           online co-op.
         </p>
+        {/* Only downloads: "players" was the count of the most downloaded version, a guess (UX review 29.10.2026).
+            What the number counts is written below it, not in a tooltip that phones and keyboards never reach. */}
         {downloadsText && (
           <p class="hero-stat">
-            {playersText && (
-              <span class="hero-stat-item" title="Downloads of the most downloaded version">
-                <strong class="hero-players">{playersText}</strong>
-                <span>players</span>
-              </span>
-            )}
-            <span class="hero-stat-item" title="All versions together, launcher updates included">
+            <span class="hero-stat-item">
               <strong class="hero-downloads">{downloadsText}</strong>
               <span>downloads</span>
             </span>
+            <span class="hero-stat-note">The port's zip on GitHub, all versions and launcher updates together</span>
           </p>
         )}
         <div class="actions">
@@ -108,6 +105,14 @@ const appLd = {
           {SITE.discordUrl && <a class="btn btn-discord" href={SITE.discordUrl} rel="noopener"><Icon name="discord" />Join Discord</a>}
           {SITE.forumUrl && <a class="btn btn-ghost" href={SITE.forumUrl}>Visit forum</a>}
         </div>
+        {/* Right at the download, not only at the end of the page: the zip alone doesn't run the game */}
+        <p class="hero-req">
+          <Icon name="key" />
+          <span>
+            <strong>Bring your own game.</strong> You need your own dump of Bloodborne (CUSA03173) with the 1.09
+            update. No game files are included or shared. <a href={link('faq/#game-files')}>Which files?</a>
+          </span>
+        </p>
         {latest?.download && (
           <p class="hero-download">
             {latest.downloadName}, {latest.downloadSize} MB, <span class="hero-when">released {formatDate(latest.date)}</span>

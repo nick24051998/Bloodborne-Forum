@@ -1657,11 +1657,15 @@
     });
 
     // Below the banner: SuperMedo Server (narrow screens) and, on the home page (not inside a section, no
-    // search), the overview
+    // search), the overview. The welcome banner only for guests, and no banner or server line above search
+    // results: members know the forum, and a search shows its results first (UX review 29.10.2026; before, the
+    // banner pushed the first topic to 807 px on a 900 px screen). Sections keep their own banner.
     override(IndexPage.prototype, 'hero', function (original) {
       var inTag = this.currentTag && this.currentTag();
-      var home = !inTag && !app.search.params().q && !guideHidden();
-      return [original(), srv.data ? serverStrip(srv.data) : null, home ? dashboard() : null];
+      var search = !!app.search.params().q;
+      var home = !inTag && !search && !guideHidden();
+      var banner = !search && (inTag || !app.session.user) ? original() : null;
+      return [banner, srv.data && !search ? serverStrip(srv.data) : null, home ? dashboard() : null];
     });
 
     // No group badges: as colour dots they sat above the profile picture and said nothing (Nick, 26.10.2026).
