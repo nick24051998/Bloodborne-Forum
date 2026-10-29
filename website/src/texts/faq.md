@@ -44,6 +44,12 @@ questions:
     q: Where can I download the port?
     a: |
       <p>Right here: <a href="#latest-download">download Bloodborne-Windows.zip</a>. The button fetches the file straight from Supermedo's <a href="https://github.com/Supermedo/bloodborne_pc/releases/latest" rel="noopener">official release on GitHub</a>, so both are the same file. Don't take it from anywhere else. Older versions and all release notes are in the <a href="../changelog/">changelog</a>, and the <a href="../install/">install guide</a> walks you through the rest.</p>
+  - id: handhelds
+    group: start
+    q: Does it run on Steam Deck, ROG Ally or Linux?
+    a: |
+      <p>The port is made and tested for Windows 10 and 11. Windows handhelds like the ROG Ally or Legion Go count as Windows PCs: the setup's check tells you how well yours runs it.</p>
+      <p>On the Steam Deck and on Linux, players run it through Proton; the team doesn't test that. On the Deck, choose FSR 3.1 instead of FSR 4 in the launcher (FSR 4 is made for Radeon RX 7000 and 9000 and costs a lot of frames there); one player reports about 30 FPS in Game Mode. Settings that worked for others: the <a href="https://forum.bbport.de/d/255">Steam Deck topic</a> in our forum.</p>
   - id: patches
     group: start
     q: Are the FPS and resolution patches included, or do I download them?
@@ -69,7 +75,9 @@ questions:
     group: updates
     q: Windows or my antivirus warns me about the port.
     a: |
-      <p>The port is new, so Windows SmartScreen doesn't know it yet. Download it only <a href="#latest-download">here</a> or from the <a href="https://github.com/Supermedo/bloodborne_pc/releases/latest" rel="noopener">official release page</a>, then click More info, then Run anyway. If your antivirus blocks files in the port folder, add the folder as an exclusion.</p>
+      <p>"Windows protected your PC": the port is new, so Windows SmartScreen doesn't know it yet. Click More info, then Run anyway. Download it only <a href="#latest-download">here</a> or from the <a href="https://github.com/Supermedo/bloodborne_pc/releases/latest" rel="noopener">official release page</a>; the <a href="../changelog/">changelog</a> has the SHA-256 to check the file.</p>
+      <p>An antivirus blocks or removes files in the port folder (the log says WinError 5, WinError 32 or PermissionError): Start menu &gt; Windows Security &gt; Virus &amp; threat protection &gt; Manage settings &gt; Exclusions &gt; Add or remove exclusions &gt; Add an exclusion &gt; Folder, and choose the port folder (the one with <code>Bloodborne.exe</code>). Other antivirus programs (Avast, Norton …) have their own exceptions. A file it already removed: Windows Security &gt; Protection history &gt; the entry &gt; Restore, or unpack the port again.</p>
+      <p>"bb-probe.exe – Bad Image" with 0xc0e90002: Windows' Smart App Control blocks the port's unsigned files, and it can't make an exception for one program. The only way: Windows Security &gt; App &amp; browser control &gt; Smart App Control settings &gt; Off. On many Windows 11 versions it can then only be turned on again by resetting Windows; Microsoft Defender keeps working.</p>
   - id: steam
     group: updates
     q: Can I start it from Steam?
@@ -80,6 +88,25 @@ questions:
     q: The game closes right after I press PLAY (code 3).
     a: |
       <p>Usually Windows gives the port too little memory: it reserves about 6 GB at its start (10 GB at 1440p and 4K), from RAM and page file together. Press Win + R, type <code>sysdm.cpl</code>, then go to Advanced &gt; Performance Settings &gt; Advanced &gt; Virtual memory &gt; Change. Tick "Automatically manage paging file size for all drives", then restart the PC. Close browsers and other big programs before you press PLAY.</p>
+  - id: error-codes
+    group: crashes
+    q: What does an error code or message mean (code 1, 3, 21, 23 …)?
+    a: |
+      <p>After a failed start or a crash, open Help in the launcher: it reads the log and names the cause. The common codes and messages:</p>
+      <ul>
+        <li><strong>Code 1</strong>, "This eboot.bin has Lance McDonald's 60 fps patch applied": the port refuses pre-patched eboot.bin files on purpose. Use the clean 1.09 file, see <a href="#game-files">game files</a>.</li>
+        <li><strong>Code 3</strong> right after PLAY, "cannot create … MiB of guest memory": Windows has too little memory for the start. <a href="#code-3">The fix</a>.</li>
+        <li><strong>Code 21</strong>, "STOP: reserving the PS4 address range … error 487": another program sits where the game needs its memory. From 1.9.5 on the game restarts itself and gets past it, so update.</li>
+        <li><strong>Code 23</strong> (error 23), "GPU library assertion failed": a crash in the graphics part, often in fights, after a few minutes or an hour. Its cause isn't known yet and there is no sure fix. Update the port and your graphics driver, close overlays like MSI Afterburner and RTSS, and set Advanced &gt; Two-stage GPU pipeline to "Off (more stable)". If it keeps happening, post your report zip in <a href="https://forum.bbport.de/t/help-support">Help &amp; Support</a>: every report helps find the cause.</li>
+        <li><strong>"device lost"</strong> (ErrorDeviceLost): the graphics driver stopped. Update the driver and restart the PC, use the card's standard clocks, and close overlays. Some NVIDIA cards still hit it in fights on 1.9.5, a known problem: send a report.</li>
+        <li><strong>ErrorOutOfDeviceMemory</strong> or "memory pressure": the graphics card's memory is full. Use the goal Quiet or a lower resolution, see <a href="#stutter">stutter</a>.</li>
+        <li><strong>PermissionError, WinError 5 or WinError 32</strong>: an antivirus blocks the port's files, see <a href="#antivirus">antivirus</a>.</li>
+        <li><strong>"bb-probe.exe – Bad Image", 0xc0e90002</strong>: Windows' Smart App Control blocks the port, see <a href="#antivirus">antivirus</a>.</li>
+        <li><strong>"bad patch entry"</strong> and a black screen at the start: files of different versions are mixed. Download the whole package again and unpack all of it over the port folder, or into a new, empty folder.</li>
+        <li><strong>"No Vulkan 1.3 graphics card found"</strong>: update the graphics driver. The port needs a card with Vulkan 1.3 and at least 4 GB of video memory.</li>
+        <li><strong>"Server rejected this client"</strong> or login error code 5: shadNet doesn't accept the port. Choose SuperMedo Server, see <a href="#online-connection">online</a>.</li>
+        <li><strong>"Failed to acquire Bloodborne server information"</strong>: fixed since 1.9.4, so update.</li>
+      </ul>
   - id: crashes
     group: crashes
     q: The game crashes while I play.
@@ -114,6 +141,23 @@ questions:
     q: Can I play online and co-op?
     a: |
       <p>Yes. In the launcher, open Online play, tick Play online and choose a server: SuperMedo Server, the default since 1.9.5 (sign in with Discord or make a free account), or The Hunter's Dream (sign in with Discord once). Everyone needs game version 1.09 and the same server. Friends on the same Wi-Fi play together over their home network.</p>
+  - id: friend
+    group: online
+    q: How do I play with a friend?
+    a: |
+      <ol>
+        <li>Both of you: the same port version and the same server in Online play (SuperMedo Server is the default since 1.9.5), and signed in.</li>
+        <li>Both with the clean 1.09 <code>eboot.bin</code> and cheats off.</li>
+        <li>In the game's Network settings: Matching Regions <strong>Worldwide</strong> and the same password.</li>
+        <li>The host rings the <strong>Beckoning Bell</strong>: it needs 1 Insight, and the area's boss must still be alive.</li>
+        <li>The friend rings the <strong>Small Resonant Bell</strong> in the same area and waits a minute or two.</li>
+      </ol>
+      <p>Bells greyed out: the area's boss is already dead, there is no Insight, or the spot doesn't allow summons. On the same Wi-Fi it works from 1.9.5 on: the two PCs connect over your home network.</p>
+  - id: account
+    group: online
+    q: How do I get a SuperMedo Server account, or a new password?
+    a: |
+      <p>With Discord you need none: in the launcher, Online play &gt; SuperMedo Server &gt; Sign in with Discord. Without Discord, <a href="https://game.supermedo.com/account/register" rel="noopener">make a free account</a> and sign in with it in the launcher. Forgot your password: <a href="https://game.supermedo.com/account/forgot" rel="noopener">get a new one by email</a>.</p>
   - id: online-connection
     group: online
     q: Online doesn't connect.
@@ -137,6 +181,22 @@ questions:
     q: Can I bring my character from another version?
     a: |
       <p>Yes: Saves &gt; From other versions. Your saves are in the <code>user</code> folder next to <code>Bloodborne.exe</code>. If they are in a cloud folder like OneDrive, play on one PC at a time.</p>
+  - id: save-lost
+    group: play
+    q: My character is gone, or the save is broken.
+    a: |
+      <p>Before every start the launcher backs up your saves, so you can go back to how they were:</p>
+      <ol>
+        <li>Close the game.</li>
+        <li>On the Saves page, under Backups, put back the newest backup from before the problem ("Before playing" with the date of your last good session).</li>
+        <li>Only one character is affected: under Your characters, open its earlier states and put back just that one.</li>
+      </ol>
+      <p>Your current saves are backed up first, so trying an older backup loses nothing. A character from another version without a backup yet: import it again under Saves &gt; From other versions.</p>
+  - id: new-pc
+    group: play
+    q: How do I move my characters to a new PC?
+    a: |
+      <p>Your saves are in the <code>user</code> folder next to <code>Bloodborne.exe</code>. Copy that folder to the new PC. Put it next to <code>Bloodborne.exe</code> in the new port folder before its first start, or anywhere else and import it in the launcher: Saves &gt; From other versions &gt; Choose a folder.</p>
   - id: mods
     group: play
     q: How do I install mods?
