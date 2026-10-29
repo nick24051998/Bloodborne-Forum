@@ -223,7 +223,7 @@ test('All buttons follow one rule', async ({ page }) => {
   const fill = (sel) => page.locator(sel).first().evaluate((b) => getComputedStyle(b).backgroundColor);
   expect(await fill('.hero .btn-primary')).toBe('rgb(138, 17, 24)');
   expect(await fill('.hero .btn-discord')).toBe('rgb(88, 101, 242)');
-  expect(await fill('.hero .btn-support')).toBe('rgb(255, 221, 0)');
+  expect(await fill('.nav .nav-support')).toBe('rgb(255, 221, 0)');
 });
 
 // For beginners: the first start screen by screen, the three goals and values per graphics card; linked from everywhere
@@ -273,8 +273,8 @@ test('Home page names the port by Supermedo with a link to GitHub', async ({ pag
   await expect(line).toContainText(SITE.portAuthor);
   await expect(line.locator(`a[href="${SITE.portRepoUrl}"]`)).toBeVisible();
   await expect(page.locator(`footer a[href="${SITE.portRepoUrl}"]`)).toHaveCount(1);
-  // Supermedo's Buy Me a Coffee: a button with the others at the top, and in the footer
-  await expect(page.locator(`.hero .actions a.btn[href="${SITE.supportUrl}"]`)).toBeVisible();
+  // Supermedo's Buy Me a Coffee: only in the header (Nick, not with the buttons of the home page) and in the footer
+  await expect(page.locator(`.hero .actions a[href="${SITE.supportUrl}"]`)).toHaveCount(0);
   await expect(page.locator(`footer a[href="${SITE.supportUrl}"]`)).toHaveCount(1);
 });
 
