@@ -1292,6 +1292,99 @@ h1, h2, h3,
   }
 }
 
+// Above search results: the FAQ's answer for an error code, then the matching known fixes (forum.js searchHelp)
+.bb-searchHelp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(~"min(100%, 380px)", 1fr));
+  gap: 14px;
+  align-items: start;
+  padding-top: 18px;
+  padding-bottom: 4px;
+}
+
+.bb-answer {
+  padding: 16px 18px;
+  border: 1px solid fade(@bb-gold, 55%);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #1b1913, @bb-card);
+}
+
+.bb-answer-kicker {
+  margin: 0;
+  color: @bb-gold-light;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.bb-answer-title {
+  margin: 2px 0 10px;
+  color: @bb-text-strong;
+  font-size: 19px;
+}
+
+.bb-answer-cases {
+  display: grid;
+  gap: 8px;
+}
+
+.bb-answer-case {
+  padding: 10px 12px;
+  border: 1px solid @bb-border-strong;
+  border-radius: 10px;
+  background: fade(@bb-bg-deep, 45%);
+
+  h3 {
+    margin: 0 0 4px;
+    color: @bb-text-strong;
+    font-family: @bb-font-body;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  p {
+    margin: 0 0 6px;
+    color: @bb-text-soft;
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+
+  a {
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+}
+
+.bb-answer-ask {
+  margin: 10px 0 0;
+  color: @bb-text-soft;
+  font-size: 13.5px;
+}
+
+.bb-searchFixes h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 8px;
+  color: @bb-gold-light;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+
+  span {
+    color: @bb-muted;
+    font-family: @bb-font-body;
+    font-size: 12px;
+    letter-spacing: 0;
+  }
+}
+
+.bb-searchFixes-all {
+  font-size: 13px;
+  font-weight: 600;
+}
+
 // SuperMedo Server box: title and collapse button on one line
 .bb-hd-head {
   display: flex;

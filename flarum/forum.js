@@ -872,6 +872,80 @@
     ]);
   }
 
+  // Above search results (UX review 29.10.2026): for an error code or message from the FAQ's list a short answer
+  // with the link to the FAQ, and the known fixes that match the search, so the checked fix comes before the topics
+  // (before, the known fix for code 3 stood at place 16). The normal list follows below unchanged.
+  // [pattern, heading, [[case, answer, FAQ anchor]]]. The texts follow the FAQ (website/src/texts/faq.md: error-codes,
+  // code-3, crashes): change both together.
+  var CODES = [
+    [/\bcode\s*1\b|60 ?fps patch/i, 'Error code 1', [
+      [null, "The port refuses an eboot.bin with Lance McDonald's 60 fps patch on purpose. Use the clean 1.09 file.", 'game-files'],
+    ]],
+    [/\b(?:code|error)\s*3\b/i, 'Error code 3', [
+      ['Closes right after you press PLAY', 'Windows gives the port too little memory for the start. Let Windows manage the page file, then restart the PC.', 'code-3'],
+      ['Crashes later while playing', 'Update to the newest version first: 1.9.5 fixed the most common random crash.', 'crashes'],
+    ]],
+    [/\b(?:code|error)\s*21\b|error 487/i, 'Error code 21', [
+      [null, 'Another program sits where the game needs its memory. From 1.9.5 on the game restarts itself and gets past it, so update.', 'error-codes'],
+    ]],
+    [/\b(?:code|error)\s*23\b|assertion failed/i, 'Error code 23', [
+      [null, "A crash in the graphics part. Its cause isn't known yet and there is no sure fix: update the port and your graphics driver, close overlays like MSI Afterburner and RTSS, and set Advanced > Two-stage GPU pipeline to \"Off (more stable)\". If it keeps happening, post your report zip.", 'error-codes'],
+    ]],
+    [/device ?lost/i, '"device lost"', [
+      [null, "The graphics driver stopped. Update the driver and restart the PC, use the card's standard clocks and close overlays. Some NVIDIA cards still hit it in fights on 1.9.5, a known problem: send a report.", 'error-codes'],
+    ]],
+    [/rejected this client|login error (?:code )?5\b/i, 'Login error code 5', [
+      [null, "shadNet doesn't accept the port. Choose SuperMedo Server.", 'online-connection'],
+    ]],
+  ];
+  // Known fixes for the current search: loaded once per search text; on an error the block simply stays away
+  var kfSearch = { q: null, list: null };
+
+  function searchHelp(q) {
+    var code = CODES.filter(function (c) { return c[0].test(q); })[0];
+    if (kfSearch.q !== q) {
+      kfSearch.q = q;
+      kfSearch.list = null;
+      app.store.find('discussions', { filter: { q: q + ' tag:known-fixes' }, include: 'tags,firstPost', page: { limit: 6 } })
+        .then(function (list) { if (kfSearch.q === q) kfSearch.list = list; })
+        .catch(function () { if (kfSearch.q === q) kfSearch.list = []; })
+        .then(function () { m.redraw(); });
+    }
+    // Only fixes that contain every word of the search, like the Known Fixes page; for an error code only fixes
+    // about that code ("code 3" also finds the fix for code 23, and any fix that mentions 1.9.3)
+    var words = q.toLowerCase().split(/\s+/).filter(Boolean);
+    var fixes = (kfSearch.list || []).filter(function (d) {
+      var text = fixInfo(d).search;
+      return code ? code[0].test(text) : words.every(function (w) { return text.indexOf(w) !== -1; });
+    }).slice(0, 3);
+    if (!code && !fixes.length) return null;
+    var site = app.forum.attribute('bbforumWebsiteUrl') || '';
+    // The grid inside the container: Flarum's container has clearfix pseudo-elements that would become grid cells
+    return m('div.bb-searchHelp', m('div.container', m('div.bb-searchHelp-grid', [
+      code ? m('section.bb-answer', [
+        m('p.bb-answer-kicker', 'From the FAQ'),
+        m('h2.bb-answer-title', code[1]),
+        m('div.bb-answer-cases', code[2].map(function (c) {
+          return m('div.bb-answer-case', [
+            c[0] ? m('h3', c[0]) : null,
+            m('p', c[1]),
+            m('a', { href: site + '/faq/#' + c[2] }, 'Read it in the FAQ'),
+          ]);
+        })),
+        m('p.bb-answer-ask', [
+          "Didn't help? ",
+          m(Link, { href: app.route('tag', { tags: 'help-support' }) }, 'Ask in Help & Support'),
+          ' with your report zip (launcher: Help → Save a report).',
+        ]),
+      ]) : null,
+      fixes.length ? m('section.bb-kf.bb-searchFixes', [
+        m('h2', ['Known fixes', m('span', 'checked by a helper')]),
+        fixes.map(fixRow),
+        m(Link, { className: 'bb-searchFixes-all', href: app.route('tag', { tags: 'known-fixes' }) }, 'All known fixes'),
+      ]) : null,
+    ])));
+  }
+
   // --- Profiles: earned effects and Discord decoration (Nick, 26.10.2026: effects only when earned) ----------------
   function perksOf(user) {
     return (user && user.attribute && user.attribute('bbPerks')) || [];
@@ -1659,13 +1733,14 @@
     // Below the banner: SuperMedo Server (narrow screens) and, on the home page (not inside a section, no
     // search), the overview. The welcome banner only for guests, and no banner or server line above search
     // results: members know the forum, and a search shows its results first (UX review 29.10.2026; before, the
-    // banner pushed the first topic to 807 px on a 900 px screen). Sections keep their own banner.
+    // banner pushed the first topic to 807 px on a 900 px screen). Sections keep their own banner. Above results of
+    // a search over all sections: the FAQ answer and the matching known fixes (searchHelp).
     override(IndexPage.prototype, 'hero', function (original) {
       var inTag = this.currentTag && this.currentTag();
-      var search = !!app.search.params().q;
-      var home = !inTag && !search && !guideHidden();
-      var banner = !search && (inTag || !app.session.user) ? original() : null;
-      return [banner, srv.data && !search ? serverStrip(srv.data) : null, home ? dashboard() : null];
+      var q = app.search.params().q;
+      var home = !inTag && !q && !guideHidden();
+      var banner = !q && (inTag || !app.session.user) ? original() : null;
+      return [banner, srv.data && !q ? serverStrip(srv.data) : null, home ? dashboard() : null, q && !inTag ? searchHelp(q) : null];
     });
 
     // No group badges: as colour dots they sat above the profile picture and said nothing (Nick, 26.10.2026).
