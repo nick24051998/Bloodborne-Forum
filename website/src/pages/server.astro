@@ -50,18 +50,18 @@ const toc = [
           <ol class="sm-steps">
             <li>In the launcher, open <strong>Online play</strong> and tick <strong>Play online</strong>.</li>
             <li>
-              Choose who you play with:
+              Choose the server:
               <ul class="sm-servers">
-                <li><strong>The Hunter's Dream</strong> (the default): co-op together with bbhost players. Press <strong>Sign in with Discord</strong> once and enter the code on the page that opens.</li>
-                <li><strong>SuperMedo Server</strong>: {SITE.portAuthor}'s own server, the numbers below come from it. Sign in with Discord, or <a href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">create an account</a>.</li>
-                <li><strong>shadNet server</strong>: register at <a href="https://shadnet.shadps4.net" rel="noopener">shadnet.shadps4.net</a> and enter the account name (not the e-mail) and password.</li>
+                <li><strong>SuperMedo Server</strong> (the default since 1.9.5): {SITE.portAuthor}'s own server, the numbers below come from it. Sign in with Discord, or <a href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">make a free account</a>.</li>
+                <li><strong>The Hunter's Dream</strong>: the other choice, with its own players. Press <strong>Sign in with Discord</strong> once and enter the code on the page that opens.</li>
               </ul>
             </li>
             <li>Press <strong>Test connection</strong>, then PLAY, and choose online at the title screen. Ring a bell.</li>
           </ol>
           <p class="sm-play-note">
-            Everyone in a session needs game version 1.09 and the same server. Questions about the port go to our Discord
-            or forum, not to The Hunter's Dream.
+            Everyone in a session needs game version 1.09 and the same server. Friends behind the same internet
+            connection, on the same Wi-Fi for example, play together over their home network. Questions about the port go
+            to our Discord or forum, not to The Hunter's Dream.
           </p>
           <div class="sm-actions">
             <a class="btn btn-primary" href={SITE.downloadUrl} rel="noopener">Download</a>
@@ -75,10 +75,12 @@ const toc = [
         <aside class="sm-play-help" aria-labelledby="help-h">
           <h3 id="help-h" class="sm-label">It doesn't connect?</h3>
           <ul class="sm-tips">
-            <li><strong>"Failed to acquire Bloodborne server information":</strong> update to 1.9.4, which fixes it for PCs whose antivirus scans HTTPS connections.</li>
-            <li>Your firewall or router must let the game server port <strong>20443</strong> through.</li>
-            <li><strong>"Seamless co-op" tool:</strong> it overwrites a hidden server address. On 1.9.4: Online play → shadNet server → <strong>Use my own servers</strong> → empty the <strong>Game server</strong> field → switch back to The Hunter's Dream. 1.9.5 fixes this for good.</li>
-            <li><strong>Your own shadNet servers:</strong> the public server's WebAPI is <code>http://srv.shadps4.net:31315</code>, with plain <code>http</code>. An <code>https://</code> address fails with "SSL: UNEXPECTED_EOF_WHILE_READING". From 1.9.5 on, the server fields only count with <strong>Use my own servers</strong> ticked.</li>
+            <li><strong>Update to the newest version.</strong> From 1.9.5 on the launcher opens your router's port by itself, goes through SuperMedo Server's relay when a router blocks a direct connection, and signs in past expired certificates in Windows.</li>
+            <li><strong>"Failed to acquire Bloodborne server information":</strong> fixed since 1.9.4, also on PCs whose antivirus scans HTTPS connections.</li>
+            <li><strong>Certificate or date error at sign-in:</strong> check your PC's clock, a wrong date breaks the sign-in.</li>
+            <li><strong>shadNet:</strong> shadPS4's public shadNet server doesn't accept the port, and from 1.9.5 on your own servers can't be chosen any more. Choose SuperMedo Server.</li>
+            <li><strong>Seamless co-op (BBSC):</strong> from 1.9.5 on its own start plays its own save, separate from your characters, and normal online works again afterwards.</li>
+            <li><strong>The Hunter's Dream:</strong> your firewall or router must let its game server port <strong>20443</strong> through.</li>
             <li>More in the <a href={link('faq/#online-connection')}>FAQ</a>.</li>
           </ul>
         </aside>

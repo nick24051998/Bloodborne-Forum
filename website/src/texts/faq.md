@@ -113,18 +113,20 @@ questions:
     group: online
     q: Can I play online and co-op?
     a: |
-      <p>Yes (beta). In the launcher, open Online play, tick Play online, choose The Hunter's Dream (co-op together with bbhost players) and sign in with Discord once. Everyone needs game version 1.09 and the same co-op pool. shadNet servers are the other choice.</p>
+      <p>Yes. In the launcher, open Online play, tick Play online and choose a server: SuperMedo Server, the default since 1.9.5 (sign in with Discord or make a free account), or The Hunter's Dream (sign in with Discord once). Everyone needs game version 1.09 and the same server. Friends on the same Wi-Fi play together over their home network.</p>
   - id: online-connection
     group: online
     q: Online doesn't connect.
     a: |
       <ul>
-        <li>"Failed to acquire Bloodborne server information": update to 1.9.4, which fixes it for PCs whose antivirus scans HTTPS connections.</li>
-        <li>Your firewall or router must let the game server port 20443 through.</li>
-        <li>The "Seamless co-op" tool overwrites a hidden server address. On 1.9.4: Online play &gt; shadNet server &gt; Use my own servers &gt; empty the Game server field &gt; switch back to The Hunter's Dream. 1.9.5 fixes this for good.</li>
-        <li>Your own shadNet servers: the public server's WebAPI is <code>http://srv.shadps4.net:31315</code> (plain http). An <code>https://</code> address fails with "SSL: UNEXPECTED_EOF_WHILE_READING".</li>
+        <li>Update to the newest version. From 1.9.5 on the launcher opens your router's port by itself, goes through SuperMedo Server's relay when a router blocks a direct connection, and signs in past expired certificates in Windows.</li>
+        <li>"Failed to acquire Bloodborne server information": fixed since 1.9.4, also on PCs whose antivirus scans HTTPS connections.</li>
+        <li>A certificate or date error at sign-in: check your PC's clock.</li>
+        <li>shadNet: shadPS4's public shadNet server doesn't accept the port, and from 1.9.5 on your own servers can't be chosen any more. Choose SuperMedo Server.</li>
+        <li>Seamless co-op (BBSC): from 1.9.5 on its own start plays its own save, separate from your characters, and normal online works again afterwards.</li>
+        <li>The Hunter's Dream: your firewall or router must let its game server port 20443 through.</li>
       </ul>
-      <p>Step by step, with all three servers: <a href="../server/#play">online</a>.</p>
+      <p>Step by step, with both servers: <a href="../server/#play">online</a>.</p>
   - id: controller
     group: play
     q: Does my controller work?
