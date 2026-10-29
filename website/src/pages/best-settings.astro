@@ -16,14 +16,14 @@ import help from '../assets/launcher/help.png';
 const full = async (img) => (await getImage({ src: img, format: 'webp', quality: 90 })).src;
 
 const steps = [
-  { img: setup1, n: 1, title: 'Welcome', alt: 'Setup step 1: launcher language and where you come from',
-    text: 'Pick the launcher language and "I am new to the port". Coming from shadPS4, bbhost or another port? Pick that instead, so the setup finds your characters later.' },
-  { img: setup2, n: 2, title: 'Your game and your PC', alt: 'Setup step 2: the game folder and the checks for the game and the PC',
-    text: 'Choose the folder of your game dump: the one with eboot.bin, sce_module, sce_sys and dvdroot_ps4 directly inside. Every line should get a green tick. A red line says what is wrong and how to fix it.' },
-  { img: setup3, n: 3, title: 'Picture and controls', alt: 'Setup step 3: your goal, the resolution cards with the recommended one, controller or keyboard',
-    text: 'Choose your goal (more on that below) and take the resolution marked "Recommended". Then say whether you play with a controller or with keyboard and mouse.' },
+  { img: setup1, n: 1, title: 'Welcome', alt: 'Setup step 1: launcher language, the note that you need your own copy of the game, and where you come from',
+    text: 'Pick the launcher language and "I am new to the port". Coming from shadPS4, bbhost, Awaken\'s port or a PS4 save? Pick that instead, so step 4 finds your characters.' },
+  { img: setup2, n: 2, title: 'Your game and your PC', alt: 'Setup step 2: the game folder, the checks for your game and the port, and the rating of your PC',
+    text: 'Choose the folder of your game dump: the one with eboot.bin, sce_module, sce_sys and dvdroot_ps4 directly inside. Every line should get a tick, for your game and for your PC. A red line says what is wrong and how to fix it.' },
+  { img: setup3, n: 3, title: 'Picture and controls', alt: 'Setup step 3: your goal, the resolution cards with the recommended one, Fullscreen and frame generation',
+    text: 'Choose your goal (more on that below) and take the resolution marked "Recommended". Keep Fullscreen on; frame generation is optional. Further down, say whether you play with a controller or with keyboard and mouse.' },
   { img: setup5, n: 5, title: 'The hunt begins', alt: 'Setup step 5: a summary of your setup, simple or expert view, desktop shortcut and Add to Steam',
-    text: 'Step 4 brings your characters along and signs you in for online play with Discord (both optional). Step 5 sums it all up. Keep "Simple" if you are new: you only see the pages you need. Then press PLAY.' },
+    text: 'Step 4 brings your characters from other versions along and turns on online play on SuperMedo Server: sign in once with Discord, now or later (both optional). Step 5 sums it all up. Keep "Simple" if you are new: you only see the pages you need. Then press PLAY.' },
 ];
 for (const s of steps) s.full = await full(s.img);
 const pictureFull = await full(picture);
@@ -70,7 +70,7 @@ const cards = [
         {steps.map((s) => (
           <li>
             <a class="launcher-shot" href={s.full} aria-label={`Open the picture of step ${s.n} in full size`}>
-              <Image src={s.img} alt={s.alt} widths={[640, 960, 1280]} sizes="(max-width: 780px) 100vw, 720px" loading="lazy" />
+              <Image src={s.img} alt={s.alt} widths={[640, 960, 1180]} sizes="(max-width: 780px) 100vw, 720px" loading="lazy" />
             </a>
             <h3>Step {s.n}: {s.title}</h3>
             <p>{s.text}</p>
@@ -88,13 +88,13 @@ const cards = [
       </table>
       <figure class="settings-figure">
         <a class="launcher-shot" href={pictureFull} aria-label="Open the Picture & performance page in full size">
-          <Image src={picture} alt="Picture & performance: the settings made for your PC, your goal and Undo" widths={[640, 960, 1280]} sizes="(max-width: 780px) 100vw, 720px" loading="lazy" />
+          <Image src={picture} alt="Picture & performance: Made for your PC with the settings the launcher picked, your goal, and the screen settings below" widths={[640, 960, 1180]} sizes="(max-width: 780px) 100vw, 720px" loading="lazy" />
         </a>
-        <figcaption>Picture &amp; performance: the line at the top shows what the launcher picked for your PC.</figcaption>
+        <figcaption>Picture &amp; performance: "Made for your PC" shows what the launcher picked for your PC and your goal.</figcaption>
       </figure>
       <ul>
         <li><strong>Measure on this PC</strong> is switched off for now (since 1.9.4) and comes back in a later version. Until then, your goal sets everything for you.</li>
-        <li><strong>Undo</strong> puts back what you had before.</li>
+        <li><strong>Show the settings one by one</strong> lists each setting next to the one for your PC. When the launcher has changed your settings, <strong>Undo</strong> appears there and puts back what you had before.</li>
         <li>In the game, <kbd>Insert</kbd> (keyboard) or <kbd>L3</kbd> + <kbd>R3</kbd> (controller) opens the port's menu: change the upscaler, resolution and effects while you play.</li>
       </ul>
 
@@ -126,7 +126,7 @@ const cards = [
       </ul>
       <figure class="settings-figure">
         <a class="launcher-shot" href={helpFull} aria-label="Open the Help page in full size">
-          <Image src={help} alt="The Help page: it checks this installation and lists problems with their fixes" widths={[640, 960, 1280]} sizes="(max-width: 780px) 100vw, 720px" loading="lazy" />
+          <Image src={help} alt="The Help page: it checks this installation and lists problems with their fixes" widths={[640, 960, 1180]} sizes="(max-width: 780px) 100vw, 720px" loading="lazy" />
         </a>
         <figcaption>Help checks your installation and lists every known problem with its fix.</figcaption>
       </figure>
@@ -136,7 +136,7 @@ const cards = [
         Look in the <a href={link('faq/')}>FAQ</a>{SITE.forumUrl && <> and in <a href={`${SITE.forumUrl}/t/known-fixes`}>Known Fixes</a>: solutions that worked for others</>}.
         {SITE.forumUrl && <> Then ask in <a href={`${SITE.forumUrl}/t/help-support`}>Help &amp; Support</a> with Help → Save a report attached.</>}
       </p>
-      <p class="settings-note">Pictures from the launcher in English; your version may look a little different.</p>
+      <p class="settings-note">Pictures from launcher 1.9.5 in English; your version may look a little different.</p>
     </article>
   </div>
 </Base>
