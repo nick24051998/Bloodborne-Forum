@@ -83,6 +83,7 @@ const toc = [
         <div>
           <p class="eyebrow">SuperMedo Server, live</p>
           <h2 id="now-h">Right now</h2>
+          <p class="sm-fresh" data-field="fresh" hidden></p>
           <p class="sm-big"><strong data-field="online">–</strong><span>Hunters online</span></p>
           <p class="sm-peaks">
             <span><strong data-field="peakToday">–</strong> most today<span data-field="peakTodayAt"></span></span>
@@ -270,6 +271,13 @@ const toc = [
       };
 
       const renderNow = (s: any) => {
+        // In its first 30 days the server is called new, so its numbers are read as a young server's (Nick, 29.10.2026)
+        const fresh = field('fresh');
+        fresh.hidden = !s.counting_since || Date.now() / 1000 - s.counting_since > 30 * 86400;
+        if (!fresh.hidden) {
+          set('fresh', `SuperMedo Server is new: it opened on ${when(s.counting_since, false, true)}, and ${num(s.hunters?.registered ?? 0)} hunters have joined since. `
+            + 'Every number on this page counts from that day.');
+        }
         set('online', num(s.online));
         set('peakToday', num(s.peak_online?.today?.online ?? 0));
         set('peakTodayAt', s.peak_online?.today?.online ? `, ${when(s.peak_online.today.at, true)}` : '');

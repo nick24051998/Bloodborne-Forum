@@ -166,7 +166,11 @@ if (! class_exists('BBForumServerStats')) {
             return [
                 'status' => (string) ($s['status'] ?? ''),
                 'awakeSince' => (int) ($s['awake_since'] ?? 0),
+                // Since when the server counts (its opening), so a young server's numbers are read as such
+                'countingSince' => (int) ($s['counting_since'] ?? 0),
                 'online' => (int) ($s['online'] ?? 0),
+                'peakEver' => (int) ($s['peak_online']['ever']['online'] ?? 0),
+                'registered' => (int) ($s['hunters']['registered'] ?? 0),
                 'bells' => $s['bells'] ?? ['helpers' => 0, 'hosts_searching' => 0, 'invaders' => 0],
                 'playedToday' => $isToday ? (int) ($today['hunters'] ?? 0) : 0,
                 'diedToday' => $isToday ? (int) ($today['deaths'] ?? 0) : 0,

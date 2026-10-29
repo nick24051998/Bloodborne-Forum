@@ -141,6 +141,7 @@ const appLd = {
           <span><span class="srv-band-title">SuperMedo Server</span><span data-field="state"></span></span>
         </p>
         <p class="srv-band-stat"><strong data-field="online">0</strong><span>Online now</span></p>
+        <p class="srv-band-stat"><strong data-field="peak">0</strong><span>Record at once</span></p>
         <p class="srv-band-stat"><strong data-field="played">0</strong><span>Played today</span></p>
         <p class="srv-band-stat"><strong data-field="died">0</strong><span>Died today</span></p>
         <p class="srv-band-fact" data-field="fastest"></p>
@@ -165,10 +166,15 @@ const appLd = {
           band.classList.toggle('is-awake', awake);
           const since = new Date(d.awakeSince * 1000).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
           const bells = d.bells ?? {};
+          // In its first 30 days the server is called new, so its numbers are read as a young server's (Nick, 29.10.2026)
+          const fresh = d.countingSince && Date.now() / 1000 - d.countingSince < 30 * 86400;
+          const opened = new Date(d.countingSince * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
           field('state').textContent = !awake ? 'Resting for maintenance'
+            : fresh ? `New since ${opened}${d.registered ? `, ${number(d.registered)} hunters joined` : ''}`
             : bells.hosts_searching ? `Online since ${since}, ${number(bells.hosts_searching)} ${bells.hosts_searching === 1 ? 'host wants' : 'hosts want'} help`
             : `Online since ${since}, no bells ringing`;
           field('online').textContent = number(d.online);
+          field('peak').textContent = number(d.peakEver);
           field('played').textContent = number(d.playedToday);
           field('died').textContent = number(d.diedToday);
           const fastest = field('fastest');

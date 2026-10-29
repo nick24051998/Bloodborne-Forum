@@ -434,7 +434,7 @@ h1, h2, h3,
   }
 }
 
-// --- The Hunter's Dream: live figures (flarum/forum.js, data via /api/hunters-dream) -----------
+// --- SuperMedo Server: live figures (flarum/forum.js, data via /api/bb-server/summary) ----------
 // Wide: box below the category list. Narrow (sidebar becomes a row): row below the banner.
 .bb-hd {
   margin-top: 24px;
@@ -504,31 +504,12 @@ h1, h2, h3,
   }
 }
 
-.bb-hd-fact {
-  margin: 0 0 8px;
+// A new server's opening below the status, so the numbers are read as those of a young server
+.bb-srv-new {
+  margin: 6px 0 0;
   color: @bb-text-soft;
-  font-style: italic;
-  line-height: 1.45;
-}
-
-.bb-hd-glyph {
-  margin: 0 0 10px;
-  color: @bb-muted;
-
-  code {
-    padding: 1px 5px;
-    border-radius: 4px;
-    background: @bb-bg-deep;
-    border: 1px solid @bb-border;
-    color: @bb-gold-light;
-    font-size: 12px;
-    user-select: all;
-  }
-
-  span {
-    display: block;
-    font-size: 12px;
-  }
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .bb-hd-more {

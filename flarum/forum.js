@@ -183,12 +183,19 @@
     try { localStorage.setItem(SRV_KEY, srvClosed ? '1' : '0'); } catch (e) {}
   }
 
+  // In its first 30 days the server is called new (Nick, 29.10.2026: so its numbers aren't measured against old servers)
+  function serverOpened(d) {
+    if (!d.countingSince || Date.now() / 1000 - d.countingSince > 30 * 86400) return null;
+    return new Date(d.countingSince * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  }
+
   function serverCard(d) {
     var page = (app.forum.attribute('bbforumWebsiteUrl') || '') + '/server/';
     var online = d.status === 'online';
     var closed = srvIsCollapsed();
+    var opened = serverOpened(d);
     // Hosts searching only while the server runs: then a helper knows ringing the Small Resonant Bell pays off
-    var rows = [['Played today', d.playedToday], ['Most at once today', d.peakToday]];
+    var rows = [['Record at once', d.peakEver || 0], ['Played today', d.playedToday]];
     if (online) rows.unshift(['Hosts want help now', (d.bells || {}).hosts_searching || 0]);
 
     return m('div.bb-hd.bb-srv' + (closed ? '.is-collapsed' : ''), [
@@ -202,6 +209,7 @@
         }, icon(closed ? 'fas fa-chevron-down' : 'fas fa-chevron-up')),
       ]),
       statusLine({ serverOnline: online, online: d.online }),
+      opened ? m('p.bb-srv-new', 'New since ' + opened + (d.registered ? ', ' + number(d.registered) + ' hunters joined' : '')) : null,
       closed ? null : [
         m('dl.bb-hd-stats', rows.map(function (row) {
           return m('div', [m('dt', row[0]), m('dd', countUp(row[1]), number(row[1]))]);
@@ -217,6 +225,9 @@
     var online = d.status === 'online';
     var hosts = (d.bells || {}).hosts_searching || 0;
     var extra = online && hosts ? number(hosts) + (hosts === 1 ? ' host wants help' : ' hosts want help') : number(d.playedToday) + ' played today';
+    // A new server: its opening and the record say more than the hosts searching right now
+    var opened = serverOpened(d);
+    if (opened) extra = 'new since ' + opened + (d.peakEver ? ', record ' + number(d.peakEver) : '');
     return m('div.bb-hdStrip', m('div.container', [
       m('a', { href: page }, [
         statusLine({ serverOnline: online, online: d.online }),
