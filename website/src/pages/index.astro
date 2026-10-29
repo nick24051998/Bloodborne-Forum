@@ -99,11 +99,11 @@ const appLd = {
             <span class="hero-stat-note">The port's zip on GitHub, all versions and launcher updates together</span>
           </p>
         )}
+        {/* Two buttons for the two first steps; forum and Discord as a line below (Discord is also in the header).
+            Four buttons competed here and Discord stood twice in the first screen (UX review 29.10.2026). */}
         <div class="actions">
           <a class="btn btn-primary" href={link('install/')}>Install guide</a>
           {downloadUrl && <a class="btn btn-ghost hero-download-btn" href={downloadUrl} rel="noopener">Download{latest && ` ${latest.version}`}</a>}
-          {SITE.discordUrl && <a class="btn btn-discord" href={SITE.discordUrl} rel="noopener"><Icon name="discord" />Join Discord</a>}
-          {SITE.forumUrl && <a class="btn btn-ghost" href={SITE.forumUrl}>Visit forum</a>}
         </div>
         {/* Right at the download, not only at the end of the page: the zip alone doesn't run the game */}
         <p class="hero-req">
@@ -118,6 +118,13 @@ const appLd = {
             {latest.downloadName}, {latest.downloadSize} MB, <span class="hero-when">released {formatDate(latest.date)}</span>
             <span aria-hidden="true"> · </span>
             <a href={link('changelog/')}>What's new</a>
+          </p>
+        )}
+        {(SITE.forumUrl || SITE.discordUrl) && (
+          <p class="hero-ask">
+            Questions? Ask{SITE.forumUrl && <> in the <a href={SITE.forumUrl}>forum</a></>}
+            {SITE.forumUrl && SITE.discordUrl && ' or'}
+            {SITE.discordUrl && <> on <a href={SITE.discordUrl} rel="noopener">Discord</a></>}.
           </p>
         )}
         {SITE.portRepoUrl && (

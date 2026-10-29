@@ -9,16 +9,22 @@ import { frontmatter } from '../texts/showcase.md';
 const files = import.meta.glob('../assets/showcase/*.{webp,jpg,jpeg,png}', { eager: true });
 const byName = Object.fromEntries(Object.entries(files).map(([path, mod]) => [path.split('/').pop(), mod.default]));
 
-// Tile pattern: large, small, small, wide, small, wide, small (fills 4 × 3 on wide screens)
+// Only entries with an image: six of seven tiles said "Image coming soon" (UX review 29.10.2026); entries without one
+// wait in showcase.md until their image is there. Tile pattern: large, small, small, wide, small, wide, small (fills
+// 4 × 3 on wide screens); with fewer than three images every tile is large, the invitation included.
 const pattern = ['large', 'small', 'small', 'wide', 'small', 'wide', 'small'];
 
+const withImage = (frontmatter.items ?? []).filter((item) => {
+  if (item.image && !byName[item.image]) console.warn(`Showcase: Bild ${item.image} fehlt in src/assets/showcase/`);
+  return item.image && byName[item.image];
+});
+const few = withImage.length < 3;
 const items = await Promise.all(
-  (frontmatter.items ?? []).map(async (item, i) => {
-    const src = item.image ? byName[item.image] : undefined;
-    if (item.image && !src) console.warn(`Showcase: Bild ${item.image} fehlt in src/assets/showcase/`);
+  withImage.map(async (item, i) => {
+    const src = byName[item.image];
     // Large view at full resolution up to 3440 px (ultrawide), in high quality so nothing gets blurry when zooming in
-    const full = src ? await getImage({ src, width: Math.min(src.width, 3440), format: 'webp', quality: 90 }) : undefined;
-    return { ...item, size: pattern[i % pattern.length], src, full: full?.src };
+    const full = await getImage({ src, width: Math.min(src.width, 3440), format: 'webp', quality: 90 });
+    return { ...item, size: few ? 'large' : pattern[i % pattern.length], src, full: full.src };
   }),
 );
 ---
@@ -31,19 +37,12 @@ const items = await Promise.all(
       <p class="about">{frontmatter.intro}</p>
       <ul class="showcase-grid">
         {items.map((item) => (
-          <li class={`tile tile--${item.size}${item.src ? '' : ' tile--placeholder'}`}>
-            {item.src ? (
-              <button type="button" class="tile-open" data-full={item.full} data-title={item.title}
-                data-text={item.text} data-credit={item.credit} aria-label={`Open image: ${item.title}`}>
-                <Image src={item.src} alt={item.alt || item.title} widths={[480, 800, 1200]}
-                  sizes="(max-width: 860px) 100vw, 50vw" class="tile-img" loading="lazy" />
-              </button>
-            ) : (
-              <div class="tile-ph" aria-hidden="true">
-                <Icon name="moon" class="tile-ph-icon" />
-                <span class="tile-chip">Image coming soon</span>
-              </div>
-            )}
+          <li class={`tile tile--${item.size}`}>
+            <button type="button" class="tile-open" data-full={item.full} data-title={item.title}
+              data-text={item.text} data-credit={item.credit} aria-label={`Open image: ${item.title}`}>
+              <Image src={item.src} alt={item.alt || item.title} widths={[480, 800, 1200]}
+                sizes="(max-width: 860px) 100vw, 50vw" class="tile-img" loading="lazy" />
+            </button>
             <div class="tile-caption">
               <h3>{item.title}</h3>
               {item.text && <p>{item.text}</p>}
@@ -51,12 +50,17 @@ const items = await Promise.all(
             </div>
           </li>
         ))}
+        {/* The last tile asks for more pictures */}
+        {SITE.forumUrl && (
+          <li class={`tile tile--invite tile--${few ? 'large' : 'small'}`}>
+            <div class="tile-ph" aria-hidden="true"><Icon name="moon" class="tile-ph-icon" /></div>
+            <div class="tile-invite">
+              <h3>Your screenshot here?</h3>
+              <a class="btn btn-ghost" href={SITE.forumUrl}>Share yours in the forum</a>
+            </div>
+          </li>
+        )}
       </ul>
-      {(SITE.forumUrl || SITE.discordUrl) && (
-        <p class="showcase-cta">
-          {SITE.forumUrl && <a class="btn btn-ghost" href={SITE.forumUrl}>Share yours in the forum</a>}
-        </p>
-      )}
     </div>
 
     <dialog class="lightbox" aria-labelledby="lightbox-title">

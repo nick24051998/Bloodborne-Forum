@@ -5,9 +5,10 @@ heading: Made by our hunters
 intro: "Screenshots, mods and setups from the community. Want yours here? Share it in the forum or in #media on Discord and tell us how you'd like to be credited."
 # Gallery on the home page (src/components/Showcase.astro).
 # Put images in src/assets/showcase/ (WebP or JPG, at least 1600 px wide) and enter the file name
-# under "image" here. Without an image, a placeholder with "Image coming soon" appears.
-# The order determines the tiles: 1 large, 2 and 3 small, 4 wide, 5 small, 6 wide, 7 small
-# (from the 8th entry on, the pattern repeats).
+# under "image" here. Entries without an image are not shown until their image is there.
+# The order of the entries with an image determines the tiles: 1 large, 2 and 3 small, 4 wide, 5 small, 6 wide,
+# 7 small (from the 8th on, the pattern repeats); with fewer than three images all tiles are large. A last tile asks
+# for more pictures.
 # Only images with the creators' permission (credit = name, as they want to be credited); no official
 # artwork or promotional images of the game.
 items:

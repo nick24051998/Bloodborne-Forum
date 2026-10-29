@@ -60,6 +60,9 @@ test.describe('Gallery on the home page', () => {
     await page.goto('/');
     const tiles = page.locator('.showcase-grid .tile');
     expect(await tiles.count()).toBeGreaterThanOrEqual(1);
+    // No empty placeholders, but a last tile that asks for pictures (UX review 29.10.2026)
+    await expect(page.locator('.showcase')).not.toContainText('Image coming soon');
+    await expect(page.locator('.tile--invite a')).toHaveAttribute('href', SITE.forumUrl);
 
     const withImage = page.locator('.tile-open');
     test.skip((await withImage.count()) === 0, 'Noch keine Bilder in der Galerie');
@@ -222,7 +225,7 @@ test('All buttons follow one rule', async ({ page }) => {
   await page.goto('/');
   const fill = (sel) => page.locator(sel).first().evaluate((b) => getComputedStyle(b).backgroundColor);
   expect(await fill('.hero .btn-primary')).toBe('rgb(138, 17, 24)');
-  expect(await fill('.hero .btn-discord')).toBe('rgb(88, 101, 242)');
+  expect(await fill('.nav .nav-discord')).toBe('rgb(88, 101, 242)');
   expect(await fill('.nav .nav-support')).toBe('rgb(255, 221, 0)');
 });
 
@@ -356,6 +359,18 @@ test('Home page says at the download that you need your own game files', async (
   await expect(req).toContainText('CUSA03173');
   await expect(req).toContainText('1.09');
   await expect(req.getByRole('link', { name: 'Which files?' })).toHaveAttribute('href', /faq\/#game-files$/);
+});
+
+// Two buttons for the first steps, forum and Discord as a line; on phones the buttons are in the first screen
+// (UX review 29.10.2026: four buttons competed, and on a phone they started at the bottom edge)
+test('Home page: two hero buttons in the first screen, forum and Discord as a line', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.hero .actions .btn')).toHaveText([/^Install guide$/, /^Download/]);
+  const ask = page.locator('.hero-ask');
+  await expect(ask.getByRole('link', { name: 'forum' })).toHaveAttribute('href', SITE.forumUrl);
+  await expect(ask.getByRole('link', { name: 'Discord' })).toHaveAttribute('href', SITE.discordUrl);
+  const box = await page.locator('.hero .actions').boundingBox();
+  expect(box.y + box.height).toBeLessThanOrEqual(page.viewportSize().height);
 });
 
 // The menu checkbox only takes keyboard focus where the menu button shows (up to 1000 px)
