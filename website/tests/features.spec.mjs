@@ -270,6 +270,9 @@ test('Home page names the port by Supermedo with a link to GitHub', async ({ pag
   await expect(line).toContainText(SITE.portAuthor);
   await expect(line.locator(`a[href="${SITE.portRepoUrl}"]`)).toBeVisible();
   await expect(page.locator(`footer a[href="${SITE.portRepoUrl}"]`)).toHaveCount(1);
+  // Supermedo's Buy Me a Coffee: in the credit line and in the footer
+  await expect(line.locator(`a[href="${SITE.supportUrl}"]`)).toBeVisible();
+  await expect(page.locator(`footer a[href="${SITE.supportUrl}"]`)).toHaveCount(1);
 });
 
 test('Supermedo page shows his projects and links to NativeRetro', async ({ page }) => {
