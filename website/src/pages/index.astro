@@ -141,9 +141,8 @@ const appLd = {
           <span><span class="srv-band-title">SuperMedo Server</span><span data-field="state"></span></span>
         </p>
         <p class="srv-band-stat"><strong data-field="online">0</strong><span>Online now</span></p>
-        <p class="srv-band-stat"><strong data-field="peak">0</strong><span>Record at once</span></p>
+        <p class="srv-band-stat"><strong data-field="peak">0</strong><span>Record</span></p>
         <p class="srv-band-stat"><strong data-field="played">0</strong><span>Played today</span></p>
-        <p class="srv-band-stat"><strong data-field="died">0</strong><span>Died today</span></p>
         <p class="srv-band-fact" data-field="fastest"></p>
         <a class="btn btn-ghost" href={link('server/')}>Full statistics</a>
       </div>
@@ -176,7 +175,6 @@ const appLd = {
           field('online').textContent = number(d.online);
           field('peak').textContent = number(d.peakEver);
           field('played').textContent = number(d.playedToday);
-          field('died').textContent = number(d.diedToday);
           const fastest = field('fastest');
           fastest.replaceChildren();
           if (d.fastest) {
