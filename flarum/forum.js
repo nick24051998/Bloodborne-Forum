@@ -81,6 +81,16 @@
     ]);
   }
 
+  // Support our server (Medo, 29.10.2026): Supermedo's Buy Me a Coffee, yellow next to Discord. On wide screens the
+  // header only has room for the cup: the words stay as tooltip and for screen readers (theme/custom.less)
+  var SUPPORT_URL = 'https://buymeacoffee.com/supermedo';
+  function supportButton() {
+    return m('a.Button.bb-supportButton', { href: SUPPORT_URL, target: '_blank', rel: 'noopener', title: 'Support our server' }, [
+      m('span.Button-icon', { 'aria-hidden': 'true' }, '\u2615'),
+      m('span.Button-label', 'Support our server'),
+    ]);
+  }
+
   // "My game account" (flarum/supermedo-account.php): the forum signs the member in on SuperMedo Server. Guests who
   // open the address come back with ?gameAccount=login, log in and then continue there (the tab remembers it for
   // 10 minutes); members without a Discord login come back with ?gameAccount=no-discord and get a notice.
@@ -1540,6 +1550,7 @@
     // On the right, after Search and Log in: Discord as the last button, like on the website
     extend(HeaderSecondary.prototype, 'items', function (items) {
       var discord = app.forum.attribute('bbforumDiscordUrl');
+      items.add('bb-support', supportButton(), -99);
       if (discord) items.add('bb-discord', discordButton(discord), -100);
     });
 

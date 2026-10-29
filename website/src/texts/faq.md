@@ -212,7 +212,7 @@ questions:
     group: about
     q: How can I support the port?
     a: |
-      <p>The port is free and stays free. If you want to thank Supermedo, you can <a href="https://buymeacoffee.com/supermedo" rel="noopener">buy him a coffee</a>. You help just as much when you send a report zip after a crash (launcher: Help &gt; Save a report), post your FPS in <a href="https://forum.bbport.de/t/performance">Performance Reports</a>, or answer other players' questions in <a href="https://forum.bbport.de/t/help-support">Help &amp; Support</a>.</p>
+      <p>The port is free and stays free. If you want to thank Supermedo, <a href="https://buymeacoffee.com/supermedo" rel="noopener">support our server</a> with a coffee: his Buy Me a Coffee page. You help just as much when you send a report zip after a crash (launcher: Help &gt; Save a report), post your FPS in <a href="https://forum.bbport.de/t/performance">Performance Reports</a>, or answer other players' questions in <a href="https://forum.bbport.de/t/help-support">Help &amp; Support</a>.</p>
   - id: bbport-org
     group: about
     q: Is bbport.org your site?

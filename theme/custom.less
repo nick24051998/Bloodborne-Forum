@@ -197,7 +197,9 @@ h1, h2, h3,
   background: none;
 }
 
-// Discord at the far right: small button following the button rule (Discord blue, see Buttons below)
+// Discord at the far right: small button following the button rule (Discord blue, see Buttons below); before it the
+// yellow "Support our server" (only the cup on wide screens, the words for screen readers and as tooltip)
+.Header-secondary .bb-supportButton,
 .Header-secondary .bb-discordButton {
   height: auto;
   min-height: 38px;
@@ -254,6 +256,30 @@ h1, h2, h3,
 @media (min-width: 992px) and (max-width: 1279px) {
   .Header-secondary .Search-input {
     width: 150px;
+  }
+}
+
+// Room for the yellow "Support our server" cup next to Discord (Medo, 29.10.2026): menu and search a little tighter up
+// to 1199 px, up to 1060 px the search field shows only its magnifier. Below 1000 px search and buttons still take a
+// second row, as before.
+@media (min-width: 992px) and (max-width: 1199px) {
+  .Header-primary .bb-navLink {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .Header-secondary .Search-input {
+    width: 120px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1060px) {
+  .Header-secondary .Search-input {
+    width: 84px;
+  }
+
+  .Header-secondary .Search-input input::placeholder {
+    color: transparent;
   }
 }
 
@@ -1353,6 +1379,35 @@ h1, h2, h3,
   --btn-rise: #3a44a8;
   --btn-glow: rgba(88, 101, 242, 0.4);
   color: #fff;
+}
+
+// Support our server (Buy Me a Coffee): its own yellow, like Discord its blue; dark text, also on hover
+.bb-supportButton,
+.bb-supportButton:hover,
+.bb-supportButton:focus-visible {
+  --btn-fill: #ffdd00;
+  --btn-rise: #e6c200;
+  --btn-glow: rgba(255, 221, 0, 0.35);
+  color: #1a1405;
+}
+
+.bb-supportButton .Button-icon {
+  margin-right: 6px;
+}
+
+@media @desktop-up {
+  .Header-secondary .bb-supportButton .Button-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .Header-secondary .bb-supportButton .Button-icon {
+    margin-right: 0;
+  }
 }
 
 // Reply button with arrow (Dropdown--split): two plates, square inside; without arrow (itemCount1) rounded all around

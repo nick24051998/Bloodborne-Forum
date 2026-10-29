@@ -117,13 +117,13 @@ h3 { font-size: var(--step-1); }
 }
 .nav a:hover, .nav a[aria-current="page"] { background: var(--card-hover); color: var(--text-strong); }
 /* Brass line draws itself from left to right (not on the active page or the Discord button) */
-.nav a:not(.nav-discord):not([aria-current="page"]) {
+.nav a:not(.nav-discord):not(.nav-support):not([aria-current="page"]) {
   background-image: linear-gradient(var(--gold-light), var(--gold-light));
   background-position: 0.8rem calc(100% - 0.35rem); background-size: 0 1px; background-repeat: no-repeat;
   transition: background-size 220ms var(--ease-heavy), background-color 220ms, color 220ms;
 }
-.nav a:not(.nav-discord):not([aria-current="page"]):hover,
-.nav a:not(.nav-discord):not([aria-current="page"]):focus-visible { background-size: calc(100% - 1.6rem) 1px; }
+.nav a:not(.nav-discord):not(.nav-support):not([aria-current="page"]):hover,
+.nav a:not(.nav-discord):not(.nav-support):not([aria-current="page"]):focus-visible { background-size: calc(100% - 1.6rem) 1px; }
 .nav a[aria-current="page"] { box-shadow: inset 0 -2px 0 var(--blood); }
 .nav .nav-action { margin-left: auto; }
 /* Mobile menu without JavaScript (checkbox + label) */
@@ -142,8 +142,8 @@ h3 { font-size: var(--step-1); }
   .menu-input:checked ~ .nav { display: block; }
   .nav ul { flex-direction: column; align-items: stretch; padding: 0.5rem 0 0.9rem; }
   .nav .nav-action { margin-left: 0; }
-  .nav .nav-discord { margin: 0.4rem 0 0; text-align: center; }
-  .nav .nav-discord:active { transform: none; }
+  .nav :is(.nav-discord, .nav-support) { margin: 0.4rem 0 0; text-align: center; }
+  .nav :is(.nav-discord, .nav-support):active { transform: none; }
 }
 
 /* --- Buttons: one rule for all ---------------------------------------------------------------
@@ -157,7 +157,7 @@ h3 { font-size: var(--step-1); }
   --btn-line: rgba(194, 168, 120, 0.4);
   --btn-line-hot: rgba(224, 198, 148, 0.95);
 }
-:is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord) {
+:is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord, .nav .nav-support) {
   --btn-fill: rgba(16, 17, 19, 0.8);
   --btn-rise: var(--blood);
   --btn-glow: rgba(138, 17, 24, 0.4);
@@ -168,28 +168,40 @@ h3 { font-size: var(--step-1); }
   font-family: var(--font-body); font-weight: 700; letter-spacing: 0.02em; text-decoration: none; cursor: pointer;
   transition: border-color 220ms, color 220ms, box-shadow 220ms, transform 120ms;
 }
-:is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord)::before {
+:is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord, .nav .nav-support)::before {
   content: ""; position: absolute; inset: -12% -2% 0; z-index: -1; background: var(--btn-rise);
   border-radius: 46% 54% 0 0 / 14% 18% 0 0; transform: translateY(101%); transition: transform 480ms var(--ease-heavy);
 }
-:is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord):is(:hover, :focus-visible):not(:disabled) {
+:is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord, .nav .nav-support):is(:hover, :focus-visible):not(:disabled) {
   background: var(--btn-fill); border-color: var(--btn-line-hot); color: #fff;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 26px var(--btn-glow);
 }
-:is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord):is(:hover, :focus-visible):not(:disabled)::before {
+:is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord, .nav .nav-support):is(:hover, :focus-visible):not(:disabled)::before {
   transform: translateY(0);
 }
-:is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord):active { transform: translateY(1px); }
-:is(.btn, .hw-detect, .hw-copy, .lightbox button, .nav .nav-discord):focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; }
+:is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord, .nav .nav-support):active { transform: translateY(1px); }
+:is(.btn, .hw-detect, .hw-copy, .lightbox button, .nav .nav-discord, .nav .nav-support):focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; }
 :is(.btn, .hw-detect, .hw-copy, .lightbox button):disabled { opacity: 0.4; cursor: default; transform: none;
   border-color: var(--btn-line); box-shadow: none; }
 :is(.btn, .hw-detect, .hw-copy, .lightbox button):disabled::before { transform: translateY(101%); }
 /* Roles: only the fill changes (same specificity as the rule above so that they take effect) */
 .btn.btn-primary { --btn-fill: var(--blood); --btn-rise: var(--blood-hover); color: #fff; }
 :is(.btn.btn-discord, .nav .nav-discord) { --btn-fill: #5865f2; --btn-rise: #3a44a8; --btn-glow: rgba(88, 101, 242, 0.4); color: #fff; }
+/* Support our server (Buy Me a Coffee): its own yellow, like Discord its blue (Medo, 29.10.2026); dark text, also on hover */
+:is(.btn.btn-support, .nav .nav-support) { --btn-fill: #ffdd00; --btn-rise: #e6c200; --btn-glow: rgba(255, 221, 0, 0.35); color: #1a1405; }
+:is(.btn.btn-support, .nav .nav-support):is(:hover, :focus-visible) { color: #1a1405; }
+@media (min-width: 1001px) { .nav .nav-action + .nav-action { margin-left: 0.5rem; } }
+.nav .nav-support > span[aria-hidden="true"] { margin-right: 0.45em; }
+/* Header from 1001 to 1199 px: only the cup (name as tooltip and for screen readers), menu entries a little tighter,
+   so everything stays on one line */
+@media (min-width: 1001px) and (max-width: 1199px) {
+  .nav .nav-support .nav-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .nav .nav-support > span[aria-hidden="true"] { margin-right: 0; }
+  .nav a:not(.nav-discord):not(.nav-support) { padding-left: 0.6rem; padding-right: 0.6rem; }
+}
 /* Sizes */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.9rem; padding: 0.75rem 1.4rem; }
-:is(.hw-detect, .hw-copy, .menu-button, .nav .nav-discord) { min-height: 2.4rem; padding: 0.45rem 0.9rem; font-size: 0.9rem; }
+:is(.hw-detect, .hw-copy, .menu-button, .nav .nav-discord, .nav .nav-support) { min-height: 2.4rem; padding: 0.45rem 0.9rem; font-size: 0.9rem; }
 
 /* --- Hero ---------------------------------------------------------------------------- */
 .hero {
@@ -949,12 +961,12 @@ h3 { font-size: var(--step-1); }
   @view-transition { navigation: none; }
   .hero::before, .hero::after, .page-hero::after, .hero .emblem-art, .hero .emblem::before, .hero .emblem::after, .section, .sm-lamp, .nr-caret { animation: none !important; }
   .sm-bar > span { transition: none; }
-  :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord),
-  :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord)::before,
+  :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord, .nav .nav-support),
+  :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord, .nav .nav-support)::before,
   .card, .nav a, .site-footer a, .tile, .tile-img, .tile-caption p, .nr-dir a { transition: none !important; }
   .lightbox[open] { animation: none; }
   .lightbox-img { transition: none !important; }
-  .card:hover, :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord):active { transform: none; }
+  .card:hover, :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord, .nav .nav-support):active { transform: none; }
   html { scroll-behavior: auto; }
 }
 

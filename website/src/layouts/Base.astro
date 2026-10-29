@@ -84,6 +84,7 @@ const baseLd = {
                 <a href={item.href} aria-current={path === item.href ? 'page' : undefined}>{item.label}</a>
               </li>
             ))}
+            {SITE.supportUrl && <li class="nav-action"><a class="nav-support" href={SITE.supportUrl} rel="noopener" title="Support our server"><span aria-hidden="true">☕</span><span class="nav-long">Support our server</span></a></li>}
             {SITE.discordUrl && <li class="nav-action"><a class="nav-discord" href={SITE.discordUrl} rel="noopener"><Icon name="discord" />Discord</a></li>}
           </ul>
         </nav>
@@ -103,7 +104,7 @@ const baseLd = {
             <li><a href={link('community/')}>Community</a></li>
             {SITE.discordUrl && <li><a href={SITE.discordUrl} rel="noopener">Discord</a></li>}
             {SITE.portRepoUrl && <li><a href={SITE.portRepoUrl} rel="noopener">Port on GitHub</a></li>}
-            {SITE.supportUrl && <li><a href={SITE.supportUrl} rel="noopener">Support Supermedo</a></li>}
+            {SITE.supportUrl && <li><a href={SITE.supportUrl} rel="noopener">Support our server</a></li>}
           </ul>
           <ul>
             <li><a href={link('contact/')}>Contact</a></li>
