@@ -87,6 +87,9 @@ services:
       - ./flarum/restore-extensions.sh:/etc/cont-init.d/02-zz-bbforum-extensions.sh
       # Flarum scheduler (every minute) in the same container where the extensions are installed
       - ./flarum/scheduler.sh:/etc/cont-init.d/05-zz-bbforum-scheduler.sh
+      # BB Report Tool knowledge, signed by BB Helper's publisher on this host (forum.bbport.de/tool/knowledge.json,
+      # mirrored to bbport.de/tool/ by the website build). Empty until the publisher has run.
+      - ./tool-public:/opt/flarum/public/tool:ro
 
   # Option (b): Cloudflare Tunnel instead of Caddy. Only starts with the profile
   # "tunnel" (COMPOSE_PROFILES=tunnel in .env, set by scripts/bootstrap.sh).

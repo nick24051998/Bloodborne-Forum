@@ -546,3 +546,18 @@ test('Hunter page loads one hunter by Online ID', async ({ page }) => {
   await expect(page.locator('[data-field="ranks"]')).toHaveText('#2 in messages');
   await expect(page.locator('[data-field="messages"]')).toContainText('fear Man');
 });
+
+// The BB Report Tool fetches its signed knowledge from here (fetch-knowledge.mjs, 29.10.2026): the exact bytes,
+// an envelope with a version, and the signature next to it.
+test('Report tool knowledge is served with its signature', async ({ request }) => {
+  const res = await request.get('/tool/knowledge.json');
+  expect(res.ok()).toBe(true);
+  const envelope = await res.json();
+  expect(envelope.format).toBe(1);
+  expect(Number.isInteger(envelope.serial)).toBe(true);
+  expect(envelope.knowledge.version).toBeGreaterThanOrEqual(3);
+  expect(Array.isArray(envelope.knowledge.checks)).toBe(true);
+  const sig = await request.get('/tool/knowledge.json.sig');
+  expect(sig.ok()).toBe(true);
+  expect((await sig.text()).trim()).toMatch(/^[A-Za-z0-9+/]{500,}={0,2}$/);
+});

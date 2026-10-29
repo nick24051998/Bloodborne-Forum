@@ -45,6 +45,12 @@ this (Art. 6(1)(f) GDPR). The statistics are the ones SuperMedo Server publishes
 by their Online ID with their in-game records, never where they are right now. Players can have their account
 hidden: ask the team on our Discord, they pass it on to SuperMedo Server.
 
+**BB Report Tool.** If you allow it once in the tool, the BB Report Tool on your PC downloads its list of known
+problems and fixes from bbport.de/tool/ (or from the forum, if bbport.de can't be reached) when it starts. It only
+downloads: it sends nothing about you, your PC or your report. As with any page of this website, GitHub or our forum
+server sees your IP address for the download (Art. 6(1)(a) GDPR, your consent). You can switch it off in the tool
+at any time. The report itself stays on your PC until you post it yourself.
+
 **Links.** Links to Discord, GitHub, The Hunter's Dream and other sites take you to services with their
 own privacy policies. Nothing from them is loaded before you click.
 

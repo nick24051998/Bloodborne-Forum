@@ -5,7 +5,9 @@
 # SITE.downloadUrl). If there is one, it rebuilds the website (version, download, changelog list) and announces
 # it in Discord if the secret DISCORD_RELEASES_WEBHOOK is set (Repo → Settings → Secrets and
 # variables → Actions; webhook URL of a Discord channel, e.g. #announcements). It also rebuilds, without an
-# announcement, when the download count on the home page reaches its next step (560,000+ → 570,000+).
+# announcement, when the download count on the home page reaches its next step (560,000+ → 570,000+), and when
+# BB Helper has signed new knowledge for the BB Report Tool (forum.bbport.de/tool → bbport.de/tool,
+# website/scripts/fetch-knowledge.mjs: only a copy whose signature checks out goes live).
 #
 # Before every deploy, Playwright checks the finished site in the browser (website/tests). If a check fails,
 # the build aborts and nothing goes live. Pull requests and "ci/…" branches are only built and checked.
@@ -38,6 +40,7 @@ jobs:
     outputs:
       changed: ${{ steps.check.outputs.changed }}
       announce: ${{ steps.check.outputs.announce }}
+      knowledge: ${{ steps.knowledge.outputs.knowledge }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -50,11 +53,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: node scripts/fetch-releases.mjs --check
+      - id: knowledge
+        working-directory: website
+        run: node scripts/fetch-knowledge.mjs --check
 
   build:
     needs: releases
-    # On the schedule, only build for a new version or the next download step
-    if: github.event_name != 'schedule' || needs.releases.outputs.changed == 'true'
+    # On the schedule, only build for a new version, the next download step or new report tool knowledge
+    if: github.event_name != 'schedule' || needs.releases.outputs.changed == 'true' || needs.releases.outputs.knowledge == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -71,6 +77,8 @@ jobs:
       - run: node scripts/fetch-releases.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}
+      # The report tool's signed knowledge from the forum; if it is unreachable or doesn't verify, the repo's copy stays
+      - run: node scripts/fetch-knowledge.mjs
       - run: npm run build
       # Checks in a real browser (Chromium, desktop and phone) against the built site
       - name: Install Playwright

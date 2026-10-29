@@ -3,3 +3,5 @@ backups/
 *.log
 flarum/extensions.local.txt
 __pycache__/
+# Signed report tool knowledge, written on the server by BB Helper's publisher
+tool-public/
