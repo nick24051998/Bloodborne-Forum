@@ -1589,7 +1589,11 @@ h1, h2, h3,
   border-radius: 4px;
   font-weight: 600;
   letter-spacing: 0.02em;
-  // Flarum's 85 % made 10.2 px in the lists; never smaller than 11.5 px
+}
+
+// Never smaller than 11.5 px (Flarum's 85 % made 10.2 px in the lists). One class more than the rule of the Tags
+// extension, which is loaded after this theme.
+.TagsLabel .TagLabel {
   font-size: ~"max(85%, 11.5px)";
 }
 
