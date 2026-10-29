@@ -903,21 +903,36 @@ h3 { font-size: var(--step-1); }
   .sm-play-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* Home page: band below the hero */
-.srv-band { padding: 1.1rem 0; border-block: 1px solid rgba(156, 132, 88, 0.4);
+/* Home page: band below the hero. Wide: name | numbers with the fact below them | button, the button centred.
+   Narrower: name and button on top, numbers and fact below; phones: one column. Text always starts right of the lamp
+   (--srv-indent), so nothing lines up with the lamp instead of the words. */
+.srv-band { --srv-indent: calc(9px + 0.7rem); padding: 1.1rem 0; border-block: 1px solid rgba(156, 132, 88, 0.4);
   background: linear-gradient(90deg, transparent, rgba(156, 132, 88, 0.12) 20%, rgba(156, 132, 88, 0.12) 80%, transparent), var(--bg-deep); }
 .srv-band[hidden] { display: none; }
-.srv-band .container { display: flex; flex-wrap: wrap; align-items: center; gap: 0.9rem 2.2rem; }
+.srv-band .container { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center;
+  grid-template-areas: "name stats button" "name fact button"; gap: 0.45rem 3rem; }
 .srv-band p { margin: 0; }
-.srv-band-name { display: flex; align-items: center; gap: 0.7rem; }
+.srv-band-name { grid-area: name; display: flex; align-items: flex-start; gap: 0.7rem; }
+.srv-band-name .sm-lamp { margin-top: 0.42rem; }
 .srv-band-name > span:last-child { display: flex; flex-direction: column; gap: 0.1rem; color: var(--text); font-size: 0.9rem; }
 .srv-band-title { font-family: var(--font-head); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-light); }
+.srv-band-stats { grid-area: stats; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.6rem 2.2rem; }
 .srv-band-stat { display: inline-flex; align-items: baseline; gap: 0.6rem; }
 .srv-band-stat strong { font-family: var(--font-head); font-weight: 700; font-size: 2rem; line-height: 1; color: var(--gold-light); font-variant-numeric: tabular-nums; }
 .srv-band-stat span { font-size: 0.78rem; }
-.srv-band-fact { max-width: 24ch; color: var(--text); font-size: 0.92rem; }
+.srv-band-fact { grid-area: fact; color: var(--text); font-size: 0.92rem; }
+.srv-band-fact:empty { display: none; }
 .srv-band-fact strong { color: var(--text-strong); }
-.srv-band .btn { margin-left: auto; }
+.srv-band .btn { grid-area: button; }
+@media (max-width: 1199px) {
+  .srv-band .container { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name button" "stats stats" "fact fact"; row-gap: 0.9rem; }
+  .srv-band-stats, .srv-band-fact { padding-left: var(--srv-indent); }
+}
+@media (max-width: 600px) {
+  .srv-band .container { grid-template-columns: minmax(0, 1fr); grid-template-areas: "name" "stats" "fact" "button"; }
+  .srv-band-stats { column-gap: 1.4rem; }
+  .srv-band .btn { justify-self: start; margin-left: var(--srv-indent); }
+}
 
 @media (max-width: 860px) {
   /* minmax(0, …): a wide table must not stretch the column and with it the page (phones zoomed out to 463 px) */
@@ -925,7 +940,6 @@ h3 { font-size: var(--step-1); }
   /* One column: day by day scrolls sideways in its box again, the day on one line */
   .sm-split .sm-scroll .sm-table { min-width: 560px; }
   .sm-split .sm-scroll .sm-table tbody th { white-space: nowrap; }
-  .srv-band .btn { margin-left: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
