@@ -282,12 +282,12 @@ logo-contest|Logo Contest|#8a1118|bbicon bbicon-trophy|Design the new launcher l
 known-fixes|Known Fixes|#4f6b55|bbicon bbicon-key|Solutions that worked, checked by a helper. Search here first. Only the team starts topics here.
 help-support|Help & Support|#9c8458|bbicon bbicon-lantern|Something doesn'"'"'t work for you: crash, error, setup, performance. Include port version, GPU + driver and your BB Report Tool zip.
 bug-reports|Bug Reports|#7a2a2e|bbicon bbicon-spider|Confirmed bugs in the port and their status. Only the team starts topics here: report problems in Help & Support.
-performance|Performance Reports|#475a6b|bbicon bbicon-gauge|Your frame rates with your hardware and settings. Use the form: real numbers help everyone choose settings.
+performance|Share your FPS|#475a6b|bbicon bbicon-gauge|Your frame rates with your hardware and settings. Use the form: real numbers help everyone choose settings.
 suggestions|Suggestions|#6e6656|bbicon bbicon-candle|Ideas and feature requests for the port, the launcher, this forum or Discord.
 beta|Beta|#3b3448|bbicon bbicon-flask|Test builds before their release, for unlocked testers. Report what you find in the topic of the build.
 mods-patches|Mods & Patches|#6b3a45|bbicon bbicon-anvil|Share and discuss mods, patches and tweaks. No game files.
 guides|Guides|#4c5d5a|bbicon bbicon-book|Tutorials and how-tos written by the community.
-hunters-dream|The Hunter'"'"'s Dream|#57526e|bbicon bbicon-moon|Off-topic. Rest a while, good hunter.'
+hunters-dream|Off-topic|#57526e|bbicon bbicon-moon|Anything that isn'"'"'t about the port. Rest a while, good hunter.'
 
 # Additional tags (no slot in the ordering). Topics: anyone may set them, so that help, bugs and fixes
 # can be filtered by topic. Status: only the team sets them (see Permissions), the lifecycle of a bug or suggestion.

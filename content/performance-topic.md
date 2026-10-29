@@ -9,6 +9,6 @@ Your measurements help other hunters decide what to buy and which settings to us
 
 **How to post**
 
-Start a new discussion in Performance Reports; the form fills itself in. A good title is short and complete, for example: `RTX 3060 Ti · Ryzen 7 5700X · 1440p DLSS Quality · 95 FPS`. Tested several resolutions or settings? List them all in the same post.
+Start a new discussion in Share your FPS; the form fills itself in. A good title is short and complete, for example: `RTX 3060 Ti · Ryzen 7 5700X · 1440p DLSS Quality · 95 FPS`. Tested several resolutions or settings? List them all in the same post.
 
 Please only share screenshots of the game or the launcher, and nothing personal.

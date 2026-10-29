@@ -42,8 +42,8 @@ statistics from SuperMedo Server, the online server for the port run by Supermed
 your browser fetches them from our forum (forum.bbport.de) about once a minute; the forum in turn asks
 game.supermedo.com at most once a minute for everyone, so SuperMedo Server never sees your address for
 this (Art. 6(1)(f) GDPR). The statistics are the ones SuperMedo Server publishes: totals, and players
-by their Online ID with their in-game records, never where they are right now. Players can ask an admin
-of SuperMedo Server to hide them.
+by their Online ID with their in-game records, never where they are right now. Players can have their account
+hidden: ask the team on our Discord, they pass it on to SuperMedo Server.
 
 **Links.** Links to Discord, GitHub, The Hunter's Dream and other sites take you to services with their
 own privacy policies. Nothing from them is loaded before you click.

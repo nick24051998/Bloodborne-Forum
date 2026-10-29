@@ -37,6 +37,15 @@ import { SITE } from '../../site.config.mjs';
           </div>
         )}
       </div>
+      {SITE.discordUrl && (
+        <>
+          <h2>Help out</h2>
+          <p>
+            Want to answer questions as a helper, or test new builds before their release? Tell the team on{' '}
+            <a href={SITE.discordUrl} rel="noopener">Discord</a> what you'd like to do.
+          </p>
+        </>
+      )}
       <h2>Asking for help</h2>
       <p>
         Please include your <strong>port version</strong>, <strong>GPU and driver version</strong>, a description of{' '}

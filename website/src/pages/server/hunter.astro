@@ -49,7 +49,8 @@ const api = SITE.forumUrl ? `${SITE.forumUrl}/api/bb-server/hunters/` : '';
         <div class="sm-messages" data-field="messages"></div>
         <p class="sm-note">
           Hunters appear by their Online ID only. Discord shows here only if the hunter turns it on in their SuperMedo
-          Server account. Don't want to be listed? Ask an admin of SuperMedo Server to hide your account.
+          Server account. Don't want to be listed?{SITE.discordUrl ? <> Ask the team on <a href={SITE.discordUrl} rel="noopener">Discord</a>;
+          they have SuperMedo Server hide your account.</> : ' Ask an admin of SuperMedo Server to hide your account.'}
         </p>
       </div>
     </section>
