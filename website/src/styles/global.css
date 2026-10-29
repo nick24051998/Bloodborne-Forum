@@ -899,8 +899,10 @@ ol.sm-board li { display: flex; flex-direction: column; gap: 0.2rem; min-width: 
   border-radius: 10px; background: var(--bg-deep); }
 ol.sm-board li:first-child { border-color: rgba(194, 168, 120, 0.5); }
 ol.sm-board li.sm-empty { grid-column: 1 / -1; }
-ol.sm-board .sm-grow { overflow-wrap: anywhere; font-weight: 600; text-decoration: none; }
+ol.sm-board .sm-grow { overflow-wrap: break-word; font-weight: 600; text-decoration: none; }
 ol.sm-board strong { font-family: var(--font-head); font-size: 1.35rem; color: var(--gold-light); font-variant-numeric: tabular-nums; }
+/* In a panel the time of a summon always goes on its own line below, however long the names are */
+.sm-panel .sm-summon { flex-direction: column; align-items: stretch; gap: 0.15rem; }
 .sm-panel .sm-messages { grid-template-columns: minmax(0, 1fr); }
 .sm-panel .sm-message:first-child { padding-top: 0; border-top: 0; }
 .sm-panel .sm-message-text { font-size: 1.1rem; }
@@ -915,6 +917,11 @@ ol.sm-board strong { font-family: var(--font-head); font-size: 1.35rem; color: v
   .sm-strip > div { padding-left: 0; border-left: 0; }
   .sm-strip > div:nth-child(even) { padding-left: 1rem; border-left: 1px solid var(--border); }
   .sm-strip > div:nth-child(n + 3) { border-top: 1px solid var(--border); }
+  /* The leaderboard as lines: rank, name, number; long Online IDs keep their whole width */
+  .sm-panel ol.sm-board { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; }
+  ol.sm-board li { flex-direction: row; align-items: baseline; gap: 0.75rem; padding: 0.7rem 0.9rem; }
+  ol.sm-board .sm-grow { flex: 1; min-width: 0; }
+  ol.sm-board strong { font-size: 1.1rem; }
 }
 
 /* Tables and lists: hairlines, headings in brass small capitals */
