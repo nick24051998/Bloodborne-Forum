@@ -3,7 +3,12 @@ import data from '../data/releases.json';
 import { SITE } from '../../site.config.mjs';
 import { totalDownloads, mostDownloads, downloadsLabel } from './downloads.js';
 
-export const releases = data.releases;
+// Old release notes on GitHub still link Discord invites that have expired: they lead to the current one
+const EXPIRED_INVITES = ['https://discord.gg/yTMG8c4Bqm'];
+export const releases = data.releases.map((r) => ({
+  ...r,
+  notes: r.notes && EXPIRED_INVITES.reduce((html, old) => html.replaceAll(old, SITE.discordUrl), r.notes),
+}));
 export const releasesSource = data.source;
 export const latest = releases.find((r) => !r.prerelease) ?? null;
 

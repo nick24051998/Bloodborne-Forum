@@ -18,7 +18,7 @@ export const SITE = {
 
   // Links: leave empty while they don't exist yet (the buttons/menu items are then hidden)
   forumUrl: 'https://forum.bbport.de',
-  discordUrl: 'https://discord.gg/yTMG8c4Bqm', // permanent invite, does not expire
+  discordUrl: 'https://discord.gg/WtYT4fXhEN', // never expires (checked 29.10.2026; the old yTMG8c4Bqm had expired)
   downloadUrl: 'https://github.com/Supermedo/bloodborne_pc/releases/latest', // always the latest release
   githubUrl: '', // optional: a GitHub profile of the community itself (not the port's)
 

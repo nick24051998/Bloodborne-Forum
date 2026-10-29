@@ -12,7 +12,7 @@ data (see the [privacy notice](../privacy/)).
 
 We can't give technical support by e-mail. For help with the port, ask in the
 [forum](https://forum.bbport.de/t/help-support) or on our
-[Discord](https://discord.gg/yTMG8c4Bqm), where more people can help and everyone learns from the answer.
+[Discord](https://discord.gg/WtYT4fXhEN), where more people can help and everyone learns from the answer.
 
 The Bloodborne PC Port Community is run by volunteers. It is not affiliated with or endorsed by Sony
 Interactive Entertainment or FromSoftware.
