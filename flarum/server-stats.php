@@ -173,7 +173,6 @@ if (! class_exists('BBForumServerStats')) {
                 'registered' => (int) ($s['hunters']['registered'] ?? 0),
                 'bells' => $s['bells'] ?? ['helpers' => 0, 'hosts_searching' => 0, 'invaders' => 0],
                 'playedToday' => $isToday ? (int) ($today['hunters'] ?? 0) : 0,
-                'diedToday' => $isToday ? (int) ($today['deaths'] ?? 0) : 0,
                 'peakToday' => (int) ($s['peak_online']['today']['online'] ?? 0),
                 'fastest' => $fastest,
                 'updatedAt' => $all['updatedAt'],

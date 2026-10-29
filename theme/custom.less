@@ -1218,7 +1218,7 @@ h1, h2, h3,
   }
 }
 
-// Hunter's Dream: title and collapse button on one line
+// SuperMedo Server box: title and collapse button on one line
 .bb-hd-head {
   display: flex;
   align-items: flex-start;
@@ -1241,7 +1241,9 @@ h1, h2, h3,
 }
 
 @media (max-width: 991.98px) {
-  .IndexPage-nav .item-bbHuntersDream {
+  // Narrow: the sidebar becomes the "All Discussions" menu; the box would sit at its end, the line below the banner
+  // shows the numbers instead
+  .IndexPage-nav .item-bbServer {
     display: none;
   }
 
@@ -1769,7 +1771,7 @@ body::after {
   to { transform: translateX(-600px); }
 }
 
-// Lantern in the Hunter's Dream box flickers while the server is running (slow, irregular)
+// Lantern in the SuperMedo Server box flickers while the server is running (slow, irregular)
 .is-online > .bb-hd-lamp {
   animation: bb-flicker 4.2s steps(1, end) infinite;
 }
@@ -2228,7 +2230,7 @@ body::after {
 }
 
 // --- Top helpers (flarum/forum.js, data via /api/bb-top-helpers) ------------------------------
-// Wide screens: box below The Hunter's Dream. Narrower: only the link "Top helpers" in the menu.
+// Wide screens: box below SuperMedo Server. Narrower: only the link "Top helpers" in the menu.
 .bb-helpers-period {
   margin: -6px 0 6px;
   color: @bb-muted;
