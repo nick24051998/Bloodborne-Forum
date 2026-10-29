@@ -46,6 +46,10 @@ services:
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
+      # Forum search finds short words and numbers too ("code 3", "code 23"); the default 3 skipped them, so both
+      # searches gave the same results (UX review 29.10.2026). After a change, rebuild the FULLTEXT indexes
+      # flarum_posts.content and flarum_discussions.title (drop and add); a restored dump builds them anew anyway.
+      - --innodb-ft-min-token-size=1
     environment:
       TZ: ${TZ:-Europe/Berlin}
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD fehlt in .env}
