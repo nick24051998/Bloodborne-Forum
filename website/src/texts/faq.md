@@ -59,7 +59,7 @@ questions:
         <li><a href="#latest-download">Download the newest version</a>. The zip holds one folder, <code>bbport-windows</code>.</li>
         <li>Copy what is inside that folder (<code>Bloodborne.exe</code>, <code>_internal</code>, <code>bin</code> …) into your port folder and replace the files.</li>
       </ol>
-      <p>Saves, graphics settings, key bindings and mods stay. Don't use a new folder for this. From then on, updates show up at the bottom left of the launcher again. Details in the <a href="../install/#updating-by-hand-193">launcher guide</a>.</p>
+      <p>Saves, graphics settings, key bindings and mods stay. Don't use a new folder for this. From then on, updates show up at the bottom left of the launcher again. Details in the <a href="../install/#updating-by-hand-193">install guide</a>.</p>
   - id: updates-and-saves
     group: updates
     q: Will updates delete my saves?
@@ -85,7 +85,7 @@ questions:
     q: The game crashes while I play.
     a: |
       <ol>
-        <li>Update to the newest version (1.9.4). 1.9.2 and 1.9.3 fixed several crashes on 4–8 GB cards and with frame generation. On 1.9.3, <a href="#update-1-9-3">update by hand</a> once.</li>
+        <li>Update to the newest version (the download button shows which one). 1.9.5 fixed the most common random crash, 1.9.2 and 1.9.3 several crashes on 4–8 GB cards and with frame generation. On 1.9.3, <a href="#update-1-9-3">update by hand</a> once.</li>
         <li>Set Advanced &gt; Two-stage GPU pipeline to "Off (more stable)".</li>
         <li>Close MSI Afterburner, RTSS and other overlays.</li>
         <li>Update your graphics driver.</li>
