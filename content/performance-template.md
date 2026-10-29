@@ -1,4 +1,4 @@
-**Port version:** (shown in the launcher, e.g. 1.9.5)
+**Port version:** (shown in the launcher, e.g. 1.9.6)
 **GPU + driver version:** (e.g. RTX 3060 Ti, 581.57)
 **CPU:** (e.g. Ryzen 7 5700X)
 **RAM:** (e.g. 32 GB)

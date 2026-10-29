@@ -16,6 +16,11 @@ list at the bottom). Only add the short summary in plain words here, newest vers
 
 <div data-release-latest></div>
 
+## 1.9.6 – 29 October 2026
+
+- **Online fix:** "Failed to connect to Bloodborne server. Returning to title menu." at Play Online no longer appears on PCs where Windows hadn't downloaded the newest root certificates yet. The port now carries them itself, for SuperMedo Server and The Hunter's Dream.
+- **Installing:** the launcher offers the update by itself, or unpack it over 1.9.5. Settings, saves and the shader cache stay, so there's no shader rebuild this time.
+
 ## 1.9.5 – 28 October 2026
 
 - **Our own online server:** SuperMedo Server is the default. Sign in with Discord or make a free account on the launcher's Online page. The Hunter's Dream is the other choice; shadNet and your own servers can't be chosen any more. Friends on the same Wi-Fi play together over their home network. [Step by step](../server/#play).

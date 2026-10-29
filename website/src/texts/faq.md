@@ -98,7 +98,7 @@ questions:
         <li><strong>Code 3</strong> right after PLAY, "cannot create … MiB of guest memory": Windows has too little memory for the start. <a href="#code-3">The fix</a>.</li>
         <li><strong>Code 21</strong>, "STOP: reserving the PS4 address range … error 487": another program sits where the game needs its memory. From 1.9.5 on the game restarts itself and gets past it, so update.</li>
         <li><strong>Code 23</strong> (error 23), "GPU library assertion failed": a crash in the graphics part, often in fights, after a few minutes or an hour. Its cause isn't known yet and there is no sure fix. Update the port and your graphics driver, close overlays like MSI Afterburner and RTSS, and set Advanced &gt; Two-stage GPU pipeline to "Off (more stable)". If it keeps happening, post your report zip in <a href="https://forum.bbport.de/t/help-support">Help &amp; Support</a>: every report helps find the cause.</li>
-        <li><strong>"device lost"</strong> (ErrorDeviceLost): the graphics driver stopped. Update the driver and restart the PC, use the card's standard clocks, and close overlays. Some NVIDIA cards still hit it in fights on 1.9.5, a known problem: send a report.</li>
+        <li><strong>"device lost"</strong> (ErrorDeviceLost): the graphics driver stopped. Update the driver and restart the PC, use the card's standard clocks, and close overlays. Some NVIDIA cards still hit it in fights, a known problem that isn't fixed yet: send a report.</li>
         <li><strong>ErrorOutOfDeviceMemory</strong> or "memory pressure": the graphics card's memory is full. Use the goal Quiet or a lower resolution, see <a href="#stutter">stutter</a>.</li>
         <li><strong>PermissionError, WinError 5 or WinError 32</strong>: an antivirus blocks the port's files, see <a href="#antivirus">antivirus</a>.</li>
         <li><strong>"bb-probe.exe – Bad Image", 0xc0e90002</strong>: Windows' Smart App Control blocks the port, see <a href="#antivirus">antivirus</a>.</li>
@@ -106,6 +106,7 @@ questions:
         <li><strong>"No Vulkan 1.3 graphics card found"</strong>: update the graphics driver. The port needs a card with Vulkan 1.3 and at least 4 GB of video memory.</li>
         <li><strong>"Server rejected this client"</strong> or login error code 5: shadNet doesn't accept the port. Choose SuperMedo Server, see <a href="#online-connection">online</a>.</li>
         <li><strong>"Failed to acquire Bloodborne server information"</strong>: fixed since 1.9.4, so update.</li>
+        <li><strong>"Failed to connect to Bloodborne server. Returning to title menu."</strong> at Play Online, with "certificate is not trusted by Windows" or "SSL server verification failed" in the log: fixed in 1.9.6, so update.</li>
       </ul>
   - id: crashes
     group: crashes
@@ -164,6 +165,7 @@ questions:
     a: |
       <ul>
         <li>Update to the newest version. From 1.9.5 on the launcher opens your router's port by itself, goes through SuperMedo Server's relay when a router blocks a direct connection, and signs in past expired certificates in Windows.</li>
+        <li>"Failed to connect to Bloodborne server. Returning to title menu.": fixed in 1.9.6 for PCs where Windows hadn't downloaded the newest root certificates yet.</li>
         <li>"Failed to acquire Bloodborne server information": fixed since 1.9.4, also on PCs whose antivirus scans HTTPS connections.</li>
         <li>A certificate or date error at sign-in: check your PC's clock.</li>
         <li>shadNet: shadPS4's public shadNet server doesn't accept the port, and from 1.9.5 on your own servers can't be chosen any more. Choose SuperMedo Server.</li>

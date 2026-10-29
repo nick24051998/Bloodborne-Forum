@@ -1,4 +1,4 @@
-**Test build:** (e.g. 1.9.5 beta 4)
+**Test build:** (e.g. 1.9.7 beta 1)
 **GPU + driver, CPU, RAM:**
 **What did you test?**
 **What happened?** (and what you expected)

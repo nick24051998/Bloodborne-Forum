@@ -898,7 +898,10 @@
       [null, "A crash in the graphics part. Its cause isn't known yet and there is no sure fix: update the port and your graphics driver, close overlays like MSI Afterburner and RTSS, and set Advanced > Two-stage GPU pipeline to \"Off (more stable)\". If it keeps happening, post your report zip.", 'error-codes'],
     ]],
     [/device ?lost/i, '"device lost"', [
-      [null, "The graphics driver stopped. Update the driver and restart the PC, use the card's standard clocks and close overlays. Some NVIDIA cards still hit it in fights on 1.9.5, a known problem: send a report.", 'error-codes'],
+      [null, "The graphics driver stopped. Update the driver and restart the PC, use the card's standard clocks and close overlays. Some NVIDIA cards still hit it in fights, a known problem that isn't fixed yet: send a report.", 'error-codes'],
+    ]],
+    [/failed to connect to (?:the )?bloodborne server|certificate is not trusted|ssl server verification/i, '"Failed to connect to Bloodborne server"', [
+      [null, "Fixed in 1.9.6: the port now trusts SuperMedo Server and The Hunter's Dream even where Windows hasn't downloaded the newest root certificates yet. Update (the launcher offers it), then try again.", 'online-connection'],
     ]],
     [/rejected this client|login error (?:code )?5\b/i, 'Login error code 5', [
       [null, "shadNet doesn't accept the port. Choose SuperMedo Server.", 'online-connection'],
