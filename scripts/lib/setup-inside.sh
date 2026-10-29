@@ -179,8 +179,12 @@ body=$(jq -n \
     "bbforum.oauth_only_signup": $only
   }')
 api POST /settings "$body" >/dev/null && ok "colours, dark mode, welcome banner"
-body=$(jq -n --rawfile less "$D/theme/custom.less" '{custom_less: $less}')
-api POST /settings "$body" >/dev/null && ok "theme/custom.less applied"
+# Flarum takes at most 65000 characters of custom LESS: the comment lines stay in the repo, the forum gets the rules
+# (with comments the theme passed the limit on 29.10.2026 and the update was refused with HTTP 422)
+less=$(sed -E '/^[[:space:]]*\/\//d' "$D/theme/custom.less")
+[ ${#less} -gt 65000 ] && warn "theme/custom.less has ${#less} characters without comments, Flarum takes 65000"
+body=$(jq -n --arg less "$less" '{custom_less: $less}')
+api POST /settings "$body" >/dev/null && ok "theme/custom.less applied (${#less} characters)"
 ok "Discord-only sign-up: $([ $only_signup = 1 ] && echo on || echo off)"
 footer=$(subst "$D/content/footer.html")
 body=$(jq -n --arg site "$SITE_URL" --arg discord "$INVITE_URL" --arg footer "$footer" \
