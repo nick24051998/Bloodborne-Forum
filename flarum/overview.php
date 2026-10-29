@@ -7,7 +7,7 @@
  *   the query itself (no separate column in the database, so it is always current, including the thumbs taken over
  *   from Discord). Only for this sort, because on "All Discussions" Flarum appends a second query (UNION) for pinned
  *   discussions, which must have the same columns.
- * - Filter "bbview" for the tabs above the lists: open, solved, closed (Help & Support), active (without Done, Not
+ * - Filter "bbview" for the tabs above the lists: open, unanswered, solved, closed (Help & Support), active (without Done, Not
  *   planned, Duplicate, Fixed: Suggestions "Top" and "New", Nick's wish: finished items no longer show up there) or
  *   a status tag (status-planned, status-open …), in addition to the section. As a filter rather than a search, so
  *   the search box at the top does not show anything like "-is:solved".
@@ -78,6 +78,16 @@ if (! class_exists('BBForumViewFilter')) {
                 $query->whereNotNull('discussions.best_answer_post_id');
             } elseif ($value === 'closed') {
                 $query->whereNull('discussions.best_answer_post_id')->where('discussions.is_locked', true);
+            } elseif ($value === 'unanswered') {
+                // Open questions nobody but the asker has replied to ("No answer yet", for everyone; UX review 29.10.2026)
+                $query->whereNull('discussions.best_answer_post_id')->where('discussions.is_locked', false)
+                    ->whereNotExists(function ($q) {
+                        $q->selectRaw('1')->from('posts')
+                            ->whereColumn('posts.discussion_id', 'discussions.id')
+                            ->whereColumn('posts.user_id', '!=', 'discussions.user_id')
+                            ->where('posts.type', 'comment')
+                            ->whereNull('posts.hidden_at');
+                    });
             } elseif ($value === 'active') {
                 $query->whereNotExists(function ($q) {
                     $q->selectRaw('1')->from('discussion_tag')

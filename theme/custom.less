@@ -572,6 +572,15 @@ h1, h2, h3,
     text-align: right;
     font-variant-numeric: tabular-nums;
   }
+
+  // An area name doesn't fit next to its label in the narrow box: below it, left-aligned (it wrapped right-aligned)
+  .bb-hd-long {
+    display: block;
+
+    dd {
+      text-align: left;
+    }
+  }
 }
 
 // Opening day and "online since" below the status, one per line, so the numbers are read as a young server's

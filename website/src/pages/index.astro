@@ -115,7 +115,7 @@ const appLd = {
         </p>
         {latest?.download && (
           <p class="hero-download">
-            {latest.downloadName}, {latest.downloadSize} MB, <span class="hero-when">released {formatDate(latest.date)}</span>
+            {latest.downloadName}, {latest.downloadSize} MB, for Windows 10 and 11, <span class="hero-when">released {formatDate(latest.date)}</span>
             <span aria-hidden="true"> · </span>
             <a href={link('changelog/')}>What's new</a>
           </p>
@@ -222,7 +222,7 @@ const appLd = {
             <li><strong>Entries</strong> until {contestDates.submit}</li>
             <li><strong>Voting</strong> {contestDates.voteFrom} – {contestDates.vote}</li>
           </ul>
-          <p class="contest-specs"><span>SVG or PNG</span><span>1024 × 1024</span><span>Transparent background</span><span>Readable at 32 px</span></p>
+          <p class="contest-specs"><span>PNG + source zip</span><span>1024 × 1024</span><span>Transparent background</span><span>Readable at 32 px</span></p>
           <div class="actions">
             <a class="btn btn-primary" href={CONTEST.page}>Enter the contest</a>
             <a class="btn btn-ghost" href={link(CONTEST.template)} download="logo-contest-template.svg">Download the template</a>
@@ -312,11 +312,14 @@ const appLd = {
       </div>
       <div>
         <h2 style="margin-top:0">Need help?</h2>
-        <p>
-          Read the <a href={link('faq/')}>FAQ</a> first – most problems are covered there. When you ask for help, include
-          your port version, GPU and driver, what happens and your report zip (launcher: Help → Save a report).
-        </p>
-        {helpUrl && <p><a class="btn btn-ghost" href={helpUrl} rel="noopener">{SITE.forumUrl ? 'Open the forum' : 'Ask on Discord'}</a></p>}
+        {/* In this order: most problems end at the first or second step (UX review 29.10.2026) */}
+        <ol class="help-steps">
+          <li>In the launcher, open <strong>Help</strong>: it reads the log and names the cause.</li>
+          <li>Look up the error or symptom in the <a href={link('faq/')}>FAQ</a>.</li>
+          {SITE.forumUrl && <li>Check the <a href={`${SITE.forumUrl}/t/known-fixes`}>known fixes</a> and the <a href={`${SITE.forumUrl}/t/bug-reports`}>known bugs</a>.</li>}
+          <li>Still stuck: ask with your port version, GPU and driver, what happens and your report zip (launcher: Help → Save a report).</li>
+        </ol>
+        {helpUrl && <p><a class="btn btn-ghost" href={helpUrl} rel="noopener">{SITE.forumUrl ? 'Ask in Help & Support' : 'Ask on Discord'}</a></p>}
       </div>
     </div>
   </section>

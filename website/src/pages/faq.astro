@@ -97,7 +97,8 @@ const faqLd = {
       if (status) status.textContent = words.length ? `${hits} ${hits === 1 ? 'answer' : 'answers'} found` : '';
       if (empty) empty.hidden = !(words.length && hits === 0);
       if (forumLink && forumBase) {
-        forumLink.href = words.length ? `${forumBase}/?q=${encodeURIComponent(input.value.trim())}` : `${forumBase}/t/known-fixes`;
+        // The button says Known Fixes, so the search stays inside them (before: the whole forum)
+        forumLink.href = words.length ? `${forumBase}/?q=${encodeURIComponent(`${input.value.trim()} tag:known-fixes`)}` : `${forumBase}/t/known-fixes`;
       }
     });
   </script>

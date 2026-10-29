@@ -57,6 +57,7 @@
   var PaginatedListState = compat['common/states/PaginatedListState'];
   var GlobalSearchState = compat['forum/states/GlobalSearchState'];
   var DiscussionListItem = compat['forum/components/DiscussionListItem'];
+  var DiscussionList = compat['forum/components/DiscussionList'];
   var PostUser = compat['forum/components/PostUser'];
   var CommentPost = compat['forum/components/CommentPost'];
   var DiscussionPage = compat['forum/components/DiscussionPage'];
@@ -242,7 +243,7 @@
       closed ? null : [
         m('dl.bb-hd-stats', rows.map(function (row) {
           return m('div', [m('dt', row[0]), m('dd', countUp(row[1]), number(row[1]))]);
-        }).concat(d.fastest ? [m('div', [m('dt', 'Kills fastest'), m('dd', d.fastest.name)])] : [])),
+        }).concat(d.fastest ? [m('div.bb-hd-long', [m('dt', 'Kills fastest'), m('dd', d.fastest.name)])] : [])),
         m('a.bb-hd-more', { href: page }, 'Statistics →'),
       ],
     ]);
@@ -650,6 +651,7 @@
     ],
     'help-support': [
       ['open', 'Open', { view: 'open' }],
+      ['unanswered', 'No answer yet', { view: 'unanswered', sort: 'oldest' }],
       ['solved', 'Solved', { view: 'solved' }],
       ['closed', 'Closed', { view: 'closed' }],
       ['all', 'All', {}],
@@ -736,9 +738,12 @@
   // label: button with text (Known Fixes: "Worked for me") instead of the box with the number
   function voteBox(discussion, label) {
     var voted = discussion.attribute('bbVoted');
+    var votes = discussion.attribute('bbVotes') || 0;
     return m('button.bb-vote' + (label ? '.bb-vote--inline' : '') + (voted ? '.is-voted' : ''), {
       type: 'button',
       'aria-pressed': voted ? 'true' : 'false',
+      // Screen readers read the name: the number alone said nothing (aria-pressed tells whether it's yours)
+      'aria-label': label || (votes === 1 ? '1 vote' : votes + ' votes') + ', give it a thumbs up',
       title: voted ? 'Take back your 👍' : app.session.user ? 'Give it a 👍' : 'Log in to vote',
       onclick: function (e) {
         e.preventDefault();
@@ -922,7 +927,7 @@
     }
     // Only fixes that contain every word of the search, like the Known Fixes page; for an error code only fixes
     // about that code ("code 3" also finds the fix for code 23, and any fix that mentions 1.9.3)
-    var words = q.toLowerCase().split(/\s+/).filter(Boolean);
+    var words = q.toLowerCase().split(/\s+/).filter(function (w) { return w && w.indexOf(':') === -1; });
     var fixes = (kfSearch.list || []).filter(function (d) {
       var text = fixInfo(d).search;
       return code ? code[0].test(text) : words.every(function (w) { return text.indexOf(w) !== -1; });
@@ -1686,6 +1691,20 @@
           }, 50);
         },
       }), 90);
+    });
+
+    // Mods & Patches: the status tabs (Works, Works with limits, Doesn't work) fill only as mods get tested. Empty, they
+    // say so instead of "It looks like there are no discussions here" (UX review 29.10.2026: "Works" looked like a dead end)
+    extend(DiscussionList.prototype, 'view', function (vdom) {
+      var state = this.attrs.state;
+      var params = state.getParams ? state.getParams() : state.params;
+      var tab = activeTab(params);
+      if (!tab || params.tags !== 'mods-patches' || !/^status-/.test(tab[2].view || '') || !state.isEmpty()) return;
+      vdom.children = [m('div.Placeholder', m('p', [
+        'No mod has been tested with this result yet. Tried one? Tell us in ',
+        m(Link, { href: app.route('tag', { tags: 'mods-patches' }) }, 'Mods & Patches'),
+        ' which mod, which port version and what happened.',
+      ]))];
     });
 
     // Solved help topics: "Solved · Jump to the solution" below the title (the solution can sit far down in a long

@@ -227,6 +227,13 @@ const toc = [
             <span><strong data-field="newWeek">–</strong> new this week</span>
           </p>
         </div>
+        {/* The table shows at most 100 of over a thousand hunters: one field opens anybody's page (UX review 29.10.2026) */}
+        <form class="sm-find" action={link('server/hunter/')} method="get" role="search">
+          <label for="hunter-id">Find a hunter</label>
+          <input id="hunter-id" name="id" type="text" placeholder="Online ID" autocomplete="off" spellcheck="false"
+            required maxlength="32" pattern="[A-Za-z0-9_\-]{1,32}" title="The Online ID: letters, digits, _ and -" />
+          <button class="btn btn-ghost" type="submit">Show</button>
+        </form>
         <div class="sm-scroll">
           <table class="sm-table">
             <thead><tr><th scope="col">Online ID, most hours first</th><th scope="col">Level</th><th scope="col">Hours</th><th scope="col">Deaths</th><th scope="col">Helped · hosted</th><th scope="col">Invasions</th><th scope="col">Messages</th><th scope="col">Last seen</th></tr></thead>

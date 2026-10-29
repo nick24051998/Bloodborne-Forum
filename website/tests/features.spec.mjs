@@ -162,7 +162,7 @@ test('FAQ: topics, topic bar and search', async ({ page }) => {
 
   await search.fill('xyzzy nothing');
   await expect(page.locator('[data-faq-empty]')).toBeVisible();
-  await expect(page.locator('[data-faq-forum]')).toHaveAttribute('href', /\?q=xyzzy%20nothing$/);
+  await expect(page.locator('[data-faq-forum]')).toHaveAttribute('href', /\?q=xyzzy%20nothing%20tag%3Aknown-fixes$/);
 });
 
 test('Search name "bbport" in titles and page data for Google', async ({ page }) => {
@@ -373,6 +373,21 @@ test('Home page: two hero buttons in the first screen, forum and Discord as a li
   expect(box.y + box.height).toBeLessThanOrEqual(page.viewportSize().height);
 });
 
+// Review items 29.10.2026: self-help steps on the home page, a field for any hunter on /server/, the contest chip
+// matching the forum's check (PNG plus a zip with the source)
+test('Home page help steps, hunter search on /server/, contest file types', async ({ page }) => {
+  await page.goto('/');
+  const steps = page.locator('.help-steps li');
+  await expect(steps).toHaveCount(SITE.forumUrl ? 4 : 3);
+  await expect(steps.first()).toContainText('Help');
+  const specs = page.locator('.contest-specs');
+  if (await specs.count()) await expect(specs).not.toContainText('SVG or PNG');
+  await page.goto('/server/');
+  const find = page.locator('form.sm-find');
+  await expect(find).toHaveAttribute('action', /\/server\/hunter\/$/);
+  await expect(find.locator('input[name="id"]')).toBeVisible();
+});
+
 // The menu checkbox only takes keyboard focus where the menu button shows (up to 1000 px)
 test('On wide screens the keyboard skips the hidden menu checkbox', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -437,7 +452,7 @@ test('Hardware check rates Intel Arc graphics inside the processor like the laun
     const gpu = gpus.find((g) => g.name === name);
     const result = evaluate(gpu, ultra, gen, 32);
     expect(TIERS[result.tiers.gpu], name).toBe('Above minimum');
-    expect(result.notes.join(' '), name).toContain('The launcher may still show an older, lower rating');
+    expect(result.notes.join(' '), name).toContain('Launchers before 1.9.5 showed a lower rating');
   }
   const h = gpus.find((g) => g.name === 'Arc graphics (Core Ultra 100H)');
   const v = gpus.find((g) => g.name === 'Arc 140V / 130V (Core Ultra 200V)');
