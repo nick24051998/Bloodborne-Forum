@@ -12,8 +12,10 @@
  *   a status tag (status-planned, status-open …), in addition to the section. As a filter rather than a search, so
  *   the search box at the top does not show anything like "-is:solved".
  * - Command bbforum:close-stale (hourly): help discussions without a best answer that had no new post for 7 days
- *   get locked (closed). Pinned discussions never. Without events, i.e. no notification and the discussion does not
- *   jump to the top of "Latest"; with --dry-run it only counts.
+ *   get locked (closed), but only once someone other than the asker has replied (helper, team or the AI answer):
+ *   an unanswered question stays open until it gets an answer (Nick, 29.10.2026; before, unanswered questions were
+ *   closed without a word). Pinned discussions never. Without events, i.e. no notification and the discussion does
+ *   not jump to the top of "Latest"; with --dry-run it only counts.
  */
 
 use Carbon\Carbon;
@@ -123,7 +125,15 @@ if (! class_exists('BBForumCloseStaleCommand')) {
                 ->where('is_sticky', false)
                 ->whereNull('best_answer_post_id')
                 ->whereNull('hidden_at')
-                ->where('last_posted_at', '<', Carbon::now()->subDays(self::DAYS));
+                ->where('last_posted_at', '<', Carbon::now()->subDays(self::DAYS))
+                // answered by someone else (the asker's own follow-ups don't count)
+                ->whereExists(function ($q) {
+                    $q->selectRaw('1')->from('posts')
+                        ->whereColumn('posts.discussion_id', 'discussions.id')
+                        ->whereColumn('posts.user_id', '!=', 'discussions.user_id')
+                        ->where('posts.type', 'comment')
+                        ->whereNull('posts.hidden_at');
+                });
             $count = $this->input->getOption('dry-run') ? $stale->count() : $stale->update(['is_locked' => true]);
             $this->info(($this->input->getOption('dry-run') ? 'would close ' : 'closed ').$count.' help topics');
         }
