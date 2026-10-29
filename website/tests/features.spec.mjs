@@ -394,7 +394,7 @@ test('Hardware check rates Intel Arc graphics inside the processor like the laun
     const gpu = gpus.find((g) => g.name === name);
     const result = evaluate(gpu, ultra, gen, 32);
     expect(TIERS[result.tiers.gpu], name).toBe('Above minimum');
-    expect(result.notes.join(' '), name).toContain('1.9.4 may still show an older, lower rating');
+    expect(result.notes.join(' '), name).toContain('The launcher may still show an older, lower rating');
   }
   const h = gpus.find((g) => g.name === 'Arc graphics (Core Ultra 100H)');
   const v = gpus.find((g) => g.name === 'Arc 140V / 130V (Core Ultra 200V)');
