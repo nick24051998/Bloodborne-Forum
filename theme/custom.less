@@ -504,12 +504,16 @@ h1, h2, h3,
   }
 }
 
-// A new server's opening below the status, so the numbers are read as those of a young server
+// Opening day and "online since" below the status, one per line, so the numbers are read as a young server's
 .bb-srv-new {
   margin: 6px 0 0;
   color: @bb-text-soft;
   font-size: 12px;
   line-height: 1.4;
+
+  span {
+    display: block;
+  }
 }
 
 .bb-hd-more {

@@ -30,6 +30,19 @@ export function when(seconds, short = false, dateOnly = false, timeOnly = false)
   return `${day}, ${time}`;
 }
 
+// Unix time always with date and time, "28 Oct, 20:51" (for "online since": "20:51" alone leaves the day open)
+export const stamp = (seconds) => new Date(seconds * 1000).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+// The opening day from the forum ("2026-10-28", the API has none) as "28 Oct", with the year once it is another one
+export function openedDay(iso) {
+  const date = new Date(`${iso}T12:00:00Z`);
+  const year = date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric';
+  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year });
+}
+
+// The first 30 days after the opening, the pages call the server new
+export const isNew = (iso) => Boolean(iso) && Date.now() - Date.parse(`${iso}T00:00:00Z`) < 30 * 86400000;
+
 // "Healing Church Workshop, Upper Cathedral Ward", or just the area when the place has the same name
 export function place(item) {
   const spot = item.place || '';

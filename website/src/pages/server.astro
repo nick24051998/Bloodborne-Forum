@@ -33,49 +33,69 @@ const toc = [
     </div>
   </section>
 
-  <!-- The steps are the main thing: the wide column, with the buttons where the steps end. The help for when it
-       doesn't connect is the narrower column beside it; both start on the same line. -->
+  <!-- Folded (Nick, 29.10.2026): the heading and one line say what is inside, the live numbers below come sooner.
+       Links to #play (FAQ, install guide, launcher page, "On this page") open it. Inside, the steps are the main thing:
+       the wide column, with the buttons where the steps end; the help for when it doesn't connect is the narrower
+       column beside it, both start on the same line. -->
   <section class="section section-alt sm-play" id="play" aria-labelledby="play-h">
-    <div class="container sm-play-grid">
-      <div>
-        <h2 id="play-h">Play online</h2>
-        <ol class="sm-steps">
-          <li>In the launcher, open <strong>Online play</strong> and tick <strong>Play online</strong>.</li>
-          <li>
-            Choose who you play with:
-            <ul class="sm-servers">
-              <li><strong>The Hunter's Dream</strong> (the default): co-op together with bbhost players. Press <strong>Sign in with Discord</strong> once and enter the code on the page that opens.</li>
-              <li><strong>SuperMedo Server</strong>: {SITE.portAuthor}'s own server, the numbers below come from it. Sign in with Discord, or <a href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">create an account</a>.</li>
-              <li><strong>shadNet server</strong>: register at <a href="https://shadnet.shadps4.net" rel="noopener">shadnet.shadps4.net</a> and enter the account name (not the e-mail) and password.</li>
-            </ul>
-          </li>
-          <li>Press <strong>Test connection</strong>, then PLAY, and choose online at the title screen. Ring a bell.</li>
-        </ol>
-        <p class="sm-play-note">
-          Everyone in a session needs game version 1.09 and the same server. Questions about the port go to our Discord
-          or forum, not to The Hunter's Dream.
-        </p>
-        <div class="sm-actions">
-          <a class="btn btn-primary" href={SITE.downloadUrl} rel="noopener">Download</a>
-          <a class="btn btn-ghost" href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">SuperMedo Server account</a>
+    <details class="container sm-guide" data-field="guide">
+      <summary>
+        <span>
+          <h2 id="play-h">Play online</h2>
+          <span class="sm-guide-hint">Three steps in the launcher, and what to do when it doesn't connect.</span>
+        </span>
+      </summary>
+      <div class="sm-play-grid">
+        <div>
+          <ol class="sm-steps">
+            <li>In the launcher, open <strong>Online play</strong> and tick <strong>Play online</strong>.</li>
+            <li>
+              Choose who you play with:
+              <ul class="sm-servers">
+                <li><strong>The Hunter's Dream</strong> (the default): co-op together with bbhost players. Press <strong>Sign in with Discord</strong> once and enter the code on the page that opens.</li>
+                <li><strong>SuperMedo Server</strong>: {SITE.portAuthor}'s own server, the numbers below come from it. Sign in with Discord, or <a href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">create an account</a>.</li>
+                <li><strong>shadNet server</strong>: register at <a href="https://shadnet.shadps4.net" rel="noopener">shadnet.shadps4.net</a> and enter the account name (not the e-mail) and password.</li>
+              </ul>
+            </li>
+            <li>Press <strong>Test connection</strong>, then PLAY, and choose online at the title screen. Ring a bell.</li>
+          </ol>
+          <p class="sm-play-note">
+            Everyone in a session needs game version 1.09 and the same server. Questions about the port go to our Discord
+            or forum, not to The Hunter's Dream.
+          </p>
+          <div class="sm-actions">
+            <a class="btn btn-primary" href={SITE.downloadUrl} rel="noopener">Download</a>
+            <a class="btn btn-ghost" href={`${SITE.superMedoAccountUrl}/register`} rel="noopener">SuperMedo Server account</a>
+          </div>
+          <p class="sm-small">
+            Forgot your SuperMedo Server password?{' '}
+            <a href={`${SITE.superMedoAccountUrl}/forgot`} rel="noopener">Get a new one by email</a>.
+          </p>
         </div>
-        <p class="sm-small">
-          Forgot your SuperMedo Server password?{' '}
-          <a href={`${SITE.superMedoAccountUrl}/forgot`} rel="noopener">Get a new one by email</a>.
-        </p>
+        <aside class="sm-play-help" aria-labelledby="help-h">
+          <h3 id="help-h" class="sm-label">It doesn't connect?</h3>
+          <ul class="sm-tips">
+            <li><strong>"Failed to acquire Bloodborne server information":</strong> update to 1.9.4, which fixes it for PCs whose antivirus scans HTTPS connections.</li>
+            <li>Your firewall or router must let the game server port <strong>20443</strong> through.</li>
+            <li><strong>"Seamless co-op" tool:</strong> it overwrites a hidden server address. On 1.9.4: Online play → shadNet server → <strong>Use my own servers</strong> → empty the <strong>Game server</strong> field → switch back to The Hunter's Dream. 1.9.5 fixes this for good.</li>
+            <li><strong>Your own shadNet servers:</strong> the public server's WebAPI is <code>http://srv.shadps4.net:31315</code>, with plain <code>http</code>. An <code>https://</code> address fails with "SSL: UNEXPECTED_EOF_WHILE_READING". From 1.9.5 on, the server fields only count with <strong>Use my own servers</strong> ticked.</li>
+            <li>More in the <a href={link('faq/#online-connection')}>FAQ</a>.</li>
+          </ul>
+        </aside>
       </div>
-      <aside class="sm-play-help" aria-labelledby="help-h">
-        <h3 id="help-h" class="sm-label">It doesn't connect?</h3>
-        <ul class="sm-tips">
-          <li><strong>"Failed to acquire Bloodborne server information":</strong> update to 1.9.4, which fixes it for PCs whose antivirus scans HTTPS connections.</li>
-          <li>Your firewall or router must let the game server port <strong>20443</strong> through.</li>
-          <li><strong>"Seamless co-op" tool:</strong> it overwrites a hidden server address. On 1.9.4: Online play → shadNet server → <strong>Use my own servers</strong> → empty the <strong>Game server</strong> field → switch back to The Hunter's Dream. 1.9.5 fixes this for good.</li>
-          <li><strong>Your own shadNet servers:</strong> the public server's WebAPI is <code>http://srv.shadps4.net:31315</code>, with plain <code>http</code>. An <code>https://</code> address fails with "SSL: UNEXPECTED_EOF_WHILE_READING". From 1.9.5 on, the server fields only count with <strong>Use my own servers</strong> ticked.</li>
-          <li>More in the <a href={link('faq/#online-connection')}>FAQ</a>.</li>
-        </ul>
-      </aside>
-    </div>
+    </details>
   </section>
+
+  <script>
+    // The guide is folded; a link to #play opens it, also a second click on "Play online" in "On this page"
+    const guide = document.querySelector<HTMLDetailsElement>('.sm-guide');
+    if (guide) {
+      const open = () => { if (location.hash === '#play') guide.open = true; };
+      open();
+      window.addEventListener('hashchange', open);
+      document.querySelectorAll('a[href="#play"]').forEach((a) => a.addEventListener('click', () => { guide.open = true; }));
+    }
+  </script>
 
   <div class="sm-page" data-src={api} data-hunter={link('server/hunter/')}>
     <section class="section" id="now" aria-labelledby="now-h">
@@ -221,7 +241,7 @@ const toc = [
   </div>
 
   <script>
-    import { el, num, hours, when, place, hunterLink, death } from '../lib/server-stats.js';
+    import { el, num, hours, when, stamp, openedDay, isNew, place, hunterLink, death } from '../lib/server-stats.js';
 
     const page = document.querySelector<HTMLElement>('.sm-page');
     if (page && page.dataset.src) {
@@ -273,10 +293,9 @@ const toc = [
       const renderNow = (s: any) => {
         // In its first 30 days the server is called new, so its numbers are read as a young server's (Nick, 29.10.2026)
         const fresh = field('fresh');
-        fresh.hidden = !s.counting_since || Date.now() / 1000 - s.counting_since > 30 * 86400;
+        fresh.hidden = !isNew(data.opened);
         if (!fresh.hidden) {
-          set('fresh', `SuperMedo Server is new: it opened on ${when(s.counting_since, false, true)}, and ${num(s.hunters?.registered ?? 0)} hunters have joined since. `
-            + 'Every number on this page counts from that day.');
+          set('fresh', `SuperMedo Server is new: it opened on ${openedDay(data.opened)}, and ${num(s.hunters?.registered ?? 0)} hunters have joined since.`);
         }
         set('online', num(s.online));
         set('peakToday', num(s.peak_online?.today?.online ?? 0));
@@ -475,8 +494,9 @@ const toc = [
           const s = data.server;
           const awake = s.status === 'online';
           state.classList.toggle('is-awake', awake);
-          set('state', [awake ? `SuperMedo Server online since ${when(s.awake_since)}` : 'SuperMedo Server is resting for maintenance, back soon',
-            registration[s.registration] ?? '', `updated ${when(data.updatedAt, true)}`].filter(Boolean).join(' · '));
+          set('state', [data.opened ? `Opened ${openedDay(data.opened)}` : '',
+            awake ? `online since ${stamp(s.awake_since)}` : 'resting for maintenance, back soon',
+            registration[s.registration] ?? '', `updated ${when(data.updatedAt, true)}`].filter(Boolean).join(' · ').replace(/^./, (c) => c.toUpperCase()));
           renderNow(s);
           renderDay(s);
           renderAreas();

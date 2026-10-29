@@ -25,6 +25,9 @@ if (! class_exists('BBForumServerStats')) {
     {
         const API = 'https://game.supermedo.com/api/v1/';
         const STALE = 900;
+        // The day SuperMedo Server opened to everyone (Nick, 29.10.2026). The API has no such date: counting_since
+        // (27.10.) was the start of a test with five hunters. Pages call the server new for 30 days from here.
+        const OPENED = '2026-10-28';
 
         /** Cached answer: one fetch per minute, the last good one for 15 minutes; null without one */
         public static function cached(string $key, callable $load): ?array
@@ -74,7 +77,7 @@ if (! class_exists('BBForumServerStats')) {
 
         public static function overview(): ?array
         {
-            return self::cached('bbforum.server.overview', function () {
+            $all = self::cached('bbforum.server.overview', function () {
                 $server = self::get('server');
                 if (! is_array($server) || ! isset($server['status'])) {
                     return null;
@@ -135,6 +138,8 @@ if (! class_exists('BBForumServerStats')) {
                     'updatedAt' => time(),
                 ];
             });
+
+            return $all ? ['opened' => self::OPENED] + $all : null;
         }
 
         /** The few numbers for the home page band and the forum box */
@@ -165,9 +170,9 @@ if (! class_exists('BBForumServerStats')) {
 
             return [
                 'status' => (string) ($s['status'] ?? ''),
+                // Opening day and the start of the current run, so a young server's numbers are read as such
+                'opened' => $all['opened'],
                 'awakeSince' => (int) ($s['awake_since'] ?? 0),
-                // Since when the server counts (its opening), so a young server's numbers are read as such
-                'countingSince' => (int) ($s['counting_since'] ?? 0),
                 'online' => (int) ($s['online'] ?? 0),
                 'peakEver' => (int) ($s['peak_online']['ever']['online'] ?? 0),
                 'registered' => (int) ($s['hunters']['registered'] ?? 0),

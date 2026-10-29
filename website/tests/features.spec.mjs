@@ -359,6 +359,11 @@ test('Launcher page: in the menu and with its sections, install and online elsew
   await page.goto('/server/');
   await expect(page.locator('h2#play-h')).toHaveText('Play online');
   await expect(page.locator('.nav a[aria-current="page"]')).toHaveText('Online');
+  // The guide is folded; a link to #play (FAQ, install guide, launcher page) opens it
+  await expect(page.locator('.sm-guide[open]')).toHaveCount(0);
+  await expect(page.locator('.sm-steps')).toBeHidden();
+  await page.goto('/server/#play');
+  await expect(page.locator('.sm-steps')).toBeVisible();
 });
 
 // Logo contest: big announcement on the home page, leads to the contest page in the forum; the template is on the website

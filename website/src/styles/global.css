@@ -877,21 +877,26 @@ h3 { font-size: var(--step-1); }
   font-family: var(--font-head); font-weight: 700; color: var(--gold-light); }
 .sm-steps strong { color: var(--text-strong); }
 .sm-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-/* Play online: the steps get the wide column and end with the buttons; the help sits in the narrower column
-   beside them. Both columns start on the same line (no heading margin on top). */
-.sm-play h2 { margin-top: 0; }
+/* Play online folds (details, like the FAQ): heading and one line are the button, "+" / "–" on the right. Open, the
+   steps get the wide column and end with the buttons; the help sits in the narrower column beside them, both
+   starting on the same line. */
+.sm-play h2 { margin: 0; }
+.sm-guide > summary { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; cursor: pointer; list-style: none; }
+.sm-guide > summary::-webkit-details-marker { display: none; }
+.sm-guide > summary::after { content: "+"; flex: none; color: var(--gold-light); font-size: 2rem; font-weight: 700; line-height: 1; }
+.sm-guide[open] > summary::after { content: "–"; }
+.sm-guide-hint { display: block; margin-top: 0.4rem; color: var(--text); }
+.sm-guide[open] > .sm-play-grid { margin-top: 2rem; }
 .sm-play-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 2.5rem 4.5rem; align-items: start; }
 .sm-play .sm-steps { margin-bottom: 0; }
 .sm-steps .sm-servers, .sm-tips { display: grid; gap: 0.5rem; margin: 0.6rem 0 0; padding-left: 1.1rem; color: var(--text); }
 .sm-steps .sm-servers li { counter-increment: none; padding: 0; }
 .sm-steps .sm-servers li::before { content: none; }
 .sm-play-note { max-width: 60ch; margin: 1.4rem 0; color: var(--text); font-size: var(--step-0); }
-.sm-play-help { padding-top: 0.7rem; }
 .sm-play-help .sm-tips { font-size: 0.95rem; }
 .sm-tips strong { color: var(--text-strong); }
 @media (max-width: 860px) {
-  .sm-play-grid { grid-template-columns: 1fr; }
-  .sm-play-help { padding-top: 0; }
+  .sm-play-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* Home page: band below the hero */
@@ -911,7 +916,11 @@ h3 { font-size: var(--step-1); }
 .srv-band .btn { margin-left: auto; }
 
 @media (max-width: 860px) {
-  .sm-now, .sm-split, .sm-cols, .sm-cols-2 { grid-template-columns: 1fr; }
+  /* minmax(0, …): a wide table must not stretch the column and with it the page (phones zoomed out to 463 px) */
+  .sm-now, .sm-split, .sm-cols, .sm-cols-2 { grid-template-columns: minmax(0, 1fr); }
+  /* One column: day by day scrolls sideways in its box again, the day on one line */
+  .sm-split .sm-scroll .sm-table { min-width: 560px; }
+  .sm-split .sm-scroll .sm-table tbody th { white-space: nowrap; }
   .srv-band .btn { margin-left: 0; }
 }
 
