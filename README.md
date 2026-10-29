@@ -45,7 +45,7 @@ with a Bloodborne gothic theme in Discord style.
 | `media/brand/`, `media/brand.py`, `media/logo.html`, `media/og.html` | The community sigil (`sigil.png`); the Discord icon, logo, favicons, website emblem and preview image are made from it |
 | `theme/logo.png`, `theme/favicon.png` | The same images as PNG for uploading (Flarum 1.x doesn't accept SVG) |
 | `theme/fonts/` | Cinzel + Inter as `.woff2`, self-hosted (SIL OFL) |
-| `content/` | Welcome banner, footer (Contact/Privacy), pinned topics (rules, short install guide, "Read first" for Help & Support, guide for Performance Reports), templates for Help & Support and Performance Reports |
+| `content/` | Welcome banner, footer (Contact/Privacy), pinned topics (rules, short install guide, "Read first" for Help & Support, guide for Share your FPS), templates for Help & Support and Share your FPS |
 | `website/` | Project website (Astro, static, GitHub Pages), see `website/README.md` |
 
 ## Requirements
@@ -266,11 +266,11 @@ would otherwise make replies fail with an error as soon as someone should get an
 |---|---|---|---|
 | **Announcements** | everyone | mods/admins only | restricted tag, members can reply, pinned rules topic |
 | **Help & Support** | everyone | members | **Best Answer**, post template with required info, uploads |
-| **Performance Reports** | everyone | members | template for hardware, settings and FPS on a fixed test route, pinned guide; source of real numbers for the website's hardware check |
+| **Share your FPS** | everyone | members | template for hardware, settings and FPS on a fixed test route, pinned guide; source of real numbers for the website's hardware check |
 | **Suggestions** | everyone | members | |
 | **Mods & Patches** | everyone | members | no game files (rules) |
 | **Guides** | everyone | members | |
-| **The Hunter's Dream** | everyone | members | off-topic |
+| **Off-topic** | everyone | members | anything that isn't about the port (slug `hunters-dream`) |
 
 Role colors: Admin blood red `#8a1118`, Mod brass `#9c8458`. Allowed uploads: images, `.zip`/`.7z`
 (report zips from the launcher) and `.txt` logs up to 20 MB. Only logged-in members can upload and download.
@@ -283,7 +283,7 @@ Role colors: Admin blood red `#8a1118`, Mod brass `#9c8458`. Allowed uploads: im
    Reply = Members. Set the moderation permissions as in the global permissions.
 3. *Best Answer* → enable it for the tag "Help & Support".
 4. *Tags → Help & Support → Edit*: fill the **Template** field with the contents of `content/help-template.md`,
-   and do the same for *Performance Reports* with `content/performance-template.md`.
+   and do the same for *Share your FPS* with `content/performance-template.md`.
 5. *FoF Upload* → set MIME types and max size. *Permissions* → Upload = Members, Download = Members.
 
 The template pre-fills the editor. Flarum can't technically enforce the required info.

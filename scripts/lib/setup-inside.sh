@@ -490,9 +490,9 @@ fi
 if installed fof/discussion-templates; then
   body=$(jq -n --rawfile t "$D/content/help-template.md" '{data: {template: $t}}')
   api PATCH "/tags/$help/template" "$body" >/dev/null && ok "post template for Help & Support"
-  # Performance Reports: hardware, settings and FPS on a fixed test route (basis for estimates)
+  # Share your FPS (slug performance): hardware, settings and FPS on a fixed test route (basis for estimates)
   body=$(jq -n --rawfile t "$D/content/performance-template.md" '{data: {template: $t}}')
-  api PATCH "/tags/$(tag_id performance)/template" "$body" >/dev/null && ok "post template for Performance Reports"
+  api PATCH "/tags/$(tag_id performance)/template" "$body" >/dev/null && ok "post template for Share your FPS"
   for t in known-fixes:known-fix bug-reports:bug suggestions:suggestion beta:beta logo-contest:logo-entry mods-patches:mod; do
     body=$(jq -n --rawfile t "$D/content/${t#*:}-template.md" '{data: {template: $t}}')
     api PATCH "/tags/$(tag_id "${t%%:*}")/template" "$body" >/dev/null && ok "post template for ${t%%:*}"
