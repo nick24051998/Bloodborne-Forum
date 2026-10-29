@@ -1577,6 +1577,25 @@ h1, h2, h3,
   }
 }
 
+// Logged in, the header also holds notifications and the avatar with the name: that was too wide for longer names,
+// the right part slid into a second line (UX review 29.10.2026). On wide screens the avatar alone (its alt text keeps
+// the name; on phones the name stays in the side menu), and the cup without "Support" for everyone logged in.
+@media @desktop-up {
+  .Header-secondary .item-session .Button--user .Button-label {
+    display: none;
+  }
+}
+
+.Header-secondary:has(.item-session) .bb-supportButton {
+  .bb-supportShort {
+    display: none;
+  }
+
+  .Button-icon {
+    margin-right: 0;
+  }
+}
+
 // Phones: search button next to the menu button (forum.js); wider screens have the search field in the header
 .IndexPage-nav .item-bbMobileSearch {
   display: none;
