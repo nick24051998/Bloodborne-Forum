@@ -23,12 +23,6 @@
  *
  * flarum/icons.less: custom icons (bbicon-*, CC0) for categories, in forum and admin.
  *
- * /api/hunters-dream: live numbers from the online server The Hunter's Dream (thehuntersdream.com)
- * for the widget in the forum (flarum/forum.js), also enabled for the website home page. The forum fetches
- * its /api/stats at most once per minute (after an error, not again for 5 minutes),
- * caches the result and passes on only totals, no player names. If the
- * numbers are older than 15 minutes, it answers with 503 and the fields stay hidden.
- *
  * /api/bb-ai/…: open help topics for BB Helper's AI answers and its reply as BB-Helper (flarum/ai-help.php)
  * /api/bb-discord-notify: queue of forum notifications for BB Helper (flarum/discord-notify.php), which delivers
  * them in the member's private inbox thread on Discord; off until bbforum.discord_notify_enabled = 1.
@@ -102,120 +96,6 @@ if (! class_exists('BBForumSecurityHeaders')) {
             }
 
             return $response;
-        }
-    }
-}
-
-if (! class_exists('BBForumHuntersDream')) {
-    class BBForumHuntersDream implements RequestHandlerInterface
-    {
-        private const SOURCE = 'https://thehuntersdream.com/api/stats';
-        private const DATA_KEY = 'bbforum.huntersdream.data';
-        private const LOCK_KEY = 'bbforum.huntersdream.lock';
-
-        public function handle(ServerRequestInterface $request): ResponseInterface
-        {
-            $cache = resolve(Cache::class);
-
-            // Only one request per minute goes to The Hunter's Dream, all others get the cached result
-            if ($cache->add(self::LOCK_KEY, 1, 60)) {
-                $fresh = $this->fetch();
-                if ($fresh) {
-                    $cache->forever(self::DATA_KEY, $fresh);
-                } else {
-                    $cache->put(self::LOCK_KEY, 1, 300);
-                }
-            }
-
-            // Older than 15 minutes (The Hunter's Dream unreachable for a while): better to show nothing
-            $data = $cache->get(self::DATA_KEY);
-            if ($data && $data['updatedAt'] < time() - 900) {
-                $data = null;
-            }
-            $headers = ['Access-Control-Allow-Origin' => '*', 'Cache-Control' => 'public, max-age=60'];
-
-            return $data
-                ? new JsonResponse($data, 200, $headers)
-                : new JsonResponse(['error' => 'unavailable'], 503, $headers);
-        }
-
-        private function fetch(): ?array
-        {
-            try {
-                $response = (new \GuzzleHttp\Client(['timeout' => 5, 'connect_timeout' => 3]))->get(self::SOURCE, [
-                    'headers' => [
-                        'Accept' => 'application/json',
-                        'User-Agent' => 'BBPP-Community-Forum (+https://bbport.de)',
-                    ],
-                ]);
-                $raw = json_decode((string) $response->getBody(), true);
-            } catch (\Throwable $e) {
-                return null;
-            }
-
-            if (! is_array($raw) || ! isset($raw['stats'], $raw['active_sessions'])) {
-                return null;
-            }
-
-            $stats = $raw['stats'];
-            $sessions = $raw['active_sessions'];
-
-            // First entry of a [[name, count], …] list; skip catch-all entries such as "Hunter (NPC or player)"
-            $top = function ($list) {
-                foreach ((array) $list as $entry) {
-                    if (is_array($entry) && isset($entry[0], $entry[1]) && strpos((string) $entry[0], '(') === false) {
-                        return ['name' => (string) $entry[0], 'count' => (int) $entry[1]];
-                    }
-                }
-
-                return null;
-            };
-
-            // Most common blood level band, e.g. "BL 10-19"
-            $levels = (array) ($stats['activity']['level_distribution'] ?? []);
-            usort($levels, function ($a, $b) {
-                return ((int) ($b[1] ?? 0)) <=> ((int) ($a[1] ?? 0));
-            });
-
-            // Areas with summon signs right now (two names at most)
-            $bellAreas = [];
-            foreach (array_slice((array) ($stats['activity']['summon_by_area'] ?? []), 0, 2) as $area) {
-                if (is_array($area) && isset($area[0])) {
-                    $bellAreas[] = (string) $area[0];
-                }
-            }
-
-            // Newest shared chalice glyph, without the creator's name
-            $dungeon = $stats['chalice']['dungeons'][0] ?? null;
-            $glyph = is_array($dungeon) && preg_match('/^[a-z0-9]{6,12}$/i', (string) ($dungeon['glyph'] ?? ''))
-                ? ['glyph' => (string) $dungeon['glyph'], 'dungeon' => (string) ($dungeon['dungeon_name'] ?? ''), 'id' => (int) ($dungeon['channel_id'] ?? 0)]
-                : null;
-
-            return [
-                'serverOnline' => (bool) ($sessions['server_online'] ?? false),
-                'online' => (int) ($sessions['count'] ?? 0),
-                'coopSigns' => (int) ($stats['activity']['summon_coop'] ?? 0),
-                'sinisterBells' => (int) ($stats['activity']['summon_invade'] ?? 0),
-                'bellAreas' => $bellAreas,
-                'bossClears24h' => (int) ($stats['hunt']['boss_clears_24h'] ?? 0),
-                'kills24h' => (int) ($stats['hunt']['kills_24h'] ?? 0),
-                'bossClears' => (int) ($stats['hunt']['boss_clears'] ?? 0),
-                'kills' => (int) ($stats['hunt']['kills'] ?? 0),
-                'hunters' => (int) ($stats['overview']['total_users'] ?? 0),
-                'summons' => (int) ($stats['overview']['total_summons'] ?? 0),
-                'deaths' => (int) ($stats['overview']['total_deaths'] ?? 0),
-                'ghosts' => (int) ($stats['overview']['total_ghosts'] ?? 0),
-                'messages' => (int) ($stats['overview']['total_messages'] ?? 0),
-                'chaliceDungeons' => (int) ($stats['overview']['total_dungeons'] ?? 0),
-                'deadliestFoe' => $top($stats['deaths']['top_killers'] ?? []),
-                'deadliestArea' => $top($stats['deaths']['by_location'] ?? []),
-                'mostSlainBoss' => $top($stats['hunt']['slain'] ?? []),
-                'mostHunted' => $top($stats['hunt']['hunted'] ?? []),
-                'levelPeak' => isset($levels[0][0]) ? (string) $levels[0][0] : null,
-                'newestGlyph' => $glyph,
-                'updatedAt' => time(),
-                'source' => 'https://thehuntersdream.com',
-            ];
         }
     }
 }
@@ -346,8 +226,6 @@ require_once __DIR__.'/server-stats.php';
 
 return [
     (new Extend\ServiceProvider())->register(BBForumCliLocale::class),
-
-    (new Extend\Routes('api'))->get('/hunters-dream', 'bbforum.huntersDream', BBForumHuntersDream::class),
 
     // Take over Discord roles: freshly logged-in users every minute, all users every 10 minutes
     (new Extend\Console())

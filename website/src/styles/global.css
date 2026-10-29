@@ -319,15 +319,7 @@ h3 { font-size: var(--step-1); }
   .hero .emblem { order: -1; width: 130px; }
 }
 
-/* --- Live figures from The Hunter's Dream (home page, data via the forum) ------------------- */
-.live { background: var(--bg-deep); border-bottom: 1px solid var(--border); padding: 1.4rem 0 1.2rem; }
-.live[hidden] { display: none; }
-.live-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.4rem 1.5rem; }
-.live-head .eyebrow { margin: 0; }
-.live-status { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--muted); font-size: 0.9rem; }
-.live-lamp { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
-.live.is-online .live-status { color: var(--text-strong); }
-.live.is-online .live-lamp { background: #bc9570; animation: lamp-flicker 4.2s steps(1, end) infinite; } /* lantern light */
+/* Lantern light of the live lamps (SuperMedo Server on /server/ and the home page band) */
 @keyframes lamp-flicker {
   0% { opacity: 1; box-shadow: 0 0 6px 1px rgba(188, 149, 112, 0.45); }
   14% { opacity: 0.86; box-shadow: 0 0 4px 0 rgba(188, 149, 112, 0.3); }
@@ -335,14 +327,6 @@ h3 { font-size: var(--step-1); }
   51% { opacity: 0.78; box-shadow: 0 0 3px 0 rgba(188, 149, 112, 0.25); }
   60% { opacity: 0.95; box-shadow: 0 0 5px 1px rgba(188, 149, 112, 0.4); }
   83% { opacity: 0.88; box-shadow: 0 0 4px 0 rgba(188, 149, 112, 0.32); }
-}
-.live-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 1rem 0 0.9rem; }
-.live-stats dt { color: var(--muted); font-size: 0.85rem; }
-.live-stats dd { margin: 0.15rem 0 0; font-family: var(--font-head); font-weight: 700; font-size: var(--step-1);
-  color: var(--text-strong); font-variant-numeric: tabular-nums; }
-.live-note { margin: 0; color: var(--muted); font-size: 0.85rem; }
-@media (max-width: 860px) {
-  .live-stats { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* --- Sections & cards ----------------------------------------------------------------- */
@@ -930,7 +914,7 @@ h3 { font-size: var(--step-1); }
 
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
-  .hero::before, .hero::after, .page-hero::after, .hero .emblem-art, .hero .emblem::before, .hero .emblem::after, .section, .live-lamp, .sm-lamp, .nr-caret { animation: none !important; }
+  .hero::before, .hero::after, .page-hero::after, .hero .emblem-art, .hero .emblem::before, .hero .emblem::after, .section, .sm-lamp, .nr-caret { animation: none !important; }
   .sm-bar > span { transition: none; }
   :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord),
   :is(.btn, .hw-detect, .hw-copy, .lightbox button, .menu-button, .nav .nav-discord)::before,

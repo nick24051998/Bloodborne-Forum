@@ -83,9 +83,8 @@ while you browse, and, if you choose "Remember me", a cookie that keeps you logg
 remembers a few choices you make, such as hiding the welcome banner, in your browser. None of this is
 used for tracking.
 
-**Live statistics.** The forum shows numbers from The Hunter's Dream and SuperMedo Server (online co-op
-servers). Our server fetches them directly from thehuntersdream.com and game.supermedo.com; no data about you
-is sent there.
+**Live statistics.** The forum shows numbers from SuperMedo Server, the online co-op server. Our server
+fetches them directly from game.supermedo.com; no data about you is sent there.
 
 **"My game account."** When you click "My game account" in your forum menu, the forum sends your Discord user ID
 to SuperMedo Server (game.supermedo.com), with a signature that is valid for one minute, so it can sign you in to

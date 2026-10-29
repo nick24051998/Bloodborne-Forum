@@ -33,11 +33,6 @@ export const SITE = {
   // src/texts/contact.md, src/texts/privacy.md and content/footer.html (forum): update those too when changing it.
   contactEmail: 'bbport@supermedo.com',
 
-  // Online server the community plays on. The live numbers on the home page are fetched by the
-  // browser via the forum (forumUrl + '/api/hunters-dream', see flarum/extend.php).
-  // Forum only for now; to switch it on for the website, enter 'https://thehuntersdream.com'.
-  huntersDreamUrl: '',
-
   // Supermedo's own online server (SuperMedo Server). The /server/ page (menu item "Server"), /server/hunter/ and
   // the band on the home page load its statistics through the forum (forumUrl + '/api/bb-server', see
   // flarum/server-stats.php), which asks the server once a minute; see src/texts/privacy.md.

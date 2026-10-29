@@ -33,7 +33,7 @@ with a Bloodborne gothic theme in Discord style.
 | `scripts/auto-update.sh`, `scripts/install-auto-update.sh` | Fetches new commits every 5 minutes and applies them (systemd timer), optionally with a notification in Discord |
 | `scripts/uptime-check.sh`, `.github/workflows/uptime.yml` | Downtime watcher: checks website and forum every 10 minutes from GitHub, reports outages and recovery in Discord |
 | `.github/workflows/website.yml` | Builds the website on changes, and every 2 hours when the port has a new version; announces it in Discord |
-| `flarum/extend.php` | "New accounts only via Discord" switch, security headers, `/api/hunters-dream` (live numbers from The Hunter's Dream, cached for one minute, totals only) and new topics to Discord |
+| `flarum/extend.php` | "New accounts only via Discord" switch, security headers, and new topics to Discord |
 | `flarum/extend-loader.php` | Mounted as `/opt/flarum/extend.php`; loads `flarum/extend.php` so changes take effect after `git pull` without a restart |
 | `flarum/forum.js` | Links to the website and to Discord in the forum header, sign-up dialog with only the Discord button, live numbers from The Hunter's Dream (sidebar; on phones below the banner) |
 | `flarum/helpers.php` | Top helpers: ranking of the last 30 days and of all time (`/api/bb-top-helpers`), box in the sidebar, page `/top-helpers`, mark for the top 3 |

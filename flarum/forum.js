@@ -4,13 +4,13 @@
 //   Log in and, as the last button, Discord like on the website. Website links open in the same tab, Discord in a new
 //   one (on phones in the side menu, where "Website" is added as well)
 // - Discord-only sign-up: the sign-up window shows only the Discord button
-// - Live numbers from The Hunter's Dream (from /api/hunters-dream, see extend.php): as a box
-//   in the sidebar, on narrow screens as a line below the welcome banner. SuperMedo Server the same way, as a box
-//   below it (from /api/bb-server/summary, see flarum/server-stats.php), leading to bbport.de/server/
+// - Live numbers from SuperMedo Server (from /api/bb-server/summary, see flarum/server-stats.php): as a box in the
+//   sidebar, on narrow screens as a line below the welcome banner, leading to bbport.de/server/ (until 29.10.2026 this
+//   showed The Hunter's Dream)
 // - No group badges: role shields at the name, earned marks after it (flarum/profiles.php)
 // - Overview below the banner of the home page: four blocks (new help questions, top suggestions, new Known Fixes,
 //   News) with five topics each; can be hidden (the browser remembers it). Sidebar: "Start here" with the guides,
-//   only the sections (topic tags such as Crash are available as tabs and in the Known Fixes index), Hunter's Dream
+//   only the sections (topic tags such as Crash are available as tabs and in the Known Fixes index), the server box
 //   collapsible
 // - Votes: 👍 on the opening post (flarum/overview.php). Suggestions show a votes box and are sorted by
 //   votes, new ones from the last 7 days are highlighted above them; tabs (?tab=) above Suggestions,
@@ -24,7 +24,7 @@
 //   work lists (unanswered, unsolved, open bugs, suggestions) and "Save as Known Fix" on help topics
 // - Logo contest: page /logo-contest with all entries (first image in the opening post of a topic in the section
 //   Logo Contest), submitting and voting; rules and data in flarum/contest.php, link in the sidebar
-// - Top helpers (flarum/helpers.php): box with the top 5 of the last 30 days below The Hunter's Dream (wide screens,
+// - Top helpers (flarum/helpers.php): box with the top 5 of the last 30 days below the server box (wide screens,
 //   otherwise a link in the menu), page /top-helpers (last 30 days and all time), mark for the top 3
 // - "My game account" in the member's menu (flarum/supermedo-account.php): to their account on SuperMedo Server,
 //   already signed in; only while the forum has the shared key
@@ -66,8 +66,6 @@
   var AvatarEditor = compat['forum/components/AvatarEditor'];
   var NotificationGrid = compat['forum/components/NotificationGrid'];
   var Notification = compat['forum/components/Notification'];
-
-  var HD_URL = 'https://thehuntersdream.com';
 
   // Website links open in the same tab (website and forum should feel like one site),
   // third-party services such as Discord in a new one
@@ -117,41 +115,11 @@
     }
   }
 
-  // Reload the numbers at most once a minute; without data (server gone, error) everything stays hidden
-  var hd = { data: null, fact: null, loadedAt: 0, loading: false };
+  // Live numbers in the sidebar box and the line on narrow screens (SuperMedo Server, see serverCard below)
   var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  function loadHuntersDream() {
-    if (hd.loading || Date.now() - hd.loadedAt < 60000) return;
-    hd.loading = true;
-    fetch(app.forum.attribute('apiUrl') + '/hunters-dream')
-      .then(function (response) { return response.ok ? response.json() : null; })
-      .then(function (data) {
-        hd.data = data;
-        // The hunting fact changes on every page load, not on every refresh
-        if (data && !hd.fact) hd.fact = pickFact(data);
-      })
-      .catch(function () {})
-      .then(function () {
-        hd.loading = false;
-        hd.loadedAt = Date.now();
-        m.redraw();
-      });
-  }
 
   function number(value) {
     return Number(value).toLocaleString('en-US');
-  }
-
-  function pickFact(d) {
-    var facts = [];
-    if (d.deadliestArea) facts.push('Deadliest area: ' + d.deadliestArea.name + ' (' + number(d.deadliestArea.count) + ' deaths)');
-    if (d.mostSlainBoss) facts.push('Most slain boss: ' + d.mostSlainBoss.name + ' (' + number(d.mostSlainBoss.count) + ' times)');
-    if (d.mostHunted) facts.push('Most hunted: ' + d.mostHunted.name + ' (' + number(d.mostHunted.count) + ' slain)');
-    if (d.levelPeak) facts.push('Most hunters are ' + d.levelPeak.replace('-', '–'));
-    if (d.chaliceDungeons) facts.push(number(d.chaliceDungeons) + ' chalice dungeons shared');
-    if (d.ghosts) facts.push(number(d.ghosts) + ' ghosts seen in the streets');
-    return facts.length ? facts[Math.floor(Math.random() * facts.length)] : null;
   }
 
   // Count the number up from 0 when it first appears (900 ms, long ease-out); after that it simply stays put
@@ -182,66 +150,7 @@
     ]);
   }
 
-  // The box can be collapsed to title and status (the browser remembers it)
-  var HD_KEY = 'bbforum.hdCollapsed';
-  var hdClosed = null;
-
-  function hdIsCollapsed() {
-    if (hdClosed === null) {
-      try { hdClosed = localStorage.getItem(HD_KEY) === '1'; } catch (e) { hdClosed = false; }
-    }
-    return hdClosed;
-  }
-
-  function toggleHd() {
-    hdClosed = !hdIsCollapsed();
-    try { localStorage.setItem(HD_KEY, hdClosed ? '1' : '0'); } catch (e) {}
-  }
-
-  function huntersDreamCard(d) {
-    // Bells only while the server is running: how many are currently calling for fellow players (co-op) or invaders
-    var rows = d.serverOnline ? [['Co-op signs now', d.coopSigns], ['Sinister bells now', d.sinisterBells]] : [];
-    rows.push(['Prey slaughtered (24 h)', d.bossClears24h], ['Beasts slain (24 h)', d.kills24h]);
-    var closed = hdIsCollapsed();
-
-    return m('div.bb-hd' + (closed ? '.is-collapsed' : ''), [
-      m('div.bb-hd-head', [
-        m('a.bb-hd-title', { href: HD_URL, target: '_blank', rel: 'noopener' }, "The Hunter's Dream"),
-        m('button.bb-hd-toggle', {
-          type: 'button',
-          'aria-expanded': closed ? 'false' : 'true',
-          title: closed ? 'Show the numbers' : 'Hide the numbers',
-          onclick: toggleHd,
-        }, icon(closed ? 'fas fa-chevron-down' : 'fas fa-chevron-up')),
-      ]),
-      statusLine(d),
-      closed ? null : [
-        m('dl.bb-hd-stats', rows.map(function (row) {
-          return m('div', [m('dt', row[0]), m('dd', countUp(row[1]), number(row[1]))]);
-        }).concat(d.deadliestFoe ? [m('div', [m('dt', 'Deadliest foe'), m('dd', d.deadliestFoe.name)])] : [])),
-        hd.fact ? m('p.bb-hd-fact', hd.fact) : null,
-        d.newestGlyph ? m('p.bb-hd-glyph', [
-          'Newest glyph ',
-          m('a', { href: HD_URL + '/chalice/' + d.newestGlyph.id, target: '_blank', rel: 'noopener' }, m('code', d.newestGlyph.glyph)),
-          d.newestGlyph.dungeon ? m('span', ' ' + d.newestGlyph.dungeon) : null,
-        ]) : null,
-        m('a.bb-hd-more', { href: HD_URL + '/leaderboards', target: '_blank', rel: 'noopener' }, 'Leaderboards →'),
-      ],
-    ]);
-  }
-
-  function huntersDreamStrip(d) {
-    var extra = d.serverOnline && d.coopSigns ? number(d.coopSigns) + ' co-op signs ringing' : number(d.bossClears24h) + ' prey slaughtered (24 h)';
-    return m('div.bb-hdStrip', m('div.container', [
-      m('a', { href: HD_URL, target: '_blank', rel: 'noopener' }, [
-        statusLine(d),
-        m('span.bb-hdStrip-name', " on The Hunter's Dream"),
-      ]),
-      m('span.bb-hdStrip-stat', ' · ' + extra),
-    ]));
-  }
-
-  // SuperMedo Server (flarum/server-stats.php): the same box below The Hunter's Dream, numbers from
+  // SuperMedo Server (flarum/server-stats.php): box in the sidebar, numbers from
   // /api/bb-server/summary; the title leads to the statistics on the website (/server/, same tab)
   var srv = { data: null, loadedAt: 0, loading: false };
 
@@ -300,6 +209,21 @@
         m('a.bb-hd-more', { href: page }, 'Statistics →'),
       ],
     ]);
+  }
+
+  // Narrow screens (no sidebar): one line below the welcome banner, leading to the statistics on the website
+  function serverStrip(d) {
+    var page = (app.forum.attribute('bbforumWebsiteUrl') || '') + '/server/';
+    var online = d.status === 'online';
+    var hosts = (d.bells || {}).hosts_searching || 0;
+    var extra = online && hosts ? number(hosts) + (hosts === 1 ? ' host wants help' : ' hosts want help') : number(d.playedToday) + ' played today';
+    return m('div.bb-hdStrip', m('div.container', [
+      m('a', { href: page }, [
+        statusLine({ serverOnline: online, online: d.online }),
+        m('span.bb-hdStrip-name', ' on SuperMedo Server'),
+      ]),
+      m('span.bb-hdStrip-stat', ' · ' + extra),
+    ]));
   }
 
   // Overview of the home page: four sections with five topics each and a sentence on what the section is for.
@@ -1627,15 +1551,13 @@
       }, true);
     });
 
-    // Hunter's Dream: box in the sidebar (wide screens), line below the banner (narrow ones)
+    // SuperMedo Server: box in the sidebar (wide screens), line below the banner (narrow ones)
     extend(IndexPage.prototype, 'sidebarItems', function (items) {
-      loadHuntersDream();
-      if (hd.data) items.add('bbHuntersDream', huntersDreamCard(hd.data), -100);
       loadServer();
-      if (srv.data) items.add('bbServer', serverCard(srv.data), -105);
+      if (srv.data) items.add('bbServer', serverCard(srv.data), -100);
     });
 
-    // Top helpers: box below The Hunter's Dream (wide screens); narrower screens get a link in the menu instead
+    // Top helpers: box below the server box (wide screens); narrower screens get a link in the menu instead
     extend(IndexPage.prototype, 'sidebarItems', function (items) {
       loadHelpers();
       var card = helpersCard();
@@ -1699,12 +1621,12 @@
       return original() && !quickEdit(this.attrs.discussion);
     });
 
-    // Below the banner: Hunter's Dream (narrow screens) and, on the home page (not inside a section, no
+    // Below the banner: SuperMedo Server (narrow screens) and, on the home page (not inside a section, no
     // search), the overview
     override(IndexPage.prototype, 'hero', function (original) {
       var inTag = this.currentTag && this.currentTag();
       var home = !inTag && !app.search.params().q && !guideHidden();
-      return [original(), hd.data ? huntersDreamStrip(hd.data) : null, home ? dashboard() : null];
+      return [original(), srv.data ? serverStrip(srv.data) : null, home ? dashboard() : null];
     });
 
     // No group badges: as colour dots they sat above the profile picture and said nothing (Nick, 26.10.2026).
