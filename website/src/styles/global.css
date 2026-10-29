@@ -881,12 +881,16 @@ h3 { font-size: var(--step-1); }
    steps get the wide column and end with the buttons; the help sits in the narrower column beside them, both
    starting on the same line. */
 .sm-play h2 { margin: 0; }
-.sm-guide > summary { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; cursor: pointer; list-style: none; }
+.sm-guide { padding: 0; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); }
+.sm-guide[open] { border-color: var(--border-strong); }
+.sm-guide > summary { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding: 1.4rem 1.6rem;
+  cursor: pointer; list-style: none; }
 .sm-guide > summary::-webkit-details-marker { display: none; }
 .sm-guide > summary::after { content: "+"; flex: none; color: var(--gold-light); font-size: 2rem; font-weight: 700; line-height: 1; }
+.sm-guide > summary:is(:hover, :focus-visible)::after { color: var(--text-strong); }
 .sm-guide[open] > summary::after { content: "–"; }
 .sm-guide-hint { display: block; margin-top: 0.4rem; color: var(--text); }
-.sm-guide[open] > .sm-play-grid { margin-top: 2rem; }
+.sm-guide > .sm-play-grid { padding: 0.4rem 1.6rem 1.8rem; }
 .sm-play-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 2.5rem 4.5rem; align-items: start; }
 .sm-play .sm-steps { margin-bottom: 0; }
 .sm-steps .sm-servers, .sm-tips { display: grid; gap: 0.5rem; margin: 0.6rem 0 0; padding-left: 1.1rem; color: var(--text); }
