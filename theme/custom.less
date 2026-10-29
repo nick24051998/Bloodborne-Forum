@@ -327,8 +327,18 @@ h1, h2, h3,
   border-bottom: 1px solid @bb-border;
   color: @bb-text;
   // Compact (UX review 29.10.2026): only guests see it (forum.js), and it shouldn't push the topics out of the
-  // first screen; two lines of text, then the two ways in as buttons (content/welcome.html)
-  padding: 30px 0 28px;
+  // first screen; two lines of text, then the two ways in as buttons (content/welcome.html). Flarum's own
+  // container padding (40/30 px) replaced, the text column wider so it stays two lines.
+  padding: 0;
+
+  .container {
+    padding-top: 26px;
+    padding-bottom: 24px;
+  }
+
+  .containerNarrow {
+    max-width: 760px;
+  }
 
   .Hero-title {
     color: @bb-text-strong;
@@ -367,13 +377,17 @@ h1, h2, h3,
   }
 
   @media @phone {
-    padding: 22px 0 20px;
     // On narrow screens the text sits over the city: crop shifted right, darkened more
     background:
       linear-gradient(180deg, transparent 50%, @bb-bg 100%),
       linear-gradient(fade(@bb-bg-deep, 58%), fade(@bb-bg-deep, 58%)),
       ~"url('media/bb/forum-banner.webp') 72% 30% / cover no-repeat",
       @bb-surface;
+
+    .container {
+      padding-top: 20px;
+      padding-bottom: 18px;
+    }
 
     .Hero-title {
       font-size: 19px;
