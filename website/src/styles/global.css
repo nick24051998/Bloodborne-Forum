@@ -843,6 +843,80 @@ h3 { font-size: var(--step-1); }
 .sm-screen .sm-prompt { margin-bottom: 0.4rem; color: var(--nr-green); text-shadow: 0 0 6px rgba(93, 255, 138, 0.4); text-transform: none; }
 .sm-screen .sm-advice { display: block; margin-top: 0.7rem; color: #ffd27a; text-transform: none; }
 
+/* Dashboard (Nick, 29.10.2026): the numbers in one strip divided by hairlines, then panels of short lists. Each line has
+   its number on the right and a thin bar below: brass for time and hunters, blood for deaths. No pictures. */
+.sm-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin: 1.4rem 0 2rem;
+  border-block: 1px solid rgba(156, 132, 88, 0.4); }
+.sm-strip > div { min-width: 0; padding: 1rem 1.1rem 0.9rem; border-left: 1px solid var(--border); }
+.sm-strip > div:first-child { padding-left: 0; border-left: 0; }
+.sm-strip dt { font-family: var(--font-head); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--text-soft); }
+.sm-strip dd { display: flex; flex-direction: column; gap: 0.25rem; margin: 0.35rem 0 0; }
+.sm-strip strong { font-family: var(--font-head); font-weight: 700; font-size: clamp(1.7rem, 1.3rem + 1.2vw, 2.4rem); line-height: 1.05;
+  color: var(--gold-light); font-variant-numeric: tabular-nums; }
+.sm-strip strong.is-blood { color: #d0484d; }
+.sm-strip dd span { color: var(--text-soft); font-size: 0.85rem; }
+.sm-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 1.4rem; align-items: start; }
+.sm-grid-even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sm-stack { display: grid; gap: 1.4rem; min-width: 0; }
+.sm-panel { min-width: 0; padding: 1.3rem 1.4rem 1.2rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); }
+.section-alt .sm-panel { background: var(--surface); }
+.sm-panel > header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.3rem 1rem; margin-bottom: 0.7rem; }
+.sm-panel > header :is(h2, h3) { margin: 0; }
+.sm-panel > header h3 { font-size: var(--step-1); }
+.sm-panel > header span { color: var(--text-soft); font-size: 0.85rem; }
+.sm-panel h4.sm-label { margin-top: 1.4rem; font-size: 0.78rem; }
+.sm-intro { max-width: 60ch; margin: 0 0 0.8rem; color: var(--text); }
+.sm-intro:empty { display: none; }
+.sm-intro strong { color: var(--text-strong); }
+.sm-rows { list-style: none; margin: 0; padding: 0; }
+.sm-rows li { padding: 0.6rem 0; border-top: 1px solid #2a2c31; }
+.sm-rows li:first-child { border-top: 0; }
+.sm-row-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.sm-row-name { min-width: 0; overflow-wrap: anywhere; color: var(--text-strong); }
+.sm-row-value { flex: none; color: var(--gold-light); font-variant-numeric: tabular-nums; }
+.sm-rows .sm-bar { height: 4px; min-width: 0; margin-top: 0.4rem; }
+.sm-rows .sm-meta { display: block; margin-top: 0.25rem; font-size: 0.82rem; }
+.sm-rows .sm-rank { display: inline-block; min-width: 1.6rem; }
+.sm-rows .sm-glyph { vertical-align: middle; }
+.sm-copy { margin-left: 0.7rem; vertical-align: middle; }
+.sm-fold { margin-top: 1rem; }
+.sm-fold > summary { cursor: pointer; color: var(--gold-light); font-weight: 600; }
+.sm-fold[open] > summary { margin-bottom: 0.8rem; }
+/* The causes of death: one bar split by share, the legend below it */
+.sm-share { display: flex; height: 10px; margin: 0.2rem 0 0.6rem; overflow: hidden; border-radius: 5px; background: #26282d; }
+.sm-share span { display: block; height: 100%; }
+.sm-legend { display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; margin: 0 0 1rem; color: var(--text); font-size: 0.85rem; }
+.sm-legend i { display: inline-block; width: 9px; height: 9px; margin-right: 0.4rem; border-radius: 2px; }
+.sm-cause-killed { background: #c22a30; }
+.sm-cause-fall { background: var(--gold-light); }
+.sm-cause-other { background: #5e6166; }
+.sm-cause-poison { background: #6f8f4e; }
+.sm-cause-brainsucker { background: #7b6aa3; }
+/* Leaderboard: the top five as plates side by side, the first with a brass line */
+ol.sm-board { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.9rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+ol.sm-board li { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; padding: 0.9rem 1rem; border: 1px solid var(--border);
+  border-radius: 10px; background: var(--bg-deep); }
+ol.sm-board li:first-child { border-color: rgba(194, 168, 120, 0.5); }
+ol.sm-board li.sm-empty { grid-column: 1 / -1; }
+ol.sm-board .sm-grow { overflow-wrap: anywhere; font-weight: 600; text-decoration: none; }
+ol.sm-board strong { font-family: var(--font-head); font-size: 1.35rem; color: var(--gold-light); font-variant-numeric: tabular-nums; }
+.sm-panel .sm-messages { grid-template-columns: minmax(0, 1fr); }
+.sm-panel .sm-message:first-child { padding-top: 0; border-top: 0; }
+.sm-panel .sm-message-text { font-size: 1.1rem; }
+/* The strip in three columns, on phones in two; the hairlines follow the rows */
+@media (max-width: 1199px) {
+  .sm-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sm-strip > div:nth-child(3n + 1) { padding-left: 0; border-left: 0; }
+  .sm-strip > div:nth-child(n + 4) { border-top: 1px solid var(--border); }
+}
+@media (max-width: 600px) {
+  .sm-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sm-strip > div { padding-left: 0; border-left: 0; }
+  .sm-strip > div:nth-child(even) { padding-left: 1rem; border-left: 1px solid var(--border); }
+  .sm-strip > div:nth-child(n + 3) { border-top: 1px solid var(--border); }
+}
+
 /* Tables and lists: hairlines, headings in brass small capitals */
 .sm-scroll { overflow-x: auto; }
 .sm-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
@@ -978,7 +1052,9 @@ h3 { font-size: var(--step-1); }
 
 @media (max-width: 860px) {
   /* minmax(0, …): a wide table must not stretch the column and with it the page (phones zoomed out to 463 px) */
-  .sm-now, .sm-split, .sm-cols, .sm-cols-2 { grid-template-columns: minmax(0, 1fr); }
+  .sm-now, .sm-split, .sm-cols, .sm-cols-2, .sm-grid, .sm-grid-even { grid-template-columns: minmax(0, 1fr); }
+  ol.sm-board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  ol.sm-board li:first-child { grid-column: 1 / -1; }
   /* One column: day by day scrolls sideways in its box again, the day on one line */
   .sm-split .sm-scroll .sm-table { min-width: 560px; }
   .sm-split .sm-scroll .sm-table tbody th { white-space: nowrap; }
