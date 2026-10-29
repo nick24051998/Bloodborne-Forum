@@ -9,7 +9,7 @@
 //   showed The Hunter's Dream)
 // - No group badges: role shields at the name, earned marks after it (flarum/profiles.php)
 // - Overview below the banner of the home page: four blocks (new help questions, top suggestions, new Known Fixes,
-//   News) with five topics each; can be hidden (the browser remembers it). Sidebar: "Start here" with the guides,
+//   News) with three topics each; can be hidden (the browser remembers it). Sidebar: "Start here" with the guides,
 //   only the sections (topic tags such as Crash are available as tabs and in the Known Fixes index), the server box
 //   collapsible
 // - Votes: 👍 on the opening post (flarum/overview.php). Suggestions show a votes box and are sorted by
@@ -60,6 +60,8 @@
   var PostUser = compat['forum/components/PostUser'];
   var CommentPost = compat['forum/components/CommentPost'];
   var DiscussionPage = compat['forum/components/DiscussionPage'];
+  var DiscussionHero = compat['forum/components/DiscussionHero'];
+  var PostStream = compat['forum/components/PostStream'];
   var UserCard = compat['forum/components/UserCard'];
   var SettingsPage = compat['forum/components/SettingsPage'];
   var FieldSet = compat['common/components/FieldSet'];
@@ -81,13 +83,16 @@
     ]);
   }
 
-  // Support our server (Medo, 29.10.2026): Supermedo's Buy Me a Coffee, yellow next to Discord. On wide screens the
-  // header only has room for the cup: the words stay as tooltip and for screen readers (theme/custom.less)
+  // Support our server (Medo, 29.10.2026): Supermedo's Buy Me a Coffee, yellow next to Discord. In the header of wide
+  // screens the full words don't fit: there the cup with a short "Support" where there is room, otherwise the cup
+  // alone; the full words stay as tooltip and for screen readers (theme/custom.less; UX review 29.10.2026: the cup
+  // alone only explained itself on hover)
   var SUPPORT_URL = 'https://buymeacoffee.com/supermedo';
   function supportButton() {
     return m('a.Button.bb-supportButton', { href: SUPPORT_URL, target: '_blank', rel: 'noopener', title: 'Support our server' }, [
       m('span.Button-icon', { 'aria-hidden': 'true' }, '\u2615'),
       m('span.Button-label', 'Support our server'),
+      m('span.bb-supportShort', { 'aria-hidden': 'true' }, 'Support'),
     ]);
   }
 
@@ -260,7 +265,8 @@
     ]));
   }
 
-  // Overview of the home page: four sections with five topics each and a sentence on what the section is for.
+  // Overview of the home page: four sections with three topics each and a sentence on what the section is for (five
+  // until 29.10.2026; titles now wrap to two lines instead of being cut off, phones show only the four headings).
   // [section, heading, sort, sentence, bbview]; only sections that exist (setup creates them).
   var DASH = [
     ['help-support', 'New questions', '-createdAt', "Something doesn't work: one topic per problem, with your report zip (launcher: Help → Save a report)."],
@@ -282,7 +288,7 @@
     Promise.all(DASH.map(function (block) {
       var filter = { tag: block[0] };
       if (block[4]) filter.bbview = block[4];
-      return app.store.find('discussions', { filter: filter, include: 'tags', sort: block[2], page: { limit: 5 } })
+      return app.store.find('discussions', { filter: filter, include: 'tags', sort: block[2], page: { limit: 3 } })
         .then(function (list) { dash.lists[block[0]] = list; })
         .catch(function () { dash.lists[block[0]] = []; });
     })).then(function () {
@@ -1658,6 +1664,58 @@
       document.addEventListener('click', function (e) {
         if (e.target instanceof Element && e.target.closest('#home-link')) e.stopPropagation();
       }, true);
+    });
+
+    // Phones: a search button next to the menu button. The search field sits in the side menu, where nobody saw it
+    // (UX review 29.10.2026); the button opens the menu with the cursor in the field. Wider screens: custom.less hides it.
+    extend(IndexPage.prototype, 'sidebarItems', function (items) {
+      items.add('bbMobileSearch', Button.component({
+        className: 'Button Button--icon bb-mobileSearch',
+        icon: 'fas fa-search',
+        'aria-label': 'Search the forum',
+        // Like Flarum's menu button: without stopPropagation the same click closes the menu again
+        onclick: function (e) {
+          e.stopPropagation();
+          app.drawer.show();
+          setTimeout(function () {
+            var input = document.querySelector('.App-drawer .Search-input input');
+            if (input) input.focus();
+          }, 50);
+        },
+      }), 90);
+    });
+
+    // Solved help topics: "Solved · Jump to the solution" below the title (the solution can sit far down in a long
+    // topic). At the end of every help topic, for everyone but its author: one topic per problem, with the report zip
+    // (UX review 29.10.2026: "same here" replies in solved topics got no answers matched to the PC).
+    extend(DiscussionHero.prototype, 'items', function (items) {
+      var discussion = this.attrs.discussion;
+      var best = discussion.attribute('hasBestAnswer') && discussion.bestAnswerPost && discussion.bestAnswerPost();
+      if (!best || !best.number) return;
+      items.add('bbSolved', m('p.bb-solvedLine', [
+        icon('fas fa-check'), ' Solved · ',
+        m('a', {
+          href: app.route.discussion(discussion, best.number()),
+          onclick: function (e) {
+            var stream = app.current.get('stream');
+            if (!stream) return;
+            e.preventDefault();
+            stream.goToNumber(best.number());
+          },
+        }, 'Jump to the solution'),
+      ]), -10);
+    });
+
+    extend(PostStream.prototype, 'view', function (vdom) {
+      var discussion = this.attrs.discussion;
+      var user = app.session.user;
+      if (!this.stream.viewingEnd() || tagSlugs(discussion).indexOf('help-support') === -1) return;
+      if (user && discussion.user() === user) return;
+      vdom.children.push(m('div.PostStream-item.bb-ownTopic', { key: 'bbOwnTopic' }, m('p', [
+        m('strong', 'Same problem? '),
+        'Start your own topic with your report zip (launcher: Help → Save a report), so the helpers see your PC and version. ',
+        m(Link, { href: app.route('tag', { tags: 'help-support' }) }, 'Ask in Help & Support'),
+      ])));
     });
 
     // SuperMedo Server: box in the sidebar (wide screens), line below the banner (narrow ones)
