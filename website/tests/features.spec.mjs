@@ -194,7 +194,9 @@ test('Menu: links next to the logo, Discord at the far right', async ({ page, is
   test.skip(isMobile, 'auf dem Handy steckt das Menü hinter dem Menü-Knopf');
   await page.goto('/');
   expect(await page.$$eval('.nav a', (all) => all.map((a) => a.textContent.trim())))
-    .toEqual(['Install', 'Launcher', 'Best settings', 'Online', 'FAQ', 'Changelog', 'Forum', 'Discord']);
+    .toEqual(['Install', 'Launcher', 'Best settings', 'Online', 'FAQ', 'Changelog', 'Forum', '☕Support our server', 'Discord']);
+  // Support our server (Medo): yellow, right before Discord
+  await expect(page.locator('.nav .nav-support')).toHaveAttribute('href', SITE.supportUrl);
   const logo = await page.locator('.brand').boundingBox();
   const first = await page.locator('.nav a').first().boundingBox();
   const discord = await page.locator('.nav .nav-discord').boundingBox();
@@ -221,6 +223,7 @@ test('All buttons follow one rule', async ({ page }) => {
   const fill = (sel) => page.locator(sel).first().evaluate((b) => getComputedStyle(b).backgroundColor);
   expect(await fill('.hero .btn-primary')).toBe('rgb(138, 17, 24)');
   expect(await fill('.hero .btn-discord')).toBe('rgb(88, 101, 242)');
+  expect(await fill('.hero .btn-support')).toBe('rgb(255, 221, 0)');
 });
 
 // For beginners: the first start screen by screen, the three goals and values per graphics card; linked from everywhere
