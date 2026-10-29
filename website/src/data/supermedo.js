@@ -5,7 +5,6 @@
 export const NATIVERETRO = {
   url: 'https://nativeretro.com/',
   requests: 'https://nativeretro.com/requests',
-  coffee: 'https://buymeacoffee.com/mohmmadpodt',
 };
 
 const game = (slug) => `${NATIVERETRO.url}game/${slug}`;

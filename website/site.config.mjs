@@ -28,6 +28,9 @@ export const SITE = {
   portAuthor: 'Supermedo',
   portAuthorUrl: 'https://github.com/Supermedo',
   portRepoUrl: 'https://github.com/Supermedo/bloodborne_pc',
+  // Supermedo's Buy Me a Coffee (Nick, 29.10.2026): footer, the credit line on the home page, FAQ "support",
+  // the Supermedo page; in the forum in content/footer.html
+  supportUrl: 'https://buymeacoffee.com/supermedo',
 
   // Contact for questions, deletion requests and privacy (footer). Also appears in
   // src/texts/contact.md, src/texts/privacy.md and content/footer.html (forum): update those too when changing it.

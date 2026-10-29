@@ -110,7 +110,7 @@ const appLd = {
         </div>
         {latest?.download && (
           <p class="hero-download">
-            {latest.downloadName}, {latest.downloadSize} MB, released {formatDate(latest.date)}
+            {latest.downloadName}, {latest.downloadSize} MB, <span class="hero-when">released {formatDate(latest.date)}</span>
             <span aria-hidden="true"> · </span>
             <a href={link('changelog/')}>What's new</a>
           </p>
@@ -119,8 +119,10 @@ const appLd = {
           <p class="hero-port">
             The community for <strong>{SITE.portName}</strong> ({SITE.brand}) by{' '}
             <a href={SITE.portAuthorUrl} rel="noopener">{SITE.portAuthor}</a>
-            <span aria-hidden="true"> · </span>
-            <a href={SITE.portRepoUrl} rel="noopener">Source code on GitHub</a>
+            <span class="hero-port-links">
+              <a href={SITE.portRepoUrl} rel="noopener">Source code on GitHub</a>
+              {SITE.supportUrl && <><span aria-hidden="true"> · </span><a href={SITE.supportUrl} rel="noopener">Buy him a coffee</a></>}
+            </span>
           </p>
         )}
       </div>
