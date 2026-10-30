@@ -1,6 +1,9 @@
 // Hardware check in the Install Guide (src/components/HardwareCheck.astro): lists and rules.
 //
-// The basis is published information only, no measurements of our own:
+// The basis is published information plus what players measured (30 October 2026: an RX 580 8 GB holds 55–65 FPS at
+// 1080p with FSR 3.1 Performance, an RX 6600 80–90 FPS at 1440p, Vega and Iris Xe graphics 15–26 FPS at 720p), so
+// the tier limits in gpuTier follow those numbers. The launcher's launcher/bbport_hardware.py copies these rules:
+// change both together.
 // - System requirements and hard limits from src/texts/install.md
 //   (Minimum: i3-10100 / Ryzen 3 3100, GTX 1050 Ti / GTX 1650 / RX 570 / RX 6500 XT, 16 GB → 720p–1080p, ~30 FPS;
 //    Recommended: Ryzen 7 5700X / i7-12700, RTX 3060 Ti / RTX 4060 / RX 6700 XT / RX 7600, 32 GB → 1440p, 60–120 FPS;
@@ -186,8 +189,23 @@ export const LEVELS = [
 export const TIERS = ['Not supported', 'Below minimum', 'Minimum', 'Above minimum', 'Recommended', '4K-ready'];
 
 function gpuTier(g) {
-  if (!g.vulkan13 || (!g.igpu && g.vram < 4) || g.score < 25) return 0;
-  if (g.score < 35) return 1;
+  // Vega and Iris Xe graphics (15–20) run at 15–26 FPS at 720p: below the minimum, not unsupported
+  if (!g.vulkan13 || g.score < 12) return 0;
+  let tier;
+  // Under 4 GB of video memory is below the minimum, not a stop: a GTX 1060 3 GB played up to the Blood-Starved Beast
+  if ((!g.igpu && g.vram < 4) || g.score < 35) tier = 1;
+  else if (g.score < 55) tier = 2;
+  else if (g.score < 85) tier = 3; // RX 570/580, GTX 1060 6 GB, GTX 1660: 55–65 FPS measured at 1080p
+  else if (g.score < 170 || g.vram < 12) tier = 4; // RX 6600, RTX 3060: 80–90 FPS measured at 1440p
+  else tier = 5;
+  // Graphics inside the processor at most "Above minimum": the Core Ultra 5 125H (70) measured 40–55 FPS
+  return g.igpu ? Math.min(tier, 3) : tier;
+}
+
+// The tier launchers up to 1.9.7 show for a card (launcher/bbport_hardware.py gpu_tier, before the measured limits above)
+function oldGpuTier(g) {
+  if (!g.vulkan13 || g.score < 25) return 0;
+  if ((!g.igpu && g.vram < 4) || g.score < 35) return 1;
   if (g.score < 70) return 2;
   if (g.score < 112) return 3;
   if (g.score < 170 || g.vram < 12) return 4;
@@ -221,12 +239,11 @@ function cpuTier(gen) {
 // Highest tier the processor allows (independent of the resolution)
 const CPU_CAP = [0, 1, 3, 4, 5];
 
-// RAM decides about crashes (code 3), not about the frame rate: below 16 GB it downgrades the rating,
-// from 16 GB it limits nothing (the hint about 32 GB is in the checks)
+// RAM decides about crashes (code 3), not about the frame rate: below 16 GB it is below the minimum, not a stop (with
+// a large enough page file the game starts; a player's laptop with 8 GB runs it smoothly), and it sets no cap. From
+// 16 GB it limits nothing (the hint about 32 GB is in the checks)
 function ramTier(gb) {
-  if (gb < 12) return 0;
-  if (gb < 16) return 1;
-  return 5;
+  return gb < 16 ? 1 : 5;
 }
 
 function upscaler(g) {
@@ -250,11 +267,13 @@ export function evaluate(gpu, line, gen, ram) {
   const effective = { gpu: tiers.gpu, cpu: tiers.cpu === 4 ? 5 : tiers.cpu, ram: tiers.ram };
   const tier = Math.min(effective.gpu, effective.cpu, effective.ram);
   const limit = tier === 5 ? null : Object.keys(effective).find((k) => effective[k] === tier);
-  const cap = Math.min(CPU_CAP[tiers.cpu], tiers.ram === 0 ? 0 : 5);
+  const cap = CPU_CAP[tiers.cpu];
   const res = ['1080p', '1440p', '4K'];
+  // The frame rate to expect is capped by the processor; the settings follow what the card can do (with the processor
+  // as the limit, a lower picture would not add frames)
   const rows = gpuLevels(gpu, tiers.gpu).map((lvl, i) => {
     const level = Math.min(lvl, cap);
-    return { res: res[i], level, label: LEVELS[level].label, settings: settingsFor(gpu, level, res[i]) };
+    return { res: res[i], level, label: LEVELS[level].label, settings: settingsFor(gpu, level ? lvl : 0, res[i]) };
   });
 
   const checks = [];
@@ -268,7 +287,6 @@ export function evaluate(gpu, line, gen, ram) {
     'Meets the recommendation (Ryzen 7 5700X / Core i7-12700).'][tiers.cpu]]);
   // Graphics card
   if (!gpu.vulkan13) checks.push(['bad', 'Graphics card', 'Not supported: no Vulkan 1.3 driver for this card.']);
-  else if (!gpu.igpu && gpu.vram < 4) checks.push(['bad', 'Graphics card', `Not supported: ${gpu.vram} GB of video memory, the port needs at least 4 GB.`]);
   else checks.push([['bad', 'warn', 'ok', 'ok', 'ok', 'ok'][tiers.gpu], 'Graphics card', [
     'Too slow for the port.', 'Below the minimum (GTX 1050 Ti / GTX 1650 / RX 570).',
     'Meets the minimum (GTX 1050 Ti / GTX 1650 / RX 570 / RX 6500 XT).', 'Above the minimum.',
@@ -276,17 +294,18 @@ export function evaluate(gpu, line, gen, ram) {
     'Enough for 4K (RTX 4070 / RTX 5070 / RX 7800 XT / RX 9070 class).'][tiers.gpu]
     + (gpu.igpu ? ' Integrated graphics use your RAM as video memory.' : '')]);
   // Memory
-  if (ram < 12) checks.push(['bad', 'Memory', `${ram} GB is not enough: the game will likely close right after PLAY (code 3).`]);
-  else if (ram < 16) checks.push(['warn', 'Memory', `${ram} GB is below the minimum of 16 GB: the game may close right after PLAY (code 3).`]);
+  if (ram < 16) checks.push(['warn', 'Memory', `${ram} GB is below the minimum of 16 GB: the game may close right after PLAY (code 3).`]);
   else if (ram < 32) checks.push(['ok', 'Memory', `${ram} GB meets the minimum (32 GB recommended). Keep the page file on "System managed".`]);
   else checks.push(['ok', 'Memory', `${ram} GB meets the recommendation.`]);
 
   if (tier > 0) {
-    if (!gpu.igpu && gpu.vram === 4) notes.push('Use the settings for 4 GB cards above: keep the Low-VRAM profile on Auto, 720p/1080p, FSR 3.1 Performance, Model detail Default, frame generation off, a 60 FPS cap.');
-    if (gpu.vendor === 'intel') notes.push('Intel graphics get no upscaler, and FSR 4 freezes on Intel Arc.');
+    if (!gpu.igpu && gpu.vram <= 4) notes.push('Settings for 4 GB cards: 720p/1080p, FSR 3.1 Performance, Model detail "As in the game", Object motion vectors off, frame generation off, a 60 FPS cap.');
+    if (gpu.vendor === 'intel') notes.push('Intel graphics: keep the upscaler off, stretched polygons can still appear with it on.');
+    // The measured limits in gpuTier are newer than the launcher's (1.9.7 still rates these cards one step lower)
+    if (!gpu.igpu && tiers.gpu > oldGpuTier(gpu)) notes.push('The launcher (up to 1.9.7) still rates this card one step lower; this rating follows the frame rates players measured.');
     // The launcher has rated these chips like this since 1.9.5 (Supermedo/bloodborne_pc#122); older launchers showed less
     if (gpu.igpu && /^Arc /.test(gpu.name)) notes.push('Launchers before 1.9.5 showed a lower rating for this chip; updating fixes that. This rating follows newer measurements: 40–55 FPS at 1080p on a Core Ultra 5 125H.');
-    if (gpu.amdDriverNote) notes.push('AMD driver 26.8.1: if the game crashes or shows broken graphics, clear the shader cache (Help → Only a black screen) or try another driver.');
+    if (gpu.amdDriverNote) notes.push('AMD driver 26.8.1: if the game crashes or shows broken graphics, clear the shader cache (Help) or try another driver.');
     const fps1440 = rows[1].level;
     if (gpu.frameGen && fps1440 >= 4) notes.push(`${gpu.frameGen} is available on your card for even higher frame rates.`);
     else if (fps1440 >= 4 && gpu.vram >= 12) notes.push('FSR 3.1 frame generation works on your card; it works best from about 60 base FPS.');

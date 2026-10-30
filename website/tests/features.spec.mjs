@@ -461,6 +461,25 @@ test('Hardware check rates Intel Arc graphics inside the processor like the laun
   expect(v.score).toBeGreaterThan(h.score);
 });
 
+// What players measured (30.10.2026): an RX 580 8 GB with a Ryzen 5 5600X holds 55–65 FPS at 1080p, an RX 6600 80–90 FPS
+// at 1440p; a GTX 1060 3 GB and a laptop with 8 GB of RAM play. The check said "About 30 FPS" and "Not supported".
+test('Hardware check follows the frame rates players measured', () => {
+  const ryzen5 = cpuLines.find((l) => l.id === 'amd-ryzen-5');
+  const gen = ryzen5.gens.find((g) => g.id === '5000');
+  const card = (name) => gpus.find((g) => g.name === name);
+  const rx580 = evaluate(card('RX 580 8 GB'), ryzen5, gen, 16);
+  expect(rx580.rows[0].label).toBe('30–60 FPS');
+  expect(rx580.rows[0].settings).toBe('FSR 3.1 Balanced');
+  expect(rx580.notes.join(' ')).toContain('The launcher (up to 1.9.7) still rates this card one step lower');
+  expect(evaluate(card('RX 6600'), ryzen5, gen, 16).rows[1].label).toBe('60–120 FPS');
+  expect(evaluate(card('GTX 1060 3 GB'), ryzen5, gen, 16).tierLabel).toBe('Below minimum');
+  const eightGb = evaluate(card('RTX 3060'), ryzen5, gen, 8);
+  expect(eightGb.tierLabel).toBe('Below minimum');
+  expect(eightGb.rows[0].label).not.toBe('Not recommended');
+  // A card the launcher already rated the same gets no note about it
+  expect(evaluate(card('RTX 4070'), ryzen5, gen, 32).notes.join(' ')).not.toContain('still rates this card');
+});
+
 test('Release data: latest version with a download of the port ZIP', () => {
   // If the fetch failed during the build, the data comes from the repo: even then no outdated release without a download
   expect(releases.length).toBeGreaterThan(0);

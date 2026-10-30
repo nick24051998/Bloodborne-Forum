@@ -16,6 +16,14 @@ list at the bottom). Only add the short summary in plain words here, newest vers
 
 <div data-release-latest></div>
 
+## 1.9.7 – 30 October 2026
+
+- **Safe updates:** the launcher puts a new version in place in one step and undoes it when Windows holds a file, so an update can no longer leave a launcher that doesn't start. If yours stopped starting after the last update ("Failed to start embedded python interpreter"), unpack this version over your folder and replace all files: your saves stay.
+- **Online:** Restart Game in PC Settings keeps you online. The Hunter's Dream is no longer offered: its players move to SuperMedo Server and sign in there once.
+- **Checks before you play:** a graphics card Vulkan doesn't see, the game folder in OneDrive, an old driver, a missing runtime for AMD's FSR 4, a firewall block; a changed `eboot.bin` is swapped for a clean copy found on your PC.
+- **Graphics and saves:** no sharpening on top of FSR 4, a new graphics card gets its own upscaler, the frame rate you chose stays, and saves and settings are written in one piece.
+- **Installing:** the launcher offers the update by itself, or unpack it over 1.9.6. Settings and saves stay.
+
 ## 1.9.6 – 29 October 2026
 
 - **Online fix:** "Failed to connect to Bloodborne server. Returning to title menu." at Play Online no longer appears on PCs where Windows hadn't downloaded the newest root certificates yet. The port now carries them itself, for SuperMedo Server and The Hunter's Dream.

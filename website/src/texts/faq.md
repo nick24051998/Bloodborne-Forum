@@ -141,7 +141,7 @@ questions:
     group: online
     q: Can I play online and co-op?
     a: |
-      <p>Yes. In the launcher, open Online play, tick Play online and choose a server: SuperMedo Server, the default since 1.9.5 (sign in with Discord or make a free account), or The Hunter's Dream (sign in with Discord once). Everyone needs game version 1.09 and the same server. Friends on the same Wi-Fi play together over their home network.</p>
+      <p>Yes. In the launcher, open Online play, tick Play online and sign in to SuperMedo Server, the port's server (with Discord, or make a free account). The Hunter's Dream is no longer offered from 1.9.7 on. Everyone needs game version 1.09 and the same server. Friends on the same Wi-Fi play together over their home network.</p>
   - id: friend
     group: online
     q: How do I play with a friend?
@@ -170,9 +170,9 @@ questions:
         <li>A certificate or date error at sign-in: check your PC's clock.</li>
         <li>shadNet: shadPS4's public shadNet server doesn't accept the port, and from 1.9.5 on your own servers can't be chosen any more. Choose SuperMedo Server.</li>
         <li>Seamless co-op (BBSC): from 1.9.5 on its own start plays its own save, separate from your characters, and normal online works again afterwards.</li>
-        <li>The Hunter's Dream: your firewall or router must let its game server port 20443 through.</li>
+        <li>The Hunter's Dream: no longer offered from 1.9.7 on. The launcher moves you to SuperMedo Server by itself; sign in there once.</li>
       </ul>
-      <p>Step by step, with both servers: <a href="../server/#play">online</a>.</p>
+      <p>Step by step: <a href="../server/#play">online</a>.</p>
   - id: controller
     group: play
     q: Does my controller work?
