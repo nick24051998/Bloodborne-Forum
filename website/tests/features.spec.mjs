@@ -473,7 +473,7 @@ test('Hardware check follows the frame rates players measured', () => {
   expect(rx580.notes.join(' ')).toContain('The launcher (up to 1.9.7) still rates this card one step lower');
   expect(evaluate(card('RX 6600'), ryzen5, gen, 16).rows[1].label).toBe('60–120 FPS');
   expect(evaluate(card('GTX 1060 3 GB'), ryzen5, gen, 16).tierLabel).toBe('Below minimum');
-  const eightGb = evaluate(card('RTX 3060'), ryzen5, gen, 8);
+  const eightGb = evaluate(card('RTX 3060 12 GB'), ryzen5, gen, 8);
   expect(eightGb.tierLabel).toBe('Below minimum');
   expect(eightGb.rows[0].label).not.toBe('Not recommended');
   // A card the launcher already rated the same gets no note about it
