@@ -1,6 +1,8 @@
 // Interactive parts: hardware check, gallery lightbox, animations under "reduce motion", links to the forum,
 // download and release texts.
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { inflateRawSync } from 'node:zlib';
 import { test, expect } from '@playwright/test';
 import { SITE } from '../site.config.mjs';
 import { TIERS, gpus, cpuLines, evaluate } from '../src/data/hardware.js';
@@ -560,4 +562,21 @@ test('Report tool knowledge is served with its signature', async ({ request }) =
   const sig = await request.get('/tool/knowledge.json.sig');
   expect(sig.ok()).toBe(true);
   expect((await sig.text()).trim()).toMatch(/^[A-Za-z0-9+/]{500,}={0,2}$/);
+});
+
+// The BB Report Tool's download (src/texts/tool.md, 30.10.2026): the page names the version inside the zip and
+// the zip's SHA-256, so a new zip without a new page (or the other way round) fails here.
+test('Report tool page offers the zip it describes', async ({ page, request }) => {
+  const zip = readFileSync(new URL('../public/tool/BB-Report-Tool.zip', import.meta.url));
+  const start = 30 + zip.readUInt16LE(26) + zip.readUInt16LE(28);  // the first file's data in the zip
+  const bat = inflateRawSync(zip.subarray(start, start + zip.readUInt32LE(18))).toString('latin1');
+  const version = bat.match(/\$ToolVersion = '([0-9.]+)'/)[1];
+  await page.goto('/tool/');
+  const download = page.locator('a.btn-primary[download]');
+  await expect(download).toHaveText(`Download BB Report Tool ${version}`);
+  await expect(page.locator('.tool-sha')).toHaveText(createHash('sha256').update(zip).digest('hex'));
+  const res = await request.get(new URL(await download.getAttribute('href'), page.url()).pathname);
+  expect(res.ok()).toBe(true);
+  expect((await res.body()).subarray(0, 2).toString()).toBe('PK');
+  await expect(page.locator('.site-footer a[href$="/tool/"]')).toHaveCount(1);
 });

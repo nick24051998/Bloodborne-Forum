@@ -51,6 +51,6 @@ shadPS4/GoldHEN XML patches in the `patches` folder are optional. You don't need
 ## Help and reports
 
 - **Help** checks your game folder and your PC, lists the known problems with their fixes, and after a game that ended with an error names the cause its log shows. Start there.
-- **Help → Save a report** makes the zip our helpers ask for: the log, your settings without passwords, and your PC. Post it in a new topic in [Help & Support](https://forum.bbport.de/t/help-support) on our forum (log in with Discord).
+- **Help → Save a report** makes the zip our helpers ask for: the log, your settings without passwords, and your PC. Post it in a new topic in [Help & Support](https://forum.bbport.de/t/help-support) on our forum (log in with Discord). If the launcher doesn't open, the [BB Report Tool](../tool/) makes the zip on its own.
 - **Help → Only a black screen → Clear the shader cache** helps after a driver update (1.9.5 also has the button on **Advanced**). The first minutes stutter while the cache is built again.
 - Everything else, from code 3 to crashes and stutter, is in the [FAQ](../faq/).

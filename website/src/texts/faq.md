@@ -228,7 +228,7 @@ questions:
         <li>Open Help in the launcher: it checks your game folder and PC and lists the known problems with their fixes.</li>
         <li>Look up your error or symptom here in the FAQ (<a href="#error-codes">error codes</a>, <a href="#crashes">crashes</a>, <a href="#online-connection">online</a>).</li>
         <li>Check the <a href="https://forum.bbport.de/t/known-fixes">known fixes</a> and the <a href="https://forum.bbport.de/t/bug-reports">known bugs</a> in our forum.</li>
-        <li>Still stuck: press Help &gt; Save a report and post the zip in a new topic in <a href="https://forum.bbport.de/t/help-support">Help &amp; Support</a>. It shows our helpers your PC, settings and the log.</li>
+        <li>Still stuck: press Help &gt; Save a report and post the zip in a new topic in <a href="https://forum.bbport.de/t/help-support">Help &amp; Support</a>. It shows our helpers your PC, settings and the log. If the launcher doesn't open, the <a href="../tool/">BB Report Tool</a> makes the zip on its own.</li>
       </ol>
       <p>Reading the forum needs no account. To post, log in with Discord; the forum has no sign-up of its own.</p>
 ---

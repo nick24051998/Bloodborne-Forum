@@ -428,6 +428,8 @@ h3 { font-size: var(--step-1); }
 .prose th, .prose td { border: 1px solid var(--border); padding: 0.6rem 0.8rem; text-align: left; }
 .prose th { background: var(--card); color: var(--text-strong); }
 .prose code { background: var(--bg-deep); border: 1px solid var(--border); border-radius: 5px; padding: 0.1em 0.35em; font-size: 0.9em; }
+/* The report tool's SHA-256 (tool.md): 64 characters break anywhere on phones */
+.prose code.tool-sha { overflow-wrap: anywhere; }
 .prose blockquote { margin: 1.2rem 0; padding: 0.8rem 1.1rem; background: rgba(156, 132, 88, 0.07);
   border: 1px solid rgba(156, 132, 88, 0.45); border-radius: var(--radius); }
 .prose ol li, .prose ul li { margin: 0.35em 0; }
