@@ -10,9 +10,9 @@ into public/tool/BB-Report-Tool.zip (line ends as they are), then change the ver
 tests/features.spec.mjs checks the version and the SHA-256 against the zip. Its knowledge (known problems and
 fixes) is the signed public/tool/knowledge.json next to it (scripts/fetch-knowledge.mjs). -->
 
-<p><a class="btn btn-primary" href="BB-Report-Tool.zip" download>Download BB Report Tool 3.0.0</a></p>
+<p><a class="btn btn-primary" href="BB-Report-Tool.zip" download>Download BB Report Tool 3.0.1</a></p>
 
-Version **3.0.0** (29 October 2026) · zip, 228 KB · Windows 10 and 11 · SHA-256 <code class="tool-sha">e92bb2011b6b897c8af09f5960587c8013f95a716b2df8aaccd0f734f63bd7a5</code>
+Version **3.0.1** (30 October 2026) · zip, 229 KB · Windows 10 and 11 · SHA-256 <code class="tool-sha">bc176888df22d5fa1f9dca8fd2ae05c9af8ed4fa1fd69e21d4f4099c6cd00d79</code>
 
 ## When you need it
 
