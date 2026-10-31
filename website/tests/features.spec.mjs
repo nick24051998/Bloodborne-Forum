@@ -522,7 +522,6 @@ const SERVER_SAMPLE = {
     deaths: 35, messages: 6, ratings: 4, bells_rung: 5, summons: 0, summons_joined: 0 }],
   killers: [{ name: 'Orphan of Kos', deaths: 3 }],
   deaths: [{ player: 'rowl666', cause: 'killed', killer: 'Father Gascoigne', place: 'Central Yharnam', area: 'Central Yharnam', time: 1793209156 }],
-  summons: [{ host: 'rowl666', summoned: 'jaummn', kind: 'co-op', result: 'joined', time: 1793130620 }],
   messages: [{ text: 'remember Thrust attack', author: 'medo1986', place: 'Old Yharnam', area: 'Old Yharnam', good: 0, poor: 0, written: 1792954957 }],
   leaderboards: { minutes_played: [{ rank: 1, name: 'rowl666', value: 667 }] },
   week: {},
@@ -539,6 +538,9 @@ test('Server page shows the statistics from the forum', async ({ page }) => {
   await page.goto('/server/');
   await expect(page.locator('[data-field="online"]')).toHaveText('2');
   await expect(page.locator('[data-field="advice"]')).toContainText('Small Resonant Bell');
+  // Whether a co-op summon worked or failed is not shown
+  await expect(page.locator('[data-field="summons"], [data-field="summonShare"]')).toHaveCount(0);
+  await expect(page.locator('#now')).not.toContainText(/worked|failed/);
   await expect(page.locator('[data-field="areaFacts"]')).toContainText("Yahar'gul");
   await expect(page.locator('[data-field="killers"]')).toContainText('Orphan of Kos');
   await expect(page.locator('[data-field="deaths"]')).toContainText('was killed by Father Gascoigne');

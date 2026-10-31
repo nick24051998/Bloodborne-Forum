@@ -903,8 +903,6 @@ ol.sm-board li:first-child { border-color: rgba(194, 168, 120, 0.5); }
 ol.sm-board li.sm-empty { grid-column: 1 / -1; }
 ol.sm-board .sm-grow { overflow-wrap: break-word; font-weight: 600; text-decoration: none; }
 ol.sm-board strong { font-family: var(--font-head); font-size: 1.35rem; color: var(--gold-light); font-variant-numeric: tabular-nums; }
-/* In a panel the time of a summon always goes on its own line below, however long the names are */
-.sm-panel .sm-summon { flex-direction: column; align-items: stretch; gap: 0.15rem; }
 .sm-panel .sm-messages { grid-template-columns: minmax(0, 1fr); }
 .sm-panel .sm-message:first-child { padding-top: 0; border-top: 0; }
 .sm-panel .sm-message-text { font-size: 1.1rem; }
@@ -964,7 +962,6 @@ ol.sm-board strong { font-family: var(--font-head); font-size: 1.35rem; color: v
 .sm-rank { min-width: 1.2rem; font-family: var(--font-head); font-weight: 700; color: var(--gold-light); }
 .sm-grow { flex: 1; }
 .sm-meta { color: var(--text-soft); font-size: 0.88rem; }
-.sm-summon { flex-wrap: wrap; justify-content: space-between; }
 .sm-table a, .sm-list a, .sm-message a { font-weight: 600; text-decoration: none; }
 .sm-messages { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 0 3rem; }
 .sm-message { display: flex; flex-direction: column; gap: 0.3rem; padding: 1rem 0; border-top: 1px solid rgba(156, 132, 88, 0.35); }

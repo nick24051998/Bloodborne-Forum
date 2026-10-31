@@ -5,7 +5,7 @@
  * number of visitors, SuperMedo Server gets one request per minute, and visitors' addresses stay with us.
  *
  * - GET /api/bb-server: everything /server/ shows in one answer (server, areas, day by day, what killed hunters,
- *   latest deaths and summons, best messages, leaderboards for all time and 7 days, hunters, chalice dungeons).
+ *   latest deaths, best messages, leaderboards for all time and 7 days, hunters, chalice dungeons).
  * - GET /api/bb-server/summary: the few numbers for the home page band and the forum box.
  * - GET /api/bb-server/hunters/{id}: one hunter with their messages, for /server/hunter/?id=… (404 if unknown).
  * - Asks SuperMedo Server at most once a minute per answer; if it doesn't answer, the last answer stays for 15
@@ -128,7 +128,6 @@ if (! class_exists('BBForumServerStats')) {
                     'history' => (array) self::get('history?days=30'),
                     'killers' => array_slice($killers, 0, 10),
                     'deaths' => $deaths,
-                    'summons' => (array) self::get('summons?limit=6'),
                     'messages' => $messages,
                     'leaderboards' => (array) self::get('leaderboards?limit=5'),
                     'week' => (array) self::get('leaderboards?days=7&limit=5'),
