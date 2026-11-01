@@ -190,7 +190,7 @@ const toc = [
           <article class="sm-panel" aria-labelledby="duels-h">
             <header><h3 id="duels-h">Invaders and defenders</h3><span>the best on the server</span></header>
             <div class="sm-tabs" role="group" aria-label="Pick a list" data-field="pvpTabs"></div>
-            <ol class="sm-board" data-field="pvpBoard"></ol>
+            <ol class="sm-rows" data-field="pvpBoard"></ol>
           </article>
         </div>
       </div>
@@ -704,11 +704,9 @@ const toc = [
         if (!Array.isArray(entries) || !entries.length) {
           return field('pvpBoard').replaceChildren(soon('The best invaders, and the hunters who drive them off.', 'li'));
         }
-        field('pvpBoard').replaceChildren(...entries.map((e: any, i: number) => {
-          const li = el('li');
-          li.append(el('span', 'sm-rank', `#${e.rank ?? i + 1}`), hunterLink(hunterUrl, e.name, 'sm-grow'), el('strong', '', num(e.value)));
-          return li;
-        }));
+        const most = Math.max(1, ...entries.map((e: any) => Number(e.value) || 0));
+        field('pvpBoard').replaceChildren(...entries.map((e: any, i: number) =>
+          line([el('span', 'sm-rank', String(e.rank ?? i + 1)), hunterLink(hunterUrl, e.name)], num(e.value), (100 * (Number(e.value) || 0)) / most)));
       };
       const renderPvp = () => {
         const p = data.pvp ?? {};
