@@ -5,9 +5,13 @@
  * number of visitors, SuperMedo Server gets one request per minute, and visitors' addresses stay with us.
  *
  * - GET /api/bb-server: everything /server/ shows in one answer (server, areas, day by day, what killed hunters,
- *   latest deaths, best messages, leaderboards for all time and 7 days, hunters, chalice dungeons).
+ *   latest deaths, best messages, leaderboards for all time and 7 days, hunters, chalice dungeons, hunters online hour by
+ *   hour for 48 hours, invasions (PvP), deeds, bosses, and the areas of the map with how many hunters are there now).
  * - GET /api/bb-server/summary: the few numbers for the home page band and the forum box.
  * - GET /api/bb-server/hunters/{id}: one hunter with their messages, for /server/hunter/?id=… (404 if unknown).
+ * - GET /api/bb-server/map/{area code}: one area of the map: its ground (every spot a hunter has stood on, without how
+ *   often) and the hunters there right now as points without names; `now` is null while SuperMedo Server doesn't send
+ *   them, and the page says "Coming soon" (404 for an unknown area).
  * - Asks SuperMedo Server at most once a minute per answer; if it doesn't answer, the last answer stays for 15
  *   minutes, after that 503 and the pages hide their numbers.
  * - Only what SuperMedo Server's public API shows anyway (Online IDs, no addresses). Enemies without a name (names are
@@ -28,6 +32,9 @@ if (! class_exists('BBForumServerStats')) {
         // The day SuperMedo Server opened to everyone (Nick, 29.10.2026). The API has no such date: counting_since
         // (27.10.) was the start of a test with five hunters. Pages call the server new for 30 days from here.
         const OPENED = '2026-10-28';
+        // Areas without a map: "between areas" is no place, and chalice dungeons are new layouts every time, so their
+        // footprints lie on top of each other
+        const NO_MAP = ['m255_255', 'm29_00'];
 
         /** Cached answer: one fetch per minute, the last good one for 15 minutes; null without one */
         public static function cached(string $key, callable $load): ?array
@@ -134,6 +141,16 @@ if (! class_exists('BBForumServerStats')) {
                     'hunters' => $hunters,
                     'huntersTotal' => (int) ($players['total'] ?? count($hunters)),
                     'chalices' => (array) self::get('chalices?limit=20'),
+                    // Counted since 1.11.2026; the page shows "Coming soon" while they are empty
+                    'online' => (array) self::get('online?hours=48'),
+                    'pvp' => (array) self::get('pvp?limit=5'),
+                    'deeds' => (array) self::get('deeds?limit=6'),
+                    'bosses' => (array) self::get('bosses'),
+                    'maps' => array_values(array_filter(array_map(function ($m) {
+                        return ['code' => (string) ($m['code'] ?? ''), 'name' => (string) ($m['name'] ?? ''), 'online' => (int) ($m['online'] ?? 0)];
+                    }, (array) self::get('map')), function ($m) {
+                        return $m['code'] !== '' && $m['name'] !== '' && ! in_array($m['code'], self::NO_MAP, true);
+                    })),
                     'updatedAt' => time(),
                 ];
             });
@@ -206,8 +223,9 @@ if (! class_exists('BBForumServerStats')) {
                 }, (array) self::get('players/'.rawurlencode($id).'/messages?sort=newest&limit=50'));
 
                 // Places on the leaderboards (all time, top 5)
+                $overview = self::overview() ?? [];
                 $ranks = [];
-                foreach ((array) (self::overview()['leaderboards'] ?? []) as $board => $entries) {
+                foreach ((array) ($overview['leaderboards'] ?? []) as $board => $entries) {
                     foreach ((array) $entries as $e) {
                         if (strcasecmp((string) ($e['name'] ?? ''), (string) $player['name']) === 0) {
                             $ranks[] = ['board' => $board, 'rank' => (int) $e['rank'], 'value' => $e['value']];
@@ -215,7 +233,68 @@ if (! class_exists('BBForumServerStats')) {
                     }
                 }
 
-                return ['hunter' => $player, 'messages' => $messages, 'ranks' => $ranks, 'updatedAt' => time()];
+                // Whether SuperMedo Server counts invasions and deeds yet: until then the page says "Coming soon"
+                $deeds = (array) ($overview['deeds']['deeds'] ?? []);
+                $counting = [
+                    'pvp' => array_sum(array_map('intval', (array) ($overview['pvp']['results'] ?? []))) > 0,
+                    'deeds' => (int) ($overview['deeds']['beasts_slain'] ?? 0) + array_sum(array_map('intval', $deeds)) > 0,
+                ];
+
+                return ['hunter' => $player, 'messages' => $messages, 'ranks' => $ranks, 'counting' => $counting, 'updatedAt' => time()];
+            });
+        }
+
+        /** One area of the map; ['missing' => true] for an area SuperMedo Server doesn't know or that has no map */
+        public static function map(string $code): ?array
+        {
+            if (! preg_match('/^m\d{2,3}_\d{2,3}$/', $code) || in_array($code, self::NO_MAP, true)) {
+                return ['missing' => true, 'updatedAt' => time()];
+            }
+
+            return self::cached('bbforum.server.map.'.$code, function () use ($code) {
+                $map = self::get('map/'.$code);
+                if ($map === []) {
+                    return ['missing' => true, 'updatedAt' => time()];
+                }
+                if (! is_array($map) || ! isset($map['cells'])) {
+                    return null;
+                }
+                $grid = max(1, (float) ($map['grid'] ?? 1));
+                // The ground: where hunters have stood, without how often
+                $floor = [];
+                foreach ((array) $map['cells'] as $c) {
+                    if (is_array($c) && isset($c[0], $c[1])) {
+                        $floor[] = [(int) $c[0], (int) $c[1]];
+                    }
+                }
+                // Hunters there right now as points on the grid, never with a name, whatever SuperMedo Server sends
+                // along: [x, z], [x, y, z] or {x, z}. Null while it sends none.
+                $now = null;
+                if (isset($map['now']) && is_array($map['now'])) {
+                    $now = [];
+                    foreach ($map['now'] as $p) {
+                        if (! is_array($p)) {
+                            continue;
+                        }
+                        if (isset($p['x'], $p['z'])) {
+                            [$x, $z] = [$p['x'], $p['z']];
+                        } elseif (count($p) >= 3 && isset($p[0], $p[2])) {
+                            [$x, $z] = [$p[0], $p[2]];
+                        } elseif (isset($p[0], $p[1])) {
+                            [$x, $z] = [$p[0], $p[1]];
+                        } else {
+                            continue;
+                        }
+                        if (is_numeric($x) && is_numeric($z)) {
+                            $now[] = [round($x / $grid) * $grid, round($z / $grid) * $grid];
+                        }
+                    }
+                }
+
+                return [
+                    'code' => $code, 'name' => (string) ($map['name'] ?? ''), 'grid' => $grid,
+                    'online' => (int) ($map['online'] ?? 0), 'floor' => $floor, 'now' => $now, 'updatedAt' => time(),
+                ];
             });
         }
 
@@ -253,6 +332,16 @@ if (! class_exists('BBForumServerStats')) {
             $id = (string) ($request->getAttribute('routeParameters')['id'] ?? '');
 
             return BBForumServerStats::respond(BBForumServerStats::hunter($id));
+        }
+    }
+
+    class BBForumServerMap implements RequestHandlerInterface
+    {
+        public function handle(ServerRequestInterface $request): ResponseInterface
+        {
+            $code = (string) ($request->getAttribute('routeParameters')['code'] ?? '');
+
+            return BBForumServerStats::respond(BBForumServerStats::map($code));
         }
     }
 }

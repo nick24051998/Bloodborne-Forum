@@ -56,6 +56,13 @@ export function hunterLink(base, name, className = '') {
   return a;
 }
 
+// A part SuperMedo Server doesn't fill yet: a "Coming soon" tag and what will be there
+export function soon(text, tag = 'p') {
+  const node = el(tag, 'sm-soon');
+  node.append(el('span', 'wip-tag', 'Coming soon'), ` ${text}`);
+  return node;
+}
+
 // How a hunter died, after their name
 export function death(d) {
   switch (d.cause) {

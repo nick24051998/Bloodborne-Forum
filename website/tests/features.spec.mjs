@@ -529,14 +529,29 @@ const SERVER_SAMPLE = {
     messages: 9, last_seen: 1793210233, online: false }],
   huntersTotal: 1,
   chalices: [{ glyph: 'bpahczp9', depth: 1, visits: 0, maker: null, made: 1793204375 }],
+  // Counted since 1.11.2026, still empty here: the page says "Coming soon"
+  online: [{ hour: 1793210400, average: 2.5, peak: 3 }, { hour: 1793214000, average: 1.5, peak: 2 }],
+  pvp: { counting_since: 1793552819, hunters_slain: 0, results: { host_died: 0, invader_died: 0, invader_left: 0 },
+    boards: { hunters_slain: [], invaders_repelled: [], invasions_won: [] }, recent: [] },
+  deeds: { beasts_slain: 0, by_area: [], by_enemy: [], counting_since: 1793552819, deeds: { parry: 0, visceral: 0 } },
+  bosses: [],
+  maps: [{ code: 'm24_01', name: 'Central Yharnam', online: 2 }],
   updatedAt: 1793220298,
 };
 const CORS = { 'Access-Control-Allow-Origin': '*' };
+// One area of the map without the hunters online now (SuperMedo Server doesn't send them yet)
+const MAP_SAMPLE = { code: 'm24_01', name: 'Central Yharnam', grid: 2, online: 2, floor: [[0, 0], [2, 0], [2, 2]], now: null, updatedAt: 1793220298 };
 
 test('Server page shows the statistics from the forum', async ({ page }) => {
   await page.route('**/api/bb-server', (route) => route.fulfill({ json: SERVER_SAMPLE, headers: CORS }));
+  await page.route('**/api/bb-server/map/**', (route) => route.fulfill({ json: MAP_SAMPLE, headers: CORS }));
   await page.goto('/server/');
   await expect(page.locator('[data-field="online"]')).toHaveText('2');
+  // What SuperMedo Server doesn't send yet says "Coming soon"
+  for (const part of ['map', 'pvpEnds', 'pvpBoard', 'pvpRecent', 'deedsMore', 'beasts', 'bosses']) {
+    await expect(page.locator(`[data-field="${part}"]`)).toContainText('Coming soon');
+  }
+  await expect(page.locator('[data-field="hourChart"] .sm-col')).toHaveCount(2);
   await expect(page.locator('[data-field="advice"]')).toContainText('Small Resonant Bell');
   // Whether a co-op summon worked or failed is not shown
   await expect(page.locator('[data-field="summons"], [data-field="summonShare"]')).toHaveCount(0);
@@ -553,20 +568,46 @@ test('Server page shows the statistics from the forum', async ({ page }) => {
   await expect(page.locator('[data-field="board"]')).toContainText('No one yet this week');
 });
 
+test('Server page fills the map, invasions and the hunt once SuperMedo Server counts them', async ({ page }) => {
+  const counted = {
+    ...SERVER_SAMPLE,
+    pvp: { counting_since: 1793552819, results: { host_died: 3, invader_died: 5, invader_left: 1 },
+      boards: { invasions_won: [{ rank: 1, name: 'rowl666', value: 3 }], hunters_slain: [], invaders_repelled: [] },
+      recent: [{ invader: 'rowl666', host: 'jaummn', result: 'host_died', area: 'Cathedral Ward', time: 1793210233 }] },
+    deeds: { beasts_slain: 120, counting_since: 1793552819, deeds: { parry: 14, visceral: 9 },
+      by_enemy: [{ name: 'Huntsman', count: 40 }], by_area: [{ name: 'Central Yharnam', count: 80 }] },
+    bosses: [{ name: 'Father Gascoigne', cleared: 4 }],
+  };
+  await page.route('**/api/bb-server', (route) => route.fulfill({ json: counted, headers: CORS }));
+  await page.route('**/api/bb-server/map/**', (route) => route.fulfill({ headers: CORS, json: { ...MAP_SAMPLE, now: [[0, 0], [2, 2]] } }));
+  await page.goto('/server/');
+  await expect(page.locator('[data-field="map"] canvas')).toHaveAttribute('aria-label', 'Central Yharnam: 2 hunters online right now');
+  await expect(page.locator('[data-field="pvpEnds"]')).toContainText('The invader fell 5');
+  await expect(page.locator('[data-field="pvpBoard"]')).toContainText('rowl666');
+  await expect(page.locator('[data-field="pvpRecent"]')).toContainText('rowl666 invaded jaummn');
+  await expect(page.locator('[data-field="deeds"]')).toContainText('120');
+  await expect(page.locator('[data-field="beasts"]')).toContainText('Huntsman');
+  await expect(page.locator('[data-field="bosses"]')).toContainText('Father Gascoigne');
+  for (const part of ['#map', '#pvp', '#hunt']) await expect(page.locator(part)).not.toContainText('Coming soon');
+});
+
 test('Hunter page loads one hunter by Online ID', async ({ page }) => {
   await page.route('**/api/bb-server/hunters/medo1986', (route) => route.fulfill({ headers: CORS, json: {
     hunter: { name: 'medo1986', level: 36, minutes_played: 33, deaths: 0, messages: 4, online: false, last_seen: 1793211649,
       joined: 1792947684, first_seen: 1792954957, discord: null, summoned_to_help: 0, summons_hosted: 0, invasions: 0, bells_rung: 0,
       ratings_given: 0, ratings_received: { good: 0, poor: 3 }, deaths_by_cause: { killed: 1, other: 1 }, deadliest_area: null,
-      nemesis: { name: 'Father Gascoigne', deaths: 1 } },
+      nemesis: { name: 'Father Gascoigne', deaths: 1 }, sessions: { total: 3, coop: 1, recent: [] } },
     messages: [{ text: 'fear Man', place: 'Cathedral Ward', area: 'Cathedral Ward', good: 0, poor: 3, written: 1792957746 }],
     ranks: [{ board: 'messages', rank: 2, value: 4 }],
+    counting: { pvp: false, deeds: false },
     updatedAt: 1793220298,
   } }));
   await page.goto('/server/hunter/?id=medo1986');
   await expect(page.locator('h1')).toHaveText('medo1986');
   await expect(page.locator('[data-field="nemesis"]')).toHaveText('Father Gascoigne');
   await expect(page.locator('[data-field="ranks"]')).toHaveText('#2 in messages');
+  await expect(page.locator('[data-field="coop"]')).toContainText('3, 1 with co-op');
+  await expect(page.locator('[data-field="pvp"]')).toContainText('Coming soon');
   await expect(page.locator('[data-field="messages"]')).toContainText('fear Man');
 });
 

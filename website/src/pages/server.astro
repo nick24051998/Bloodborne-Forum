@@ -9,8 +9,9 @@ import { link } from '../lib/url.js';
 
 const api = SITE.forumUrl ? `${SITE.forumUrl}/api/bb-server` : '';
 const toc = [
-  ['play', 'Play online'], ['now', 'Right now'], ['deaths', 'Where hunters die'], ['boards', 'Leaderboards'],
-  ['community', 'Messages and glyphs'], ['day', 'Day by day'], ['hunters', 'Hunters'],
+  ['play', 'Play online'], ['now', 'Right now'], ['map', 'Map'], ['deaths', 'Where hunters die'], ['pvp', 'Invasions'],
+  ['hunt', 'The hunt'], ['boards', 'Leaderboards'], ['community', 'Messages and glyphs'], ['day', 'Day by day'],
+  ['hunters', 'Hunters'],
 ];
 ---
 
@@ -131,6 +132,16 @@ const toc = [
             </div>
           </div>
         </div>
+        {/* Hunters online right now as dots without names on the ground of one area (Nick, 1.11.2026); "Coming soon"
+            while SuperMedo Server doesn't send where they are */}
+        <article class="sm-panel sm-map-panel" id="map" aria-labelledby="map-h">
+          <header>
+            <h3 id="map-h">Hunters on the map</h3>
+            <select class="sm-pick" data-field="mapArea" aria-label="Area" hidden></select>
+          </header>
+          <div class="sm-map" data-field="map"></div>
+          <p class="sm-small" data-field="mapNote" hidden>Every dot is a hunter online right now, without a name. The ground is where hunters have walked.</p>
+        </article>
       </div>
     </section>
 
@@ -159,6 +170,47 @@ const toc = [
             <ol class="sm-rows" data-field="killers"></ol>
             <h4 class="sm-label">Latest deaths</h4>
             <ul class="sm-list" data-field="deaths"></ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Invasions and the hunt (Nick, 1.11.2026): SuperMedo Server counts them since 1 Nov; every part says
+         "Coming soon" until its numbers come -->
+    <section class="section" id="pvp" aria-labelledby="pvp-h">
+      <div class="container">
+        <h2 id="pvp-h">Invasions</h2>
+        <div class="sm-grid sm-grid-even">
+          <article class="sm-panel" aria-labelledby="ends-h">
+            <header><h3 id="ends-h">How invasions end</h3><span data-field="pvpSince"></span></header>
+            <div data-field="pvpEnds"></div>
+            <h4 class="sm-label">Latest fights</h4>
+            <ul class="sm-list" data-field="pvpRecent"></ul>
+          </article>
+          <article class="sm-panel" aria-labelledby="duels-h">
+            <header><h3 id="duels-h">Invaders and defenders</h3><span>the best on the server</span></header>
+            <div class="sm-tabs" role="group" aria-label="Pick a list" data-field="pvpTabs"></div>
+            <ol class="sm-board" data-field="pvpBoard"></ol>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="hunt" aria-labelledby="hunt-h">
+      <div class="container">
+        <h2 id="hunt-h">The hunt</h2>
+        <dl class="sm-strip" data-field="deeds"></dl>
+        <div data-field="deedsMore"></div>
+        <div class="sm-grid sm-grid-even">
+          <article class="sm-panel" aria-labelledby="beasts-h">
+            <header><h3 id="beasts-h">Beasts slain</h3><span data-field="beastsHead"></span></header>
+            <ol class="sm-rows" data-field="beasts"></ol>
+            <h4 class="sm-label">Where</h4>
+            <ul class="sm-rows" data-field="beastAreas"></ul>
+          </article>
+          <article class="sm-panel" aria-labelledby="bosses-h">
+            <header><h3 id="bosses-h">Bosses</h3><span data-field="bossesHead"></span></header>
+            <ol class="sm-rows" data-field="bosses"></ol>
           </article>
         </div>
       </div>
@@ -199,6 +251,9 @@ const toc = [
       <div class="container">
         <article class="sm-panel">
           <header><h2 id="day-h">Day by day</h2><span data-field="sinceHead"></span></header>
+          <h3 class="sm-label">Hunters online, last 48 hours <span class="sm-label-note" data-field="hourHead"></span></h3>
+          <div class="sm-chart" data-field="hourChart"></div>
+          <div class="sm-chart-axis" data-field="hourAxis" aria-hidden="true"></div>
           <div class="sm-scroll">
             <table class="sm-table">
               <thead><tr><th scope="col">Day</th><th scope="col" class="sm-wide">Hunters</th><th scope="col">New</th><th scope="col">Most at once</th><th scope="col">Hours</th><th scope="col">Deaths</th></tr></thead>
@@ -238,13 +293,13 @@ const toc = [
     </section>
 
     <p class="container sm-note">
-      Refreshed every minute through forum.bbport.de. Hunters appear by their Online ID only, never where they are right
-      now. Admins of SuperMedo Server can hide a hunter from these lists.
+      Refreshed every minute through forum.bbport.de. Hunters appear by their Online ID only; the map shows where hunters
+      are, never who. Admins of SuperMedo Server can hide a hunter from these lists.
     </p>
   </div>
 
   <script>
-    import { el, num, hours, when, stamp, openedDay, isNew, place, hunterLink, death } from '../lib/server-stats.js';
+    import { el, num, hours, when, stamp, openedDay, isNew, place, hunterLink, death, soon } from '../lib/server-stats.js';
 
     const page = document.querySelector<HTMLElement>('.sm-page');
     if (page && page.dataset.src) {
@@ -490,7 +545,7 @@ const toc = [
           copy.type = 'button';
           copy.dataset.glyph = c.glyph;
           return line([el('code', 'sm-glyph', c.glyph), copy], `depth ${num(c.depth)}`, undefined, false,
-            `made by ${c.maker || 'a hidden hunter'} · ${num(c.visits)} ${c.visits === 1 ? 'visit' : 'visits'} · shared ${when(c.made)}`);
+            `${c.name ? `${c.name} · ` : ''}made by ${c.maker || 'a hidden hunter'} · ${num(c.visits)} ${c.visits === 1 ? 'visit' : 'visits'} · shared ${when(c.made)}`);
         }));
       };
       // Copy a glyph; where the browser refuses, the glyph is selected for Ctrl+C
@@ -508,6 +563,222 @@ const toc = [
           setTimeout(() => { copy.textContent = 'Copy'; }, 1500);
         }, select);
       });
+
+      // Hunters online hour by hour, the last 48 hours: the bar is the average, the line on it the most at once
+      const renderHours = () => {
+        const list = [...(data.online ?? [])].filter((h: any) => h?.hour).sort((a: any, b: any) => a.hour - b.hour);
+        const chart = field('hourChart');
+        if (!list.length) {
+          set('hourHead', '');
+          field('hourAxis').replaceChildren();
+          chart.removeAttribute('role');
+          return chart.replaceChildren(soon('How many hunters were online in every hour of the last two days.'));
+        }
+        const top = list.reduce((best: any, h: any) => (Number(h.peak) > Number(best.peak) ? h : best), list[0]);
+        const most = Math.max(1, Number(top.peak) || 0);
+        set('hourHead', `· most at once ${num(top.peak)}, ${when(top.hour)}`);
+        chart.setAttribute('role', 'img');
+        chart.setAttribute('aria-label', `Hunters online hour by hour from ${when(list[0].hour)} to ${when(list[list.length - 1].hour)}, most at once ${num(top.peak)}`);
+        chart.replaceChildren(...list.map((h: any) => {
+          const col = el('span', 'sm-col');
+          col.style.setProperty('--avg', String((100 * Number(h.average ?? 0)) / most));
+          col.style.setProperty('--peak', String((100 * Number(h.peak ?? 0)) / most));
+          col.title = `${when(h.hour)}: ${num(Math.round(Number(h.average ?? 0)))} on average, ${num(h.peak)} at most`;
+          return col;
+        }));
+        // The time under every sixth hour
+        field('hourAxis').replaceChildren(...list.map((h: any) =>
+          el('span', '', new Date(h.hour * 1000).getHours() % 6 === 0 ? when(h.hour, false, false, true) : '')));
+      };
+
+      // The map: one area's ground (where hunters have walked) and the hunters there right now as dots without names
+      let mapCode = '';
+      let map: any = null;
+      let mapWidth = 0;
+      const drawMap = () => {
+        const box = field('map');
+        const live = Array.isArray(map?.now);
+        field('mapArea').hidden = !live;
+        field('mapNote').hidden = !live;
+        if (!live) {
+          mapWidth = 0;
+          return box.replaceChildren(soon('Every hunter online right now as a dot on the map of their area, without a name.'));
+        }
+        const floor: number[][] = map.floor ?? [];
+        const now: number[][] = map.now;
+        const all = floor.concat(now);
+        if (!all.length) {
+          mapWidth = 0;
+          return box.replaceChildren(el('p', 'sm-empty', 'Nobody has walked here yet.'));
+        }
+        const grid = Number(map.grid) || 1;
+        let [minX, maxX, minZ, maxZ] = [Infinity, -Infinity, Infinity, -Infinity];
+        all.forEach(([x, z]) => { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z); });
+        [minX, maxX, minZ, maxZ] = [minX - grid, maxX + grid, minZ - grid, maxZ + grid];
+        mapWidth = box.clientWidth || 600;
+        const scale = Math.min(mapWidth / (maxX - minX), 520 / (maxZ - minZ));
+        const w = Math.max(1, Math.round((maxX - minX) * scale));
+        const h = Math.max(1, Math.round((maxZ - minZ) * scale));
+        let canvas = box.querySelector('canvas');
+        if (!canvas) {
+          canvas = document.createElement('canvas');
+          box.replaceChildren(canvas);
+        }
+        const ratio = window.devicePixelRatio || 1;
+        canvas.width = Math.round(w * ratio);
+        canvas.height = Math.round(h * ratio);
+        canvas.style.width = `${w}px`;
+        canvas.style.height = `${h}px`;
+        const ctx = canvas.getContext('2d')!;
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        ctx.clearRect(0, 0, w, h);
+        // North up: z grows upwards
+        const px = (x: number) => (x - minX) * scale;
+        const py = (z: number) => (maxZ - z) * scale;
+        const cell = Math.max(1, grid * scale);
+        ctx.fillStyle = '#2b2d32';
+        floor.forEach(([x, z]) => ctx.fillRect(px(x) - cell / 2, py(z) - cell / 2, cell, cell));
+        // One dot per spot, bigger where several hunters stand together
+        const spots = new Map<string, number>();
+        now.forEach(([x, z]) => spots.set(`${x},${z}`, (spots.get(`${x},${z}`) ?? 0) + 1));
+        spots.forEach((count, key) => {
+          const [x, z] = key.split(',').map(Number);
+          const r = Math.min(9, 3.5 + 1.5 * Math.sqrt(count - 1));
+          ctx.beginPath();
+          ctx.arc(px(x), py(z), r + 4, 0, 2 * Math.PI);
+          ctx.fillStyle = 'rgba(194, 168, 120, 0.22)';
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(px(x), py(z), r, 0, 2 * Math.PI);
+          ctx.fillStyle = '#f0ddb0';
+          ctx.fill();
+        });
+        canvas.setAttribute('role', 'img');
+        canvas.setAttribute('aria-label', `${map.name}: ${num(now.length)} ${now.length === 1 ? 'hunter' : 'hunters'} online right now`);
+      };
+      const loadMap = async () => {
+        try {
+          const response = await fetch(`${page.dataset.src}/map/${encodeURIComponent(mapCode)}`, { credentials: 'omit' });
+          map = response.ok ? await response.json() : null;
+        } catch {
+          map = null;
+        }
+        drawMap();
+      };
+      const renderMapAreas = () => {
+        // The busiest area first; a visitor's own pick stays through the refreshes
+        const areas = [...(data.maps ?? [])].sort((a: any, b: any) => b.online - a.online || String(a.name).localeCompare(b.name));
+        if (!areas.length) {
+          map = null;
+          return drawMap();
+        }
+        if (!areas.some((a: any) => a.code === mapCode)) mapCode = areas[0].code;
+        field('mapArea').replaceChildren(...areas.map((a: any) => {
+          const option = el('option', '', a.online ? `${a.name} · ${num(a.online)} now` : a.name) as HTMLOptionElement;
+          option.value = a.code;
+          option.selected = a.code === mapCode;
+          return option;
+        }));
+        loadMap();
+      };
+      field('mapArea').addEventListener('change', (event) => {
+        mapCode = (event.target as HTMLSelectElement).value;
+        loadMap();
+      });
+      // Drawn again when the page gets narrower or wider, not when the drawing itself changes the height
+      new ResizeObserver(() => { if (map && field('map').clientWidth !== mapWidth) drawMap(); }).observe(field('map'));
+
+      // Invasions: how they end, the latest fights, and the best invaders and defenders
+      const pvpBoards: [string, string][] = [['invasions_won', 'Invasions won'], ['hunters_slain', 'Hunters slain'], ['invaders_repelled', 'Invaders repelled']];
+      const ends: Record<string, string> = { host_died: 'The host fell', invader_died: 'The invader fell', invader_left: 'The invader left' };
+      let pvpBoard = 'invasions_won';
+      const renderPvpBoard = () => {
+        field('pvpTabs').replaceChildren(...pvpBoards.map(([key, label]) => {
+          const b = el('button', '', label) as HTMLButtonElement;
+          b.type = 'button';
+          b.setAttribute('aria-pressed', String(key === pvpBoard));
+          b.addEventListener('click', () => { pvpBoard = key; renderPvpBoard(); });
+          return b;
+        }));
+        const entries = ((data.pvp ?? {}).boards ?? {})[pvpBoard];
+        if (!Array.isArray(entries) || !entries.length) {
+          return field('pvpBoard').replaceChildren(soon('The best invaders, and the hunters who drive them off.', 'li'));
+        }
+        field('pvpBoard').replaceChildren(...entries.map((e: any, i: number) => {
+          const li = el('li');
+          li.append(el('span', 'sm-rank', `#${e.rank ?? i + 1}`), hunterLink(hunterUrl, e.name, 'sm-grow'), el('strong', '', num(e.value)));
+          return li;
+        }));
+      };
+      const renderPvp = () => {
+        const p = data.pvp ?? {};
+        set('pvpSince', p.counting_since ? `counted since ${when(p.counting_since, false, true)}` : '');
+        const order = Object.entries((p.results ?? {}) as Record<string, number>).filter(([, n]) => Number(n) > 0).sort((a, b) => b[1] - a[1]);
+        const total = order.reduce((sum, [, n]) => sum + Number(n), 0);
+        if (!total) field('pvpEnds').replaceChildren(soon('Whether the host falls, the invader falls or the invader leaves.'));
+        else {
+          // One bar split by share, the outcomes with their share below it
+          const split = el('div', 'sm-share');
+          split.setAttribute('role', 'img');
+          split.setAttribute('aria-label', order.map(([key, n]) => `${ends[key] ?? key} ${Math.round((100 * n) / total)}%`).join(', '));
+          const legend = el('p', 'sm-legend');
+          order.forEach(([key, n]) => {
+            const part = el('span', `sm-end-${key}`);
+            part.style.width = `${(100 * n) / total}%`;
+            split.append(part);
+            const item = el('span');
+            item.append(el('i', `sm-end-${key}`), `${ends[key] ?? key} ${num(n)} · ${Math.round((100 * n) / total)}%`);
+            legend.append(item);
+          });
+          field('pvpEnds').replaceChildren(split, legend);
+        }
+        const recent = p.recent ?? [];
+        if (!recent.length) field('pvpRecent').replaceChildren(soon('The latest fights between invaders and hosts.', 'li'));
+        else field('pvpRecent').replaceChildren(...recent.slice(0, 6).map((x: any) => {
+          const li = el('li', 'sm-stack');
+          const who = el('span');
+          who.append(hunterLink(hunterUrl, x.invader), ' invaded ', hunterLink(hunterUrl, x.host));
+          li.append(who, el('span', 'sm-meta', [ends[x.result] ?? x.result, place(x), when(x.time)].filter(Boolean).join(' · ')));
+          return li;
+        }));
+        renderPvpBoard();
+      };
+
+      // The hunt: beasts slain, parries and the like, and bosses; name and number of a list entry, whatever the server
+      // calls them
+      const deedNames: [string, string][] = [['parry', 'Parries'], ['visceral', 'Visceral attacks'], ['blood_vial_used', 'Blood Vials used'], ['lamp_lit', 'Lamps lit'], ['insight_used', 'Insight used']];
+      const entryName = (e: any) => String(e?.name ?? e?.enemy ?? e?.area ?? e?.boss ?? '');
+      const entryCount = (e: any) => Number(e?.count ?? e?.value ?? e?.kills ?? e?.slain ?? e?.cleared ?? e?.defeated ?? 0);
+      const ranked = (target: string, list: any[], text: string, red = true) => {
+        const rows = (list ?? []).filter((e: any) => entryName(e)).sort((a: any, b: any) => entryCount(b) - entryCount(a));
+        if (!rows.length) return field(target).replaceChildren(soon(text, 'li'));
+        const most = Math.max(1, ...rows.map(entryCount));
+        field(target).replaceChildren(...rows.slice(0, 6).map((e: any, i: number) =>
+          line([el('span', 'sm-rank', String(i + 1)), entryName(e)], num(entryCount(e)), (100 * entryCount(e)) / most, red)));
+      };
+      const renderHunt = () => {
+        const d = data.deeds ?? {};
+        const counts: Record<string, number> = d.deeds ?? {};
+        const counted = Number(d.beasts_slain || 0) > 0 || Object.values(counts).some((n) => Number(n) > 0);
+        const tile = (label: string, value: number) => {
+          const div = el('div');
+          const dd = el('dd');
+          dd.append(el('strong', '', counted ? num(value) : '–'));
+          div.append(el('dt', '', label), dd);
+          return div;
+        };
+        field('deeds').replaceChildren(tile('Beasts slain', d.beasts_slain), ...deedNames.map(([key, label]) => tile(label, counts[key])));
+        const since = d.counting_since ? ` since ${when(d.counting_since, false, true)}` : '';
+        field('deedsMore').replaceChildren(counted
+          ? el('p', 'sm-small', `Also ${num(counts.item_picked_up)} items picked up, ${num(counts.fall_survived)} falls survived and ${num(counts.beast_roar)} Beast Roars${since}.`)
+          : soon(`Every beast slain, parry and visceral attack on the server${since ? `, counted${since}` : ''}.`));
+        set('beastsHead', counted ? `${num(d.beasts_slain)} in all` : '');
+        ranked('beasts', d.by_enemy, 'Which beasts fall most often.');
+        ranked('beastAreas', d.by_area, 'Where the most beasts fall.');
+        const bosses = data.bosses ?? [];
+        set('bossesHead', bosses.length ? `${num(bosses.reduce((sum: number, b: any) => sum + entryCount(b), 0))} times beaten` : '');
+        ranked('bosses', bosses, 'Which bosses hunters beat most often.', false);
+      };
 
       const renderHunters = (s: any) => {
         set('registered', num(s.hunters?.registered ?? 0));
@@ -551,6 +822,10 @@ const toc = [
           renderCommunity();
           renderChalices();
           renderHunters(s);
+          renderHours();
+          renderPvp();
+          renderHunt();
+          renderMapAreas();
         } catch {
           state.classList.remove('is-awake');
           set('state', "SuperMedo Server isn't answering right now. The numbers come back by themselves.");

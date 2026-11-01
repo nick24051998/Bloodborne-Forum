@@ -38,6 +38,16 @@ const api = SITE.forumUrl ? `${SITE.forumUrl}/api/bb-server/hunters/` : '';
           <dl class="sm-facts" data-field="died"></dl>
         </div>
       </div>
+      <div class="container sm-cols sm-cols-2">
+        <div>
+          <h2 class="sm-label">Invasions</h2>
+          <div data-field="pvp"></div>
+        </div>
+        <div>
+          <h2 class="sm-label">The hunt</h2>
+          <div data-field="hunt"></div>
+        </div>
+      </div>
     </section>
 
     <section class="section">
@@ -57,7 +67,7 @@ const api = SITE.forumUrl ? `${SITE.forumUrl}/api/bb-server/hunters/` : '';
   </div>
 
   <script>
-    import { el, num, hours, when, place } from '../../lib/server-stats.js';
+    import { el, num, hours, when, place, soon } from '../../lib/server-stats.js';
 
     const page = document.querySelector<HTMLElement>('.sm-page')!;
     const field = (name: string) => document.querySelector<HTMLElement>(`[data-field="${name}"]`)!;
@@ -95,13 +105,35 @@ const api = SITE.forumUrl ? `${SITE.forumUrl}/api/bb-server/hunters/` : '';
       set('ranks', (d.ranks ?? []).map((r: any) => `#${r.rank} in ${boards[r.board] ?? r.board}`).join(' · '));
 
       const rr = h.ratings_received ?? {};
-      facts('coop', [['Summoned to help', num(h.summoned_to_help)], ['Summons hosted', num(h.summons_hosted)], ['Invasions', num(h.invasions)], ['Bells rung', num(h.bells_rung)]]);
+      const sessions = h.sessions ? `${num(h.sessions.total)}${h.sessions.coop ? `, ${num(h.sessions.coop)} with co-op` : ''}` : '–';
+      facts('coop', [['Summoned to help', num(h.summoned_to_help)], ['Summons hosted', num(h.summons_hosted)], ['Invasions', num(h.invasions)],
+        ['Bells rung', num(h.bells_rung)], ['Sessions', sessions]]);
       facts('rep', [['Messages written', num(h.messages)], ['Ratings received', `${num(rr.good)} good · ${num(rr.poor)} poor`], ['Ratings given', num(h.ratings_given)]]);
       set('nemesis', h.nemesis?.name ?? (h.nemesis ? 'An enemy without a name yet' : 'None yet'));
       const died = Object.entries(h.deaths_by_cause ?? {}).filter(([, n]) => Number(n) > 0)
         .map(([key, n]) => [causes[key] ?? key, num(n)] as [string, string]);
       died.push(['Dies most in', h.deadliest_area?.name ?? (typeof h.deadliest_area === 'string' ? h.deadliest_area : 'No area yet')]);
       facts('died', died);
+
+      // Counted by SuperMedo Server since 1 Nov 2026: "Coming soon" until the server has any numbers there (d.counting)
+      const factsOr = (target: string, rows: [string, string][], counting: boolean, text: string) => {
+        if (!counting) return field(target).replaceChildren(soon(text));
+        const dl = el('dl', 'sm-facts');
+        dl.append(...rows.map(([label, value]) => {
+          const div = el('div');
+          div.append(el('dt', '', label), el('dd', '', value));
+          return div;
+        }));
+        field(target).replaceChildren(dl);
+      };
+      const pvp = h.pvp ?? {};
+      factsOr('pvp', [['Invasions won', num(pvp.invasions_won)], ['Invasions lost', num(pvp.invasions_lost)], ['Hunters slain', num(pvp.hunters_slain)],
+        ['Invaders repelled', num(pvp.invaders_repelled)], ['Fell to invaders', num(pvp.fell_to_invaders)]],
+        d.counting?.pvp === true, 'Invasions won and lost, hunters slain and invaders driven off.');
+      const deeds = h.deeds ?? {};
+      factsOr('hunt', [['Beasts slain', num(h.beasts_slain)], ['Bosses beaten', num(h.bosses_cleared)], ['Parries', num(deeds.parry)],
+        ['Visceral attacks', num(deeds.visceral)], ['Blood Vials used', num(deeds.blood_vial_used)], ['Lamps lit', num(deeds.lamp_lit)]],
+        d.counting?.deeds === true, 'Beasts slain, bosses beaten, parries and visceral attacks.');
 
       const messages = d.messages ?? [];
       set('messagesNote', messages.length ? `${num(messages.length)}, newest first` : '');

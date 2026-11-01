@@ -16,10 +16,10 @@ name: Website
 on:
   push:
     branches: [main, "ci/**"]
-    paths: ["website/**", ".github/workflows/website.yml"]
+    paths: ["website/**", "flarum/**", ".github/workflows/website.yml"]
   pull_request:
     branches: [main]
-    paths: ["website/**", ".github/workflows/website.yml"]
+    paths: ["website/**", "flarum/**", ".github/workflows/website.yml"]
   schedule:
     - cron: "41 */2 * * *"
   workflow_dispatch:
@@ -56,6 +56,19 @@ jobs:
       - id: knowledge
         working-directory: website
         run: node scripts/fetch-knowledge.mjs --check
+
+  # The forum's PHP and script (flarum/), as CLAUDE.md asks before a forum change: the forum takes main by itself
+  forum-check:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: flarum
+      - name: PHP syntax
+        run: for f in flarum/*.php; do php -l "$f" || exit 1; done
+      - name: Forum script syntax
+        run: node --check flarum/forum.js
 
   build:
     needs: releases

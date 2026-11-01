@@ -973,6 +973,31 @@ ol.sm-board strong { font-family: var(--font-head); font-size: 1.35rem; color: v
 .sm-tabs button[aria-pressed="true"] { border-bottom-color: #c22a30; color: var(--text-strong); }
 .sm-period { display: flex; gap: 1rem; margin: 0.6rem 0 0.3rem; }
 .sm-period button { font-size: 0.85rem; border-bottom-width: 1px; }
+/* Parts SuperMedo Server doesn't fill yet say "Coming soon" and what will be there (Nick, 1.11.2026) */
+.sm-soon { margin: 0.2rem 0 0.8rem; color: var(--text-soft); line-height: 1.6; }
+.sm-soon .wip-tag { margin-right: 0.3rem; }
+:is(ol.sm-board, .sm-rows, .sm-list) li.sm-soon { grid-column: 1 / -1; padding: 0.4rem 0; border: 0; background: none; }
+/* Hunters online hour by hour: the bar is the average, the line on it the most at once */
+.sm-chart { display: flex; align-items: stretch; gap: 2px; height: 130px; margin: 0.4rem 0 0.3rem; }
+.sm-chart > .sm-soon { align-self: center; }
+.sm-col { position: relative; flex: 1; min-width: 0; }
+.sm-col::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--avg, 0) * 1%); background: rgba(194, 168, 120, 0.4); }
+.sm-col::after { content: ""; position: absolute; left: 0; right: 0; bottom: calc(var(--peak, 0) * 1%); height: 2px; background: var(--gold-light); }
+.sm-col:hover::before { background: rgba(194, 168, 120, 0.7); }
+.sm-chart-axis { display: flex; gap: 2px; margin: 0 0 1.6rem; color: var(--text-soft); font-size: 0.75rem; }
+.sm-chart-axis span { flex: 1; min-width: 0; white-space: nowrap; }
+/* The map: the ground dark, hunters online right now as bright dots */
+.sm-map-panel { margin-top: 1.4rem; }
+.sm-map { display: flex; justify-content: center; }
+.sm-map > .sm-soon { width: 100%; }
+.sm-map canvas { display: block; max-width: 100%; }
+select.sm-pick { padding: 0.35rem 0.6rem; color: var(--text); background: var(--bg-deep); border: 1px solid var(--border-strong); border-radius: 8px;
+  font: 500 0.9rem var(--font-body); }
+select.sm-pick[hidden] { display: none; }
+/* How invasions end */
+.sm-end-host_died { background: #c22a30; }
+.sm-end-invader_died { background: var(--gold-light); }
+.sm-end-invader_left { background: #5e6166; }
 .sm-period button[aria-pressed="true"] { border-bottom-color: var(--gold-light); color: var(--gold-light); }
 .sm-board li { border-top: 0; border-bottom: 1px solid #2a2c31; }
 .sm-glyph { font-family: var(--font-term); font-size: 1.3rem; color: var(--nr-amber); }
