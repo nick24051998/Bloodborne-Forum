@@ -14,6 +14,8 @@
  *   them, and the page says "Coming soon" (404 for an unknown area). `image`: where SuperMedo Server's picture of the
  *   area lies in the game's coordinates (x0…x1 across, z0…z1 down) and its size, when it has one.
  * - GET /api/bb-server/map/{area code}/image: that picture (PNG), fetched once a day; the last good one stays.
+ * - GET /api/bb-server/maps: every area at a glance (the ground on a coarse grid, the hunters there now), made from the
+ *   areas' own answers above.
  * - Asks SuperMedo Server at most once a minute per answer; if it doesn't answer, the last answer stays for 15
  *   minutes, after that 503 and the pages hide their numbers.
  * - Only what SuperMedo Server's public API shows anyway (Online IDs, no addresses). Enemies without a name (names are
@@ -314,6 +316,38 @@ if (! class_exists('BBForumServerStats')) {
             });
         }
 
+        /** Every area at a glance, for the small maps under the big one: the ground on a coarse grid and the hunters
+         *  there now. Made from the areas' own answers, so SuperMedo Server still gets each at most once a minute. */
+        public static function maps(): ?array
+        {
+            return self::cached('bbforum.server.maps', function () {
+                $list = self::get('map');
+                if (! is_array($list)) {
+                    return null;
+                }
+                $coarse = 8;
+                $areas = [];
+                foreach ($list as $listed) {
+                    $code = is_array($listed) ? (string) ($listed['code'] ?? '') : '';
+                    $map = $code !== '' ? self::map($code) : null;
+                    if (! $map || ! empty($map['missing'])) {
+                        continue;
+                    }
+                    $floor = [];
+                    foreach ($map['floor'] as [$x, $z]) {
+                        [$cx, $cz] = [(int) round($x / $coarse), (int) round($z / $coarse)];
+                        $floor[$cx.','.$cz] = [$cx * $coarse, $cz * $coarse];
+                    }
+                    $areas[] = [
+                        'code' => $code, 'name' => $map['name'], 'online' => $map['online'], 'grid' => $coarse,
+                        'floor' => array_values($floor), 'now' => $map['now'],
+                    ];
+                }
+
+                return ['areas' => $areas, 'updatedAt' => time()];
+            });
+        }
+
         /** One area's picture as PNG bytes; null without one. Asked for once a day, the last good one kept. */
         public static function mapImage(string $code): ?string
         {
@@ -387,6 +421,14 @@ if (! class_exists('BBForumServerStats')) {
             $code = (string) ($request->getAttribute('routeParameters')['code'] ?? '');
 
             return BBForumServerStats::respond(BBForumServerStats::map($code));
+        }
+    }
+
+    class BBForumServerMaps implements RequestHandlerInterface
+    {
+        public function handle(ServerRequestInterface $request): ResponseInterface
+        {
+            return BBForumServerStats::respond(BBForumServerStats::maps());
         }
     }
 

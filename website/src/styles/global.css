@@ -991,6 +991,16 @@ ol.sm-board strong { font-family: var(--font-head); font-size: 1.35rem; color: v
 .sm-map { display: flex; justify-content: center; }
 .sm-map > .sm-soon { width: 100%; }
 .sm-map canvas { display: block; max-width: 100%; }
+/* Every area at a glance under the big map: a plate with a thin brass line, as the buttons */
+.sm-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.6rem; margin-top: 1rem; }
+.sm-tiles[hidden] { display: none; }
+.sm-tile { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; padding: 0.5rem 0.4rem 0.55rem; color: var(--text);
+  background: var(--bg-deep); border: 1px solid rgba(194, 168, 120, 0.4); border-radius: 10px; font: 500 0.85rem var(--font-body);
+  cursor: pointer; transition: border-color 220ms; }
+.sm-tile:hover, .sm-tile[aria-pressed="true"] { border-color: var(--gold-light); }
+.sm-tile canvas { display: block; max-width: 100%; }
+.sm-tile-name { color: var(--text-strong); text-align: center; }
+.sm-tile-count { color: var(--muted); font-size: 0.78rem; }
 select.sm-pick { padding: 0.35rem 0.6rem; color: var(--text); background: var(--bg-deep); border: 1px solid var(--border-strong); border-radius: 8px;
   font: 500 0.9rem var(--font-body); }
 select.sm-pick[hidden] { display: none; }

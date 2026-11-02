@@ -541,9 +541,12 @@ const SERVER_SAMPLE = {
 const CORS = { 'Access-Control-Allow-Origin': '*' };
 // One area of the map without the hunters online now (SuperMedo Server doesn't send them yet)
 const MAP_SAMPLE = { code: 'm24_01', name: 'Central Yharnam', grid: 2, online: 2, floor: [[0, 0], [2, 0], [2, 2]], now: null, updatedAt: 1793220298 };
+// Every area at a glance (the small maps under the big one), as the forum answers /api/bb-server/maps
+const tilesOf = (...areas) => ({ areas: areas.map((a) => ({ grid: 8, floor: [[0, 0], [8, 0], [8, 8]], now: null, ...a })), updatedAt: 1793220298 });
 
 test('Server page shows the statistics from the forum', async ({ page }) => {
   await page.route('**/api/bb-server', (route) => route.fulfill({ json: SERVER_SAMPLE, headers: CORS }));
+  await page.route('**/api/bb-server/maps', (route) => route.fulfill({ headers: CORS, json: tilesOf({ code: 'm24_01', name: 'Central Yharnam', online: 2 }) }));
   await page.route('**/api/bb-server/map/**', (route) => route.fulfill({ json: MAP_SAMPLE, headers: CORS }));
   await page.goto('/server/');
   await expect(page.locator('[data-field="online"]')).toHaveText('2');
@@ -579,6 +582,7 @@ test('Server page fills the map, invasions and the hunt once SuperMedo Server co
     bosses: [{ name: 'Father Gascoigne', cleared: 4 }],
   };
   await page.route('**/api/bb-server', (route) => route.fulfill({ json: counted, headers: CORS }));
+  await page.route('**/api/bb-server/maps', (route) => route.fulfill({ headers: CORS, json: tilesOf({ code: 'm24_01', name: 'Central Yharnam', online: 2 }) }));
   await page.route('**/api/bb-server/map/**', (route) => route.fulfill({ headers: CORS, json: { ...MAP_SAMPLE, now: [[0, 0], [2, 2]] } }));
   await page.goto('/server/');
   await expect(page.locator('[data-field="map"] canvas')).toHaveAttribute('aria-label', 'Central Yharnam: 2 hunters online right now');
@@ -597,6 +601,7 @@ const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR
 test('Server page draws the map on SuperMedo Server\'s picture, without hunters filed under the wrong area', async ({ page }) => {
   const pictures = [];
   await page.route('**/api/bb-server', (route) => route.fulfill({ json: SERVER_SAMPLE, headers: CORS }));
+  await page.route('**/api/bb-server/maps', (route) => route.fulfill({ headers: CORS, json: tilesOf({ code: 'm24_01', name: 'Central Yharnam', online: 2 }) }));
   await page.route('**/api/bb-server/map/**', (route) => route.fulfill({ headers: CORS, json: {
     ...MAP_SAMPLE, floor: [[0, 0], [2, 0], [2, 2], [4, 4]], image: { x0: -10, x1: 10, z0: -10, z1: 10, w: 1, h: 1 },
     // The last one is a spot in another area (a hunter who has just warped): not drawn, and the map stays this area
@@ -615,6 +620,7 @@ test('Server page draws the map on SuperMedo Server\'s picture, without hunters 
 test('Server page keeps the walked ground when the picture shows another place', async ({ page }) => {
   let asked = 0;
   await page.route('**/api/bb-server', (route) => route.fulfill({ json: SERVER_SAMPLE, headers: CORS }));
+  await page.route('**/api/bb-server/maps', (route) => route.fulfill({ headers: CORS, json: tilesOf({ code: 'm24_01', name: 'Central Yharnam', online: 2 }) }));
   await page.route('**/api/bb-server/map/**', (route) => route.fulfill({ headers: CORS, json: {
     ...MAP_SAMPLE, image: { x0: 500, x1: 600, z0: 500, z1: 600, w: 1, h: 1 }, now: [[0, 0]] } }));
   await page.route('**/api/bb-server/map/*/image', (route) => {
@@ -625,6 +631,37 @@ test('Server page keeps the walked ground when the picture shows another place',
   await expect(page.locator('[data-field="map"] canvas')).toHaveAttribute('aria-label', 'Central Yharnam: 1 hunter online right now');
   await expect(page.locator('[data-field="mapNote"]')).toContainText('The ground is where hunters have walked.');
   expect(asked).toBe(0);
+});
+
+test('Server page shows Yharnam as one map and every area as a small one', async ({ page }) => {
+  // Old Yharnam, Central Yharnam and Cathedral Ward share the game's coordinates: one map of all three
+  const areas = [
+    { code: 'm23_00', name: 'Old Yharnam', online: 1, now: [[40, 0]] },
+    { code: 'm24_01', name: 'Central Yharnam', online: 2, now: [[0, 0], [8, 8]] },
+    { code: 'm24_00', name: 'Cathedral Ward', online: 1, now: [[80, 40]] },
+    { code: 'm27_00', name: 'Forbidden Woods', online: 3, now: [[0, 0], [8, 0], [8, 8]] },
+  ];
+  const floors = { m23_00: [[40, 0], [42, 0]], m24_01: [[0, 0], [8, 8]], m24_00: [[80, 40], [82, 40]], m27_00: [[0, 0], [8, 0], [8, 8]] };
+  await page.route('**/api/bb-server', (route) => route.fulfill({ headers: CORS, json: {
+    ...SERVER_SAMPLE, maps: areas.map(({ code, name, online }) => ({ code, name, online })) } }));
+  await page.route('**/api/bb-server/maps', (route) => route.fulfill({ headers: CORS, json: tilesOf(...areas.map((a) => ({ ...a, floor: floors[a.code] }))) }));
+  await page.route('**/api/bb-server/map/**', (route) => {
+    const code = new URL(route.request().url()).pathname.split('/').pop();
+    const area = areas.find((a) => a.code === code);
+    return route.fulfill({ headers: CORS, json: { ...area, grid: 2, floor: floors[code], image: null, updatedAt: 1793220298 } });
+  });
+  await page.goto('/server/');
+  await expect(page.locator('[data-field="mapArea"] option').first()).toHaveText('Yharnam (Central Yharnam, Cathedral Ward, Old Yharnam) · 4 now');
+  await expect(page.locator('[data-field="map"] canvas')).toHaveAttribute('aria-label', 'Yharnam: 4 hunters online right now');
+  // The small maps: Yharnam as one, then the other areas, the busiest first
+  const tiles = page.locator('[data-field="mapTiles"] .sm-tile');
+  await expect(tiles).toHaveCount(2);
+  await expect(tiles.nth(0)).toContainText('Yharnam4 now');
+  await expect(tiles.nth(0)).toHaveAttribute('aria-pressed', 'true');
+  await tiles.filter({ hasText: 'Forbidden Woods' }).click();
+  await expect(page.locator('[data-field="map"] canvas')).toHaveAttribute('aria-label', 'Forbidden Woods: 3 hunters online right now');
+  await expect(page.locator('[data-field="mapArea"]')).toHaveValue('m27_00');
+  await expect(tiles.filter({ hasText: 'Forbidden Woods' })).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('Hunter page loads one hunter by Online ID', async ({ page }) => {

@@ -42,8 +42,8 @@
  * account on SuperMedo Server with a signed note; off (404, no button) while bbforum.supermedo_account_key is empty.
  *
  * SuperMedo Server statistics (flarum/server-stats.php): /api/bb-server, /api/bb-server/summary,
- * /api/bb-server/hunters/{id}, /api/bb-server/map/{code} and /api/bb-server/map/{code}/image for the website's /server/
- * page, its home page band and the forum box, cached a minute (the map pictures a day).
+ * /api/bb-server/hunters/{id}, /api/bb-server/maps, /api/bb-server/map/{code} and /api/bb-server/map/{code}/image for
+ * the website's /server/ page, its home page band and the forum box, cached a minute (the map pictures a day).
  *
  * Overview (flarum/overview.php): votes (👍 on the opening post) as the sort order "-bbVotes", filter "bbview"
  * for the tabs above the lists, command bbforum:close-stale (close help discussions after 7 days without a post).
@@ -335,6 +335,7 @@ return [
         ->get('/bb-server', 'bbforum.server', BBForumServerOverview::class)
         ->get('/bb-server/summary', 'bbforum.server.summary', BBForumServerSummary::class)
         ->get('/bb-server/hunters/{id}', 'bbforum.server.hunter', BBForumServerHunter::class)
+        ->get('/bb-server/maps', 'bbforum.server.maps', BBForumServerMaps::class)
         ->get('/bb-server/map/{code}', 'bbforum.server.map', BBForumServerMap::class)
         ->get('/bb-server/map/{code}/image', 'bbforum.server.mapimage', BBForumServerMapImage::class),
 
