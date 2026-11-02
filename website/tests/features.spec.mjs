@@ -643,7 +643,7 @@ test('Server page shows Yharnam as one map and every area as a small one', async
   ];
   const floors = { m23_00: [[40, 0], [42, 0]], m24_01: [[0, 0], [8, 8]], m24_00: [[80, 40], [82, 40]], m27_00: [[0, 0], [8, 0], [8, 8]] };
   await page.route('**/api/bb-server', (route) => route.fulfill({ headers: CORS, json: {
-    ...SERVER_SAMPLE, maps: areas.map(({ code, name, online }) => ({ code, name, online })) } }));
+    ...SERVER_SAMPLE, mapTiles: true, maps: areas.map(({ code, name, online }) => ({ code, name, online })) } }));
   await page.route('**/api/bb-server/maps', (route) => route.fulfill({ headers: CORS, json: tilesOf(...areas.map((a) => ({ ...a, floor: floors[a.code] }))) }));
   await page.route('**/api/bb-server/map/**', (route) => {
     const code = new URL(route.request().url()).pathname.split('/').pop();

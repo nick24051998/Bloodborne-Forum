@@ -807,6 +807,11 @@ const toc = [
         }));
       };
       const loadTiles = async () => {
+        // Only where the forum answers it (it says so in its overview)
+        if (!data.mapTiles) {
+          tiles = [];
+          return drawTiles();
+        }
         try {
           const response = await fetch(`${page.dataset.src}/maps`, { credentials: 'omit' });
           tiles = response.ok ? ((await response.json()).areas ?? []) : [];

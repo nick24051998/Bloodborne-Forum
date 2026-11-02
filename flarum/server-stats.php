@@ -155,6 +155,9 @@ if (! class_exists('BBForumServerStats')) {
                     }, (array) self::get('map')), function ($m) {
                         return $m['code'] !== '' && $m['name'] !== '' && ! in_array($m['code'], self::NO_MAP, true);
                     })),
+                    // The page asks for /api/bb-server/maps only where the forum answers it (a forum without it gave
+                    // every visitor an error in the console)
+                    'mapTiles' => true,
                     'updatedAt' => time(),
                 ];
             });
