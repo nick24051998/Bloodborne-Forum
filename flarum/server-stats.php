@@ -14,8 +14,9 @@
  *   them, and the page says "Coming soon" (404 for an unknown area). `image`: where SuperMedo Server's picture of the
  *   area lies in the game's coordinates (x0…x1 across, z0…z1 down) and its size, when it has one.
  * - GET /api/bb-server/map/{area code}/image: that picture (PNG), fetched once a day; the last good one stays.
- * - GET /api/bb-server/maps: every area at a glance (the ground on a coarse grid, the hunters there now), made from the
- *   areas' own answers above.
+ *   ?size=small: made small for the small maps (360 px wide).
+ * - GET /api/bb-server/maps: every area at a glance (where its picture lies, its ground where it has none, the hunters
+ *   there now without strays), made from the areas' own answers above.
  * - Asks SuperMedo Server at most once a minute per answer; if it doesn't answer, the last answer stays for 15
  *   minutes, after that 503 and the pages hide their numbers.
  * - Only what SuperMedo Server's public API shows anyway (Online IDs, no addresses). Enemies without a name (names are
@@ -274,8 +275,8 @@ if (! class_exists('BBForumServerStats')) {
                         $floor[] = [(int) $c[0], (int) $c[1]];
                     }
                 }
-                // Hunters there right now as points on the grid, never with a name, whatever SuperMedo Server sends
-                // along: [x, z], [x, y, z] or {x, z}. Null while it sends none.
+                // Hunters there right now as points, as exact as SuperMedo Server sends them (a tenth of a unit), never
+                // with a name, whatever it sends along: [x, z], [x, y, z] or {x, z}. Null while it sends none.
                 $now = null;
                 if (isset($map['now']) && is_array($map['now'])) {
                     $now = [];
@@ -293,7 +294,7 @@ if (! class_exists('BBForumServerStats')) {
                             continue;
                         }
                         if (is_numeric($x) && is_numeric($z)) {
-                            $now[] = [round($x / $grid) * $grid, round($z / $grid) * $grid];
+                            $now[] = [round((float) $x, 1), round((float) $z, 1)];
                         }
                     }
                 }
@@ -319,8 +320,9 @@ if (! class_exists('BBForumServerStats')) {
             });
         }
 
-        /** Every area at a glance, for the small maps under the big one: the ground on a coarse grid and the hunters
-         *  there now. Made from the areas' own answers, so SuperMedo Server still gets each at most once a minute. */
+        /** Every area at a glance, for the small maps under the big one: where its picture lies, or its ground where
+         *  it has no fitting picture, and the hunters there now without those filed under the wrong area. Made from
+         *  the areas' own answers, so SuperMedo Server still gets each at most once a minute. */
         public static function maps(): ?array
         {
             return self::cached('bbforum.server.maps', function () {
@@ -328,7 +330,6 @@ if (! class_exists('BBForumServerStats')) {
                 if (! is_array($list)) {
                     return null;
                 }
-                $coarse = 8;
                 $areas = [];
                 foreach ($list as $listed) {
                     $code = is_array($listed) ? (string) ($listed['code'] ?? '') : '';
@@ -336,19 +337,87 @@ if (! class_exists('BBForumServerStats')) {
                     if (! $map || ! empty($map['missing'])) {
                         continue;
                     }
-                    $floor = [];
-                    foreach ($map['floor'] as [$x, $z]) {
-                        [$cx, $cz] = [(int) round($x / $coarse), (int) round($z / $coarse)];
-                        $floor[$cx.','.$cz] = [$cx * $coarse, $cz * $coarse];
+                    [$grid, $floor, $image] = [$map['grid'], $map['floor'], $map['image']];
+                    $onImage = function ($p) use (&$image) {
+                        return $p[0] >= $image['x0'] && $p[0] <= $image['x1'] && $p[1] >= $image['z0'] && $p[1] <= $image['z1'];
+                    };
+                    // The picture counts where the ground hunters walked lies on it, as on the big map (one area's
+                    // picture showed another place)
+                    if ($image && count(array_filter($floor, $onImage)) < 0.8 * count($floor)) {
+                        $image = null;
+                    }
+                    // Hunters near ground hunters walk, and on the picture: one who has just warped is sometimes filed
+                    // under the area they left
+                    $now = $map['now'];
+                    if (is_array($now) && $floor) {
+                        $walked = [];
+                        foreach ($floor as [$x, $z]) {
+                            $walked[(int) round($x / $grid).','.(int) round($z / $grid)] = true;
+                        }
+                        $reach = max(1, (int) ceil(6 / $grid));
+                        $now = array_values(array_filter($now, function ($p) use ($walked, $grid, $reach, $image, $onImage) {
+                            if ($image && ! $onImage($p)) {
+                                return false;
+                            }
+                            [$cx, $cz] = [(int) round($p[0] / $grid), (int) round($p[1] / $grid)];
+                            for ($dx = -$reach; $dx <= $reach; $dx++) {
+                                for ($dz = -$reach; $dz <= $reach; $dz++) {
+                                    if (isset($walked[($cx + $dx).','.($cz + $dz)])) {
+                                        return true;
+                                    }
+                                }
+                            }
+
+                            return false;
+                        }));
                     }
                     $areas[] = [
-                        'code' => $code, 'name' => $map['name'], 'online' => $map['online'], 'grid' => $coarse,
-                        'floor' => array_values($floor), 'now' => $map['now'],
+                        'code' => $code, 'name' => $map['name'], 'online' => $map['online'], 'grid' => $grid,
+                        // The ground only where no picture is drawn: it is most of the answer
+                        'floor' => $image ? [] : $floor, 'image' => $image, 'now' => $now,
                     ];
                 }
 
                 return ['areas' => $areas, 'updatedAt' => time()];
             });
+        }
+
+        /** An area's picture made small for the small maps (360 px wide at most, its transparency kept), made again
+         *  when the picture changes; the full picture where PHP has no GD */
+        public static function mapThumb(string $code): ?string
+        {
+            $png = self::mapImage($code);
+            if ($png === null || ! function_exists('imagecreatefromstring')) {
+                return $png;
+            }
+            $cache = resolve(Cache::class);
+            $key = 'bbforum.server.mapthumb.'.$code;
+            $kept = $cache->get($key);
+            if ($kept && $kept['of'] === md5($png)) {
+                return base64_decode($kept['png']);
+            }
+            $full = @imagecreatefromstring($png);
+            if (! $full) {
+                return $png;
+            }
+            [$w, $h] = [imagesx($full), imagesy($full)];
+            $small = $png;
+            if ($w > 360) {
+                [$tw, $th] = [360, max(1, (int) round($h * 360 / $w))];
+                $thumb = imagecreatetruecolor($tw, $th);
+                imagealphablending($thumb, false);
+                imagesavealpha($thumb, true);
+                imagefill($thumb, 0, 0, imagecolorallocatealpha($thumb, 0, 0, 0, 127));
+                imagecopyresampled($thumb, $full, 0, 0, 0, 0, $tw, $th, $w, $h);
+                ob_start();
+                imagepng($thumb, null, 9);
+                $small = (string) ob_get_clean();
+                imagedestroy($thumb);
+            }
+            imagedestroy($full);
+            $cache->forever($key, ['of' => md5($png), 'png' => base64_encode($small)]);
+
+            return $small;
         }
 
         /** One area's picture as PNG bytes; null without one. Asked for once a day, the last good one kept. */
@@ -439,7 +508,10 @@ if (! class_exists('BBForumServerStats')) {
     {
         public function handle(ServerRequestInterface $request): ResponseInterface
         {
-            $png = BBForumServerStats::mapImage((string) ($request->getAttribute('routeParameters')['code'] ?? ''));
+            // ?size=small: for the small maps under the big one
+            $code = (string) ($request->getAttribute('routeParameters')['code'] ?? '');
+            $png = ($request->getQueryParams()['size'] ?? '') === 'small'
+                ? BBForumServerStats::mapThumb($code) : BBForumServerStats::mapImage($code);
             if ($png === null) {
                 return new JsonResponse(['error' => 'no picture'], 404, ['Access-Control-Allow-Origin' => '*']);
             }

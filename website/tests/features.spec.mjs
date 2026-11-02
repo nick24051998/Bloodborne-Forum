@@ -664,6 +664,23 @@ test('Server page shows Yharnam as one map and every area as a small one', async
   await expect(tiles.filter({ hasText: 'Forbidden Woods' })).toHaveAttribute('aria-pressed', 'true');
 });
 
+test('Server page draws the small maps on the small pictures', async ({ page }) => {
+  const pictures = [];
+  await page.route('**/api/bb-server', (route) => route.fulfill({ headers: CORS, json: { ...SERVER_SAMPLE, mapTiles: true } }));
+  // An area with a fitting picture: the forum sends where it lies and no ground
+  await page.route('**/api/bb-server/maps', (route) => route.fulfill({ headers: CORS, json: tilesOf({
+    code: 'm24_01', name: 'Central Yharnam', online: 2, floor: [], image: { x0: -10, x1: 10, z0: -10, z1: 10, w: 1, h: 1 },
+    now: [[0.4, 1.2], [3.5, -2]] }) }));
+  await page.route('**/api/bb-server/map/**', (route) => route.fulfill({ headers: CORS, json: MAP_SAMPLE }));
+  await page.route('**/api/bb-server/map/*/image*', (route) => {
+    pictures.push(route.request().url());
+    return route.fulfill({ body: PNG, contentType: 'image/png', headers: CORS });
+  });
+  await page.goto('/server/');
+  await expect(page.locator('[data-field="mapTiles"] .sm-tile')).toHaveCount(1);
+  await expect.poll(() => pictures.some((url) => url.endsWith('/api/bb-server/map/m24_01/image?size=small'))).toBe(true);
+});
+
 test('Hunter page loads one hunter by Online ID', async ({ page }) => {
   await page.route('**/api/bb-server/hunters/medo1986', (route) => route.fulfill({ headers: CORS, json: {
     hunter: { name: 'medo1986', level: 36, minutes_played: 33, deaths: 0, messages: 4, online: false, last_seen: 1793211649,
