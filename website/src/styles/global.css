@@ -978,7 +978,14 @@ ol.sm-board strong { font-family: var(--font-head); font-size: 1.35rem; color: v
 .sm-soon .wip-tag { margin-right: 0.3rem; }
 :is(ol.sm-board, .sm-rows, .sm-list) li.sm-soon { grid-column: 1 / -1; padding: 0.4rem 0; border: 0; background: none; }
 /* Hunters online hour by hour: the bar is the average, the line on it the most at once */
-.sm-chart { display: flex; align-items: stretch; gap: 2px; height: 130px; margin: 0.4rem 0 0.3rem; }
+/* The chart with its y-axis on the left: the numbers at round steps, faint lines across */
+.sm-chart-wrap { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 0.6rem; }
+.sm-chart-y { position: relative; min-width: 1.6rem; height: 130px; margin: 0.4rem 0 0.3rem; color: var(--text-soft);
+  font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+.sm-chart-y span { position: absolute; right: 0; line-height: 1; transform: translateY(50%); white-space: nowrap; }
+.sm-chart-wrap .sm-chart-axis { grid-column: 2; }
+.sm-chart-line { position: absolute; left: 0; right: 0; height: 1px; background: rgba(236, 231, 221, 0.07); pointer-events: none; }
+.sm-chart { position: relative; display: flex; align-items: stretch; gap: 2px; height: 130px; margin: 0.4rem 0 0.3rem; }
 .sm-chart > .sm-soon { align-self: center; }
 .sm-col { position: relative; flex: 1; min-width: 0; }
 .sm-col::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--avg, 0) * 1%); background: rgba(194, 168, 120, 0.4); }

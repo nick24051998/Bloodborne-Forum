@@ -555,6 +555,8 @@ test('Server page shows the statistics from the forum', async ({ page }) => {
     await expect(page.locator(`[data-field="${part}"]`)).toContainText('Coming soon');
   }
   await expect(page.locator('[data-field="hourChart"] .sm-col')).toHaveCount(2);
+  // The y-axis grows with the numbers: round steps up to the most at once (3)
+  await expect(page.locator('[data-field="hourY"] span')).toHaveText(['0', '1', '2', '3']);
   await expect(page.locator('[data-field="advice"]')).toContainText('Small Resonant Bell');
   // Whether a co-op summon worked or failed is not shown
   await expect(page.locator('[data-field="summons"], [data-field="summonShare"]')).toHaveCount(0);

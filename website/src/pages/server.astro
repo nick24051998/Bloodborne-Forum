@@ -259,8 +259,11 @@ const toc = [
         <article class="sm-panel">
           <header><h2 id="day-h">Day by day</h2><span data-field="sinceHead"></span></header>
           <h3 class="sm-label">Hunters online, last 48 hours <span class="sm-label-note" data-field="hourHead"></span></h3>
-          <div class="sm-chart" data-field="hourChart"></div>
-          <div class="sm-chart-axis" data-field="hourAxis" aria-hidden="true"></div>
+          <div class="sm-chart-wrap">
+            <div class="sm-chart-y" data-field="hourY" aria-hidden="true"></div>
+            <div class="sm-chart" data-field="hourChart"></div>
+            <div class="sm-chart-axis" data-field="hourAxis" aria-hidden="true"></div>
+          </div>
           <div class="sm-scroll">
             <table class="sm-table">
               <thead><tr><th scope="col">Day</th><th scope="col" class="sm-wide">Hunters</th><th scope="col">New</th><th scope="col">Most at once</th><th scope="col">Hours</th><th scope="col">Deaths</th></tr></thead>
@@ -578,18 +581,35 @@ const toc = [
         if (!list.length) {
           set('hourHead', '');
           field('hourAxis').replaceChildren();
+          field('hourY').replaceChildren();
           chart.removeAttribute('role');
           return chart.replaceChildren(soon('How many hunters were online in every hour of the last two days.'));
         }
         const top = list.reduce((best: any, h: any) => (Number(h.peak) > Number(best.peak) ? h : best), list[0]);
+        // The y-axis grows with the numbers: about four round steps (1, 2 or 5 times a power of ten, at least 1), the
+        // top one at or just above the most at once; the bars are measured against it
         const most = Math.max(1, Number(top.peak) || 0);
+        const power = 10 ** Math.floor(Math.log10(most / 4));
+        const step = Math.max(1, [1, 2, 5, 10].map((f) => f * power).find((s) => s >= most / 4)!);
+        const height = Math.ceil(most / step) * step;
+        const levels = Array.from({ length: Math.round(height / step) + 1 }, (_v, i) => i * step);
+        field('hourY').replaceChildren(...levels.map((v) => {
+          const label = el('span', '', num(v));
+          label.style.bottom = `${(100 * v) / height}%`;
+          return label;
+        }));
         set('hourHead', `· most at once ${num(top.peak)}, ${when(top.hour)}`);
         chart.setAttribute('role', 'img');
         chart.setAttribute('aria-label', `Hunters online hour by hour from ${when(list[0].hour)} to ${when(list[list.length - 1].hour)}, most at once ${num(top.peak)}`);
-        chart.replaceChildren(...list.map((h: any) => {
+        chart.replaceChildren(...levels.slice(1).map((v) => {
+          // A faint line across the chart at every step of the axis
+          const line = el('span', 'sm-chart-line');
+          line.style.bottom = `${(100 * v) / height}%`;
+          return line;
+        }), ...list.map((h: any) => {
           const col = el('span', 'sm-col');
-          col.style.setProperty('--avg', String((100 * Number(h.average ?? 0)) / most));
-          col.style.setProperty('--peak', String((100 * Number(h.peak ?? 0)) / most));
+          col.style.setProperty('--avg', String((100 * Number(h.average ?? 0)) / height));
+          col.style.setProperty('--peak', String((100 * Number(h.peak ?? 0)) / height));
           col.title = `${when(h.hour)}: ${num(Math.round(Number(h.average ?? 0)))} on average, ${num(h.peak)} at most`;
           return col;
         }));
