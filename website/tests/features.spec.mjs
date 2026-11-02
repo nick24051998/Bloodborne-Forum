@@ -695,7 +695,7 @@ test('Server page marks the lamps on the map and names them', async ({ page }) =
   await page.goto('/server/');
   const canvas = page.locator('[data-field="map"] canvas');
   await expect(canvas).toHaveAttribute('aria-label', 'Central Yharnam: 0 hunters online right now. Lamps: Central Yharnam');
-  await expect(page.locator('[data-field="mapNote"]')).toContainText('the amber diamonds are the lamps');
+  await expect(page.locator('[data-field="mapNote"]')).toContainText('the lanterns are the lamps');
   // The view spans -202…-190 and 62…70 (a grid cell around the ground), its middle (-196, 66)
   await canvas.scrollIntoViewIfNeeded();
   const box = await canvas.boundingBox();

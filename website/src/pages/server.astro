@@ -703,29 +703,85 @@ const toc = [
         });
         return drawn;
       };
-      // The lamps, so a visitor knows where on the map a hunter stands: a small amber diamond each and, on the big map,
-      // its name beside it where it doesn't cover another name (Nick, 2.11.2026). From the game's files
-      // (src/data/lamps.js); the Hunter's Dream has none. Returns the lamps drawn on the canvas, for the info under the
-      // pointer and the map's description.
+      // A lit lantern as the game's lamps look (our own drawing, no game art): ring, cap, glowing glass with its flame,
+      // base and stand, `s` pixels high and centred on (x, y); small ones for the small maps keep cap, glass and base
+      const lantern = (ctx: CanvasRenderingContext2D, x: number, y: number, s: number, small = false) => {
+        const [top, dark, metal] = [y - s / 2, '#17130f', '#3a3129'];
+        const line = small ? 1 : Math.max(1, s / 14);
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = line;
+        if (!small) {
+          const glow = ctx.createRadialGradient(x, y, 0, x, y, 0.85 * s);
+          glow.addColorStop(0, 'rgba(255, 190, 90, 0.55)');
+          glow.addColorStop(1, 'rgba(255, 190, 90, 0)');
+          ctx.fillStyle = glow;
+          ctx.beginPath();
+          ctx.arc(x, y, 0.85 * s, 0, 2 * Math.PI);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(x, top + 0.07 * s, 0.07 * s, 0, 2 * Math.PI);
+          ctx.strokeStyle = '#c9a66b';
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.moveTo(x - 0.1 * s, top + 0.14 * s);
+        ctx.lineTo(x + 0.1 * s, top + 0.14 * s);
+        ctx.lineTo(x + 0.3 * s, top + 0.3 * s);
+        ctx.lineTo(x - 0.3 * s, top + 0.3 * s);
+        ctx.closePath();
+        ctx.fillStyle = metal;
+        ctx.fill();
+        ctx.strokeStyle = dark;
+        ctx.stroke();
+        const [bx, by, bw, bh] = [x - 0.22 * s, top + 0.3 * s, 0.44 * s, 0.46 * s];
+        const lit = ctx.createLinearGradient(0, by, 0, by + bh);
+        lit.addColorStop(0, '#ffd27a');
+        lit.addColorStop(1, '#e8892c');
+        ctx.fillStyle = lit;
+        ctx.fillRect(bx, by, bw, bh);
+        if (!small) {
+          ctx.beginPath();
+          ctx.moveTo(x, by + 0.18 * bh);
+          ctx.quadraticCurveTo(x + 0.28 * bw, by + 0.6 * bh, x, by + 0.82 * bh);
+          ctx.quadraticCurveTo(x - 0.28 * bw, by + 0.6 * bh, x, by + 0.18 * bh);
+          ctx.fillStyle = '#fff4d0';
+          ctx.fill();
+          ctx.beginPath();
+          [1, 2].forEach((i) => {
+            ctx.moveTo(bx + (i * bw) / 3, by);
+            ctx.lineTo(bx + (i * bw) / 3, by + bh);
+          });
+          ctx.lineWidth = Math.max(0.8, s / 22);
+          ctx.stroke();
+          ctx.lineWidth = line;
+        }
+        ctx.strokeRect(bx, by, bw, bh);
+        ctx.beginPath();
+        ctx.rect(x - 0.27 * s, by + bh, 0.54 * s, 0.11 * s);
+        ctx.fillStyle = metal;
+        ctx.fill();
+        ctx.stroke();
+        if (!small) {
+          ctx.beginPath();
+          ctx.moveTo(x, by + bh + 0.11 * s);
+          ctx.lineTo(x, top + s);
+          ctx.strokeStyle = metal;
+          ctx.lineWidth = Math.max(1.2, s / 10);
+          ctx.stroke();
+        }
+      };
+      // The lamps, so a visitor knows where on the map a hunter stands: a lantern each and, on the big map, its name
+      // beside it where it doesn't cover another name (Nick, 2.11.2026). From the game's files (src/data/lamps.js); the
+      // Hunter's Dream has none. Returns the lamps drawn on the canvas, for the info under the pointer and the map's
+      // description.
       const lamps = (ctx: CanvasRenderingContext2D, codes: string[], px: (x: number) => number, py: (z: number) => number,
         w: number, h: number, small = false) => {
         const drawn: { sx: number; sy: number; r: number; name: string }[] = [];
         codes.flatMap((code) => (LAMPS as Record<string, [string, number, number][]>)[code] ?? []).forEach(([name, x, z]) => {
           const [sx, sy] = [px(x), py(z)];
           if (sx < 0 || sy < 0 || sx > w || sy > h) return;
-          const r = small ? 3 : 6;
-          ctx.beginPath();
-          ctx.moveTo(sx, sy - r);
-          ctx.lineTo(sx + 0.7 * r, sy);
-          ctx.lineTo(sx, sy + r);
-          ctx.lineTo(sx - 0.7 * r, sy);
-          ctx.closePath();
-          ctx.fillStyle = '#e39a3b';
-          ctx.fill();
-          ctx.lineWidth = small ? 1 : 1.5;
-          ctx.strokeStyle = '#141518';
-          ctx.stroke();
-          drawn.push({ sx, sy, r, name });
+          lantern(ctx, sx, sy, small ? 12 : 24, small);
+          drawn.push({ sx, sy, r: small ? 5 : 9, name });
         });
         if (small) return drawn;
         // Names right of the lamp, else left, above or below, never over another name; one that fits nowhere stays out
@@ -866,7 +922,7 @@ const toc = [
         spotsDrawn = dots(ctx, now, px, py);
         // Over the dots: a crowd stands at a lamp and hid it and its name
         lampsDrawn = lamps(ctx, parts.map((p) => p.map.code), px, py, w, h);
-        set('mapNote', `Every dot is a hunter online right now, without a name${lampsDrawn.length ? ', and the amber diamonds are the lamps' : ''}. ${parts.every((p) => p.drawn)
+        set('mapNote', `Every dot is a hunter online right now, without a name${lampsDrawn.length ? ', and the lanterns are the lamps' : ''}. ${parts.every((p) => p.drawn)
           ? `The map is SuperMedo Server's picture of the ${parts.length > 1 ? 'areas' : 'area'}.` : 'The ground is where hunters have walked.'}`
           + ' Zoom in with the wheel, a double click, two fingers, the keys + and − or the buttons, and drag to move.');
         const name = parts.length > 1 ? YHARNAM_NAME : parts[0].map.name;
