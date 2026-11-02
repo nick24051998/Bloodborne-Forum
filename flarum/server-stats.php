@@ -11,7 +11,9 @@
  * - GET /api/bb-server/hunters/{id}: one hunter with their messages, for /server/hunter/?id=… (404 if unknown).
  * - GET /api/bb-server/map/{area code}: one area of the map: its ground (every spot a hunter has stood on, without how
  *   often) and the hunters there right now as points without names; `now` is null while SuperMedo Server doesn't send
- *   them, and the page says "Coming soon" (404 for an unknown area).
+ *   them, and the page says "Coming soon" (404 for an unknown area). `image`: where SuperMedo Server's picture of the
+ *   area lies in the game's coordinates (x0…x1 across, z0…z1 down) and its size, when it has one.
+ * - GET /api/bb-server/map/{area code}/image: that picture (PNG), fetched once a day; the last good one stays.
  * - Asks SuperMedo Server at most once a minute per answer; if it doesn't answer, the last answer stays for 15
  *   minutes, after that 503 and the pages hide their numbers.
  * - Only what SuperMedo Server's public API shows anyway (Online IDs, no addresses). Enemies without a name (names are
@@ -291,11 +293,54 @@ if (! class_exists('BBForumServerStats')) {
                     }
                 }
 
+                // The area's picture, drawn by SuperMedo Server from the game's level: where it lies, not its address
+                // (visitors load it from us)
+                $image = null;
+                $box = $map['image'] ?? null;
+                if (is_array($box) && is_numeric($box['x0'] ?? null) && is_numeric($box['x1'] ?? null)
+                    && is_numeric($box['z0'] ?? null) && is_numeric($box['z1'] ?? null)
+                    && (float) $box['x1'] > (float) $box['x0'] && (float) $box['z1'] > (float) $box['z0']) {
+                    $image = [
+                        'x0' => (float) $box['x0'], 'x1' => (float) $box['x1'], 'z0' => (float) $box['z0'],
+                        'z1' => (float) $box['z1'], 'w' => (int) ($box['w'] ?? 0), 'h' => (int) ($box['h'] ?? 0),
+                    ];
+                }
+
                 return [
                     'code' => $code, 'name' => (string) ($map['name'] ?? ''), 'grid' => $grid,
-                    'online' => (int) ($map['online'] ?? 0), 'floor' => $floor, 'now' => $now, 'updatedAt' => time(),
+                    'online' => (int) ($map['online'] ?? 0), 'floor' => $floor, 'now' => $now, 'image' => $image,
+                    'updatedAt' => time(),
                 ];
             });
+        }
+
+        /** One area's picture as PNG bytes; null without one. Asked for once a day, the last good one kept. */
+        public static function mapImage(string $code): ?string
+        {
+            if (! preg_match('/^m\d{2,3}_\d{2,3}$/', $code) || in_array($code, self::NO_MAP, true)) {
+                return null;
+            }
+            $cache = resolve(Cache::class);
+            $key = 'bbforum.server.mapimage.'.$code;
+            $kept = $cache->get($key);
+            if ((! $kept || $kept['updatedAt'] < time() - 86400) && $cache->add($key.'.lock', 1, 3600)) {
+                try {
+                    $response = (new \GuzzleHttp\Client(['timeout' => 15, 'connect_timeout' => 3, 'http_errors' => false]))
+                        ->get(self::API.'map/'.$code.'/image', [
+                            'headers' => ['Accept' => 'image/png', 'User-Agent' => 'BBPP-Community-Forum (+https://bbport.de)'],
+                        ]);
+                    $png = (string) $response->getBody();
+                    // A PNG, and not a huge one
+                    if ($response->getStatusCode() === 200 && strncmp($png, "\x89PNG\r\n\x1a\n", 8) === 0 && strlen($png) < 8000000) {
+                        $kept = ['png' => base64_encode($png), 'updatedAt' => time()];
+                        $cache->forever($key, $kept);
+                    }
+                } catch (\Throwable $e) {
+                    // The last good one stays
+                }
+            }
+
+            return $kept ? base64_decode($kept['png']) : null;
         }
 
         public static function respond(?array $data): ResponseInterface
@@ -342,6 +387,24 @@ if (! class_exists('BBForumServerStats')) {
             $code = (string) ($request->getAttribute('routeParameters')['code'] ?? '');
 
             return BBForumServerStats::respond(BBForumServerStats::map($code));
+        }
+    }
+
+    class BBForumServerMapImage implements RequestHandlerInterface
+    {
+        public function handle(ServerRequestInterface $request): ResponseInterface
+        {
+            $png = BBForumServerStats::mapImage((string) ($request->getAttribute('routeParameters')['code'] ?? ''));
+            if ($png === null) {
+                return new JsonResponse(['error' => 'no picture'], 404, ['Access-Control-Allow-Origin' => '*']);
+            }
+            $body = new \Laminas\Diactoros\Stream('php://temp', 'wb+');
+            $body->write($png);
+            $body->rewind();
+
+            return new \Laminas\Diactoros\Response($body, 200, [
+                'Content-Type' => 'image/png', 'Access-Control-Allow-Origin' => '*', 'Cache-Control' => 'public, max-age=86400',
+            ]);
         }
     }
 }

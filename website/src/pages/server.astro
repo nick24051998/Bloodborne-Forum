@@ -591,10 +591,27 @@ const toc = [
           el('span', '', new Date(h.hour * 1000).getHours() % 6 === 0 ? when(h.hour, false, false, true) : '')));
       };
 
-      // The map: one area's ground (where hunters have walked) and the hunters there right now as dots without names
+      // The map: SuperMedo Server's picture of one area (without a fitting one, its ground: where hunters have walked)
+      // and the hunters there right now as dots without names
       let mapCode = '';
       let map: any = null;
       let mapWidth = 0;
+      // The areas' pictures, loaded once per visit from the forum: an <img>, or false when one didn't load
+      const pictures = new Map<string, HTMLImageElement | false>();
+      const picture = (code: string) => {
+        let img = pictures.get(code);
+        if (img === undefined) {
+          const loading = new Image();
+          loading.addEventListener('load', () => { if (map?.code === code) drawMap(); });
+          loading.addEventListener('error', () => {
+            pictures.set(code, false);
+            if (map?.code === code) drawMap();
+          });
+          loading.src = `${page.dataset.src}/map/${encodeURIComponent(code)}/image`;
+          pictures.set(code, img = loading);
+        }
+        return img;
+      };
       const drawMap = () => {
         const box = field('map');
         const live = Array.isArray(map?.now);
@@ -605,20 +622,39 @@ const toc = [
           return box.replaceChildren(soon('Every hunter online right now as a dot on the map of their area, without a name.'));
         }
         const floor: number[][] = map.floor ?? [];
-        const now: number[][] = map.now;
-        const all = floor.concat(now);
-        if (!all.length) {
+        const grid = Number(map.grid) || 1;
+        // The picture counts where the ground hunters walked lies on it: one area's picture showed another place
+        // (1 % of its ground on it, 2.11.2026)
+        const frame = map.image;
+        const onPicture = ([x, z]: number[]) => x >= frame.x0 && x <= frame.x1 && z >= frame.z0 && z <= frame.z1;
+        const fits = !!frame && floor.filter(onPicture).length >= 0.8 * floor.length;
+        const img = fits ? picture(map.code) : false;
+        const drawn = !!img && img.complete && img.naturalWidth > 0;
+        // Hunters only near ground hunters walk, and on the picture: one who has just warped is sometimes filed under
+        // the area they left, and such a dot zoomed the map out until the area was gone (in the Hunter's Dream 23 of
+        // 96 dots lay in other areas, 2.11.2026)
+        const walked = new Set(floor.map(([x, z]) => `${Math.round(x / grid)},${Math.round(z / grid)}`));
+        const nearWalked = ([x, z]: number[]) => {
+          const [cx, cz] = [Math.round(x / grid), Math.round(z / grid)];
+          for (let dx = -3; dx <= 3; dx++) for (let dz = -3; dz <= 3; dz++) if (walked.has(`${cx + dx},${cz + dz}`)) return true;
+          return false;
+        };
+        const now = (map.now as number[][]).filter((p) => (!floor.length || nearWalked(p)) && (!fits || onPicture(p)));
+        // The view: the picture, else the ground, else the hunters
+        const around = fits ? [] : floor.length ? floor : now;
+        if (!fits && !around.length) {
           mapWidth = 0;
           return box.replaceChildren(el('p', 'sm-empty', 'Nobody has walked here yet.'));
         }
-        const grid = Number(map.grid) || 1;
-        let [minX, maxX, minZ, maxZ] = [Infinity, -Infinity, Infinity, -Infinity];
-        all.forEach(([x, z]) => { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z); });
-        [minX, maxX, minZ, maxZ] = [minX - grid, maxX + grid, minZ - grid, maxZ + grid];
+        let [minX, maxX, minZ, maxZ] = fits ? [frame.x0, frame.x1, frame.z0, frame.z1] : [Infinity, -Infinity, Infinity, -Infinity];
+        around.forEach(([x, z]) => { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z); });
+        if (!fits) [minX, maxX, minZ, maxZ] = [minX - grid, maxX + grid, minZ - grid, maxZ + grid];
+        // Room for the biggest dot and its glow at the edge (cut in half before)
+        const pad = 14;
         mapWidth = box.clientWidth || 600;
-        const scale = Math.min(mapWidth / (maxX - minX), 520 / (maxZ - minZ));
-        const w = Math.max(1, Math.round((maxX - minX) * scale));
-        const h = Math.max(1, Math.round((maxZ - minZ) * scale));
+        const scale = Math.max(0.01, Math.min((mapWidth - 2 * pad) / (maxX - minX), (520 - 2 * pad) / (maxZ - minZ)));
+        const w = Math.max(1, Math.round((maxX - minX) * scale + 2 * pad));
+        const h = Math.max(1, Math.round((maxZ - minZ) * scale + 2 * pad));
         let canvas = box.querySelector('canvas');
         if (!canvas) {
           canvas = document.createElement('canvas');
@@ -632,12 +668,22 @@ const toc = [
         const ctx = canvas.getContext('2d')!;
         ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
         ctx.clearRect(0, 0, w, h);
-        // North up: z grows upwards
-        const px = (x: number) => (x - minX) * scale;
-        const py = (z: number) => (maxZ - z) * scale;
-        const cell = Math.max(1, grid * scale);
-        ctx.fillStyle = '#2b2d32';
-        floor.forEach(([x, z]) => ctx.fillRect(px(x) - cell / 2, py(z) - cell / 2, cell, cell));
+        // z grows downwards, as SuperMedo Server draws its pictures (the walked ground lies on them that way)
+        const px = (x: number) => pad + (x - minX) * scale;
+        const py = (z: number) => pad + (z - minZ) * scale;
+        if (drawn) {
+          // Dimmed, so the dots stand out on its light ground
+          ctx.globalAlpha = 0.55;
+          ctx.drawImage(img as HTMLImageElement, px(frame.x0), py(frame.z0), (frame.x1 - frame.x0) * scale, (frame.z1 - frame.z0) * scale);
+          ctx.globalAlpha = 1;
+        } else {
+          // The ground, also while the picture loads
+          const cell = Math.max(1, grid * scale);
+          ctx.fillStyle = '#2b2d32';
+          floor.forEach(([x, z]) => ctx.fillRect(px(x) - cell / 2, py(z) - cell / 2, cell, cell));
+        }
+        set('mapNote', `Every dot is a hunter online right now, without a name. ${drawn
+          ? "The map is SuperMedo Server's picture of the area." : 'The ground is where hunters have walked.'}`);
         // One dot per spot, bigger where several hunters stand together
         const spots = new Map<string, number>();
         now.forEach(([x, z]) => spots.set(`${x},${z}`, (spots.get(`${x},${z}`) ?? 0) + 1));
@@ -652,6 +698,9 @@ const toc = [
           ctx.arc(px(x), py(z), r, 0, 2 * Math.PI);
           ctx.fillStyle = '#f0ddb0';
           ctx.fill();
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = '#141518';
+          ctx.stroke();
         });
         canvas.setAttribute('role', 'img');
         canvas.setAttribute('aria-label', `${map.name}: ${num(now.length)} ${now.length === 1 ? 'hunter' : 'hunters'} online right now`);

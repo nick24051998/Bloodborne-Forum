@@ -591,6 +591,42 @@ test('Server page fills the map, invasions and the hunt once SuperMedo Server co
   for (const part of ['#map', '#pvp', '#hunt']) await expect(page.locator(part)).not.toContainText('Coming soon');
 });
 
+// A 1×1 PNG for an area's picture
+const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+
+test('Server page draws the map on SuperMedo Server\'s picture, without hunters filed under the wrong area', async ({ page }) => {
+  const pictures = [];
+  await page.route('**/api/bb-server', (route) => route.fulfill({ json: SERVER_SAMPLE, headers: CORS }));
+  await page.route('**/api/bb-server/map/**', (route) => route.fulfill({ headers: CORS, json: {
+    ...MAP_SAMPLE, floor: [[0, 0], [2, 0], [2, 2], [4, 4]], image: { x0: -10, x1: 10, z0: -10, z1: 10, w: 1, h: 1 },
+    // The last one is a spot in another area (a hunter who has just warped): not drawn, and the map stays this area
+    now: [[0, 0], [2, 2], [-410, -742]] } }));
+  await page.route('**/api/bb-server/map/*/image', (route) => {
+    pictures.push(route.request().url());
+    return route.fulfill({ body: PNG, contentType: 'image/png', headers: CORS });
+  });
+  await page.goto('/server/');
+  await expect(page.locator('[data-field="mapNote"]')).toContainText("SuperMedo Server's picture of the area");
+  await expect(page.locator('[data-field="map"] canvas')).toHaveAttribute('aria-label', 'Central Yharnam: 2 hunters online right now');
+  // From the forum, never from game.supermedo.com: visitors' addresses stay with us
+  expect(pictures[0]).toContain('/api/bb-server/map/m24_01/image');
+});
+
+test('Server page keeps the walked ground when the picture shows another place', async ({ page }) => {
+  let asked = 0;
+  await page.route('**/api/bb-server', (route) => route.fulfill({ json: SERVER_SAMPLE, headers: CORS }));
+  await page.route('**/api/bb-server/map/**', (route) => route.fulfill({ headers: CORS, json: {
+    ...MAP_SAMPLE, image: { x0: 500, x1: 600, z0: 500, z1: 600, w: 1, h: 1 }, now: [[0, 0]] } }));
+  await page.route('**/api/bb-server/map/*/image', (route) => {
+    asked++;
+    return route.fulfill({ body: PNG, contentType: 'image/png', headers: CORS });
+  });
+  await page.goto('/server/');
+  await expect(page.locator('[data-field="map"] canvas')).toHaveAttribute('aria-label', 'Central Yharnam: 1 hunter online right now');
+  await expect(page.locator('[data-field="mapNote"]')).toContainText('The ground is where hunters have walked.');
+  expect(asked).toBe(0);
+});
+
 test('Hunter page loads one hunter by Online ID', async ({ page }) => {
   await page.route('**/api/bb-server/hunters/medo1986', (route) => route.fulfill({ headers: CORS, json: {
     hunter: { name: 'medo1986', level: 36, minutes_played: 33, deaths: 0, messages: 4, online: false, last_seen: 1793211649,
