@@ -664,6 +664,27 @@ test('Server page shows Yharnam as one map and every area as a small one', async
   await expect(tiles.filter({ hasText: 'Forbidden Woods' })).toHaveAttribute('aria-pressed', 'true');
 });
 
+test('Server page zooms into the big map and back', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.route('**/api/bb-server', (route) => route.fulfill({ json: SERVER_SAMPLE, headers: CORS }));
+  await page.route('**/api/bb-server/map/**', (route) => route.fulfill({ headers: CORS, json: { ...MAP_SAMPLE, now: [[0, 0], [2, 2]] } }));
+  await page.goto('/server/');
+  const canvas = page.locator('[data-field="map"] canvas');
+  await expect(canvas).toHaveAttribute('aria-label', 'Central Yharnam: 2 hunters online right now');
+  await expect(page.locator('[data-field="mapZoom"]')).toBeVisible();
+  const whole = await canvas.evaluate((c) => c.toDataURL());
+  await page.getByRole('button', { name: 'Zoom in' }).click();
+  await expect.poll(() => canvas.evaluate((c) => c.toDataURL())).not.toBe(whole);
+  // Zoomed in, dragging moves the map
+  await expect(canvas).toHaveCSS('cursor', 'grab');
+  await canvas.hover();
+  await page.mouse.wheel(0, -200);
+  await page.getByRole('button', { name: 'Whole area' }).click();
+  await expect.poll(() => canvas.evaluate((c) => c.toDataURL())).toBe(whole);
+  expect(errors).toEqual([]);
+});
+
 test('Server page draws the small maps on the small pictures', async ({ page }) => {
   const pictures = [];
   await page.route('**/api/bb-server', (route) => route.fulfill({ headers: CORS, json: { ...SERVER_SAMPLE, mapTiles: true } }));

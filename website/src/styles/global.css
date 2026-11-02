@@ -991,6 +991,10 @@ ol.sm-board strong { font-family: var(--font-head); font-size: 1.35rem; color: v
 .sm-map { display: flex; justify-content: center; }
 .sm-map > .sm-soon { width: 100%; }
 .sm-map canvas { display: block; max-width: 100%; }
+/* Zooming into the big map: small buttons above its right edge */
+.sm-zoom { display: flex; justify-content: flex-end; gap: 0.4rem; margin-bottom: 0.5rem; }
+.sm-zoom[hidden] { display: none; }
+.sm-zoom .btn { min-height: 2.2rem; min-width: 2.4rem; padding: 0.3rem 0.8rem; font-size: 0.9rem; }
 /* Every area at a glance under the big map: a plate with a thin brass line, as the buttons */
 .sm-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.6rem; margin-top: 1rem; }
 .sm-tiles[hidden] { display: none; }

@@ -139,6 +139,11 @@ const toc = [
             <h3 id="map-h">Hunters on the map</h3>
             <select class="sm-pick" data-field="mapArea" aria-label="Area" hidden></select>
           </header>
+          <div class="sm-zoom" data-field="mapZoom" hidden>
+            <button type="button" class="btn" data-zoom="in" aria-label="Zoom in">+</button>
+            <button type="button" class="btn" data-zoom="out" aria-label="Zoom out">−</button>
+            <button type="button" class="btn" data-zoom="fit">Whole area</button>
+          </div>
           <div class="sm-map" data-field="map"></div>
           <p class="sm-small" data-field="mapNote" hidden>Every dot is a hunter online right now, without a name. The ground is where hunters have walked.</p>
           <div class="sm-tiles" data-field="mapTiles" hidden></div>
@@ -684,12 +689,18 @@ const toc = [
         ctx.clearRect(0, 0, w, h);
         return ctx;
       };
+      // Zoomed in and moved by the visitor (wheel, pinch, drag, the buttons): the world point in the middle and how far
+      // in, kept through the refreshes and fitted again for another view; the last drawing's measures for the gestures
+      let zoom = { level: 1, x: 0, z: 0, of: '' };
+      let geometry: { w: number; h: number; scale: number; minX: number; maxX: number; minZ: number; maxZ: number } | null = null;
       const drawMap = () => {
         const box = field('map');
         const live = !!layers?.length && layers.every((m) => Array.isArray(m.now));
         field('mapArea').hidden = !live;
         field('mapNote').hidden = !live;
+        field('mapZoom').hidden = !live;
         if (!live) {
+          geometry = null;
           mapWidth = 0;
           return box.replaceChildren(soon('Every hunter online right now as a dot on the map of their area, without a name.'));
         }
@@ -710,6 +721,8 @@ const toc = [
         });
         if (!Number.isFinite(minX)) {
           mapWidth = 0;
+          geometry = null;
+          field('mapZoom').hidden = true;
           return box.replaceChildren(el('p', 'sm-empty', 'Nobody has walked here yet.'));
         }
         // Room for the biggest dot and its glow at the edge (cut in half before)
@@ -724,24 +737,32 @@ const toc = [
           box.replaceChildren(canvas);
         }
         const ctx = surface(canvas, w, h);
+        if (zoom.of !== mapCode) zoom = { level: 1, x: 0, z: 0, of: mapCode };
+        geometry = { w, h, scale, minX, maxX, minZ, maxZ };
+        // Dragging moves a zoomed map; until then the page scrolls over it on phones
+        canvas.style.touchAction = zoom.level > 1 ? 'none' : 'pan-y';
+        canvas.style.cursor = zoom.level > 1 ? 'grab' : '';
         // z grows downwards, as SuperMedo Server draws its pictures (the walked ground lies on them that way)
-        const px = (x: number) => pad + (x - minX) * scale;
-        const py = (z: number) => pad + (z - minZ) * scale;
+        const k = scale * zoom.level;
+        const [cx, cz] = zoom.level > 1 ? [zoom.x, zoom.z] : [(minX + maxX) / 2, (minZ + maxZ) / 2];
+        const px = (x: number) => w / 2 + (x - cx) * k;
+        const py = (z: number) => h / 2 + (z - cz) * k;
         parts.forEach(({ map, frame, img, drawn }) => {
           if (drawn) {
             // Dimmed, so the dots stand out on its light ground
             ctx.globalAlpha = 0.55;
-            ctx.drawImage(img as HTMLImageElement, px(frame.x0), py(frame.z0), (frame.x1 - frame.x0) * scale, (frame.z1 - frame.z0) * scale);
+            ctx.drawImage(img as HTMLImageElement, px(frame.x0), py(frame.z0), (frame.x1 - frame.x0) * k, (frame.z1 - frame.z0) * k);
             ctx.globalAlpha = 1;
           } else {
             // The ground, also while the picture loads
-            const cell = Math.max(1, (Number(map.grid) || 1) * scale);
+            const cell = Math.max(1, (Number(map.grid) || 1) * k);
             ctx.fillStyle = '#2b2d32';
             (map.floor ?? []).forEach(([x, z]: number[]) => ctx.fillRect(px(x) - cell / 2, py(z) - cell / 2, cell, cell));
           }
         });
         set('mapNote', `Every dot is a hunter online right now, without a name. ${parts.every((p) => p.drawn)
-          ? `The map is SuperMedo Server's picture of the ${parts.length > 1 ? 'areas' : 'area'}.` : 'The ground is where hunters have walked.'}`);
+          ? `The map is SuperMedo Server's picture of the ${parts.length > 1 ? 'areas' : 'area'}.` : 'The ground is where hunters have walked.'}`
+          + ' Zoom in with the wheel, two fingers or the buttons, and drag to move.');
         const now = parts.flatMap((p) => p.now);
         dots(ctx, now, px, py);
         const name = parts.length > 1 ? YHARNAM_NAME : parts[0].map.name;
@@ -872,6 +893,74 @@ const toc = [
       field('mapArea').addEventListener('change', (event) => pick((event.target as HTMLSelectElement).value));
       // Drawn again when the page gets narrower or wider, not when the drawing itself changes the height
       new ResizeObserver(() => { if (layers && field('map').clientWidth !== mapWidth) drawMap(); }).observe(field('map'));
+
+      // Zooming into the big map: by `factor` around a point of the canvas (its middle by default), the world point
+      // under it staying there; 1× is the whole view, 8× the closest
+      const zoomBy = (factor: number, ax?: number, ay?: number) => {
+        if (!geometry) return;
+        const { w, h, scale, minX, maxX, minZ, maxZ } = geometry;
+        const level = Math.min(8, Math.max(1, zoom.level * factor));
+        const [cx, cz] = zoom.level > 1 ? [zoom.x, zoom.z] : [(minX + maxX) / 2, (minZ + maxZ) / 2];
+        const [mx, my] = [ax ?? w / 2, ay ?? h / 2];
+        const [wx, wz] = [cx + (mx - w / 2) / (scale * zoom.level), cz + (my - h / 2) / (scale * zoom.level)];
+        zoom = { ...zoom, level, x: wx - (mx - w / 2) / (scale * level), z: wz - (my - h / 2) / (scale * level) };
+        panBy(0, 0);
+      };
+      // Moving a zoomed map by pixels of its drawing; the middle stays on the area
+      const panBy = (dx: number, dy: number) => {
+        if (!geometry) return;
+        const { scale, minX, maxX, minZ, maxZ } = geometry;
+        const k = scale * zoom.level;
+        zoom.x = Math.min(maxX, Math.max(minX, zoom.x - dx / k));
+        zoom.z = Math.min(maxZ, Math.max(minZ, zoom.z - dy / k));
+        drawMap();
+      };
+      // A pointer's place on the canvas in its drawing's pixels (the canvas may be shown narrower on phones)
+      const onCanvas = (event: { clientX: number; clientY: number }): [number, number] => {
+        const canvas = field('map').querySelector('canvas')!;
+        const box = canvas.getBoundingClientRect();
+        return [(event.clientX - box.left) * (geometry!.w / box.width), (event.clientY - box.top) * (geometry!.h / box.height)];
+      };
+      field('map').addEventListener('wheel', (event) => {
+        if (!geometry || !(event.target instanceof HTMLCanvasElement)) return;
+        event.preventDefault();
+        zoomBy(event.deltaY < 0 ? 1.25 : 0.8, ...onCanvas(event));
+      }, { passive: false });
+      // Dragging with one pointer, pinching with two
+      const pointers = new Map<number, { clientX: number; clientY: number }>();
+      field('map').addEventListener('pointerdown', (event) => {
+        if (!geometry || !(event.target instanceof HTMLCanvasElement)) return;
+        pointers.set(event.pointerId, { clientX: event.clientX, clientY: event.clientY });
+        event.target.setPointerCapture(event.pointerId);
+      });
+      field('map').addEventListener('pointermove', (event) => {
+        const before = pointers.get(event.pointerId);
+        if (!before || !geometry) return;
+        const [ax, ay] = onCanvas(before);
+        const [bx, by] = onCanvas(event);
+        if (pointers.size === 1 && zoom.level > 1) {
+          panBy(bx - ax, by - ay);
+        } else if (pointers.size === 2) {
+          const other = [...pointers.entries()].find(([id]) => id !== event.pointerId)![1];
+          const apart = (a: { clientX: number; clientY: number }, b: { clientX: number; clientY: number }) =>
+            Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+          const middle = { clientX: (event.clientX + other.clientX) / 2, clientY: (event.clientY + other.clientY) / 2 };
+          zoomBy(apart(event, other) / Math.max(1, apart(before, other)), ...onCanvas(middle));
+        }
+        pointers.set(event.pointerId, { clientX: event.clientX, clientY: event.clientY });
+      });
+      for (const end of ['pointerup', 'pointercancel']) {
+        field('map').addEventListener(end, (event) => pointers.delete((event as PointerEvent).pointerId));
+      }
+      field('mapZoom').addEventListener('click', (event) => {
+        const button = (event.target as HTMLElement).closest('button');
+        if (!button) return;
+        if (button.dataset.zoom === 'fit') {
+          zoom.level = 1;
+          return drawMap();
+        }
+        zoomBy(button.dataset.zoom === 'in' ? 1.5 : 1 / 1.5);
+      });
 
       // Invasions: how they end, the latest fights, and the best invaders and defenders
       const pvpBoards: [string, string][] = [['invasions_won', 'Invasions won'], ['hunters_slain', 'Hunters slain'], ['invaders_repelled', 'Invaders repelled']];
