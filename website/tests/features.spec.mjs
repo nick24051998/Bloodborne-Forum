@@ -688,6 +688,22 @@ test('Server page map fills the panel, says who stands at a dot and zooms in on 
   await expect(page.getByRole('button', { name: 'Full screen' })).toBeVisible();
 });
 
+test('Server page marks the lamps on the map and names them', async ({ page }) => {
+  await page.route('**/api/bb-server', (route) => route.fulfill({ json: SERVER_SAMPLE, headers: CORS }));
+  // Ground around the Central Yharnam lamp (-196.8, 65.4), nobody there right now
+  await page.route('**/api/bb-server/map/**', (route) => route.fulfill({ headers: CORS, json: { ...MAP_SAMPLE, floor: [[-200, 64], [-196, 66], [-192, 68]], now: [] } }));
+  await page.goto('/server/');
+  const canvas = page.locator('[data-field="map"] canvas');
+  await expect(canvas).toHaveAttribute('aria-label', 'Central Yharnam: 0 hunters online right now. Lamps: Central Yharnam');
+  await expect(page.locator('[data-field="mapNote"]')).toContainText('the amber diamonds are the lamps');
+  // The view spans -202…-190 and 62…70 (a grid cell around the ground), its middle (-196, 66)
+  await canvas.scrollIntoViewIfNeeded();
+  const box = await canvas.boundingBox();
+  const k = Math.min((box.width - 28) / 12, (box.height - 28) / 8);
+  await page.mouse.move(box.x + box.width / 2 - 0.8 * k, box.y + box.height / 2 - 0.6 * k);
+  await expect(page.locator('.sm-map-tip')).toHaveText('Lamp: Central Yharnam');
+});
+
 test('Server page zooms into the big map and back', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));

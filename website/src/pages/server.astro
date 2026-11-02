@@ -310,6 +310,7 @@ const toc = [
 
   <script>
     import { el, num, hours, when, stamp, openedDay, isNew, place, hunterLink, death, soon } from '../lib/server-stats.js';
+    import { LAMPS } from '../data/lamps.js';
 
     const page = document.querySelector<HTMLElement>('.sm-page');
     if (page && page.dataset.src) {
@@ -702,6 +703,51 @@ const toc = [
         });
         return drawn;
       };
+      // The lamps, so a visitor knows where on the map a hunter stands: a small amber diamond each and, on the big map,
+      // its name beside it where it doesn't cover another name (Nick, 2.11.2026). From the game's files
+      // (src/data/lamps.js); the Hunter's Dream has none. Returns the lamps drawn on the canvas, for the info under the
+      // pointer and the map's description.
+      const lamps = (ctx: CanvasRenderingContext2D, codes: string[], px: (x: number) => number, py: (z: number) => number,
+        w: number, h: number, small = false) => {
+        const drawn: { sx: number; sy: number; r: number; name: string }[] = [];
+        codes.flatMap((code) => (LAMPS as Record<string, [string, number, number][]>)[code] ?? []).forEach(([name, x, z]) => {
+          const [sx, sy] = [px(x), py(z)];
+          if (sx < 0 || sy < 0 || sx > w || sy > h) return;
+          const r = small ? 3 : 6;
+          ctx.beginPath();
+          ctx.moveTo(sx, sy - r);
+          ctx.lineTo(sx + 0.7 * r, sy);
+          ctx.lineTo(sx, sy + r);
+          ctx.lineTo(sx - 0.7 * r, sy);
+          ctx.closePath();
+          ctx.fillStyle = '#e39a3b';
+          ctx.fill();
+          ctx.lineWidth = small ? 1 : 1.5;
+          ctx.strokeStyle = '#141518';
+          ctx.stroke();
+          drawn.push({ sx, sy, r, name });
+        });
+        if (small) return drawn;
+        // Names right of the lamp, else left, above or below, never over another name; one that fits nowhere stays out
+        ctx.font = '600 12px Inter, system-ui, sans-serif';
+        ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round';
+        const taken: number[][] = [];
+        drawn.forEach(({ sx, sy, r, name }) => {
+          const tw = ctx.measureText(name).width;
+          const spots = [[sx + r + 5, sy], [sx - r - 5 - tw, sy], [sx - tw / 2, sy - r - 10], [sx - tw / 2, sy + r + 10]];
+          const spot = spots.find(([lx, ly]) => lx >= 2 && lx + tw <= w - 2 && ly >= 8 && ly <= h - 8
+            && !taken.some(([ax, ay, aw]) => lx < ax + aw + 6 && ax < lx + tw + 6 && Math.abs(ly - ay) < 15));
+          if (!spot) return;
+          taken.push([spot[0], spot[1], tw]);
+          ctx.lineWidth = 3.5;
+          ctx.strokeStyle = 'rgba(14, 15, 18, 0.9)';
+          ctx.strokeText(name, spot[0], spot[1]);
+          ctx.fillStyle = '#f2c98a';
+          ctx.fillText(name, spot[0], spot[1]);
+        });
+        return drawn;
+      };
       // A canvas sized for the view, sharp on high-density screens
       // Pictures drawn at full strength one over the other, then dimmed together: where Yharnam's three half-transparent
       // pictures lay over each other, the map was darker
@@ -735,6 +781,7 @@ const toc = [
       const tip = el('div', 'sm-map-tip');
       tip.hidden = true;
       let spotsDrawn: { sx: number; sy: number; r: number; count: number; area: string }[] = [];
+      let lampsDrawn: { sx: number; sy: number; r: number; name: string }[] = [];
       let geometry: { w: number; h: number; scale: number; minX: number; maxX: number; minZ: number; maxZ: number } | null = null;
       const drawMap = () => {
         const box = field('map');
@@ -815,14 +862,16 @@ const toc = [
           ctx.fillStyle = '#2b2d32';
           (map.floor ?? []).forEach(([x, z]: number[]) => ctx.fillRect(px(x) - cell / 2, py(z) - cell / 2, cell, cell));
         });
-        set('mapNote', `Every dot is a hunter online right now, without a name. ${parts.every((p) => p.drawn)
+        lampsDrawn = lamps(ctx, parts.map((p) => p.map.code), px, py, w, h);
+        set('mapNote', `Every dot is a hunter online right now, without a name${lampsDrawn.length ? ', and the amber diamonds are the lamps' : ''}. ${parts.every((p) => p.drawn)
           ? `The map is SuperMedo Server's picture of the ${parts.length > 1 ? 'areas' : 'area'}.` : 'The ground is where hunters have walked.'}`
           + ' Zoom in with the wheel, a double click, two fingers, the keys + and − or the buttons, and drag to move.');
         const now = parts.flatMap((p) => p.now.map(([x, z]: number[]) => [x, z, p.map.name]));
         spotsDrawn = dots(ctx, now, px, py);
         const name = parts.length > 1 ? YHARNAM_NAME : parts[0].map.name;
         canvas.setAttribute('role', 'img');
-        canvas.setAttribute('aria-label', `${name}: ${num(now.length)} ${now.length === 1 ? 'hunter' : 'hunters'} online right now`);
+        canvas.setAttribute('aria-label', `${name}: ${num(now.length)} ${now.length === 1 ? 'hunter' : 'hunters'} online right now`
+          + (lampsDrawn.length ? `. Lamps: ${lampsDrawn.map((l) => l.name).join(', ')}` : ''));
       };
       const loadMap = async () => {
         const wanted = mapCode;
@@ -901,6 +950,7 @@ const toc = [
               ctx.fillStyle = '#2b2d32';
               (p.floor ?? []).forEach(([x, z]: number[]) => ctx.fillRect(px(x) - cell / 2, py(z) - cell / 2, cell, cell));
             });
+            lamps(ctx, t.parts.map((p: any) => p.code), px, py, w, h, true);
             dots(ctx, t.parts.flatMap((p: any) => p.now), px, py, true);
           }
           tile.append(canvas, el('span', 'sm-tile-name', t.name), el('span', 'sm-tile-count', t.online ? `${num(t.online)} now` : 'nobody now'));
@@ -1043,21 +1093,26 @@ const toc = [
         event.preventDefault();
         keys[event.key]();
       });
-      // How many hunters stand at the dot under the pointer, and where
+      // How many hunters stand at the dot under the pointer, and where; else the lamp under it
       field('map').addEventListener('pointermove', (event) => {
         if (!geometry || pointers.size || !(event.target instanceof HTMLCanvasElement)) return;
         const [mx, my] = onCanvas(event);
-        const near = spotsDrawn.reduce<{ spot: (typeof spotsDrawn)[number] | null; d: number }>((best, spot) => {
+        const closest = <T extends { sx: number; sy: number; r: number }>(list: T[]) => list.reduce<{ spot: T | null; d: number }>((best, spot) => {
           const d = Math.hypot(spot.sx - mx, spot.sy - my);
           return d <= spot.r + 4 && d < best.d ? { spot, d } : best;
         }, { spot: null, d: Infinity }).spot;
-        tip.hidden = !near;
-        if (!near) return;
+        const near = closest(spotsDrawn);
+        const lamp = near ? null : closest(lampsDrawn);
+        tip.hidden = !near && !lamp;
+        if (!near && !lamp) return;
         const canvas = event.target;
         const shown = canvas.getBoundingClientRect().width / geometry.w;
-        tip.textContent = `${num(near.count)} ${near.count === 1 ? 'hunter' : 'hunters'} here${near.area ? ` · ${near.area}` : ''}`;
-        tip.style.left = `${canvas.offsetLeft + near.sx * shown}px`;
-        tip.style.top = `${canvas.offsetTop + (near.sy - near.r) * shown}px`;
+        const at = (near ?? lamp)!;
+        tip.textContent = near
+          ? `${num(near.count)} ${near.count === 1 ? 'hunter' : 'hunters'} here${near.area ? ` · ${near.area}` : ''}`
+          : `Lamp: ${lamp!.name}`;
+        tip.style.left = `${canvas.offsetLeft + at.sx * shown}px`;
+        tip.style.top = `${canvas.offsetTop + (at.sy - at.r) * shown}px`;
       });
       field('map').addEventListener('pointerleave', () => { tip.hidden = true; });
       field('map').addEventListener('pointerdown', () => { tip.hidden = true; });
