@@ -586,11 +586,11 @@ const toc = [
           return chart.replaceChildren(soon('How many hunters were online in every hour of the last two days.'));
         }
         const top = list.reduce((best: any, h: any) => (Number(h.peak) > Number(best.peak) ? h : best), list[0]);
-        // The y-axis grows with the numbers: about four round steps (1, 2 or 5 times a power of ten, at least 1), the
-        // top one at or just above the most at once; the bars are measured against it
+        // The y-axis grows with the numbers: three to five round steps (1, 2 or 5 times a power of ten, at least 1),
+        // the top one at or just above the most at once; the bars are measured against it
         const most = Math.max(1, Number(top.peak) || 0);
-        const power = 10 ** Math.floor(Math.log10(most / 4));
-        const step = Math.max(1, [1, 2, 5, 10].map((f) => f * power).find((s) => s >= most / 4)!);
+        const power = 10 ** Math.floor(Math.log10(most / 5));
+        const step = Math.max(1, [1, 2, 5, 10].map((f) => f * power).find((s) => s >= most / 5)!);
         const height = Math.ceil(most / step) * step;
         const levels = Array.from({ length: Math.round(height / step) + 1 }, (_v, i) => i * step);
         field('hourY').replaceChildren(...levels.map((v) => {
