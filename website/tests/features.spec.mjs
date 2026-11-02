@@ -671,7 +671,8 @@ test('Server page map fills the panel, says who stands at a dot and zooms in on 
   await page.goto('/server/');
   const canvas = page.locator('[data-field="map"] canvas');
   await expect(canvas).toHaveAttribute('aria-label', 'Central Yharnam: 3 hunters online right now');
-  // The whole panel width, not a box fitted to the area
+  // The whole panel width, not a box fitted to the area (in view: the mouse only reaches what is on screen)
+  await canvas.scrollIntoViewIfNeeded();
   const [mapBox, box] = [await page.locator('[data-field="map"]').boundingBox(), await canvas.boundingBox()];
   expect(box.width).toBeGreaterThan(mapBox.width - 2);
   // The ground spans -2…4 (one grid cell around the walked cells), so the view's middle is (1, 1)
