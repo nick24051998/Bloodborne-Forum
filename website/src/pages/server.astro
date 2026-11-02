@@ -683,6 +683,20 @@ const toc = [
         return drawn;
       };
       // A canvas sized for the view, sharp on high-density screens
+      // Pictures drawn at full strength one over the other, then dimmed together: where Yharnam's three half-transparent
+      // pictures lay over each other, the map was darker
+      const dimmed = (ctx: CanvasRenderingContext2D, draw: (layer: CanvasRenderingContext2D) => void) => {
+        const off = document.createElement('canvas');
+        [off.width, off.height] = [ctx.canvas.width, ctx.canvas.height];
+        const layer = off.getContext('2d')!;
+        layer.setTransform(ctx.getTransform());
+        draw(layer);
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.globalAlpha = 0.55;
+        ctx.drawImage(off, 0, 0);
+        ctx.restore();
+      };
       const surface = (canvas: HTMLCanvasElement, w: number, h: number) => {
         const ratio = window.devicePixelRatio || 1;
         canvas.width = Math.round(w * ratio);
@@ -718,16 +732,25 @@ const toc = [
           const img = frame ? picture(map.code) : false;
           return { map, frame, img, drawn: !!img && img.complete && img.naturalWidth > 0, now: hunters(map, frame) };
         });
-        // The view: the pictures, else the ground, else the hunters
+        // The view: where hunters walk, without its outermost half percent (strays); with little ground the pictures,
+        // else the ground, else the hunters. The pictures' frames hold flat planes and loose pieces far from any path,
+        // and Yharnam's three frames left the city small in the middle.
         let [minX, maxX, minZ, maxZ] = [Infinity, -Infinity, Infinity, -Infinity];
         const take = (x0: number, x1: number, z0: number, z1: number) => {
           [minX, maxX, minZ, maxZ] = [Math.min(minX, x0), Math.max(maxX, x1), Math.min(minZ, z0), Math.max(maxZ, z1)];
         };
-        parts.forEach(({ map, frame, now }) => {
-          const grid = Number(map.grid) || 1;
-          if (frame) take(frame.x0, frame.x1, frame.z0, frame.z1);
-          else (map.floor?.length ? map.floor : now).forEach(([x, z]: number[]) => take(x - grid, x + grid, z - grid, z + grid));
-        });
+        const ground: number[][] = parts.flatMap((p) => p.map.floor ?? []);
+        if (ground.length >= 50) {
+          const [xs, zs] = [ground.map((p) => p[0]).sort((a, b) => a - b), ground.map((p) => p[1]).sort((a, b) => a - b)];
+          const at = (list: number[], share: number) => list[Math.floor(share * (list.length - 1))];
+          take(at(xs, 0.005) - 8, at(xs, 0.995) + 8, at(zs, 0.005) - 8, at(zs, 0.995) + 8);
+        } else {
+          parts.forEach(({ map, frame, now }) => {
+            const grid = Number(map.grid) || 1;
+            if (frame) take(frame.x0, frame.x1, frame.z0, frame.z1);
+            else (map.floor?.length ? map.floor : now).forEach(([x, z]: number[]) => take(x - grid, x + grid, z - grid, z + grid));
+          });
+        }
         if (!Number.isFinite(minX)) {
           mapWidth = 0;
           geometry = null;
@@ -761,18 +784,16 @@ const toc = [
         const [cx, cz] = zoom.level > 1 ? [zoom.x, zoom.z] : [(minX + maxX) / 2, (minZ + maxZ) / 2];
         const px = (x: number) => w / 2 + (x - cx) * k;
         const py = (z: number) => h / 2 + (z - cz) * k;
-        parts.forEach(({ map, frame, img, drawn }) => {
-          if (drawn) {
-            // Dimmed, so the dots stand out on its light ground
-            ctx.globalAlpha = 0.55;
-            ctx.drawImage(img as HTMLImageElement, px(frame.x0), py(frame.z0), (frame.x1 - frame.x0) * k, (frame.z1 - frame.z0) * k);
-            ctx.globalAlpha = 1;
-          } else {
-            // The ground, also while the picture loads
-            const cell = Math.max(1, (Number(map.grid) || 1) * k);
-            ctx.fillStyle = '#2b2d32';
-            (map.floor ?? []).forEach(([x, z]: number[]) => ctx.fillRect(px(x) - cell / 2, py(z) - cell / 2, cell, cell));
-          }
+        // Dimmed, so the dots stand out on their light ground
+        dimmed(ctx, (layer) => parts.forEach(({ frame, img, drawn }) => {
+          if (drawn) layer.drawImage(img as HTMLImageElement, px(frame.x0), py(frame.z0), (frame.x1 - frame.x0) * k, (frame.z1 - frame.z0) * k);
+        }));
+        parts.forEach(({ map, drawn }) => {
+          if (drawn) return;
+          // The ground, also while the picture loads
+          const cell = Math.max(1, (Number(map.grid) || 1) * k);
+          ctx.fillStyle = '#2b2d32';
+          (map.floor ?? []).forEach(([x, z]: number[]) => ctx.fillRect(px(x) - cell / 2, py(z) - cell / 2, cell, cell));
         });
         set('mapNote', `Every dot is a hunter online right now, without a name. ${parts.every((p) => p.drawn)
           ? `The map is SuperMedo Server's picture of the ${parts.length > 1 ? 'areas' : 'area'}.` : 'The ground is where hunters have walked.'}`
@@ -848,17 +869,17 @@ const toc = [
             const [ox, oz] = [(w - (maxX - minX) * scale) / 2, (h - (maxZ - minZ) * scale) / 2];
             const px = (x: number) => ox + (x - minX) * scale;
             const py = (z: number) => oz + (z - minZ) * scale;
-            t.parts.forEach((p: any) => {
-              const img = p.image ? picture(p.code, true) : false;
-              if (ready(img)) {
-                ctx.globalAlpha = 0.55;
-                ctx.drawImage(img as HTMLImageElement, px(p.image.x0), py(p.image.z0), (p.image.x1 - p.image.x0) * scale, (p.image.z1 - p.image.z0) * scale);
-                ctx.globalAlpha = 1;
-              } else {
-                const cell = Math.max(1, (Number(p.grid) || 1) * scale);
-                ctx.fillStyle = '#2b2d32';
-                (p.floor ?? []).forEach(([x, z]: number[]) => ctx.fillRect(px(x) - cell / 2, py(z) - cell / 2, cell, cell));
+            const pics = t.parts.map((p: any) => (p.image ? picture(p.code, true) : false));
+            dimmed(ctx, (layer) => t.parts.forEach((p: any, i: number) => {
+              if (ready(pics[i])) {
+                layer.drawImage(pics[i] as HTMLImageElement, px(p.image.x0), py(p.image.z0), (p.image.x1 - p.image.x0) * scale, (p.image.z1 - p.image.z0) * scale);
               }
+            }));
+            t.parts.forEach((p: any, i: number) => {
+              if (ready(pics[i])) return;
+              const cell = Math.max(1, (Number(p.grid) || 1) * scale);
+              ctx.fillStyle = '#2b2d32';
+              (p.floor ?? []).forEach(([x, z]: number[]) => ctx.fillRect(px(x) - cell / 2, py(z) - cell / 2, cell, cell));
             });
             dots(ctx, t.parts.flatMap((p: any) => p.now), px, py, true);
           }

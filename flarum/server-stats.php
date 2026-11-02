@@ -268,10 +268,12 @@ if (! class_exists('BBForumServerStats')) {
                     return null;
                 }
                 $grid = max(1, (float) ($map['grid'] ?? 1));
-                // The ground: where hunters have stood, without how often
+                // The ground: where hunters have stood, without how often. A spot stood on fewer than three times is
+                // left out (SuperMedo Server sends [x, z, times]): those are mostly hunters filed under the wrong area
+                // right after a warp, and they stretched the map's frame.
                 $floor = [];
                 foreach ((array) $map['cells'] as $c) {
-                    if (is_array($c) && isset($c[0], $c[1])) {
+                    if (is_array($c) && isset($c[0], $c[1]) && (! isset($c[2]) || (int) $c[2] >= 3)) {
                         $floor[] = [(int) $c[0], (int) $c[1]];
                     }
                 }
