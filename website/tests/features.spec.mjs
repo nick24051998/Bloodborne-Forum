@@ -664,6 +664,27 @@ test('Server page shows Yharnam as one map and every area as a small one', async
   await expect(tiles.filter({ hasText: 'Forbidden Woods' })).toHaveAttribute('aria-pressed', 'true');
 });
 
+test('Server page map fills the panel, says who stands at a dot and zooms in on a double click', async ({ page }) => {
+  await page.route('**/api/bb-server', (route) => route.fulfill({ json: SERVER_SAMPLE, headers: CORS }));
+  // Two hunters on one spot, one on another
+  await page.route('**/api/bb-server/map/**', (route) => route.fulfill({ headers: CORS, json: { ...MAP_SAMPLE, now: [[0, 0], [0, 0], [2, 2]] } }));
+  await page.goto('/server/');
+  const canvas = page.locator('[data-field="map"] canvas');
+  await expect(canvas).toHaveAttribute('aria-label', 'Central Yharnam: 3 hunters online right now');
+  // The whole panel width, not a box fitted to the area
+  const [mapBox, box] = [await page.locator('[data-field="map"]').boundingBox(), await canvas.boundingBox()];
+  expect(box.width).toBeGreaterThan(mapBox.width - 2);
+  // The ground spans -2…4 (one grid cell around the walked cells), so the view's middle is (1, 1)
+  const k = Math.min((box.width - 28) / 6, (box.height - 28) / 6);
+  await page.mouse.move(box.x + box.width / 2 - k, box.y + box.height / 2 - k);
+  await expect(page.locator('.sm-map-tip')).toHaveText('2 hunters here · Central Yharnam');
+  const whole = await canvas.evaluate((c) => c.toDataURL());
+  await page.mouse.dblclick(box.x + box.width / 2, box.y + box.height / 2);
+  await expect.poll(() => canvas.evaluate((c) => c.toDataURL())).not.toBe(whole);
+  await expect(canvas).toHaveCSS('cursor', 'grab');
+  await expect(page.getByRole('button', { name: 'Full screen' })).toBeVisible();
+});
+
 test('Server page zooms into the big map and back', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));

@@ -143,6 +143,7 @@ const toc = [
             <button type="button" class="btn" data-zoom="in" aria-label="Zoom in">+</button>
             <button type="button" class="btn" data-zoom="out" aria-label="Zoom out">−</button>
             <button type="button" class="btn" data-zoom="fit">Whole area</button>
+            <button type="button" class="btn" data-zoom="full">Full screen</button>
           </div>
           <div class="sm-map" data-field="map"></div>
           <p class="sm-small" data-field="mapNote" hidden>Every dot is a hunter online right now, without a name. The ground is where hunters have walked.</p>
@@ -652,16 +653,19 @@ const toc = [
         return (map.now ?? []).filter((p: number[]) => (!floor.length || nearWalked(p)) && (!frame || onFrame(frame, p)));
       };
       // Dots, one per spot (a unit across: the positions come as exact as SuperMedo Server sends them) and bigger where
-      // several hunters stand together
-      const dots = (ctx: CanvasRenderingContext2D, now: number[][], px: (x: number) => number, py: (z: number) => number, small = false) => {
-        const spots = new Map<string, number>();
-        now.forEach(([x, z]) => {
+      // several hunters stand together; a point may carry its area's name as a third value. Returns where each dot was
+      // drawn, for the info under the pointer.
+      const dots = (ctx: CanvasRenderingContext2D, now: any[][], px: (x: number) => number, py: (z: number) => number, small = false) => {
+        const spots = new Map<string, { count: number; area: string }>();
+        now.forEach(([x, z, area]) => {
           const spot = `${Math.round(x)},${Math.round(z)}`;
-          spots.set(spot, (spots.get(spot) ?? 0) + 1);
+          spots.set(spot, { count: (spots.get(spot)?.count ?? 0) + 1, area: area ?? '' });
         });
-        spots.forEach((count, key) => {
+        const drawn: { sx: number; sy: number; r: number; count: number; area: string }[] = [];
+        spots.forEach(({ count, area }, key) => {
           const [x, z] = key.split(',').map(Number);
           const r = small ? Math.min(4, 2.2 + Math.sqrt(count - 1)) : Math.min(9, 3.5 + 1.5 * Math.sqrt(count - 1));
+          drawn.push({ sx: px(x), sy: py(z), r, count, area });
           if (!small) {
             ctx.beginPath();
             ctx.arc(px(x), py(z), r + 4, 0, 2 * Math.PI);
@@ -676,6 +680,7 @@ const toc = [
           ctx.strokeStyle = '#141518';
           ctx.stroke();
         });
+        return drawn;
       };
       // A canvas sized for the view, sharp on high-density screens
       const surface = (canvas: HTMLCanvasElement, w: number, h: number) => {
@@ -692,6 +697,10 @@ const toc = [
       // Zoomed in and moved by the visitor (wheel, pinch, drag, the buttons): the world point in the middle and how far
       // in, kept through the refreshes and fitted again for another view; the last drawing's measures for the gestures
       let zoom = { level: 1, x: 0, z: 0, of: '' };
+      // The info under the pointer (how many hunters stand at a dot, in which area) and where the dots were drawn
+      const tip = el('div', 'sm-map-tip');
+      tip.hidden = true;
+      let spotsDrawn: { sx: number; sy: number; r: number; count: number; area: string }[] = [];
       let geometry: { w: number; h: number; scale: number; minX: number; maxX: number; minZ: number; maxZ: number } | null = null;
       const drawMap = () => {
         const box = field('map');
@@ -725,23 +734,28 @@ const toc = [
           field('mapZoom').hidden = true;
           return box.replaceChildren(el('p', 'sm-empty', 'Nobody has walked here yet.'));
         }
-        // Room for the biggest dot and its glow at the edge (cut in half before)
+        // The map fills the panel: its whole width and most of the screen's height (all of it in full screen), the area
+        // fitted in the middle. A box fitted to the area, at most 520 px high, left most of a wide panel empty
+        // (Nick, 2.11.2026); a little room stays for the biggest dot at the edge.
         const pad = 14;
         mapWidth = box.clientWidth || 600;
-        const scale = Math.max(0.01, Math.min((mapWidth - 2 * pad) / (maxX - minX), (520 - 2 * pad) / (maxZ - minZ)));
-        const w = Math.max(1, Math.round((maxX - minX) * scale + 2 * pad));
-        const h = Math.max(1, Math.round((maxZ - minZ) * scale + 2 * pad));
+        const full = !!document.fullscreenElement?.contains(box);
+        const room = full ? window.innerHeight - box.getBoundingClientRect().top - 16 : Math.min(760, window.innerHeight * 0.72);
+        const w = Math.max(1, Math.round(mapWidth));
+        const h = Math.max(260, Math.round(full ? room : Math.min(room, w * 1.1)));
+        const scale = Math.max(0.01, Math.min((w - 2 * pad) / (maxX - minX), (h - 2 * pad) / (maxZ - minZ)));
         let canvas = box.querySelector('canvas');
         if (!canvas) {
           canvas = document.createElement('canvas');
-          box.replaceChildren(canvas);
+          canvas.tabIndex = 0;
+          box.replaceChildren(canvas, tip);
         }
         const ctx = surface(canvas, w, h);
         if (zoom.of !== mapCode) zoom = { level: 1, x: 0, z: 0, of: mapCode };
         geometry = { w, h, scale, minX, maxX, minZ, maxZ };
         // Dragging moves a zoomed map; until then the page scrolls over it on phones
         canvas.style.touchAction = zoom.level > 1 ? 'none' : 'pan-y';
-        canvas.style.cursor = zoom.level > 1 ? 'grab' : '';
+        canvas.style.cursor = zoom.level > 1 ? 'grab' : 'zoom-in';
         // z grows downwards, as SuperMedo Server draws its pictures (the walked ground lies on them that way)
         const k = scale * zoom.level;
         const [cx, cz] = zoom.level > 1 ? [zoom.x, zoom.z] : [(minX + maxX) / 2, (minZ + maxZ) / 2];
@@ -762,9 +776,9 @@ const toc = [
         });
         set('mapNote', `Every dot is a hunter online right now, without a name. ${parts.every((p) => p.drawn)
           ? `The map is SuperMedo Server's picture of the ${parts.length > 1 ? 'areas' : 'area'}.` : 'The ground is where hunters have walked.'}`
-          + ' Zoom in with the wheel, two fingers or the buttons, and drag to move.');
-        const now = parts.flatMap((p) => p.now);
-        dots(ctx, now, px, py);
+          + ' Zoom in with the wheel, a double click, two fingers, the keys + and − or the buttons, and drag to move.');
+        const now = parts.flatMap((p) => p.now.map(([x, z]: number[]) => [x, z, p.map.name]));
+        spotsDrawn = dots(ctx, now, px, py);
         const name = parts.length > 1 ? YHARNAM_NAME : parts[0].map.name;
         canvas.setAttribute('role', 'img');
         canvas.setAttribute('aria-label', `${name}: ${num(now.length)} ${now.length === 1 ? 'hunter' : 'hunters'} online right now`);
@@ -955,12 +969,57 @@ const toc = [
       field('mapZoom').addEventListener('click', (event) => {
         const button = (event.target as HTMLElement).closest('button');
         if (!button) return;
+        if (button.dataset.zoom === 'full') {
+          return document.fullscreenElement ? document.exitFullscreen() : field('map').closest('article')!.requestFullscreen();
+        }
         if (button.dataset.zoom === 'fit') {
           zoom.level = 1;
           return drawMap();
         }
         zoomBy(button.dataset.zoom === 'in' ? 1.5 : 1 / 1.5);
       });
+      // Full screen: the map panel alone, the map as big as the screen (not on phones without it, e.g. iPhones)
+      const fullButton = field('mapZoom').querySelector<HTMLButtonElement>('[data-zoom="full"]')!;
+      fullButton.hidden = !document.fullscreenEnabled;
+      document.addEventListener('fullscreenchange', () => {
+        fullButton.textContent = document.fullscreenElement ? 'Leave full screen' : 'Full screen';
+        drawMap();
+      });
+      // A double click zooms in there (with Shift out), the keys + − 0 and the arrows do it from the keyboard
+      field('map').addEventListener('dblclick', (event) => {
+        if (!geometry || !(event.target instanceof HTMLCanvasElement)) return;
+        zoomBy(event.shiftKey ? 0.5 : 2, ...onCanvas(event));
+      });
+      field('map').addEventListener('keydown', (event) => {
+        if (!geometry || !(event.target instanceof HTMLCanvasElement)) return;
+        const step = 60;
+        const keys: Record<string, () => void> = {
+          '+': () => zoomBy(1.5), '=': () => zoomBy(1.5), '-': () => zoomBy(1 / 1.5),
+          0: () => { zoom.level = 1; drawMap(); },
+          ArrowLeft: () => panBy(step, 0), ArrowRight: () => panBy(-step, 0), ArrowUp: () => panBy(0, step), ArrowDown: () => panBy(0, -step),
+        };
+        if (!keys[event.key] || (event.key.startsWith('Arrow') && zoom.level === 1)) return;
+        event.preventDefault();
+        keys[event.key]();
+      });
+      // How many hunters stand at the dot under the pointer, and where
+      field('map').addEventListener('pointermove', (event) => {
+        if (!geometry || pointers.size || !(event.target instanceof HTMLCanvasElement)) return;
+        const [mx, my] = onCanvas(event);
+        const near = spotsDrawn.reduce<{ spot: (typeof spotsDrawn)[number] | null; d: number }>((best, spot) => {
+          const d = Math.hypot(spot.sx - mx, spot.sy - my);
+          return d <= spot.r + 4 && d < best.d ? { spot, d } : best;
+        }, { spot: null, d: Infinity }).spot;
+        tip.hidden = !near;
+        if (!near) return;
+        const canvas = event.target;
+        const shown = canvas.getBoundingClientRect().width / geometry.w;
+        tip.textContent = `${num(near.count)} ${near.count === 1 ? 'hunter' : 'hunters'} here${near.area ? ` · ${near.area}` : ''}`;
+        tip.style.left = `${canvas.offsetLeft + near.sx * shown}px`;
+        tip.style.top = `${canvas.offsetTop + (near.sy - near.r) * shown}px`;
+      });
+      field('map').addEventListener('pointerleave', () => { tip.hidden = true; });
+      field('map').addEventListener('pointerdown', () => { tip.hidden = true; });
 
       // Invasions: how they end, the latest fights, and the best invaders and defenders
       const pvpBoards: [string, string][] = [['invasions_won', 'Invasions won'], ['hunters_slain', 'Hunters slain'], ['invaders_repelled', 'Invaders repelled']];

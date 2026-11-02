@@ -988,9 +988,18 @@ ol.sm-board strong { font-family: var(--font-head); font-size: 1.35rem; color: v
 .sm-chart-axis span { flex: 1; min-width: 0; white-space: nowrap; }
 /* The map: the ground dark, hunters online right now as bright dots */
 .sm-map-panel { margin-top: 1.4rem; }
-.sm-map { display: flex; justify-content: center; }
+.sm-map { position: relative; display: flex; justify-content: center; }
 .sm-map > .sm-soon { width: 100%; }
-.sm-map canvas { display: block; max-width: 100%; }
+/* The map's window: the whole panel width, a dark ground around the area */
+.sm-map canvas { display: block; max-width: 100%; background: #0f1012; border: 1px solid var(--border); border-radius: 10px; }
+.sm-map canvas:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+.sm-map-tip { position: absolute; z-index: 1; padding: 0.25rem 0.6rem; color: var(--text-strong); background: var(--bg-deep);
+  border: 1px solid rgba(194, 168, 120, 0.4); border-radius: 8px; font: 500 0.8rem var(--font-body); white-space: nowrap;
+  pointer-events: none; transform: translate(-50%, calc(-100% - 8px)); }
+.sm-map-tip[hidden] { display: none; }
+/* Full screen: the map panel alone, without the small maps and the note */
+.sm-map-panel:fullscreen { overflow: auto; margin: 0; padding: 1rem 1.5rem; background: var(--bg); }
+.sm-map-panel:fullscreen :is(.sm-tiles, [data-field="mapNote"]) { display: none; }
 /* Zooming into the big map: small buttons above its right edge */
 .sm-zoom { display: flex; justify-content: flex-end; gap: 0.4rem; margin-bottom: 0.5rem; }
 .sm-zoom[hidden] { display: none; }
