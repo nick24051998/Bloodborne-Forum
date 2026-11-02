@@ -862,12 +862,13 @@ const toc = [
           ctx.fillStyle = '#2b2d32';
           (map.floor ?? []).forEach(([x, z]: number[]) => ctx.fillRect(px(x) - cell / 2, py(z) - cell / 2, cell, cell));
         });
+        const now = parts.flatMap((p) => p.now.map(([x, z]: number[]) => [x, z, p.map.name]));
+        spotsDrawn = dots(ctx, now, px, py);
+        // Over the dots: a crowd stands at a lamp and hid it and its name
         lampsDrawn = lamps(ctx, parts.map((p) => p.map.code), px, py, w, h);
         set('mapNote', `Every dot is a hunter online right now, without a name${lampsDrawn.length ? ', and the amber diamonds are the lamps' : ''}. ${parts.every((p) => p.drawn)
           ? `The map is SuperMedo Server's picture of the ${parts.length > 1 ? 'areas' : 'area'}.` : 'The ground is where hunters have walked.'}`
           + ' Zoom in with the wheel, a double click, two fingers, the keys + and − or the buttons, and drag to move.');
-        const now = parts.flatMap((p) => p.now.map(([x, z]: number[]) => [x, z, p.map.name]));
-        spotsDrawn = dots(ctx, now, px, py);
         const name = parts.length > 1 ? YHARNAM_NAME : parts[0].map.name;
         canvas.setAttribute('role', 'img');
         canvas.setAttribute('aria-label', `${name}: ${num(now.length)} ${now.length === 1 ? 'hunter' : 'hunters'} online right now`
@@ -950,8 +951,8 @@ const toc = [
               ctx.fillStyle = '#2b2d32';
               (p.floor ?? []).forEach(([x, z]: number[]) => ctx.fillRect(px(x) - cell / 2, py(z) - cell / 2, cell, cell));
             });
-            lamps(ctx, t.parts.map((p: any) => p.code), px, py, w, h, true);
             dots(ctx, t.parts.flatMap((p: any) => p.now), px, py, true);
+            lamps(ctx, t.parts.map((p: any) => p.code), px, py, w, h, true);
           }
           tile.append(canvas, el('span', 'sm-tile-name', t.name), el('span', 'sm-tile-count', t.online ? `${num(t.online)} now` : 'nobody now'));
           tile.setAttribute('aria-label', `${t.name}: ${t.online ? `${num(t.online)} hunters online now` : 'nobody online now'}. Show on the map`);
