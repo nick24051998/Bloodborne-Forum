@@ -307,8 +307,11 @@ h1, h2, h3,
   }
 }
 
+// Changelog and Supermedo only from 1800 px (and in the phone menu): the header column is 1400 px wide, and with
+// both the guest header has 8 px to spare (measured 3.11.2026); members have less on the right (no Log In)
 @media (min-width: 768px) and (max-width: 1799px) {
-  .Header-primary .item-bb-changelog {
+  .Header-primary .item-bb-changelog,
+  .Header-primary .item-bb-supermedo {
     display: none;
   }
 }
