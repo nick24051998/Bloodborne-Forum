@@ -131,8 +131,9 @@ h3 { font-size: var(--step-1); }
 .menu-input { position: absolute; opacity: 0; pointer-events: none; display: none; }
 .menu-button { display: none; }
 
-/* Menu button instead of the bar up to 1000 px: below that, the seven links plus logo and Discord don't fit on one line */
-@media (max-width: 1000px) {
+/* Menu button instead of the bar up to 1119 px: below that, the eight links plus logo, Support and Discord don't fit on
+   one line (with Supermedo back in the menu, 3.11.2026; measured: 1046 px of bar in a 1073 px column at 1120 px) */
+@media (max-width: 1119px) {
   .site-header .container { flex-wrap: wrap; min-height: 56px; gap: 0; }
   .brand img { height: 34px; }
   .menu-button {
@@ -192,14 +193,19 @@ h3 { font-size: var(--step-1); }
 /* Support our server (Buy Me a Coffee): its own yellow, like Discord its blue (Medo, 29.10.2026); dark text, also on hover */
 :is(.btn.btn-support, .nav .nav-support) { --btn-fill: #ffdd00; --btn-rise: #e6c200; --btn-glow: rgba(255, 221, 0, 0.35); color: #1a1405; }
 :is(.btn.btn-support, .nav .nav-support):is(:hover, :focus-visible) { color: #1a1405; }
-@media (min-width: 1001px) { .nav .nav-action + .nav-action { margin-left: 0.5rem; } }
+@media (min-width: 1120px) { .nav .nav-action + .nav-action { margin-left: 0.5rem; } }
 .nav .nav-support > span[aria-hidden="true"] { margin-right: 0.45em; }
-/* Header from 1001 to 1199 px: only the cup (name as tooltip and for screen readers), menu entries a little tighter,
+/* Header from 1120 to 1279 px: only the cup (name as tooltip and for screen readers), menu entries a little tighter,
    so everything stays on one line */
-@media (min-width: 1001px) and (max-width: 1199px) {
+@media (min-width: 1120px) and (max-width: 1279px) {
   .nav .nav-support .nav-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .nav .nav-support > span[aria-hidden="true"] { margin-right: 0; }
   .nav a:not(.nav-discord):not(.nav-support) { padding-left: 0.6rem; padding-right: 0.6rem; }
+}
+/* From 1280 to 1799 px (the column stays 1200 px): "Support our server" written out, the links a little tighter and
+   smaller; that needs 1165 px. From 1800 px the column is 1400 px and everything has its normal size. */
+@media (min-width: 1280px) and (max-width: 1799px) {
+  .nav a:not(.nav-discord):not(.nav-support) { padding-left: 0.6rem; padding-right: 0.6rem; font-size: 0.9rem; }
 }
 /* Sizes */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.9rem; padding: 0.75rem 1.4rem; }

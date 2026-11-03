@@ -390,7 +390,7 @@ test('Home page help steps, hunter search on /server/, contest file types', asyn
   await expect(find.locator('input[name="id"]')).toBeVisible();
 });
 
-// The menu checkbox only takes keyboard focus where the menu button shows (up to 1000 px)
+// The menu checkbox only takes keyboard focus where the menu button shows (up to 1119 px)
 test('On wide screens the keyboard skips the hidden menu checkbox', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/');
@@ -809,7 +809,7 @@ test('Server page says whether SuperMedo Server or our forum is away', async ({ 
 // Supermedo back in the menu (3.11.2026): with eight links the desktop menu must still fit on one line
 test('Desktop menu fits on one line at common widths', async ({ page, isMobile }) => {
   test.skip(isMobile, 'auf dem Handy steckt das Menü hinter dem Menü-Knopf');
-  for (const width of [1024, 1280, 1440, 1920]) {
+  for (const width of [1120, 1279, 1280, 1440, 1799, 1800, 1920]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/');
     const tops = await page.$$eval('.nav a', (all) => all.map((a) => Math.round(a.getBoundingClientRect().top)));
