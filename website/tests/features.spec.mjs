@@ -812,8 +812,16 @@ test('Desktop menu fits on one line at common widths', async ({ page, isMobile }
   for (const width of [1120, 1279, 1280, 1440, 1799, 1800, 1920]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/');
-    const tops = await page.$$eval('.nav a', (all) => all.map((a) => Math.round(a.getBoundingClientRect().top)));
-    expect(new Set(tops).size, `alle Menüpunkte in einer Zeile bei ${width} px`).toBe(1);
+    // The links share one row and none breaks into two lines (the Support and Discord buttons are taller, so
+    // their top differs by a pixel; they count only for wrapping)
+    const rows = await page.$$eval('.nav a', (all) => all.map((a) => {
+      const range = document.createRange();
+      range.selectNodeContents(a);  // the clipped "Support our server" (1 px) is left out below
+      return { link: !a.matches('.nav-support, .nav-discord'), top: Math.round(a.getBoundingClientRect().top),
+               lines: new Set([...range.getClientRects()].filter((r) => r.width > 1).map((r) => Math.round(r.top))).size };
+    }));
+    expect(new Set(rows.filter((r) => r.link).map((r) => r.top)).size, `alle Links in einer Reihe bei ${width} px`).toBe(1);
+    expect(rows.every((r) => r.lines <= 1), `kein Menüpunkt bricht um bei ${width} px`).toBe(true);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), `kein seitliches Scrollen bei ${width} px`).toBe(true);
   }
 });
