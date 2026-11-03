@@ -199,7 +199,7 @@ test('Menu: links next to the logo, Discord at the far right', async ({ page, is
   test.skip(isMobile, 'auf dem Handy steckt das Menü hinter dem Menü-Knopf');
   await page.goto('/');
   expect(await page.$$eval('.nav a', (all) => all.map((a) => a.textContent.trim())))
-    .toEqual(['Install', 'Launcher', 'Best settings', 'Online', 'FAQ', 'Changelog', 'Forum', '☕Support our server', 'Discord']);
+    .toEqual(['Install', 'Launcher', 'Best settings', 'Online', 'FAQ', 'Changelog', 'Supermedo', 'Forum', '☕Support our server', 'Discord']);
   // Support our server (Medo): yellow, right before Discord
   await expect(page.locator('.nav .nav-support')).toHaveAttribute('href', SITE.supportUrl);
   const logo = await page.locator('.brand').boundingBox();
@@ -804,4 +804,16 @@ test('Server page says whether SuperMedo Server or our forum is away', async ({ 
   await page.route('**/api/bb-server**', (route) => route.abort('connectionrefused'));
   await page.goto('/server/');
   await expect(page.locator('.sm-state [data-field="state"]')).toHaveText(/Our forum, which collects these numbers, can't be reached/);
+});
+
+// Supermedo back in the menu (3.11.2026): with eight links the desktop menu must still fit on one line
+test('Desktop menu fits on one line at common widths', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'auf dem Handy steckt das Menü hinter dem Menü-Knopf');
+  for (const width of [1024, 1280, 1440, 1920]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    const tops = await page.$$eval('.nav a', (all) => all.map((a) => Math.round(a.getBoundingClientRect().top)));
+    expect(new Set(tops).size, `alle Menüpunkte in einer Zeile bei ${width} px`).toBe(1);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), `kein seitliches Scrollen bei ${width} px`).toBe(true);
+  }
 });
