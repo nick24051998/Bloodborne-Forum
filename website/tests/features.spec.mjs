@@ -793,3 +793,15 @@ test('Report tool page offers the zip it describes', async ({ page, request }) =
   expect((await res.body()).subarray(0, 2).toString()).toBe('PK');
   await expect(page.locator('.site-footer a[href$="/tool/"]')).toHaveCount(1);
 });
+
+// Who is away (3.11.2026): the forum's 503 means SuperMedo Server; no answer at all means our forum, and then the page
+// must not blame SuperMedo (on 3 Nov the forum's server was off and the page said SuperMedo wasn't answering).
+test('Server page says whether SuperMedo Server or our forum is away', async ({ page }) => {
+  await page.route('**/api/bb-server**', (route) => route.fulfill({ status: 503, json: { error: 'unavailable' }, headers: CORS }));
+  await page.goto('/server/');
+  await expect(page.locator('.sm-state [data-field="state"]')).toHaveText(/SuperMedo Server isn't answering/);
+  await page.unroute('**/api/bb-server**');
+  await page.route('**/api/bb-server**', (route) => route.abort('connectionrefused'));
+  await page.goto('/server/');
+  await expect(page.locator('.sm-state [data-field="state"]')).toHaveText(/Our forum, which collects these numbers, can't be reached/);
+});

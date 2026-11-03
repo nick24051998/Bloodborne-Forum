@@ -163,7 +163,10 @@ const api = SITE.forumUrl ? `${SITE.forumUrl}/api/bb-server/hunters/` : '';
           if (!response.ok) throw new Error(String(response.status));
           show(await response.json());
         })
-        .catch(() => set('state', "The server isn't answering right now. Try again in a minute."));
+        // 503 comes from the forum (SuperMedo Server is away); no answer at all means the forum itself is away
+        .catch((error) => set('state', error.message === '503'
+          ? "SuperMedo Server isn't answering right now. Try again in a minute."
+          : "Our forum, which looks up the hunters, can't be reached right now. Try again in a minute."));
     }
   </script>
 </Base>

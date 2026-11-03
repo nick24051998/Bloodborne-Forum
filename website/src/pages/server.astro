@@ -1272,9 +1272,13 @@ const toc = [
           renderPvp();
           renderHunt();
           renderMapAreas();
-        } catch {
+        } catch (error) {
           state.classList.remove('is-awake');
-          set('state', "SuperMedo Server isn't answering right now. The numbers come back by themselves.");
+          // 503 is the forum's own answer: it is there, but SuperMedo Server isn't. Anything else (no answer, a
+          // Cloudflare error page without CORS) means our forum itself is away, and SuperMedo may be fine (3.11.2026).
+          set('state', (error as Error).message === '503'
+            ? "SuperMedo Server isn't answering right now. The numbers come back by themselves."
+            : "Our forum, which collects these numbers, can't be reached right now. They come back by themselves.");
         }
       };
 
