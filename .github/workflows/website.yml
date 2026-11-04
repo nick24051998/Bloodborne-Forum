@@ -11,6 +11,7 @@
 #
 # Before every deploy, Playwright checks the finished site in the browser (website/tests). If a check fails,
 # the build aborts and nothing goes live. Pull requests and "ci/…" branches are only built and checked.
+# An empty commit does not start it (the paths below); to run it again, use Actions → Website → Run workflow.
 name: Website
 
 on:
