@@ -864,6 +864,13 @@ h3 { font-size: var(--step-1); }
   color: var(--gold-light); font-variant-numeric: tabular-nums; }
 .sm-strip strong.is-blood { color: #d0484d; }
 .sm-strip dd span { color: var(--text-soft); font-size: 0.85rem; }
+/* Hunt of the week (Nick, 4.11.2026), between the strip and the panels: the goal, a brass bar against last week, how
+   far and how long */
+.sm-hunt { max-width: 40rem; margin: -0.6rem 0 2rem; }
+.sm-hunt[hidden] { display: none; }
+.sm-hunt .sm-label { margin-bottom: 0.35rem; }
+.sm-hunt-goal { margin: 0 0 0.6rem; color: var(--text-strong); font-size: 1.1rem; }
+.sm-hunt .sm-small { margin-top: 0.5rem; font-variant-numeric: tabular-nums; }
 .sm-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 1.4rem; align-items: start; }
 .sm-grid-even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .sm-stack { display: grid; gap: 1.4rem; min-width: 0; }
@@ -1086,14 +1093,14 @@ select.sm-pick[hidden] { display: none; }
   .sm-play-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* Home page: band below the hero. Wide: name | numbers with the fact below them | button, the button centred.
-   Narrower: name and button on top, numbers and fact below; phones: one column. Text always starts right of the lamp
+/* Home page: band below the hero. Wide: name | numbers with the fact and the hunt of the week below them | button, the
+   button centred. Narrower: name and button on top, numbers, fact and hunt below; phones: one column. Text always starts right of the lamp
    (--srv-indent), so nothing lines up with the lamp instead of the words. */
 .srv-band { --srv-indent: calc(9px + 0.7rem); padding: 1.1rem 0; border-block: 1px solid rgba(156, 132, 88, 0.4);
   background: linear-gradient(90deg, transparent, rgba(156, 132, 88, 0.12) 20%, rgba(156, 132, 88, 0.12) 80%, transparent), var(--bg-deep); }
 .srv-band[hidden] { display: none; }
 .srv-band .container { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center;
-  grid-template-areas: "name stats button" "name fact button"; gap: 0.45rem 3rem; }
+  grid-template-areas: "name stats button" "name fact button" "name hunt button"; gap: 0.45rem 3rem; }
 .srv-band p { margin: 0; }
 .srv-band-name { grid-area: name; display: flex; align-items: flex-start; gap: 0.7rem; }
 .srv-band-name .sm-lamp { margin-top: 0.42rem; }
@@ -1106,13 +1113,19 @@ select.sm-pick[hidden] { display: none; }
 .srv-band-fact { grid-area: fact; color: var(--text); font-size: 0.92rem; }
 .srv-band-fact:empty { display: none; }
 .srv-band-fact strong { color: var(--text-strong); }
+.srv-band-hunt { grid-area: hunt; display: grid; gap: 0.35rem; max-width: 32rem; margin-top: 0.35rem; color: var(--text); font-size: 0.92rem; }
+.srv-band-hunt[hidden] { display: none; }
+.srv-band-hunt-title { margin-right: 0.4rem; font-family: var(--font-head); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--gold-light); }
+.srv-band-hunt .sm-bar { height: 6px; }
+.srv-band-hunt-count { color: var(--text-soft); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
 .srv-band .btn { grid-area: button; }
 @media (max-width: 1199px) {
-  .srv-band .container { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name button" "stats stats" "fact fact"; row-gap: 0.9rem; }
-  .srv-band-stats, .srv-band-fact { padding-left: var(--srv-indent); }
+  .srv-band .container { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name button" "stats stats" "fact fact" "hunt hunt"; row-gap: 0.9rem; }
+  .srv-band-stats, .srv-band-fact, .srv-band-hunt { padding-left: var(--srv-indent); }
 }
 @media (max-width: 600px) {
-  .srv-band .container { grid-template-columns: minmax(0, 1fr); grid-template-areas: "name" "stats" "fact" "button"; }
+  .srv-band .container { grid-template-columns: minmax(0, 1fr); grid-template-areas: "name" "stats" "fact" "hunt" "button"; }
   .srv-band-stats { column-gap: 1.4rem; }
   .srv-band .btn { justify-self: start; margin-left: var(--srv-indent); }
 }

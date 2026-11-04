@@ -1,4 +1,4 @@
-// Small helpers for the SuperMedo Server pages (/server/ and /server/hunter/). Everything that comes from the server
+// Small helpers for the SuperMedo Server pages (/server/, /server/hunter/ and the band on the home page). Everything that comes from the server
 // (Online IDs, message texts) goes in as text, never as HTML.
 
 export function el(tag, className = '', text = '') {
@@ -61,6 +61,31 @@ export function soon(text, tag = 'p') {
   const node = el(tag, 'sm-soon');
   node.append(el('span', 'wip-tag', 'Coming soon'), ` ${text}`);
   return node;
+}
+
+// Hunt of the week (the forum's `hunt`, Nick, 4.11.2026): what everyone does together, and the word for the numbers
+const HUNTS = {
+  summons: ['Play more co-op than last week', 'summons'],
+  bells_rung: ['Ring more bells than last week', 'bells'],
+  messages: ['Leave more messages than last week', 'messages'],
+  ratings: ['Rate more messages than last week', 'ratings'],
+};
+
+// Fills a hunt-of-the-week box (its parts marked data-hunt="goal|bar|count|left") and shows it; hidden without a hunt
+export function showHunt(box, h) {
+  const words = h && HUNTS[h.what];
+  box.hidden = !words || !h.last;
+  if (box.hidden) return;
+  const part = (name) => box.querySelector(`[data-hunt="${name}"]`);
+  const beaten = h.now > h.last;
+  const days = Math.max(1, Math.ceil((h.ends * 1000 - Date.now()) / 86400000));
+  part('goal').textContent = words[0];
+  part('bar').style.width = `${Math.min(100, Math.round((h.now / h.last) * 100))}%`;
+  part('count').textContent = beaten
+    ? `Beaten: ${num(h.now)} ${words[1]}, last week ${num(h.last)}`
+    : `${num(h.now)} of ${num(h.last)} ${words[1]}`;
+  part('left').textContent = days === 1 ? 'last day' : `${days} days left`;
+  box.classList.toggle('is-beaten', beaten);
 }
 
 // How a hunter died, after their name

@@ -536,9 +536,36 @@ const SERVER_SAMPLE = {
   deeds: { beasts_slain: 0, by_area: [], by_enemy: [], counting_since: 1793552819, deeds: { parry: 0, visceral: 0 } },
   bosses: [],
   maps: [{ code: 'm24_01', name: 'Central Yharnam', online: 2 }],
+  // Hunt of the week: bells, three and a half days to go
+  hunt: { what: 'bells_rung', now: 15009, last: 24690, ends: Math.floor(Date.now() / 1000 + 3.5 * 86400) },
   updatedAt: 1793220298,
 };
 const CORS = { 'Access-Control-Allow-Origin': '*' };
+
+test('Home page band shows the hunt of the week, beaten or not, and hides it without one', async ({ page }) => {
+  const summary = { status: 'online', opened: '2026-10-28', awakeSince: 1793213799, online: 583, peakEver: 766, registered: 27000,
+    bells: { helpers: 0, hosts_searching: 0, invaders: 0 }, playedToday: 2521, peakToday: 583, fastest: null, updatedAt: 1793220298,
+    hunt: { what: 'bells_rung', now: 15009, last: 24690, ends: Math.floor(Date.now() / 1000 + 0.5 * 86400) } };
+  let answer = summary;
+  await page.route('**/api/bb-server/summary', (route) => route.fulfill({ json: answer, headers: CORS }));
+  await page.goto('/');
+  const hunt = page.locator('.srv-band-hunt');
+  await expect(hunt).toContainText('Ring more bells than last week');
+  await expect(hunt).toContainText('15,009 of 24,690 bells · last day');
+  await expect(hunt.locator('[data-hunt="bar"]')).toHaveAttribute('style', /width: 61%/);
+  // More than last week: says so, keeps counting, the bar stays full
+  answer = { ...summary, hunt: { ...summary.hunt, what: 'summons', now: 26100 } };
+  await page.reload();
+  await expect(hunt).toContainText('Play more co-op than last week');
+  await expect(hunt).toContainText('Beaten: 26,100 summons, last week 24,690');
+  await expect(hunt).toHaveClass(/is-beaten/);
+  await expect(hunt.locator('[data-hunt="bar"]')).toHaveAttribute('style', /width: 100%/);
+  // No last week to beat yet: the band without the hunt
+  answer = { ...summary, hunt: null };
+  await page.reload();
+  await expect(page.locator('.srv-band')).toBeVisible();
+  await expect(hunt).toBeHidden();
+});
 // One area of the map without the hunters online now (SuperMedo Server doesn't send them yet)
 const MAP_SAMPLE = { code: 'm24_01', name: 'Central Yharnam', grid: 2, online: 2, floor: [[0, 0], [2, 0], [2, 2]], now: null, updatedAt: 1793220298 };
 // Every area at a glance (the small maps under the big one), as the forum answers /api/bb-server/maps
@@ -558,6 +585,9 @@ test('Server page shows the statistics from the forum', async ({ page }) => {
   // The y-axis grows with the numbers: round steps up to the most at once (3)
   await expect(page.locator('[data-field="hourY"] span')).toHaveText(['0', '1', '2', '3']);
   await expect(page.locator('[data-field="advice"]')).toContainText('Small Resonant Bell');
+  // Hunt of the week below the strip: the goal, how far against last week, how long
+  await expect(page.locator('.sm-hunt [data-hunt="goal"]')).toHaveText('Ring more bells than last week');
+  await expect(page.locator('.sm-hunt')).toContainText('15,009 of 24,690 bells · 4 days left');
   // Whether a co-op summon worked or failed is not shown
   await expect(page.locator('[data-field="summons"], [data-field="summonShare"]')).toHaveCount(0);
   await expect(page.locator('#now')).not.toContainText(/worked|failed/);
