@@ -1127,6 +1127,7 @@ select.sm-pick[hidden] { display: none; }
 @media (max-width: 600px) {
   .srv-band .container { grid-template-columns: minmax(0, 1fr); grid-template-areas: "name" "stats" "fact" "hunt" "button"; }
   .srv-band-stats { column-gap: 1.4rem; }
+  .srv-band-hunt-title { display: block; margin-bottom: 0.15rem; }
   .srv-band .btn { justify-self: start; margin-left: var(--srv-indent); }
 }
 
