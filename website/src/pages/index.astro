@@ -157,13 +157,18 @@ const appLd = {
           <p class="srv-band-stat"><strong data-field="played">0</strong><span>Played today</span></p>
         </div>
         <p class="srv-band-fact" data-field="fastest"></p>
+        <div class="srv-band-hunt" data-field="hunt" hidden>
+          <p><span class="srv-band-hunt-title">Hunt of the week</span> <span data-hunt="goal"></span></p>
+          <span class="sm-bar" aria-hidden="true"><span data-hunt="bar"></span></span>
+          <p class="srv-band-hunt-count"><span data-hunt="count"></span> · <span data-hunt="left"></span></p>
+        </div>
         <a class="btn btn-ghost" href={link('server/')}>Full statistics</a>
       </div>
     </section>
   )}
 
   <script>
-    import { stamp, openedDay } from '../lib/server-stats.js';
+    import { stamp, openedDay, showHunt } from '../lib/server-stats.js';
 
     // Fills the SuperMedo Server band; without data (forum or server unreachable) it stays hidden
     const band = document.querySelector<HTMLElement>('.srv-band');
@@ -194,6 +199,7 @@ const appLd = {
             name.textContent = d.fastest.name;
             fastest.append('Kills fastest: ', name, `, ${number(d.fastest.deaths)} deaths in ${number(d.fastest.minutes)} min`);
           }
+          showHunt(field('hunt'), d.hunt);
           band.hidden = false;
         } catch {
           // Network error: the band stays as it is

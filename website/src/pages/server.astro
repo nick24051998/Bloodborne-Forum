@@ -114,6 +114,13 @@ const toc = [
           <div><dt>Hours played</dt><dd><strong data-field="hours24">–</strong><span data-field="hoursSub"></span></dd></div>
           <div><dt>Messages</dt><dd><strong data-field="messages24">–</strong><span data-field="messagesSub"></span></dd></div>
         </dl>
+        {/* Hunt of the week (Nick, 4.11.2026): one number everyone pushes together, against last week */}
+        <div class="sm-hunt" data-field="hunt" hidden>
+          <p class="sm-label">Hunt of the week</p>
+          <p class="sm-hunt-goal" data-hunt="goal"></p>
+          <span class="sm-bar" aria-hidden="true"><span data-hunt="bar"></span></span>
+          <p class="sm-small"><span data-hunt="count"></span> · <span data-hunt="left"></span></p>
+        </div>
         <div class="sm-grid">
           <article class="sm-panel" aria-labelledby="where-h">
             <header><h3 id="where-h">Where hunters are now</h3><span data-field="whereCount"></span></header>
@@ -309,7 +316,7 @@ const toc = [
   </div>
 
   <script>
-    import { el, num, hours, when, stamp, openedDay, isNew, place, hunterLink, death, soon } from '../lib/server-stats.js';
+    import { el, num, hours, when, stamp, openedDay, isNew, place, hunterLink, death, soon, showHunt } from '../lib/server-stats.js';
     import { LAMPS } from '../data/lamps.js';
 
     const page = document.querySelector<HTMLElement>('.sm-page');
@@ -428,6 +435,7 @@ const toc = [
         set('messages24', num(d.messages));
         set('messagesSub', `24 h · ${num(d.ratings)} ratings`);
         set('sinceHead', `counted since ${since}`);
+        showHunt(field('hunt'), data.hunt);
         const history = data.history ?? [];
         if (!history.length) return empty(field('history'), 'No days counted yet.', 6);
         const most = Math.max(1, ...history.map((h: any) => h.hunters ?? 0));

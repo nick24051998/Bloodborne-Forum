@@ -8,6 +8,8 @@
  *   latest deaths, best messages, leaderboards for all time and 7 days, hunters, chalice dungeons, hunters online hour by
  *   hour for 48 hours, invasions (PvP), deeds, bosses, and the areas of the map with how many hunters are there now).
  * - GET /api/bb-server/summary: the few numbers for the home page band and the forum box.
+ * - Both carry `hunt`, the hunt of the week: one of the day by day counts against the same count last week (null
+ *   while there is no last week to beat).
  * - GET /api/bb-server/hunters/{id}: one hunter with their messages, for /server/hunter/?id=… (404 if unknown).
  * - GET /api/bb-server/map/{area code}: one area of the map: its ground (every spot a hunter has stood on, without how
  *   often) and the hunters there right now as points without names; `now` is null while SuperMedo Server doesn't send
@@ -40,6 +42,9 @@ if (! class_exists('BBForumServerStats')) {
         // Areas without a map: "between areas" is no place, and chalice dungeons are new layouts every time, so their
         // footprints lie on top of each other
         const NO_MAP = ['m255_255', 'm29_00'];
+        // Hunt of the week (Nick, 4.11.2026): a different day by day count each week, so there is always something to
+        // do together; weeks run Monday to Sunday in UTC, like the days in history
+        const HUNTS = ['summons', 'bells_rung', 'messages', 'ratings'];
 
         /** Cached answer: one fetch per minute, the last good one for 15 minutes; null without one */
         public static function cached(string $key, callable $load): ?array
@@ -163,7 +168,27 @@ if (! class_exists('BBForumServerStats')) {
                 ];
             });
 
-            return $all ? ['opened' => self::OPENED] + $all : null;
+            return $all ? ['opened' => self::OPENED, 'hunt' => self::hunt((array) ($all['history'] ?? []))] + $all : null;
+        }
+
+        /** This week's hunt: what is counted, this week so far, last week, when it ends; null without last week */
+        public static function hunt(array $history): ?array
+        {
+            $start = strtotime(gmdate('Y-m-d').' 00:00:00 UTC') - ((int) gmdate('N') - 1) * 86400;
+            $what = self::HUNTS[(int) gmdate('W', $start) % count(self::HUNTS)];
+            $from = gmdate('Y-m-d', $start);
+            $lastFrom = gmdate('Y-m-d', $start - 7 * 86400);
+            $now = $last = 0;
+            foreach ($history as $day) {
+                $date = (string) ($day['date'] ?? '');
+                if ($date >= $from) {
+                    $now += (int) ($day[$what] ?? 0);
+                } elseif ($date >= $lastFrom) {
+                    $last += (int) ($day[$what] ?? 0);
+                }
+            }
+
+            return $last > 0 ? ['what' => $what, 'now' => $now, 'last' => $last, 'ends' => $start + 7 * 86400] : null;
         }
 
         /** The few numbers for the home page band and the forum box */
@@ -204,6 +229,7 @@ if (! class_exists('BBForumServerStats')) {
                 'playedToday' => $isToday ? (int) ($today['hunters'] ?? 0) : 0,
                 'peakToday' => (int) ($s['peak_online']['today']['online'] ?? 0),
                 'fastest' => $fastest,
+                'hunt' => $all['hunt'],
                 'updatedAt' => $all['updatedAt'],
             ];
         }
