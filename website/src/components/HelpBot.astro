@@ -1,0 +1,214 @@
+---
+// BB Helper (src/data/helpbot.js, Nick, 4.11.2026): a button in the corner of every page opens a small panel. The first
+// time it loads /quick-help.json, then it asks with buttons and answers with the FAQ and the report tool's tips.
+// What a visitor types is only searched here in the browser (FAQ questions and the error code list), never sent.
+// "#quick-help" in the address opens it, for links from Discord or the forum.
+import Icon from './Icon.astro';
+import { link } from '../lib/url.js';
+---
+
+<div class="qh" data-src={link('quick-help.json')} data-faq={link('faq/')}>
+  <section class="qh-panel" id="quick-help" aria-labelledby="qh-title" hidden>
+    <header class="qh-head">
+      <p><strong id="qh-title">BB Helper</strong><span>Answers from our FAQ, no AI</span></p>
+      <button type="button" class="btn qh-close" aria-label="Close BB Helper">✕</button>
+    </header>
+    <div class="qh-log" aria-live="polite"></div>
+    <form class="qh-ask">
+      <input type="search" name="q" placeholder="Type a problem or an error code" aria-label="Type a problem or an error code" autocomplete="off" />
+      <button type="submit" class="btn">Ask</button>
+    </form>
+  </section>
+  <button type="button" class="btn qh-open" aria-expanded="false" aria-controls="quick-help"><Icon name="lantern" /> Help</button>
+</div>
+
+<script>
+  type Step = {
+    say?: string; choices?: [string, string][]; faq?: string[]; codes?: boolean; end?: boolean;
+    tips: { title: string; text: string }[]; links: { label: string; href: string }[];
+  };
+  type Data = {
+    start: string; steps: Record<string, Step>;
+    faq: Record<string, { q: string; a: string; text: string }>;
+    codes: { label: string; html: string; text: string }[];
+  };
+  type Choice = [string, () => void];
+
+  const root = document.querySelector<HTMLElement>('.qh');
+  if (root) {
+    const panel = root.querySelector<HTMLElement>('.qh-panel')!;
+    const opener = root.querySelector<HTMLButtonElement>('.qh-open')!;
+    const log = root.querySelector<HTMLElement>('.qh-log')!;
+    const form = root.querySelector<HTMLFormElement>('.qh-ask')!;
+    const input = form.querySelector<HTMLInputElement>('input')!;
+    let data: Data | null = null;
+
+    const el = (tag: string, className = '', text = '') => {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text) node.textContent = text;
+      return node;
+    };
+    // A message from the bot: HTML only for our own FAQ answers, what a visitor typed always goes in as text
+    const say = (content: string, html = false) => {
+      const msg = el('div', 'qh-msg');
+      if (html) msg.innerHTML = content;
+      else msg.textContent = content;
+      log.append(msg);
+      return msg;
+    };
+    const me = (text: string) => {
+      const bubble = el('p', 'qh-me', text);
+      log.append(bubble);
+      return bubble;
+    };
+    // Only the newest buttons stay; the conversation scrolls to what was just chosen
+    const ask = (choices: Choice[]) => {
+      log.querySelectorAll('.qh-choices').forEach((row) => row.remove());
+      const row = el('div', 'qh-choices');
+      for (const [label, act] of choices) {
+        const button = el('button', 'btn', label) as HTMLButtonElement;
+        button.type = 'button';
+        button.addEventListener('click', () => {
+          const bubble = me(label);
+          act();
+          log.scrollTo({ top: bubble.offsetTop - 8, behavior: 'smooth' });
+        });
+        row.append(button);
+      }
+      log.append(row);
+    };
+    const restart: Choice = ['Start over', () => show(data!.start)];
+    const thanks = () => {
+      say('Glad to hear it. Good hunting!');
+      ask([restart]);
+    };
+    const helped = (more: Choice[] = []) => ask([...more, ['Yes, that helped', thanks], ['No', () => show('stuck')], restart]);
+
+    const showFaq = (id: string) => {
+      const entry = data!.faq[id];
+      const msg = say(entry.a, true);
+      msg.prepend(el('p', 'qh-q', entry.q));
+    };
+    const showCode = (code: Data['codes'][number]) => say(code.html, true);
+
+    const show = (id: string) => {
+      const step = data!.steps[id];
+      if (step.say) say(step.say);
+      (step.faq ?? []).forEach(showFaq);
+      if (step.tips.length) {
+        const msg = say('Also worth a try:');
+        msg.classList.add('qh-tips');
+        const list = el('ul');
+        for (const tip of step.tips) {
+          const item = el('li');
+          item.append(el('strong', '', tip.title), document.createElement('br'), tip.text);
+          list.append(item);
+        }
+        msg.append(list);
+      }
+      if (step.links.length) {
+        const msg = say('');
+        for (const { label, href } of step.links) {
+          const a = el('a', '', label) as HTMLAnchorElement;
+          a.href = href;
+          const line = el('p');
+          line.append(a);
+          msg.append(line);
+        }
+      }
+      const next: Choice[] = (step.choices ?? []).map(([label, to]) => [label, () => show(to)]);
+      if (step.codes) {
+        // The first, most common codes as buttons; everything else by typing it
+        ask([...data!.codes.slice(0, 6).map((code): Choice => [code.label, () => { showCode(code); helped(); }]), restart]);
+      } else if (step.end) ask([...next, restart]);
+      else if (step.faq?.length || step.tips.length || step.links.length) helped(next);
+      else ask(id === data!.start ? next : [...next, restart]);
+    };
+
+    // Typed questions: a code number or a message from the error code list first, then the FAQ questions whose words
+    // match best. Short and very common words don't count.
+    const STOP = new Set(('the and for with but not you your its was are has have had get got this that from when what '
+      + 'how why does doesnt dont cant wont isnt ive game port bloodborne please help any some just').split(' '));
+    const words = (s: string) => s.toLowerCase().match(/[a-z0-9]+/g) ?? [];
+    const hits = (tokens: string[], text: string) => {
+      const known = words(text);
+      return tokens.filter((t) => known.some((w) => w === t || (t.length >= 4 && w.length >= 4 && (w.startsWith(t) || t.startsWith(w))))).length;
+    };
+    const answer = (query: string) => {
+      const d = data!;
+      const number = query.match(/(?:code|error)\s*(\d+)/i)?.[1] ?? query.match(/^\s*(\d{1,3})\s*$/)?.[1];
+      const tokens = words(query).filter((t) => !STOP.has(t) && (t.length > 2 || /\d/.test(t)) && !(number && /^(code|error)$/.test(t)));
+      const phrase = query.toLowerCase().replace(/\s+/g, ' ').trim();
+      let codes = number ? d.codes.filter((c) => new RegExp(`\\b(code|error) ${number}\\b`, 'i').test(c.text)) : [];
+      if (!codes.length) {
+        codes = d.codes.filter((c) => (phrase.length >= 8 && c.text.toLowerCase().includes(phrase))
+          || (tokens.length && hits(tokens, c.text) >= Math.max(2, Math.ceil(tokens.length * 0.75))));
+      }
+      if (codes.length) {
+        codes.slice(0, 2).forEach(showCode);
+        return helped();
+      }
+      const found = Object.entries(d.faq)
+        .map(([id, f]) => [id, 3 * hits(tokens, f.q) + hits(tokens, f.text)] as [string, number])
+        .filter(([, score]) => score >= 3)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3);
+      if (!found.length) {
+        say("I don't know that one yet. Try the buttons, or ask a person.");
+        return ask([['How do I ask a person?', () => show('stuck')], restart]);
+      }
+      say(found.length === 1 ? 'This should help:' : 'One of these should help:');
+      ask([...found.map(([id]): Choice => [d.faq[id].q, () => { showFaq(id); helped(); }]), restart]);
+    };
+
+    const load = async () => {
+      say('One moment…');
+      try {
+        const response = await fetch(root.dataset.src!);
+        if (!response.ok) throw new Error(String(response.status));
+        data = await response.json();
+        log.replaceChildren();
+        show(data!.start);
+      } catch {
+        log.replaceChildren();
+        const msg = say("BB Helper can't load right now. Every answer is also in the ");
+        const faq = el('a', '', 'FAQ') as HTMLAnchorElement;
+        faq.href = root.dataset.faq!;
+        msg.append(faq, '.');
+      }
+    };
+
+    const open = async () => {
+      panel.hidden = false;
+      opener.setAttribute('aria-expanded', 'true');
+      if (!data) await load();
+      log.querySelector<HTMLButtonElement>('.qh-choices .btn')?.focus({ preventScroll: true });
+    };
+    const close = () => {
+      panel.hidden = true;
+      opener.setAttribute('aria-expanded', 'false');
+      opener.focus();
+    };
+
+    opener.addEventListener('click', () => (panel.hidden ? open() : close()));
+    root.querySelector('.qh-close')!.addEventListener('click', close);
+    panel.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') close();
+    });
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const query = input.value.trim();
+      if (!query || !data) return;
+      input.value = '';
+      const bubble = me(query);
+      answer(query);
+      log.scrollTo({ top: bubble.offsetTop - 8, behavior: 'smooth' });
+    });
+    const fromAddress = () => {
+      if (location.hash === '#quick-help' && panel.hidden) open();
+    };
+    fromAddress();
+    addEventListener('hashchange', fromAddress);
+  }
+</script>

@@ -1,5 +1,6 @@
 ---
 import Icon from '../components/Icon.astro';
+import HelpBot from '../components/HelpBot.astro';
 import '../styles/global.css';
 import { SITE } from '../../site.config.mjs';
 import { link, absolute } from '../lib/url.js';
@@ -121,6 +122,7 @@ const baseLd = {
         <p class="disclaimer">Icons by Lorc, Delapouite and Carl Olsen from <a href="https://game-icons.net" rel="noopener">game-icons.net</a>, licensed under CC BY 3.0.</p>
       </div>
     </footer>
+    <HelpBot />
     <script>
       // Anchors: a # next to every heading of the text pages (and every FAQ question, see faq.astro) copies
       // the link to exactly that spot. A link to an FAQ question expands it when opened.

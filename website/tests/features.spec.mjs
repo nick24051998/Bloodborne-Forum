@@ -825,3 +825,53 @@ test('Desktop menu fits on one line at common widths', async ({ page, isMobile }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), `kein seitliches Scrollen bei ${width} px`).toBe(true);
   }
 });
+
+// BB Helper: a help bot without AI in the corner of every page (src/components/HelpBot.astro, src/data/helpbot.js)
+test('BB Helper answers with the FAQ, finds typed codes and questions, and closes with Escape', async ({ page }) => {
+  await page.goto('/');
+  const open = page.getByRole('button', { name: 'Help', exact: true });
+  await open.click();
+  const panel = page.locator('#quick-help');
+  const last = panel.locator('.qh-msg').last();
+  await expect(panel).toBeVisible();
+  await panel.getByRole('button', { name: "The game won't start" }).click();
+  await panel.getByRole('button', { name: 'It closes right away' }).click();
+  await expect(last).toContainText('sysdm.cpl');
+  await panel.getByRole('button', { name: 'No', exact: true }).click();
+  await expect(last).toContainText('Help & Support');
+  // The FAQ's links work from every page: none still points at the FAQ page's own anchors or at "../"
+  const hrefs = await panel.locator('.qh-log a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+  expect(hrefs.length).toBeGreaterThan(0);
+  expect(hrefs.filter((h) => h.startsWith('#') || h.startsWith('../'))).toEqual([]);
+  // Typed: a code number finds its line in the error code list, words their FAQ question, nonsense the way to a person
+  const box = panel.getByRole('searchbox');
+  await box.fill('code 23');
+  await panel.getByRole('button', { name: 'Ask', exact: true }).click();
+  await expect(last).toContainText('GPU library assertion failed');
+  await box.fill('my controller');
+  await panel.getByRole('button', { name: 'Ask', exact: true }).click();
+  await panel.getByRole('button', { name: 'Does my controller work?' }).click();
+  await expect(last).toContainText('remap everything');
+  await box.fill('qwertzuiop');
+  await panel.getByRole('button', { name: 'Ask', exact: true }).click();
+  await expect(last).toContainText("I don't know that one yet");
+  // Escape closes it, and the keyboard focus goes back to the button
+  await page.keyboard.press('Escape');
+  await expect(panel).toBeHidden();
+  await expect(open).toBeFocused();
+});
+
+test('BB Helper opens from #quick-help and fits a phone screen', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 740 });
+  await page.goto('/install/#quick-help');
+  const panel = page.locator('#quick-help');
+  await expect(panel).toBeVisible();
+  await panel.getByRole('button', { name: 'Online or co-op' }).click();
+  await panel.getByRole('button', { name: "Online doesn't connect" }).click();
+  await expect(panel.locator('.qh-msg').last()).toContainText('Online play, step by step');
+  const rect = await panel.boundingBox();
+  expect(rect.x).toBeGreaterThanOrEqual(0);
+  expect(rect.x + rect.width).toBeLessThanOrEqual(375);
+  expect(rect.y).toBeGreaterThanOrEqual(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), 'kein seitliches Scrollen').toBe(true);
+});
