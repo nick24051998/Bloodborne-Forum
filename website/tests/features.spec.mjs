@@ -848,6 +848,11 @@ test('BB Helper answers with the FAQ, finds typed codes and questions, and close
   await box.fill('code 23');
   await panel.getByRole('button', { name: 'Ask', exact: true }).click();
   await expect(last).toContainText('GPU library assertion failed');
+  // "WinError 5" is the antivirus line, not login error code 5
+  await box.fill('WinError 5');
+  await panel.getByRole('button', { name: 'Ask', exact: true }).click();
+  await expect(last).toContainText('an antivirus blocks');
+  await expect(panel.locator('.qh-log')).not.toContainText('Server rejected this client');
   await box.fill('my controller');
   await panel.getByRole('button', { name: 'Ask', exact: true }).click();
   await panel.getByRole('button', { name: 'Does my controller work?' }).click();

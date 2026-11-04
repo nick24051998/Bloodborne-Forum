@@ -127,7 +127,7 @@ import { link } from '../lib/url.js';
     };
 
     // Typed questions: a code number or a message from the error code list first, then the FAQ questions whose words
-    // match best. Short and very common words don't count.
+    // match best. Short and very common words don't count. "Code 5" and "error 5" are code numbers, "WinError 5" is not.
     const STOP = new Set(('the and for with but not you your its was are has have had get got this that from when what '
       + 'how why does doesnt dont cant wont isnt ive game port bloodborne please help any some just').split(' '));
     const words = (s: string) => s.toLowerCase().match(/[a-z0-9]+/g) ?? [];
@@ -137,7 +137,7 @@ import { link } from '../lib/url.js';
     };
     const answer = (query: string) => {
       const d = data!;
-      const number = query.match(/(?:code|error)\s*(\d+)/i)?.[1] ?? query.match(/^\s*(\d{1,3})\s*$/)?.[1];
+      const number = query.match(/\b(?:code|error)\s*(\d+)/i)?.[1] ?? query.match(/^\s*(\d{1,3})\s*$/)?.[1];
       const tokens = words(query).filter((t) => !STOP.has(t) && (t.length > 2 || /\d/.test(t)) && !(number && /^(code|error)$/.test(t)));
       const phrase = query.toLowerCase().replace(/\s+/g, ' ').trim();
       let codes = number ? d.codes.filter((c) => new RegExp(`\\b(code|error) ${number}\\b`, 'i').test(c.text)) : [];
