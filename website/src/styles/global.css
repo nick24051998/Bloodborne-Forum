@@ -1154,9 +1154,10 @@ select.sm-pick[hidden] { display: none; }
 
 /* --- BB Helper (src/components/HelpBot.astro, Nick, 4.11.2026) -------------------------------------------------------
    A button in the bottom right corner, above it a small panel with the conversation; on phones the panel is as wide as
-   the screen. Its buttons are the normal buttons, smaller; what the visitor chose sits on the right in brass. */
+   the screen. It stays below the header, so the menu is always there. Its buttons are the normal buttons, smaller;
+   what the visitor chose sits on the right in brass. */
 .qh-panel { position: fixed; right: 1rem; bottom: 4.3rem; z-index: 60; display: flex; flex-direction: column;
-  width: min(390px, calc(100vw - 2rem)); max-height: min(620px, calc(100dvh - 6rem));
+  width: min(390px, calc(100vw - 2rem)); max-height: min(620px, calc(100dvh - 9rem));
   background: var(--bg-deep); border: 1px solid var(--btn-line); border-radius: 12px; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6); }
 .qh-panel[hidden] { display: none; }
 .qh-head { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; padding: 0.65rem 0.75rem 0.65rem 1rem;
@@ -1191,6 +1192,6 @@ select.sm-pick[hidden] { display: none; }
 .qh-ask input:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 1px; }
 @media (max-width: 600px) {
   .qh .btn.qh-open { right: 0.75rem; bottom: 0.75rem; }
-  .qh-panel { right: 0.5rem; left: 0.5rem; bottom: 3.9rem; width: auto; max-height: calc(100dvh - 5rem); }
+  .qh-panel { right: 0.5rem; left: 0.5rem; bottom: 3.9rem; width: auto; max-height: calc(100dvh - 8.2rem); }
 }
 @media print { .qh { display: none; } }
