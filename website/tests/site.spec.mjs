@@ -2,6 +2,7 @@
 // checked automatically.
 import { test, expect } from '@playwright/test';
 import { SITE } from '../site.config.mjs';
+import { answerForum } from './forum-sample.mjs';
 
 const SITE_URL = SITE.url.replace(/\/$/, '');
 
@@ -54,6 +55,8 @@ test('404 page', async ({ page }) => {
 
 test('All pages load without errors', async ({ page, request }) => {
   const paths = await sitemapPaths(request);
+  // The forum's numbers from samples: a forum that is just updating itself must not fail the website's check
+  await answerForum(page);
   for (const path of paths) {
     await test.step(path, async () => {
       const errors = watchErrors(page);
@@ -89,6 +92,7 @@ test('All pages load without errors', async ({ page, request }) => {
 
 test('Internal links never lead nowhere', async ({ page, request }) => {
   const paths = await sitemapPaths(request);
+  await answerForum(page);
   const targets = new Set();
   for (const path of paths) {
     await page.goto(path);

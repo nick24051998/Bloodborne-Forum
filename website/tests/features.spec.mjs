@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { inflateRawSync } from 'node:zlib';
 import { test, expect } from '@playwright/test';
 import { SITE } from '../site.config.mjs';
+import { CORS, SERVER_SAMPLE, MAP_SAMPLE, tilesOf, PNG } from './forum-sample.mjs';
 import { TIERS, gpus, cpuLines, evaluate } from '../src/data/hardware.js';
 import { cleanNotes } from '../scripts/release-notes.mjs';
 import { totalDownloads, downloadsLabel } from '../src/lib/downloads.js';
@@ -503,44 +504,8 @@ test('Links to the forum and Discord point to the current addresses', async ({ p
   if (SITE.discordUrl) expect(hrefs).toContain(SITE.discordUrl);
 });
 
-// SuperMedo Server (/server/, /server/hunter/): the numbers come from the forum; here from a fixed sample, so the
-// tests don't depend on who is online right now
-const SERVER_SAMPLE = {
-  server: {
-    status: 'online', awake_since: 1793213799, registration: 'open', online: 2, counting_since: 1793104933,
-    bells: { helpers: 0, hosts_searching: 1, invaders: 0 }, hunters: { registered: 27, played_online: 23, new_this_week: 27 },
-    peak_online: { today: { online: 3, at: 1793145605 }, ever: { online: 3, at: 1793138885 } },
-    last_24h: { bells_rung: 11, deaths: 44, hunter_minutes: 715, messages: 6, ratings: 4, summons: 1, summons_joined: 1 },
-    totals: { bells_rung: 19, deaths: 118, hunter_minutes: 1066, messages: 18, ratings: 6, summons: 3, summons_joined: 3 },
-    deaths_by_cause: { killed: 82, fall: 30, other: 6, poison: 0, brainsucker: 0 },
-  },
-  areas: [
-    { name: "Hunter's Dream", online: 1, hunter_minutes: 229, deaths: 0, bells_rung: 0, messages: 1, footsteps: 283 },
-    { name: "Yahar'gul, Unseen Village", online: 1, hunter_minutes: 38, deaths: 13, bells_rung: 0, messages: 1, footsteps: 124 },
-  ],
-  history: [{ date: '2026-10-28', hunters: 13, new_hunters: 7, peak_online: 3, peak_at: 1793145605, hunter_minutes: 495,
-    deaths: 35, messages: 6, ratings: 4, bells_rung: 5, summons: 0, summons_joined: 0 }],
-  killers: [{ name: 'Orphan of Kos', deaths: 3 }],
-  deaths: [{ player: 'rowl666', cause: 'killed', killer: 'Father Gascoigne', place: 'Central Yharnam', area: 'Central Yharnam', time: 1793209156 }],
-  messages: [{ text: 'remember Thrust attack', author: 'medo1986', place: 'Old Yharnam', area: 'Old Yharnam', good: 0, poor: 0, written: 1792954957 }],
-  leaderboards: { minutes_played: [{ rank: 1, name: 'rowl666', value: 667 }] },
-  week: {},
-  hunters: [{ name: '<b>x</b>', level: 114, minutes_played: 667, deaths: 40, summoned_to_help: 0, summons_hosted: 1, invasions: 1,
-    messages: 9, last_seen: 1793210233, online: false }],
-  huntersTotal: 1,
-  chalices: [{ glyph: 'bpahczp9', depth: 1, visits: 0, maker: null, made: 1793204375 }],
-  // Counted since 1.11.2026, still empty here: the page says "Coming soon"
-  online: [{ hour: 1793210400, average: 2.5, peak: 3 }, { hour: 1793214000, average: 1.5, peak: 2 }],
-  pvp: { counting_since: 1793552819, hunters_slain: 0, results: { host_died: 0, invader_died: 0, invader_left: 0 },
-    boards: { hunters_slain: [], invaders_repelled: [], invasions_won: [] }, recent: [] },
-  deeds: { beasts_slain: 0, by_area: [], by_enemy: [], counting_since: 1793552819, deeds: { parry: 0, visceral: 0 } },
-  bosses: [],
-  maps: [{ code: 'm24_01', name: 'Central Yharnam', online: 2 }],
-  // Hunt of the week: bells, three and a half days to go
-  hunt: { what: 'bells_rung', now: 15009, last: 24690, ends: Math.floor(Date.now() / 1000 + 3.5 * 86400) },
-  updatedAt: 1793220298,
-};
-const CORS = { 'Access-Control-Allow-Origin': '*' };
+// SuperMedo Server (/server/, /server/hunter/): the numbers come from the forum; here from the fixed samples in
+// forum-sample.mjs, so the tests don't depend on who is online right now
 
 test('Home page band shows the hunt of the week, beaten or not, and hides it without one', async ({ page }) => {
   const summary = { status: 'online', opened: '2026-10-28', awakeSince: 1793213799, online: 583, peakEver: 766, registered: 27000,
@@ -566,10 +531,6 @@ test('Home page band shows the hunt of the week, beaten or not, and hides it wit
   await expect(page.locator('.srv-band')).toBeVisible();
   await expect(hunt).toBeHidden();
 });
-// One area of the map without the hunters online now (SuperMedo Server doesn't send them yet)
-const MAP_SAMPLE = { code: 'm24_01', name: 'Central Yharnam', grid: 2, online: 2, floor: [[0, 0], [2, 0], [2, 2]], now: null, updatedAt: 1793220298 };
-// Every area at a glance (the small maps under the big one), as the forum answers /api/bb-server/maps
-const tilesOf = (...areas) => ({ areas: areas.map((a) => ({ grid: 8, floor: [[0, 0], [8, 0], [8, 8]], now: null, ...a })), updatedAt: 1793220298 });
 
 test('Server page shows the statistics from the forum', async ({ page }) => {
   await page.route('**/api/bb-server', (route) => route.fulfill({ json: SERVER_SAMPLE, headers: CORS }));
@@ -626,9 +587,6 @@ test('Server page fills the map, invasions and the hunt once SuperMedo Server co
   await expect(page.locator('[data-field="bosses"]')).toContainText('Father Gascoigne');
   for (const part of ['#map', '#pvp', '#hunt']) await expect(page.locator(part)).not.toContainText('Coming soon');
 });
-
-// A 1×1 PNG for an area's picture
-const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
 
 test('Server page draws the map on SuperMedo Server\'s picture, without hunters filed under the wrong area', async ({ page }) => {
   const pictures = [];
